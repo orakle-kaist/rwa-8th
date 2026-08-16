@@ -1,0 +1,8 @@
+{"claim_id":"V001","claim":"외국인 통합계좌가 실제 운영 중이다.","risk":"high","status":"verified","sources":["S001","S002"],"verified_at":"2026-08-16","confidence":"high"}
+{"claim_id":"V002","claim":"하나증권-Emperor가 최초 운영 사례다.","risk":"high","status":"verified","sources":["S001","S002"],"verified_at":"2026-08-16","confidence":"high"}
+{"claim_id":"V003","claim":"토큰증권 제도화 법률은 2027-02-04 시행 예정이다.","risk":"high","status":"verified","sources":["S003","S005"],"verified_at":"2026-08-16","confidence":"high"}
+{"claim_id":"V004","claim":"현재 구조만으로 상장주식 자체를 토큰화해 상용화할 수 있다.","risk":"high","status":"rejected","sources":["S004","S005"],"verified_at":"2026-08-16","confidence":"high","note":"세부제도·인허가·기관 참여가 필요하다."}
+{"claim_id":"V005","claim":"1단계 토큰은 직접 주식이 아니라 결제 완료 수탁분에 대한 계약상·수익적 권리다.","risk":"high","status":"design_classification_requires_legal_opinion","sources":["S010"],"verified_at":"2026-08-16","confidence":"medium"}
+{"claim_id":"V006","claim":"임의 Besu 네트워크와 퍼블릭 체인의 CCIP 연결은 본 PoC의 운영 가능한 결제 경로다.","risk":"high","status":"rejected","sources":["U011","U012"],"verified_at":"2026-08-16","confidence":"high"}
+{"claim_id":"V007","claim":"외국인 간 내부 토큰 이전마다 한국 시장의 외국인 총보유량이 증가한다.","risk":"high","status":"rejected","sources":["S014"],"verified_at":"2026-08-16","confidence":"medium","note":"기초 재고 변화와 내부 권리 이전을 구분한다."}
+{"claim_id":"V008","claim":"Tessera가 현재 Besu 프라이버시의 권장 전제다.","risk":"medium","status":"rejected","sources":["S012"],"verified_at":"2026-08-16","confidence":"high"}

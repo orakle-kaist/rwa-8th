@@ -1,0 +1,296 @@
+asyncapi: 3.1.0
+info:
+  title: Korean Equity RWA PoC Event Contract
+  version: 1.0.0
+  description: |
+    Ordered, signed and idempotent event contract. The application receives adapter
+    facts and emits domain outcomes. Event bodies MUST contain no restricted PII.
+defaultContentType: application/json
+servers:
+  local:
+    host: localhost:9092
+    protocol: kafka
+    description: Logical local event bus; implementation product is replaceable.
+channels:
+  kycResults:
+    address: rwa.kyc.results.v1
+    messages:
+      kycResultRecorded:
+        $ref: "#/components/messages/KycResultRecorded"
+  policyDecisions:
+    address: rwa.policy.decisions.v1
+    messages:
+      policyDecisionRecorded:
+        $ref: "#/components/messages/PolicyDecisionRecorded"
+  fundingConfirmations:
+    address: rwa.funding.confirmations.v1
+    messages:
+      fundingConfirmed:
+        $ref: "#/components/messages/FundingConfirmed"
+  marketExecutions:
+    address: rwa.market.executions.v1
+    messages:
+      marketExecutionRecorded:
+        $ref: "#/components/messages/MarketExecutionRecorded"
+  custodySettlements:
+    address: rwa.custody.settlements.v1
+    messages:
+      custodySettlementRecorded:
+        $ref: "#/components/messages/CustodySettlementRecorded"
+  reserveAttestations:
+    address: rwa.reserve.attestations.v1
+    messages:
+      reserveAttestationRecorded:
+        $ref: "#/components/messages/ReserveAttestationRecorded"
+  issuanceOutcomes:
+    address: rwa.issuance.outcomes.v1
+    messages:
+      entitlementIssued:
+        $ref: "#/components/messages/EntitlementIssued"
+  tradeSettlements:
+    address: rwa.trade.settlements.v1
+    messages:
+      tradeSettlementRecorded:
+        $ref: "#/components/messages/TradeSettlementRecorded"
+  corporateActions:
+    address: rwa.corporate.actions.v1
+    messages:
+      corporateActionUpdated:
+        $ref: "#/components/messages/CorporateActionUpdated"
+  redemptions:
+    address: rwa.redemptions.v1
+    messages:
+      redemptionUpdated:
+        $ref: "#/components/messages/RedemptionUpdated"
+  reconciliations:
+    address: rwa.reconciliations.v1
+    messages:
+      reconciliationCompleted:
+        $ref: "#/components/messages/ReconciliationCompleted"
+  auditEvents:
+    address: rwa.audit.events.v1
+    messages:
+      privilegedActionAudited:
+        $ref: "#/components/messages/PrivilegedActionAudited"
+operations:
+  receiveKycResult:
+    action: receive
+    channel:
+      $ref: "#/channels/kycResults"
+    messages:
+      - $ref: "#/channels/kycResults/messages/kycResultRecorded"
+  receivePolicyDecision:
+    action: receive
+    channel:
+      $ref: "#/channels/policyDecisions"
+    messages:
+      - $ref: "#/channels/policyDecisions/messages/policyDecisionRecorded"
+  receiveFundingConfirmation:
+    action: receive
+    channel:
+      $ref: "#/channels/fundingConfirmations"
+    messages:
+      - $ref: "#/channels/fundingConfirmations/messages/fundingConfirmed"
+  receiveMarketExecution:
+    action: receive
+    channel:
+      $ref: "#/channels/marketExecutions"
+    messages:
+      - $ref: "#/channels/marketExecutions/messages/marketExecutionRecorded"
+  receiveCustodySettlement:
+    action: receive
+    channel:
+      $ref: "#/channels/custodySettlements"
+    messages:
+      - $ref: "#/channels/custodySettlements/messages/custodySettlementRecorded"
+  receiveReserveAttestation:
+    action: receive
+    channel:
+      $ref: "#/channels/reserveAttestations"
+    messages:
+      - $ref: "#/channels/reserveAttestations/messages/reserveAttestationRecorded"
+  sendIssuanceOutcome:
+    action: send
+    channel:
+      $ref: "#/channels/issuanceOutcomes"
+    messages:
+      - $ref: "#/channels/issuanceOutcomes/messages/entitlementIssued"
+  sendTradeSettlement:
+    action: send
+    channel:
+      $ref: "#/channels/tradeSettlements"
+    messages:
+      - $ref: "#/channels/tradeSettlements/messages/tradeSettlementRecorded"
+  sendCorporateActionUpdate:
+    action: send
+    channel:
+      $ref: "#/channels/corporateActions"
+    messages:
+      - $ref: "#/channels/corporateActions/messages/corporateActionUpdated"
+  sendRedemptionUpdate:
+    action: send
+    channel:
+      $ref: "#/channels/redemptions"
+    messages:
+      - $ref: "#/channels/redemptions/messages/redemptionUpdated"
+  sendReconciliationResult:
+    action: send
+    channel:
+      $ref: "#/channels/reconciliations"
+    messages:
+      - $ref: "#/channels/reconciliations/messages/reconciliationCompleted"
+  sendAuditEvent:
+    action: send
+    channel:
+      $ref: "#/channels/auditEvents"
+    messages:
+      - $ref: "#/channels/auditEvents/messages/privilegedActionAudited"
+components:
+  messages:
+    KycResultRecorded:
+      name: KycResultRecorded
+      title: A distributor recorded a signed KYC outcome without source PII
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: KycResultRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/KycResult
+    PolicyDecisionRecorded:
+      name: PolicyDecisionRecorded
+      title: A versioned jurisdiction or KR asset decision was recorded
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: PolicyDecisionRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/PolicyDecision
+    FundingConfirmed:
+      name: FundingConfirmed
+      title: Bank and FX mock result
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: FundingConfirmed }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/FundingConfirmation
+    MarketExecutionRecorded:
+      name: MarketExecutionRecorded
+      title: KRX mock execution result; never authorizes mint by itself
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: MarketExecutionRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/MarketExecution
+    CustodySettlementRecorded:
+      name: CustodySettlementRecorded
+      title: KSD mock settlement result
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: CustodySettlementRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/CustodySettlement
+    ReserveAttestationRecorded:
+      name: ReserveAttestationRecorded
+      title: Dual-approved custody and tokenized backing quantities
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: ReserveAttestationRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/ReserveAttestation
+    EntitlementIssued:
+      name: EntitlementIssued
+      title: Mint outcome after settlement and reserve checks
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: EntitlementIssued }
+              data:
+                type: object
+                additionalProperties: false
+                required: [issuanceId, orderId, instrumentId, participantId, quantity, ledgerTransactionHash]
+                properties:
+                  issuanceId:
+                    $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+                  orderId:
+                    $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+                  instrumentId:
+                    $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+                  participantId:
+                    $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+                  quantity:
+                    $ref: ./schemas/domain.schema.json#/$defs/PositiveInteger
+                  ledgerTransactionHash:
+                    $ref: ./schemas/domain.schema.json#/$defs/Hash
+    TradeSettlementRecorded:
+      name: TradeSettlementRecorded
+      title: Atomic DvP result
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: TradeSettlementRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/DvPResult
+    CorporateActionUpdated:
+      name: CorporateActionUpdated
+      title: Cash dividend lifecycle transition
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: CorporateActionUpdated }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/CorporateAction
+    RedemptionUpdated:
+      name: RedemptionUpdated
+      title: Redemption lifecycle transition
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: RedemptionUpdated }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/Redemption
+    ReconciliationCompleted:
+      name: ReconciliationCompleted
+      title: Incremental, end-of-day or recovery reconciliation result
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: ReconciliationCompleted }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/ReconciliationResult
+    PrivilegedActionAudited:
+      name: PrivilegedActionAudited
+      title: Immutable audit record for a privileged action
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: PrivilegedActionAudited }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/AuditEvent

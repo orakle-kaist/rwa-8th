@@ -1,0 +1,748 @@
+openapi: 3.1.0
+info:
+  title: Korean Equity RWA Institutional PoC API
+  version: 1.0.0
+  license:
+    name: UNLICENSED - Academic PoC
+    identifier: UNLICENSED
+  description: |
+    Normative command and query contract for the PoC. All market, custody,
+    bank and FX data is synthetic and MUST be labelled DEMO_ONLY.
+servers:
+  - url: http://rwa.local:8080/api/v1
+    description: Local deterministic PoC
+security:
+  - bearerAuth: []
+tags:
+  - name: Products
+    description: Versioned illustrative product terms
+  - name: Onboarding
+    description: PII-free case status and signed KYC results
+  - name: Policy
+    description: Jurisdiction-neutral policy evaluation
+  - name: Eligibility
+    description: Minimal on-ledger eligibility result
+  - name: Orders
+    description: Human-confirmed primary order lifecycle
+  - name: Adapters
+    description: Signed synthetic market, custody and funding facts
+  - name: Reserve
+    description: Dual-approved custody backing
+  - name: Issuance
+    description: Settlement- and reserve-gated entitlement minting
+  - name: Trading
+    description: Permissioned RFQ and atomic DvP
+  - name: CorporateActions
+    description: Cash dividend state transitions
+  - name: Redemption
+    description: Controlled entitlement exit
+  - name: Reconciliation
+    description: Invariant checks, holds and recovery
+  - name: Audit
+    description: Read-only event and privileged-action lineage
+paths:
+  /health:
+    get:
+      summary: Check local service health
+      security: []
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status, schemaVersion, demoOnly]
+                properties:
+                  status: { type: string, enum: [UP, DEGRADED] }
+                  schemaVersion: { type: string, const: 1.0.0 }
+                  demoOnly: { type: boolean, const: true }
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+  /products:
+    get:
+      summary: List versioned demo products
+      tags: [Products]
+      operationId: listProducts
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, AUDITOR]
+      responses:
+        "200":
+          description: Demo products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/ProductTerms
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /onboarding-cases:
+    post:
+      summary: Create a PII-free onboarding case
+      tags: [Onboarding]
+      operationId: createOnboardingCase
+      x-required-roles: [FOREIGN_DISTRIBUTOR]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: ./schemas/domain.schema.json#/$defs/OnboardingCase
+                - type: object
+                  properties:
+                    status: { const: DRAFT }
+      responses:
+        "201":
+          description: Case created in DRAFT; PII remains in the distributor vault
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/OnboardingCase
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /onboarding-cases/{caseId}:
+    get:
+      summary: Read onboarding status without PII
+      tags: [Onboarding]
+      operationId: getOnboardingCase
+      x-required-roles: [FOREIGN_DISTRIBUTOR, COMPLIANCE_OPERATOR, KR_BROKER_CUSTODIAN, AUDITOR]
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+      responses:
+        "200":
+          description: Current onboarding state and decision references
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/OnboardingCase
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /onboarding-cases/{caseId}/kyc-results:
+    post:
+      summary: Ingest a signed KYC result without source PII
+      tags: [Onboarding]
+      operationId: ingestKycResult
+      x-required-roles: [FOREIGN_DISTRIBUTOR]
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/KycResult
+      responses:
+        "200":
+          description: PASSED advances to POLICY_PENDING; FAILED advances to REJECTED
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/OnboardingCase
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /policy-evaluations:
+    post:
+      summary: Evaluate one jurisdiction policy profile
+      tags: [Policy]
+      operationId: evaluatePolicy
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, COMPLIANCE_OPERATOR]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/PolicyEvaluationRequest
+      responses:
+        "201":
+          description: Signed decision from one policy profile
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/PolicyDecision
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /eligibilities:
+    post:
+      summary: Record combined investor eligibility
+      tags: [Eligibility]
+      operationId: registerEligibility
+      x-required-roles: [COMPLIANCE_OPERATOR]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/InvestorEligibility
+      responses:
+        "201":
+          description: Eligibility recorded; requires both KR and distribution decisions
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/InvestorEligibility
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /order-drafts:
+    post:
+      summary: Create an unsigned order draft
+      tags: [Orders]
+      operationId: createOrderDraft
+      description: AI MAY assist with this endpoint. It MUST NOT confirm the order.
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, AI_AGENT]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: ./schemas/domain.schema.json#/$defs/OrderDraft
+                - type: object
+                  properties:
+                    status: { const: DRAFT }
+                    humanSignature: false
+      responses:
+        "201":
+          description: Unsigned order draft
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/OrderDraft
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /orders/{orderId}:
+    get:
+      summary: Read the current primary order state
+      tags: [Orders]
+      operationId: getOrder
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, AUDITOR]
+      parameters:
+        - $ref: "#/components/parameters/OrderId"
+      responses:
+        "200":
+          description: Current order state
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/OrderDraft
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /orders/{orderId}/confirm:
+    post:
+      summary: Confirm an order with a human signature
+      tags: [Orders]
+      operationId: confirmOrder
+      description: Requires a human EIP-712 signature over the displayed order fields.
+      x-required-roles: [INVESTOR]
+      parameters:
+        - $ref: "#/components/parameters/OrderId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/HumanSignature
+      responses:
+        "200":
+          description: Order in CONFIRMED state
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/OrderDraft
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /funding-confirmations:
+    post:
+      summary: Ingest a signed bank and FX result
+      tags: [Adapters]
+      operationId: ingestFundingConfirmation
+      x-required-roles: [SETTLEMENT_BANK]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/FundingConfirmation
+      responses:
+        "202":
+          description: Funding event accepted for asynchronous processing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedCommand"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /market-executions:
+    post:
+      summary: Ingest a signed KRX mock execution
+      tags: [Adapters]
+      operationId: ingestMarketExecution
+      x-required-roles: [KR_BROKER_CUSTODIAN]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/MarketExecution
+      responses:
+        "202":
+          description: Market event accepted; it does not authorize minting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedCommand"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /custody-settlements:
+    post:
+      summary: Ingest a signed KSD mock settlement
+      tags: [Adapters]
+      operationId: ingestCustodySettlement
+      x-required-roles: [KR_BROKER_CUSTODIAN]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/CustodySettlement
+      responses:
+        "202":
+          description: Settlement event accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedCommand"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /reserve-attestations:
+    post:
+      summary: Record a dual-approved reserve attestation
+      tags: [Reserve]
+      operationId: createReserveAttestation
+      x-required-roles: [KR_BROKER_CUSTODIAN, INDEPENDENT_CONTROL]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/ReserveAttestation
+      responses:
+        "201":
+          description: Two-party reserve attestation recorded
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/ReserveAttestation
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /issuances:
+    post:
+      summary: Mint fully backed entitlement units
+      tags: [Issuance]
+      operationId: issueBackedEntitlement
+      x-required-roles: [TOKEN_OPERATOR]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/IssuanceRequest
+      responses:
+        "201":
+          description: Backed tokens minted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [issuanceId, status, quantity, ledgerTransactionHash]
+                properties:
+                  issuanceId:
+                    $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+                  status: { type: string, const: MINTED }
+                  quantity:
+                    $ref: ./schemas/domain.schema.json#/$defs/PositiveInteger
+                  ledgerTransactionHash:
+                    $ref: ./schemas/domain.schema.json#/$defs/Hash
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /trades:
+    post:
+      summary: Create an unsigned RFQ proposal
+      tags: [Trading]
+      operationId: createTradeInstruction
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/TradeProposal
+      responses:
+        "201":
+          description: Policy-checked RFQ instruction; both parties must sign before settlement
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/TradeInstruction
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /trades/{tradeId}/signatures:
+    post:
+      summary: Add one human signature to an RFQ
+      tags: [Trading]
+      operationId: addTradeSignature
+      x-required-roles: [INVESTOR]
+      parameters:
+        - $ref: "#/components/parameters/TradeId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/TradeSignatureSubmission
+      responses:
+        "200":
+          description: Current instruction; DUAL_SIGNED only after both distinct parties sign
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/TradeInstruction
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /trades/{tradeId}/settle:
+    post:
+      summary: Settle an RFQ with atomic DvP
+      tags: [Trading]
+      operationId: settleTradeAtomically
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN]
+      parameters:
+        - $ref: "#/components/parameters/TradeId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      responses:
+        "200":
+          description: Atomic DvP result
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/DvPResult
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /corporate-actions:
+    post:
+      summary: Advance a cash dividend lifecycle
+      tags: [CorporateActions]
+      operationId: upsertCorporateAction
+      x-required-roles: [KR_BROKER_CUSTODIAN, SETTLEMENT_BANK]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/CorporateAction
+      responses:
+        "202":
+          description: Corporate action transition accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedCommand"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /redemptions:
+    post:
+      summary: Request a controlled redemption
+      tags: [Redemption]
+      operationId: requestRedemption
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: ./schemas/domain.schema.json#/$defs/Redemption
+                - type: object
+                  properties:
+                    status: { const: REQUESTED }
+      responses:
+        "201":
+          description: Redemption request recorded; burn is not yet authorized
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/Redemption
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /reconciliations:
+    post:
+      summary: Submit an invariant reconciliation result
+      tags: [Reconciliation]
+      operationId: submitReconciliation
+      x-required-roles: [KR_BROKER_CUSTODIAN, INDEPENDENT_CONTROL]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/ReconciliationResult
+      responses:
+        "202":
+          description: Result accepted; mismatch places the system on hold
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedCommand"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /holds/{holdId}/approvals:
+    post:
+      summary: Add an independent hold or resume approval
+      tags: [Reconciliation]
+      operationId: approveHoldAction
+      description: Two different institutions/roles are required before PLACE or RESUME takes effect.
+      x-required-roles: [KR_BROKER_CUSTODIAN, INDEPENDENT_CONTROL]
+      parameters:
+        - name: holdId
+          in: path
+          required: true
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/domain.schema.json#/$defs/HoldApproval
+      responses:
+        "202":
+          description: Approval recorded; response says whether quorum was reached
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [holdId, approvalCount, requiredApprovalCount, effective]
+                properties:
+                  holdId:
+                    $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+                  approvalCount: { type: integer, minimum: 1, maximum: 2 }
+                  requiredApprovalCount: { type: integer, const: 2 }
+                  effective: { type: boolean }
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /audit/lineage/{correlationId}:
+    get:
+      summary: Read complete non-PII audit lineage
+      tags: [Audit]
+      operationId: getAuditLineage
+      x-required-roles: [AUDITOR, INDEPENDENT_CONTROL]
+      parameters:
+        - name: correlationId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Ordered event lineage without restricted evidence bodies
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [correlationId, complete, events, auditEvents]
+                properties:
+                  correlationId: { type: string, format: uuid }
+                  complete: { type: boolean }
+                  missingSequences:
+                    type: array
+                    items: { type: integer, minimum: 1 }
+                  events:
+                    type: array
+                    items:
+                      $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+                  auditEvents:
+                    type: array
+                    items:
+                      $ref: ./schemas/domain.schema.json#/$defs/AuditEvent
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Local OIDC-compatible JWT with iss, sub, aud, roles, exp and jti.
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 8, maxLength: 128 }
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+    TradeId:
+      name: tradeId
+      in: path
+      required: true
+      schema:
+        $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+  schemas:
+    AcceptedCommand:
+      type: object
+      additionalProperties: false
+      required: [commandId, accepted, correlationId]
+      properties:
+        commandId:
+          $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        accepted: { type: boolean, const: true }
+        correlationId: { type: string, format: uuid }
+  responses:
+    ErrorResponse:
+      description: Stable machine-readable failure
+      content:
+        application/problem+json:
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/Error

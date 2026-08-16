@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>외국인 투자자를 위한 한국 주식 RWA — 규제부터 거래까지</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf6f2; --paper2:#f3ece5; --card:#ffffff; --line:#e7ddd4; --line-soft:#f0e8e0;
+    --ink:#22201e; --ink-2:#544e48; --ink-3:#8a8078; --ink-faint:#b3a89e;
+    --coral:#e8613c; --coral-deep:#c9451f; --coral-soft:#fdeee8; --coral-line:#f4c9b8;
+    --teal:#2f7d7a; --teal-soft:#e5f0ef;
+    --gold:#b8862e; --gold-soft:#f7efdd;
+    --violet:#7b5ea7; --violet-soft:#efe9f5;
+    --green:#3f8f4e; --green-soft:#e8f2e8; --red:#c0392b; --red-soft:#fbeae7;
+    --mono:'SF Mono','D2Coding',ui-monospace,'Cascadia Code',Menlo,Consolas,monospace;
+    --sans:'Pretendard Variable',Pretendard,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  /* Korean line-breaking: break at word/phrase boundaries, never mid-word */
+  body,.big-q,.cap,.narr h2,.narr p,.tradfi,.crow .cd,.crow .cl,.split li,.trio .gt,.trio .gd,.trio .verdict,
+  .std .std-q,.std .s li,.tl .qs .q .qh,.tl .qs .q .qd,.safe .sc .sd,.safe .sc .sh,.arch .lyr .lb,.arch .lyr .lh,
+  .hero-scene h1,.hero-scene .lede,.journey .j .jt,.journey .j .jd,.actor .name,.actor .role,.stage-eyebrow,
+  .metric .label,.narr .sn,.sc,.kbd,.act-tab .al,.scenario .r .v2,.tl .stop .l{
+    word-break:keep-all;overflow-wrap:break-word;line-break:strict}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    background-image:radial-gradient(circle at 12% -5%,rgba(232,97,60,.05),transparent 34%),
+                     radial-gradient(circle at 92% 8%,rgba(47,125,122,.04),transparent 38%);
+    background-attachment:fixed;min-height:100vh}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:26px 24px 60px}
+
+  /* ---------- top bar: act tracker ---------- */
+  .topbar{display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+  .brand{font-weight:800;font-size:15px;letter-spacing:-.01em;white-space:nowrap}
+  .brand .c{color:var(--coral)}
+  .acts{display:flex;gap:6px;flex:1;min-width:260px}
+  .act-tab{flex:1;border:1px solid var(--line);border-radius:9px;padding:7px 8px 8px;background:var(--card);
+    transition:.25s;cursor:pointer;text-align:left;position:relative;overflow:hidden}
+  .act-tab .an{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--ink-faint)}
+  .act-tab .al{font-size:12px;font-weight:700;letter-spacing:-.01em;margin-top:2px;color:var(--ink-3)}
+  .act-tab.on{border-color:var(--coral);background:var(--coral-soft)}
+  .act-tab.on .an{color:var(--coral)} .act-tab.on .al{color:var(--coral-deep)}
+  .act-tab.done .al{color:var(--ink)}
+  .act-tab.done .an{color:var(--ink-3)}
+  .act-tab .bar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--coral);transition:width .4s}
+  @media(max-width:620px){.act-tab .al{font-size:10.5px}.brand{font-size:13px}}
+
+  /* fine progress rail */
+  .rail{display:flex;gap:3px;margin-bottom:22px}
+  .rail .seg{flex:1;height:3px;border-radius:2px;background:var(--line);transition:background .3s}
+  .rail .seg.done{background:var(--coral-line)}
+  .rail .seg.active{background:var(--coral)}
+
+  /* ---------- main split: stage / narrative ---------- */
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:stretch}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .stage{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 30px;
+    min-height:min(64vh,560px);position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .stage .scene{margin:auto 0}
+  .stage-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--coral);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .stage-eyebrow .tag{padding:2px 8px;border-radius:20px;border:1px solid var(--coral-line);background:var(--coral-soft);font-size:9px}
+
+  /* --- scene builder primitives --- */
+  .scene{opacity:0;transform:translateY(6px);animation:sceneIn .45s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes sceneIn{to{opacity:1;transform:none}}
+  .big-q{font-size:clamp(25px,3.8vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1.18;max-width:20ch}
+  .big-q em{font-style:normal;color:var(--coral);position:relative;white-space:nowrap}
+  .big-q em::after{content:"";position:absolute;left:0;right:0;bottom:.05em;height:.11em;background:var(--coral-line);z-index:-1;border-radius:2px}
+  .scene .cap{font-size:15.5px;color:var(--ink-2);margin-top:16px;max-width:58ch;line-height:1.6}
+  .scene .cap b{color:var(--ink);font-weight:600}
+
+  /* gate trio (who can hold) */
+  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+  @media(max-width:520px){.trio{grid-template-columns:1fr}}
+  .trio .g{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--paper);text-align:center;position:relative}
+  .trio .g .ic{font-size:22px} .trio .g .gt{font-size:13px;font-weight:700;margin-top:6px}
+  .trio .g .gd{font-size:11px;color:var(--ink-3);margin-top:3px;line-height:1.35}
+  .trio .g .chk{position:absolute;top:8px;right:9px;color:var(--green);font-size:13px;opacity:0;transform:scale(.6);transition:.3s}
+  .trio .g.pass .chk{opacity:1;transform:none}
+  .trio .g.pass{border-color:var(--green);background:var(--green-soft)}
+  .trio .verdict{grid-column:1/-1;text-align:center;font-size:13px;color:var(--ink-2);margin-top:2px}
+  .trio .verdict b{color:var(--coral-deep)}
+
+  /* contrast rows (traditional vs token vs ours) */
+  .contrast{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+  .crow{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;border:1px solid var(--line);
+    border-radius:11px;padding:12px 15px;background:var(--paper)}
+  .crow .cl{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .crow .cl .cs{display:block;font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);font-weight:400;margin-top:2px}
+  .crow .cd{font-size:12.5px;color:var(--ink-2)}
+  .crow.bad{border-color:var(--red-soft);background:var(--red-soft)} .crow.bad .cl{color:var(--red)}
+  .crow.good{border-color:var(--coral-line);background:var(--coral-soft)} .crow.good .cl{color:var(--coral-deep)}
+  @media(max-width:520px){.crow{grid-template-columns:1fr;gap:4px}}
+
+  /* off/on split */
+  .split{display:grid;grid-template-columns:1fr 40px 1fr;gap:0;margin-top:20px;align-items:stretch}
+  @media(max-width:560px){.split{grid-template-columns:1fr}}
+  .split .col{border:1px solid var(--line);border-radius:12px;padding:15px}
+  .split .off{border-color:var(--teal);background:linear-gradient(180deg,var(--teal-soft),var(--card) 65%)}
+  .split .on{border-color:var(--coral-line);background:linear-gradient(180deg,var(--coral-soft),var(--card) 65%)}
+  .split .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:10px}
+  .split .off .lbl{color:var(--teal)} .split .on .lbl{color:var(--coral-deep)}
+  .split ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .split li{font-size:12.5px;color:var(--ink-2);padding-left:15px;position:relative}
+  .split li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%}
+  .split .off li::before{background:var(--teal)} .split .on li::before{background:var(--coral)}
+  .split li b{color:var(--ink);font-weight:600}
+  .split .mid{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:18px}
+  @media(max-width:560px){.split .mid{padding:6px 0;transform:rotate(90deg)}}
+
+  /* ledger chain diagram (before vs token-security) */
+  .chains{display:grid;grid-template-columns:1fr 44px 1fr;gap:0;margin-top:22px;align-items:start}
+  @media(max-width:600px){.chains{grid-template-columns:1fr;gap:14px}}
+  .chain{border:1px solid var(--line);border-radius:13px;padding:16px 14px 18px;background:var(--card)}
+  .chain.old{background:linear-gradient(180deg,var(--paper2),var(--card) 55%)}
+  .chain.new{border-color:var(--coral-line);background:linear-gradient(180deg,var(--coral-soft),var(--card) 55%)}
+  .chain .clbl{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:12px;text-align:center}
+  .chain.old .clbl{color:var(--ink-3)} .chain.new .clbl{color:var(--coral-deep)}
+  .chain .node{border:1px solid var(--line);border-radius:9px;padding:8px 10px;text-align:center;font-size:12.5px;font-weight:600;background:var(--card);position:relative;letter-spacing:-.01em}
+  .chain .node .sub{display:block;font-family:var(--mono);font-size:9px;color:var(--ink-faint);font-weight:400;margin-top:2px;letter-spacing:0}
+  .chain .node.hl{border-color:var(--coral);background:var(--coral-soft);color:var(--coral-deep);box-shadow:0 0 0 1px var(--coral)}
+  .chain .node.muted{border-style:dashed;color:var(--ink-faint);font-weight:400;background:transparent}
+  .chain .conn{height:16px;width:2px;background:var(--line);margin:0 auto}
+  .chain.new .conn{background:var(--coral-line)}
+  .chains .midx{display:flex;align-items:center;justify-content:center;padding-top:60px;color:var(--coral);font-size:20px}
+  @media(max-width:600px){.chains .midx{padding:0;transform:rotate(90deg)}}
+
+  /* timeline (KSD settlement) */
+  .tl{margin-top:22px}
+  .tl .track{display:flex;align-items:center;gap:0;position:relative}
+  .tl .stop{flex:1;text-align:center;position:relative;z-index:2}
+  .tl .stop .dot{width:14px;height:14px;border-radius:50%;background:var(--card);border:2px solid var(--coral-line);margin:0 auto 8px;transition:.3s}
+  .tl .stop.hot .dot{background:var(--coral);border-color:var(--coral);box-shadow:0 0 0 4px var(--coral-soft)}
+  .tl .stop .d{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--coral-deep)}
+  .tl .stop .l{font-size:11px;color:var(--ink-3);margin-top:2px}
+  .tl .line{position:absolute;top:6px;left:8%;right:8%;height:2px;background:var(--coral-line);z-index:1}
+  .tl .qs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+  @media(max-width:520px){.tl .qs{grid-template-columns:1fr}}
+  .tl .qs .q{border:1px solid var(--gold-soft);background:var(--gold-soft);border-radius:11px;padding:12px 14px}
+  .tl .qs .q .qh{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:3px}
+  .tl .qs .q .qd{font-size:11.5px;color:var(--ink-2)}
+
+  /* two-standard split */
+  .std{display:grid;grid-template-columns:1fr 44px 1fr;gap:0;margin-top:22px;align-items:stretch}
+  @media(max-width:560px){.std{grid-template-columns:1fr}}
+  .std .s{border:1px solid var(--line);border-radius:13px;padding:18px;background:var(--paper)}
+  .std .s.who{border-top:4px solid var(--coral)} .std .s.when{border-top:4px solid var(--teal)}
+  .std .s .qword{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  .std .s.who .qword{color:var(--coral)} .std .s.when .qword{color:var(--teal)}
+  .std .s .std-name{font-size:19px;font-weight:800;margin:5px 0 8px;letter-spacing:-.01em}
+  .std .s .std-q{font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:8px}
+  .std .s ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+  .std .s li{font-size:12px;color:var(--ink-2);padding-left:14px;position:relative}
+  .std .s li::before{content:"·";position:absolute;left:2px;color:var(--ink-faint);font-weight:700}
+  .std .x{display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--ink-faint)}
+  @media(max-width:560px){.std .x{padding:8px 0}}
+
+  /* actor lanes (lifecycle stage) */
+  .lanes{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;position:relative;margin-top:8px}
+  .lane{text-align:center}
+  .actor{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:18px 8px;
+    transition:all .35s cubic-bezier(.4,0,.2,1);position:relative}
+  .actor.active{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral),0 8px 20px -10px rgba(232,97,60,.5);transform:translateY(-2px);background:var(--coral-soft)}
+  .actor.dim{opacity:.4}
+  .actor .icon{font-size:27px;line-height:1;display:block}
+  .actor .name{font-size:13.5px;font-weight:700;margin-top:8px;letter-spacing:-.01em}
+  .actor .role{font-family:var(--mono);font-size:9px;color:var(--ink-faint);margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+  .actor .bal{font-family:var(--mono);font-size:11px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line-soft);color:var(--ink-3);min-height:16px}
+  .actor .bal b{color:var(--green)} .actor .bal .tk{color:var(--teal)}
+  .flowmsg{position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;
+    background:var(--coral);color:#fff;padding:3px 10px;border-radius:12px;white-space:nowrap;opacity:0;
+    transition:opacity .3s;font-weight:600;z-index:5;pointer-events:none;box-shadow:0 4px 12px -4px rgba(232,97,60,.5)}
+  .flowmsg.show{opacity:1}
+
+  .offchain{margin-top:14px;border:1px dashed var(--line);border-radius:11px;padding:0;max-height:0;overflow:hidden;opacity:0;transition:all .4s}
+  .offchain.show{max-height:130px;opacity:1;padding:13px 15px}
+  .offchain .oc-head{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:var(--ink-faint);font-family:var(--mono);text-transform:uppercase;letter-spacing:.09em;margin-bottom:9px}
+  .clock{display:flex;align-items:center;gap:10px}
+  .clock .bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+  .clock .fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--green));transition:width 1.1s linear}
+  .clock .t{font-family:var(--mono);font-size:11px;color:var(--gold);min-width:60px;text-align:right}
+
+  .gates{display:flex;gap:7px;margin-top:16px;flex-wrap:wrap;min-height:30px;align-items:center}
+  .gate{font-family:var(--mono);font-size:11px;padding:5px 11px;border-radius:7px;border:1px solid var(--line);
+    color:var(--ink-faint);display:flex;align-items:center;gap:5px;transition:all .3s;opacity:0;transform:translateY(4px)}
+  .gate.show{opacity:1;transform:none}
+  .gate.pass{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-top:20px}
+  @media(max-width:520px){.metrics{grid-template-columns:1fr 1fr}}
+  .metric{background:var(--paper);border:1px solid var(--line-soft);border-radius:11px;padding:13px 15px}
+  .metric .label{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint)}
+  .metric .val{font-family:var(--mono);font-size:21px;font-weight:600;margin-top:5px;letter-spacing:-.02em}
+  .metric .val.shares{color:var(--teal)} .metric .val.usdc{color:var(--green)}
+  .metric .val.div{color:var(--gold)} .metric .val.cap{color:var(--ink)}
+  .metric .val .u{font-size:11px;color:var(--ink-faint);font-weight:400}
+
+  /* agent inequality + ladder */
+  .neq{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;font-family:var(--mono);font-size:12.5px;align-items:center}
+  .neq .pill{padding:6px 11px;border-radius:8px;font-weight:600}
+  .neq .pill.a{background:var(--green-soft);color:var(--green)}
+  .neq .pill.b{background:var(--teal-soft);color:var(--teal)}
+  .neq .pill.c{background:var(--gold-soft);color:var(--gold)}
+  .neq .pill.d{background:var(--coral-soft);color:var(--coral-deep)}
+  .neq .ne{color:var(--red);font-weight:800;font-size:14px}
+  .safe{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+  @media(max-width:520px){.safe{grid-template-columns:1fr}}
+  .safe .sc{border:1px solid var(--line);border-radius:12px;padding:14px 15px;background:var(--paper)}
+  .safe .sc .sh{font-size:13px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+  .safe .sc .sh .b{width:8px;height:8px;border-radius:2px;background:var(--coral)}
+  .safe .sc .sd{font-size:12px;color:var(--ink-2)}
+  .safe .sc .sd b{color:var(--ink);font-weight:600}
+
+  /* agent natural-language UX chat mock */
+  .chat{margin-top:20px;display:flex;flex-direction:column;gap:11px;max-width:560px}
+  .bub{max-width:82%;padding:11px 15px;border-radius:15px;font-size:13.5px;line-height:1.5;position:relative}
+  .bub.user{align-self:flex-end;background:var(--coral);color:#fff;border-bottom-right-radius:5px}
+  .bub.agent{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:5px;color:var(--ink)}
+  .bub .who{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.7;margin-bottom:4px;display:block}
+  .bub.agent b{color:var(--coral-deep)}
+  .bub.user b{color:#fff;text-decoration:underline;text-underline-offset:2px}
+  /* agent parses intent → checks chips */
+  .parse{align-self:flex-start;max-width:88%;background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--ink-2)}
+  .parse .pl{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .parse .fields{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+  .parse .f{font-family:var(--mono);font-size:11px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+  .parse .f b{color:var(--coral-deep)}
+  .parse .checks{display:flex;flex-wrap:wrap;gap:6px}
+  .parse .ck{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;background:var(--green-soft);color:var(--green);display:flex;align-items:center;gap:4px}
+
+  /* two-column "말은 자유롭게 / 규칙은 그대로" */
+  .uxsplit{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+  @media(max-width:520px){.uxsplit{grid-template-columns:1fr}}
+  .uxsplit .uc{border:1px solid var(--line);border-radius:13px;padding:16px 17px;background:var(--paper)}
+  .uxsplit .uc.free{border-color:var(--coral-line);background:linear-gradient(180deg,var(--coral-soft),var(--paper) 60%)}
+  .uxsplit .uc.rule{border-color:var(--teal);background:linear-gradient(180deg,var(--teal-soft),var(--paper) 60%)}
+  .uxsplit .uc .uh{font-size:15px;font-weight:800;letter-spacing:-.01em;margin-bottom:8px}
+  .uxsplit .uc.free .uh{color:var(--coral-deep)} .uxsplit .uc.rule .uh{color:var(--teal)}
+  .uxsplit .uc ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .uxsplit .uc li{font-size:12.5px;color:var(--ink-2);padding-left:16px;position:relative}
+  .uxsplit .uc li::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%}
+  .uxsplit .uc.free li::before{background:var(--coral)} .uxsplit .uc.rule li::before{background:var(--teal)}
+  .uxsplit .uc li b{color:var(--ink);font-weight:600}
+
+  /* final arch recap */
+  .arch{display:flex;flex-direction:column;gap:9px;margin-top:20px}
+  .arch .lyr{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:12px 15px;background:var(--paper)}
+  .arch .lyr .lh{font-size:13.5px;font-weight:700} .arch .lyr .lh .ls{display:block;font-family:var(--mono);font-size:10px;color:var(--ink-3);font-weight:400;margin-top:2px}
+  .arch .lyr .lb{font-size:12px;color:var(--ink-2)}
+  .arch .lyr.a{border-left:4px solid var(--coral)} .arch .lyr.b{border-left:4px solid var(--teal)}
+  .arch .lyr.c{border-left:4px solid var(--gold)} .arch .lyr.d{border-left:4px solid var(--violet)}
+  @media(max-width:520px){.arch .lyr{grid-template-columns:1fr;gap:4px}}
+
+  /* intro / outro full scenes */
+  .hero-scene{text-align:left}
+  .hero-scene .k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--coral);margin-bottom:16px}
+  .hero-scene h1{font-size:clamp(26px,4.6vw,40px);line-height:1.12;letter-spacing:-.025em;font-weight:800;max-width:17ch}
+  .hero-scene h1 em{font-style:normal;color:var(--coral)}
+  .hero-scene .lede{font-size:14.5px;color:var(--ink-2);margin-top:16px;max-width:54ch}
+  .hero-scene .lede b{color:var(--ink);font-weight:600}
+  .journey{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:24px}
+  @media(max-width:620px){.journey{grid-template-columns:1fr 1fr}}
+  .journey .j{border:1px solid var(--line);border-radius:11px;padding:12px;background:var(--paper);position:relative}
+  .journey .j .jn{font-family:var(--mono);font-size:9px;color:var(--coral);letter-spacing:.06em}
+  .journey .j .jt{font-size:13px;font-weight:700;margin-top:4px;letter-spacing:-.01em}
+  .journey .j .jd{font-size:11px;color:var(--ink-3);margin-top:3px;line-height:1.35}
+
+  .scenario{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:20px}
+  @media(max-width:620px){.scenario{grid-template-columns:1fr 1fr}}
+  .scenario .r{background:var(--paper);border:1px solid var(--line-soft);border-radius:9px;padding:9px 12px}
+  .scenario .r .k2{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint)}
+  .scenario .r .v2{font-size:12.5px;font-weight:600;margin-top:2px;letter-spacing:-.01em}
+
+  /* ---------- side narrative panel ---------- */
+  .side{display:flex;flex-direction:column;gap:14px;position:sticky;top:20px}
+  @media(max-width:880px){.side{position:static}}
+  .narr{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 22px}
+  .narr .sn{font-family:var(--mono);font-size:11px;color:var(--coral);letter-spacing:.1em}
+  .narr h2{font-size:20px;margin:8px 0 12px;letter-spacing:-.015em;font-weight:800;line-height:1.24}
+  .narr p{font-size:14.5px;color:var(--ink-2);margin-bottom:14px;line-height:1.6}
+  .narr p .fn{font-family:var(--mono);font-size:12.5px;color:var(--coral-deep);background:var(--coral-soft);padding:1px 6px;border-radius:5px}
+  .tradfi{background:var(--paper2);border-left:3px solid var(--teal);border-radius:7px;padding:12px 14px;font-size:13px;color:var(--ink-2);line-height:1.55}
+  .tradfi b{color:var(--teal);display:block;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+
+  .controls{display:flex;gap:9px;align-items:center}
+  button{font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;padding:12px 18px;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);transition:all .16s}
+  button:hover:not(:disabled){border-color:var(--coral-line);background:var(--paper)}
+  button:disabled{opacity:.32;cursor:not-allowed}
+  button.primary{background:var(--coral);color:#fff;border-color:var(--coral);flex:1}
+  button.primary:hover:not(:disabled){background:var(--coral-deep);box-shadow:0 6px 18px -8px rgba(232,97,60,.6)}
+  button.ghost{background:transparent}
+  .sc{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);text-align:center;margin-top:2px}
+  .kbd{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-align:center}
+  .kbd b{color:var(--ink-3);background:var(--paper2);padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+
+  .pulse{animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- act tracker -->
+  <div class="topbar">
+    <div class="brand">한국 주식 <span class="c">RWA</span> 사이클</div>
+    <div class="acts" id="acts">
+      <div class="act-tab" data-act="0"><div class="an">ACT 1</div><div class="al">규제</div><div class="bar"></div></div>
+      <div class="act-tab" data-act="1"><div class="an">ACT 2</div><div class="al">인프라</div><div class="bar"></div></div>
+      <div class="act-tab" data-act="2"><div class="an">ACT 3</div><div class="al">토큰화·커스터디</div><div class="bar"></div></div>
+      <div class="act-tab" data-act="3"><div class="an">ACT 4</div><div class="al">AI 에이전트</div><div class="bar"></div></div>
+    </div>
+  </div>
+
+  <div class="rail" id="rail"></div>
+
+  <div class="grid">
+    <!-- STAGE -->
+    <div class="stage" id="stage"></div>
+
+    <!-- SIDE -->
+    <div class="side">
+      <div class="narr">
+        <div class="sn" id="sn">단계 00</div>
+        <h2 id="nh">준비</h2>
+        <p id="np"></p>
+        <div class="tradfi"><b id="tfl">전통 금융에서는</b><span id="tft"></span></div>
+      </div>
+      <div class="controls">
+        <button class="ghost" id="prev" onclick="step(-1)">← 이전</button>
+        <button class="primary" id="next" onclick="step(1)">시작 →</button>
+        <button class="ghost" id="reset" onclick="reset()" title="처음부터">↺</button>
+      </div>
+      <div class="sc" id="sc"></div>
+      <div class="kbd">키보드 <b>←</b> <b>→</b> 로도 이동</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= scene templates =================
+const SCENES = {
+
+  intro: ()=>`
+    <div class="stage-eyebrow">규제부터 거래까지 <span class="tag">전체 사이클</span></div>
+    <div class="scene hero-scene">
+      <div class="k">외국인 투자자 · 한국 주식 · POC</div>
+      <h1>Alice가 SK하이닉스 주식에 <em>온체인</em>으로 닿기까지</h1>
+      <p class="lede">두바이의 <b>Alice</b>가 한국 주식을 사려 합니다. 규제가 무엇을 요구하는지에서 출발해, 그 위에 올릴 인프라, 실제 토큰의 발행과 거래, 마지막으로 AI 에이전트로 <b>말하듯 사고파는</b> 경험까지 — 네 개 트랙을 <b>하나의 흐름</b>으로 이어붙였습니다.</p>
+      <div class="scenario">
+        <div class="r"><div class="k2">투자자</div><div class="v2">Alice · 두바이</div></div>
+        <div class="r"><div class="k2">기초자산</div><div class="v2">SK하이닉스</div></div>
+        <div class="r"><div class="k2">납입 약정</div><div class="v2">10,000 USDC</div></div>
+        <div class="r"><div class="k2">배당 원천징수</div><div class="v2">조세조약 적용 (예시)</div></div>
+      </div>
+      <div class="journey">
+        <div class="j"><div class="jn">ACT 1</div><div class="jt">규제</div><div class="jd">누가 사고팔 수 있는가</div></div>
+        <div class="j"><div class="jn">ACT 2</div><div class="jt">인프라</div><div class="jd">어디에 올리고 어떻게 결제하나</div></div>
+        <div class="j"><div class="jn">ACT 3</div><div class="jt">토큰화·커스터디</div><div class="jd">발행부터 환매까지의 한 바퀴</div></div>
+        <div class="j"><div class="jn">ACT 4</div><div class="jt">AI 에이전트</div><div class="jd">말 한마디로 사고팔기</div></div>
+      </div>
+    </div>`,
+
+  // ---------- ACT 1 : 규제 ----------
+  accessMethods: ()=>`
+    <div class="stage-eyebrow">ACT 1 · 규제 <span class="tag">지금은 어떻게</span></div>
+    <div class="scene">
+      <div class="big-q">지금 외국인이 한국 주식을 <em>사는 법</em></div>
+      <p class="cap">Alice에게 열려 있는 길은 크게 셋입니다. 그런데 셋 다 마찰이 크거나, 누군가의 협조에 의존합니다.</p>
+      <div class="trio">
+        <div class="g"><div class="ic">🏦</div><div class="gt">직접투자</div><div class="gd">국내 증권사 계좌 개설 · 상임대리인 · 서류 공증 · 환전 — <b>절차가 무겁다</b></div></div>
+        <div class="g"><div class="ic">🔗</div><div class="gt">외국인 통합계좌</div><div class="gd">해외 증권사 명의 계좌로 일괄 주문 — 편하지만 <b>내 증권사가 열어야</b> 하고 명의는 브로커</div></div>
+        <div class="g"><div class="ic">🇺🇸</div><div class="gt">ADR · 예탁증서</div><div class="gd">해외 거래소에서 달러로 매매 — <b>발행회사가 상장한 종목만</b> 존재</div></div>
+        <div class="verdict">셋 다 마찰이 크거나 <b>남의 협조에 의존</b> — 임의 종목에 바로 접근하긴 어렵다</div>
+      </div>
+    </div>`,
+
+  whoCanBuy: (revealed=99)=>`
+    <div class="stage-eyebrow">ACT 1 · 규제 <span class="tag">누가</span></div>
+    <div class="scene">
+      <div class="big-q">한국 주식은 <em>아무나 못 산다</em></div>
+      <p class="cap">Alice가 적격 투자자여도, 세 개의 관문을 <b>모두</b> 통과해야 보유·이전할 수 있습니다. 하나라도 막히면 거래는 성립하지 않습니다.</p>
+      <div class="trio">
+        <div class="g ${revealed>=1?'pass':''}"><span class="chk">✓</span><div class="ic">🪪</div><div class="gt">신원 확인 · 계좌</div><div class="gd">여권번호 식별 + 특금법 고객확인 (KYC)</div></div>
+        <div class="g ${revealed>=2?'pass':''}"><span class="chk">✓</span><div class="ic">💱</div><div class="gt">외국환 신고·환전</div><div class="gd">외국환거래법상 자금 유출입·원화 환전</div></div>
+        <div class="g ${revealed>=3?'pass':''}"><span class="chk">✓</span><div class="ic">📊</div><div class="gt">외국인 지분 한도</div><div class="gd">종목별 법정 상한 (예: KT·한전 49%)</div></div>
+        <div class="verdict">세 가지를 <b>모두 통과한 사람만</b> 보유·이전할 수 있다</div>
+      </div>
+    </div>`,
+
+  issuerAccountInstitution: ()=>`
+    <div class="stage-eyebrow">ACT 1 · 규제 <span class="tag">핵심 결론</span></div>
+    <div class="scene">
+      <div class="big-q">발행인계좌관리기관이 되어 <em>진짜 주식</em>을 올린다</div>
+      <p class="cap">한국 상장주식의 권리 이전은 전자등록계좌부에서만 효력이 생깁니다(전자증권법 §35②). 열쇠는 <b>누가 그 계좌부를 운영하느냐</b>입니다. 계좌관리기관 자리를 발행회사가 직접 맡으면, 그 원장이 온체인으로 내려옵니다.</p>
+      <div class="chains">
+        <div class="chain old">
+          <div class="clbl">기존 · 주식</div>
+          <div class="node">발행기관</div>
+          <div class="conn"></div>
+          <div class="node">명의개서대리인</div>
+          <div class="conn"></div>
+          <div class="node">KSD</div>
+          <div class="conn"></div>
+          <div class="node hl">일반계좌관리기관<span class="sub">= 증권사</span></div>
+          <div class="conn"></div>
+          <div class="node">투자자</div>
+        </div>
+        <div class="midx">→</div>
+        <div class="chain new">
+          <div class="clbl">토큰증권</div>
+          <div class="node">발행기관</div>
+          <div class="conn"></div>
+          <div class="node muted">명의개서대리인<span class="sub">없거나 역할 축소</span></div>
+          <div class="conn"></div>
+          <div class="node">KSD</div>
+          <div class="conn"></div>
+          <div class="node hl">발행인계좌관리기관<span class="sub">= 온체인 분산원장</span></div>
+          <div class="conn"></div>
+          <div class="node">투자자</div>
+        </div>
+      </div>
+      <div class="trio" style="margin-top:16px"><div class="verdict">증권사 자리를 발행회사가 대신하고, 그 계좌부가 곧 온체인 원장 — 토큰은 <b>전자등록주식 그 자체</b>다</div></div>
+    </div>`,
+
+  // ---------- ACT 2 : 인프라 ----------
+  twoLayers: ()=>`
+    <div class="stage-eyebrow">ACT 2 · 인프라 <span class="tag">두 레이어</span></div>
+    <div class="scene">
+      <div class="big-q">자산과 대금은 <em>다른 원장</em>에 둔다</div>
+      <p class="cap">토큰을 넘기는 일(자산)과 돈을 치르는 일(대금)은 별개입니다. 둘이 <b>동시에</b> 완결될 때 비로소 결제가 성립합니다 — DvP. 한 원장에 몰면 유동성 부담이 커지므로 분리합니다.</p>
+      <div class="std">
+        <div class="s who"><div class="qword">RWA 자산 원장</div><div class="std-name">OP Stack</div><div class="std-q">KRX 종목 토큰이 사는 곳</div>
+          <ul><li>외국인 한도·KYC를 코드에서 강제</li><li>이더리움 퍼블릭 유동성에 연결</li></ul></div>
+        <div class="x">+</div>
+        <div class="s when"><div class="qword">결제 대금 원장</div><div class="std-name">Besu</div><div class="std-q">원화 예금토큰이 결제되는 곳</div>
+          <ul><li>1~3초 즉시 완결성</li><li>거래 상대방·금액 암호화</li></ul></div>
+      </div>
+    </div>`,
+
+  dvp: (revealed=99)=>`
+    <div class="stage-eyebrow">ACT 2 · 인프라 <span class="tag">조건부 DvP</span></div>
+    <div class="scene">
+      <div class="big-q">양쪽이 다 준비돼야 <em>동시에</em> 실행</div>
+      <p class="cap">두 원장은 서로를 직접 못 봅니다. 그래서 <b>오케스트레이터</b>(지휘자)가 가운데서 순서를 맞춥니다 — 자산을 잠그고, 대금을 확보하고, 컴플라이언스를 확인한 뒤, 둘 다 준비됐을 때만 동시에 실행하고 아니면 되돌립니다.</p>
+      <div class="contrast">
+        <div class="crow ${revealed>=1?'good':''}"><div class="cl">① 잠금<span class="cs">LOCK</span></div><div class="cd">자산 원장에서 증권 토큰을 에스크로에 잠근다</div></div>
+        <div class="crow ${revealed>=2?'good':''}"><div class="cl">② 검증<span class="cs">VERIFY</span></div><div class="cd">브릿지가 잠금 상태를 결제 원장에 전달·검증</div></div>
+        <div class="crow ${revealed>=3?'good':''}"><div class="cl">③ 확보<span class="cs">FUND</span></div><div class="cd">결제 원장에서 원화 예금토큰을 확보</div></div>
+        <div class="crow ${revealed>=4?'good':''}"><div class="cl">④ 실행<span class="cs">COMMIT</span></div><div class="cd">양쪽 조건 확인 후 <b>동시에</b> 실행 · 미충족 시 되돌림(ABORT)</div></div>
+      </div>
+    </div>`,
+
+  oracle: ()=>`
+    <div class="stage-eyebrow">ACT 2 · 인프라 <span class="tag">오라클</span></div>
+    <div class="scene">
+      <div class="big-q">체인 밖 데이터를 <em>온체인</em>으로</div>
+      <p class="cap">토큰이 스스로 알 수 없는 값들이 있습니다. 특히 <b>외국인 잔여 한도</b>는 시장 전체 집계라 온체인에서 만들 수 없습니다. 권위는 KRX·KSD가, 전달은 Chainlink가 맡습니다.</p>
+      <div class="trio">
+        <div class="g"><div class="ic">💹</div><div class="gt">가치</div><div class="gd">KRX 실시간 주가 · NAV</div></div>
+        <div class="g"><div class="ic">📜</div><div class="gt">권리</div><div class="gd">배당·주식분할 자동 반영</div></div>
+        <div class="g"><div class="ic">🛡️</div><div class="gt">규제</div><div class="gd">외국인 한도·KYC/AML</div></div>
+        <div class="verdict">세 축 중 하나라도 빠지면 <b>자산의 껍데기만</b> 올린 셈</div>
+      </div>
+    </div>`,
+
+  // ---------- ACT 3 : 토큰화·커스터디 ----------
+  twoStandards: ()=>`
+    <div class="stage-eyebrow">ACT 3 · 토큰화·커스터디 <span class="tag">두 질문</span></div>
+    <div class="scene">
+      <div class="big-q">필요한 건 <em>두 가지</em> 질문뿐</div>
+      <p class="cap">앞의 규제와 결제 현실을 코드로 옮기면, 결국 두 개의 질문으로 요약됩니다. 각각을 담당할 토큰 표준이 하나씩 있습니다.</p>
+      <div class="std">
+        <div class="s who"><div class="qword">누가</div><div class="std-name">ERC-3643</div><div class="std-q">누가 보유·이전할 수 있는가</div>
+          <ul><li>모든 이전에 신원·규칙 검사</li><li>키 분실 복구 · 동결 등 법적 기능</li></ul></div>
+        <div class="x">×</div>
+        <div class="s when"><div class="qword">언제</div><div class="std-name">ERC-7540</div><div class="std-q">발행·환매는 언제 확정되는가</div>
+          <ul><li>1차 시장의 실물 결제 대기를 상태로 표현</li><li>결제 실패의 되돌림 경로</li></ul></div>
+      </div>
+    </div>`,
+
+  primaryVsSecondary: ()=>`
+    <div class="stage-eyebrow">ACT 3 · 토큰화·커스터디 <span class="tag">미리 수탁된 주식</span></div>
+    <div class="scene">
+      <div class="big-q">주식은 <em>미리</em> 수탁돼 있다</div>
+      <p class="cap">발행회사가 발행인계좌관리기관으로 참여하기로 이미 정해져 있으니, 대상 주식은 <b>미리 수탁</b>돼 토큰을 뒷받침합니다. 그래서 투자자의 매수·매도는 기다림이 없고, 실물을 새로 늘리거나 줄일 때만 시차가 생깁니다.</p>
+      <div class="split">
+        <div class="col on"><div class="lbl">2차 시장 · 대부분 · 즉시</div>
+          <ul>
+            <li><b>토큰 매수·매도</b> (투자자 ↔ 투자자)</li>
+            <li>미리 수탁된 주식이 뒷받침 → <b>대기 없음</b></li>
+            <li>매 이전마다 신원·규칙 검사 후 즉시 확정</li>
+          </ul></div>
+        <div class="mid">↔</div>
+        <div class="col off"><div class="lbl">1차 시장 · 가끔 · 며칠</div>
+          <ul>
+            <li><b>발행(creation)·환매(redemption)</b></li>
+            <li>수탁 물량을 <b>새로 늘리거나 줄일 때만</b></li>
+            <li>실물 매수·매도 + 환전 → 2~4 영업일</li>
+          </ul></div>
+      </div>
+      <div class="tl" style="margin-top:16px">
+        <div class="qs">
+          <div class="q"><div class="qh">대부분의 거래 = 2차</div><div class="qd">이미 수탁된 주식 위에서 소유자만 바뀌므로 즉시</div></div>
+          <div class="q"><div class="qh">기다림 = 1차뿐</div><div class="qd">순 수탁량이 바뀔 때만 KSD 실물 절차를 거친다</div></div>
+        </div>
+      </div>
+    </div>`,
+
+  // interactive lifecycle stage (rendered by JS with actor lanes)
+  lifecycle: ()=>`
+    <div class="stage-eyebrow">ACT 3 · 토큰화·커스터디 <span class="tag">라이프사이클</span></div>
+    <div class="scene" id="lifescene">
+      <div class="lanes" id="lanes">
+        <div class="lane"><div class="actor dim" data-actor="investor"><span class="icon">👤</span><div class="name">투자자</div><div class="role">Alice</div><div class="bal" id="bal-investor"></div></div></div>
+        <div class="lane"><div class="actor dim" data-actor="investor2"><span class="icon">🧑</span><div class="name">다른 투자자</div><div class="role">Bob</div><div class="bal" id="bal-investor2"></div></div></div>
+        <div class="lane"><div class="actor dim" data-actor="token"><span class="icon">🎫</span><div class="name">주식 토큰</div><div class="role">발행인 원장</div><div class="bal" id="bal-token"></div></div></div>
+        <div class="lane"><div class="actor dim" data-actor="custodian"><span class="icon">🏛️</span><div class="name">수탁·1차</div><div class="role">발행·환매</div><div class="bal" id="bal-custodian"></div></div></div>
+        <div class="flowmsg" id="flowmsg"></div>
+      </div>
+      <div class="gates" id="gates"></div>
+      <div class="offchain" id="offchain">
+        <div class="oc-head"><span>◷ 1차 시장 · 실물 결제 (KSD)</span><span id="oc-label">T+2 · 환전</span></div>
+        <div class="clock"><div class="bar"><div class="fill" id="ocfill"></div></div><div class="t" id="oct">T+0</div></div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="label">Alice 보유 주식</div><div class="val shares" id="m-shares">0<span class="u"> 주</span></div></div>
+        <div class="metric"><div class="label">지급 USDC</div><div class="val usdc" id="m-usdc">0<span class="u"> USDC</span></div></div>
+        <div class="metric"><div class="label">누적 배당</div><div class="val div" id="m-div">0<span class="u"> USDC</span></div></div>
+        <div class="metric"><div class="label">외국인 지분율</div><div class="val cap" id="m-cap">32.0<span class="u"> %</span></div></div>
+      </div>
+    </div>`,
+
+  // ---------- ACT 4 : AI 에이전트 ----------
+  agentGap: ()=>`
+    <div class="stage-eyebrow">ACT 4 · AI 에이전트 <span class="tag">자연어로 거래</span></div>
+    <div class="scene">
+      <div class="big-q">이제 <em>말로</em> 사고판다</div>
+      <p class="cap">여기까지 만든 주식 토큰은 지갑 주소·주문 수량 같은 걸 몰라도 됩니다. 사람은 평소 말로 시키고, AI 에이전트가 그 의도를 규칙에 맞는 온체인 주문으로 바꿔 실행합니다.</p>
+      <div class="chat">
+        <div class="bub user"><span class="who">나</span><b>하이닉스 500만 원어치</b> 사줘. 너무 비싸지만 않으면.</div>
+        <div class="parse">
+          <div class="pl">에이전트가 의도를 주문으로 변환</div>
+          <div class="fields">
+            <span class="f">종목 <b>SK하이닉스</b></span>
+            <span class="f">방향 <b>매수</b></span>
+            <span class="f">금액 <b>₩5,000,000</b></span>
+            <span class="f">한도가 <b>현재가 이내</b></span>
+          </div>
+          <div class="checks">
+            <span class="ck">✓ 신원·한도 자동 확인</span>
+            <span class="ck">✓ 2차 시장 즉시 체결</span>
+          </div>
+        </div>
+        <div class="bub agent"><span class="who">에이전트</span>SK하이닉스 <b>26주</b>를 500만 원에 매수했어요. 신원·외국인 한도 확인 후 즉시 체결됐습니다.</div>
+      </div>
+    </div>`,
+
+  agentSafe: ()=>`
+    <div class="stage-eyebrow">ACT 4 · AI 에이전트 <span class="tag">경계</span></div>
+    <div class="scene">
+      <div class="big-q">말은 자유롭게, <em>규칙은 그대로</em></div>
+      <p class="cap">자연어라고 규칙이 느슨해지는 건 아닙니다. 에이전트는 앞 트랙에서 만든 검사 위에서만 움직여서, 편해지되 규제를 우회하지는 못합니다.</p>
+      <div class="uxsplit">
+        <div class="uc free">
+          <div class="uh">말은 자유롭게</div>
+          <ul>
+            <li>지갑 주소·주문 수량을 <b>몰라도</b> 됨</li>
+            <li>"비싸지 않으면", "천천히 나눠서" 같은 <b>조건도 이해</b></li>
+            <li>매수·매도·잔고 조회를 <b>한 대화</b>로</li>
+          </ul>
+        </div>
+        <div class="uc rule">
+          <div class="uh">규칙은 그대로</div>
+          <ul>
+            <li>모든 주문이 <b>신원·외국인 한도</b> 검사를 거침</li>
+            <li>통과 못 하면 에이전트도 <b>실행 불가</b> (거절)</li>
+            <li>위임 범위·한도를 넘는 요청은 <b>사람 확인</b></li>
+          </ul>
+        </div>
+      </div>
+    </div>`,
+
+  // ---------- OUTRO : 전체 아키텍처 ----------
+  outro: ()=>`
+    <div class="stage-eyebrow">종합 <span class="tag">한 바퀴 완성</span></div>
+    <div class="scene">
+      <div class="big-q">말 한마디로 <em>진짜 주식</em>을 사기까지</div>
+      <p class="cap">Alice가 "하이닉스 사줘" 한마디로 진짜 주식을 즉시 갖기까지, 네 조각이 필요했습니다. 각 조각은 앞 조각이 남긴 문제를 풀고, 하나라도 빠지면 나머지가 무너집니다.</p>
+      <div class="arch">
+        <div class="lyr a"><div class="lh">① 규제 — 진짜 주식으로<span class="ls">발행인계좌관리기관</span></div><div class="lb">발행회사가 계좌부를 직접 운영해, 온체인 토큰이 청구권이 아닌 전자등록주식 자체가 된다</div></div>
+        <div class="lyr b"><div class="lh">② 인프라 — 안전하게 결제<span class="ls">CCIP · 오라클</span></div><div class="lb">자산과 대금을 동시에 주고받고(DvP), 외국인 한도 같은 외부 데이터를 온체인에 공급</div></div>
+        <div class="lyr c"><div class="lh">③ 토큰화 — 즉시 거래<span class="ls">ERC-3643 · 7540</span></div><div class="lb">이전마다 신원·한도를 검사하고, 미리 수탁된 주식 위에서 투자자 간 매매가 즉시 체결</div></div>
+        <div class="lyr d"><div class="lh">④ 에이전트 — 말로 거래<span class="ls">자연어 UX</span></div><div class="lb">복잡한 주소·수량 없이 평소 말로 사고팔되, 규칙은 토큰 안에서 그대로 강제</div></div>
+      </div>
+    </div>`,
+};
+
+// ================= step list =================
+// each step: {act, scene, sn, nh, np, tfl, tft, + optional lifecycle fields}
+const STEPS = [
+  {act:-1, scene:"intro", sn:"단계 00", nh:"이 사이클을 보는 법",
+   np:"규제 → 인프라 → 토큰화 → 에이전트, 네 개 트랙을 Alice의 시나리오 하나로 관통합니다. 왼쪽 무대가 단계마다 바뀌고, 여기 오른쪽이 무슨 일이 일어나는지 설명합니다.",
+   tfl:"시작하려면", tft:"'시작 →' 버튼이나 키보드 화살표로 진행하세요. 언제든 ↺ 로 처음으로 돌아갈 수 있습니다."},
+
+  // ACT 1
+  {act:0, scene:"accessMethods", sn:"ACT 1 · 규제", nh:"지금 외국인이 사는 세 가지 길",
+   np:"직접투자는 절차가 무겁고, 통합계좌는 내 증권사가 서비스를 열어야 하며, ADR은 발행회사가 미리 상장한 종목에만 존재합니다. 임의의 종목에 스스로 접근하는 길은 사실상 없습니다.",
+   tfl:"이 프로젝트의 출발점", tft:"발행회사의 협조 없이, 임의 상장 종목에 온체인으로 접근 경로를 여는 것 — 그게 네 번째 길이자 오늘의 주제입니다."},
+  {act:0, scene:"whoCanBuy", sn:"ACT 1 · 규제", nh:"세 관문을 모두 통과해야 한다",
+   np:"왼쪽 세 관문은 성격이 다릅니다. 신원·외국환은 개인 단위로 판정되지만, 지분 한도는 종목 전체의 집계값이라 같은 사람의 같은 주문도 시점에 따라 결과가 달라집니다.",
+   tfl:"어떻게 강제하나", tft:"이 확인을 매 이전마다 코드로 강제하는 것이 ERC-3643입니다. 개인정보 원본은 온체인에 올리지 않고, 검증 결과의 서명값만 올립니다."},
+  {act:0, scene:"issuerAccountInstitution", sn:"ACT 1 · 규제", nh:"바뀌는 건 계좌부의 운영자",
+   np:"왼쪽 두 사슬에서 달라지는 칸은 하나뿐입니다. 증권사가 맡던 계좌관리기관 자리를 발행회사가 대신하면, 그 계좌부가 온체인 분산원장으로 내려옵니다. 나머지 참여자는 그대로입니다.",
+   tfl:"왜 중요한가", tft:"그 원장이 법적 효력을 갖는 전자등록계좌부라, 토큰은 청구권이 아니라 전자등록주식 그 자체입니다. 온체인 이전이 곧 주식 양도입니다."},
+
+  // ACT 2
+  {act:1, scene:"twoLayers", sn:"ACT 2 · 인프라", nh:"두 원장을 나누는 이유",
+   np:"왼쪽 두 원장은 요구 조건이 정반대입니다. 자산은 이더리움 퍼블릭 유동성이 필요하고, 대금은 되돌릴 수 없는 즉시 완결성이 필요합니다. 한 체인이 둘 다 잘하긴 어렵습니다.",
+   tfl:"핵심 개념 · DvP", tft:"자산 이전과 대금 지급이 동시에 완결될 때만 결제가 성립합니다(Delivery vs Payment). 한쪽만 이행되고 다른 쪽이 펑크 나는 위험을 없애는 원칙입니다."},
+  {act:1, scene:"dvp", sn:"ACT 2 · 인프라", nh:"어긋나면 되돌린다",
+   np:"왼쪽 흐름의 진짜 안전장치는 마지막 ABORT입니다. 자산과 대금 중 하나라도 시간 안에 확인되지 않으면 양쪽 에스크로를 풀어, '한쪽만 넘어간' 상태를 남기지 않습니다.",
+   tfl:"오케스트레이터란", tft:"두 원장을 오가며 순서·컴플라이언스·commit/abort를 조율하는 실행 계층입니다. Chainlink의 CRE가 이 역할을 하며, J.P. Morgan Kinexys–Ondo 크로스체인 DvP에서 실제로 쓰였습니다."},
+  {act:1, scene:"oracle", sn:"ACT 2 · 인프라", nh:"한 축이라도 빠지면 껍데기",
+   np:"왼쪽 세 축 중 특히 규제 데이터가 어렵습니다. 외국인 잔여 한도는 장내·장외를 합친 시장 전체 집계라, 개별 토큰은 물론 온체인 전체로도 만들 수 없는 값입니다.",
+   tfl:"권위 vs 전달", tft:"데이터의 권위는 KRX·KSD 같은 법적 원천 기관이, 전달만 Chainlink 네트워크가 담당합니다. 오라클은 값의 생산자가 아니라 전달자입니다."},
+
+  // ACT 3
+  {act:2, scene:"twoStandards", sn:"ACT 3 · 토큰화·커스터디", nh:"규제와 결제를 두 표준으로",
+   np:"왼쪽 두 표준은 경쟁이 아니라 곱셈입니다. 하나는 '누가'(규제)를, 다른 하나는 '언제'(결제 시차)를 담당해, ACT 1·2에서 세운 두 현실을 각각의 계층으로 나눠 맡습니다.",
+   tfl:"무엇을 담나", tft:"ERC-3643은 이전마다 신원·규칙을 검사하고, ERC-7540은 실물 결제의 대기·되돌림 상태를 표현합니다."},
+  {act:2, scene:"primaryVsSecondary", sn:"ACT 3 · 토큰화·커스터디", nh:"기다림은 1차에만 있다",
+   np:"발행회사가 이미 참여하기로 정해져 있어 주식이 미리 수탁돼 있으므로, 대부분의 거래인 투자자 간 매매는 대기가 없습니다. 시차는 수탁 물량 자체를 늘리거나 줄이는 1차 시장에서만 생깁니다.",
+   tfl:"왜 이렇게 나오나", tft:"미리 수탁된 주식이 토큰을 뒷받침하므로, 매매는 원장에서 소유자만 바꾸면 됩니다. 실물이 새로 오가는 발행·환매만 KSD 절차를 거칩니다."},
+
+  // interactive lifecycle (compressed)
+  {act:2, scene:"lifecycle", sn:"ACT 3 · 라이프사이클 ①", nh:"온보딩 — 신원 확인",
+   np:"Alice가 계좌 개설 KYC를 마치면, 신원 확인·외국환 신고·조세 거주지 같은 서명된 클레임을 담은 온체인 신원이 만들어집니다. 클레임이 없으면 보유도 불가능합니다.",
+   tfl:"계좌 개설 / KYC", tft:"증권사가 여권번호로 신원을 확인하고 고객확인의무를 이행하는 절차를, 종이 서류 대신 온체인 클레임으로 처리합니다.",
+   active:["investor"], gates:[["신원 확인(KYC) ✓","pass"],["외국환 신고 ✓","pass"],["조세 거주지 ✓","pass"]], state:"idle"},
+  {act:2, scene:null, sn:"ACT 3 · 라이프사이클 ② · 2차", nh:"★ 매수 — 즉시 체결",
+   np:"주식은 미리 수탁돼 있으니, Alice는 이미 발행된 토큰 100주를 시장에서 바로 삽니다. 발행인계좌관리기관 원장에서 소유자가 Alice로 바뀝니다. 매수 직전 Alice의 신원·한도가 검사되고, 통과하면 대기 없이 즉시 확정됩니다.",
+   tfl:"2차 시장 매수", tft:"대부분의 거래가 여기 속합니다. 미리 수탁된 주식이 뒷받침하므로 실물 결제 대기가 없습니다.",
+   active:["investor","token"], flow:"100주 매수 →", gates:[["신원 확인 ✓","pass"],["보유 한도 32.4% < 49% ✓","pass"]], state:"claimed", set:{cap:32.4,shares:100,usdc:10000}, bal:{investor:"100 주",token:"소유자 → Alice"}},
+  {act:2, scene:null, sn:"ACT 3 · 라이프사이클 ③", nh:"배당 — 투자자별 조세조약 적용",
+   np:"SK하이닉스가 배당을 선언합니다. 배당은 투자자가 거주국의 조세조약에 따라 서로 다른 원천징수율을 적용받습니다. 배당을 주가에 섞지 않고 투자자별로 따로 계산하기 때문에, 각자의 조약 세율을 정확히 반영할 수 있습니다.",
+   tfl:"배당 + 원천징수", tft:"발행인계좌관리기관이 배당을 받아 투자자별 조약 세율을 적용한 뒤 배정합니다. 아래 숫자는 예시이며(15% 가정), 실제 세율은 투자자 거주국·조약에 따라 다릅니다.",
+   active:["custodian","token","investor"], flow:"배당 →", set:{div:255}, bal:{investor:"+255 USDC",custodian:"배당 수령"}, note:"예시: 총 300 · 원천징수 45(15% 가정) · 순액 255"},
+  {act:2, scene:null, sn:"ACT 3 · 라이프사이클 ④ · 2차", nh:"★ 매도 — 즉시 체결",
+   np:"Alice가 보유 주식 40주를 다른 투자자 Bob에게 팝니다. 여기도 실물을 건드리지 않고, 원장에서 소유자만 Alice → Bob으로 바뀝니다. 이전 직전 Bob의 신원·한도가 검사되고, 통과하면 즉시 확정됩니다.",
+   tfl:"2차 시장 매도", tft:"매수와 대칭입니다. 온체인 원장이 곧 법적 전자등록계좌부라, 이전이 곧 주식 양도입니다.",
+   active:["investor","token","investor2"], flow:"40주 → Bob", gates:[["Bob 신원 확인 ✓","pass"],["Bob 외국환 신고 ✓","pass"],["보유 한도 통과 ✓","pass"]], bal:{investor:"60 주",investor2:"40 주",token:"소유자 변경"}},
+  {act:2, scene:null, sn:"ACT 3 · 라이프사이클 ⑤ · 1차", nh:"발행·환매 — 유일하게 기다리는 곳",
+   np:"수탁 물량 자체를 늘리거나 줄일 때만 1차 시장이 움직입니다. 새 발행은 수탁기관이 USDC를 환전해 실물을 사서 원장에 올리고, 환매는 실물을 팔아 토큰을 소각합니다. 이때만 T+2·환전 시차가 생겨 '대기' 상태를 거칩니다.",
+   tfl:"1차 시장 (creation·redemption)", tft:"드물게 일어나는 순 수탁량 변동입니다. ERC-7540이 이 대기·되돌림 상태를 표현하고, 2차 매매에는 이 시차가 없습니다.",
+   active:["custodian","token"], offchain:true, ocLabel:"실물 매수·매도 · T+2 · 환전", flow:"수탁량 조정", state:"pending", bal:{custodian:"실물 정산 중…",token:"발행량 조정"}},
+
+  // ACT 4
+  {act:3, scene:"agentGap", sn:"ACT 4 · AI 에이전트", nh:"복잡한 건 에이전트가 처리",
+   np:"투자자는 지갑 주소나 주문 수량을 몰라도 됩니다. \"하이닉스 500만 원어치 사줘\"라고 말하면, 에이전트가 종목·방향·금액·조건으로 바꿔 규칙에 맞는 주문으로 실행합니다.",
+   tfl:"왜 이제 가능한가", tft:"앞 트랙에서 토큰이 매 이전마다 신원·한도를 스스로 검사하니, 에이전트는 주문을 넣기만 하면 됩니다. 규칙 판단을 사람이나 코드가 따로 붙일 필요가 없습니다."},
+  {act:3, scene:"agentSafe", sn:"ACT 4 · AI 에이전트", nh:"편해져도 규제는 그대로",
+   np:"자연어라고 규칙이 느슨해지지 않습니다. 에이전트도 신원·외국인 한도 검사를 통과하는 주문만 실행할 수 있고, 위임 범위를 넘는 요청은 사람 확인으로 넘깁니다.",
+   tfl:"핵심", tft:"편의성과 규제 준수가 충돌하지 않습니다. 규칙이 토큰 안에 박혀 있어, 인터페이스가 말로 바뀌어도 통제 지점은 그대로입니다."},
+
+  // OUTRO
+  {act:-1, scene:"outro", sn:"종합", nh:"Alice가 얻은 것",
+   np:"두바이의 Alice는 이제 국내 계좌·상임대리인 없이, 말 한마디로 진짜 하이닉스 주식을 사고 즉시 소유합니다. 이걸 가능하게 한 네 조각이 왼쪽에 있습니다 — 각각이 없으면 앞 조각이 무너집니다.",
+   tfl:"한 문장으로", tft:"규제가 허용하는 형태로 진짜 주식을 온체인에 올리고, 그 위에서 즉시 거래되게 하고, 말로 쓸 수 있게 하는 것 — 그게 이 사이클입니다."},
+];
+
+// ================= engine =================
+let cur = -1;
+const R = {shares:0, usdc:0, div:0, cap:32.0};
+const $ = id=>document.getElementById(id);
+
+function buildRail(){
+  const rail=$("rail");rail.innerHTML="";
+  for(let i=0;i<STEPS.length;i++){const s=document.createElement("div");s.className="seg";s.id="seg"+i;rail.appendChild(s);}
+}
+function fmt(n){return n.toLocaleString("en-US")}
+
+function render(){
+  // rail
+  for(let i=0;i<STEPS.length;i++){const seg=$("seg"+i);seg.className="seg"+(i<cur?" done":i===cur?" active":"");}
+
+  // controls
+  $("prev").disabled = cur<0;
+  $("next").textContent = cur>=STEPS.length-1 ? "완료 ✓" : (cur<0?"시작 →":"다음 →");
+  $("next").disabled = cur>=STEPS.length-1;
+  $("sc").textContent = cur<0?"":("단계 "+(cur+1)+" / "+STEPS.length);
+
+  const st = cur<0 ? STEPS[0] : STEPS[cur];
+
+  // act tabs
+  const acts=document.querySelectorAll(".act-tab");
+  acts.forEach((t,i)=>{
+    t.classList.remove("on","done");
+    const bar=t.querySelector(".bar");
+    if(cur<0){bar.style.width="0";return;}
+    if(i<st.act){t.classList.add("done");bar.style.width="100%";}
+    else if(i===st.act){t.classList.add("on");
+      // progress within act
+      let seen=0,total=0;STEPS.forEach((s,idx)=>{if(s.act===i){total++;if(idx<=cur)seen++;}});
+      bar.style.width=(seen/total*100)+"%";}
+    else{bar.style.width="0";}
+  });
+
+  // narrative
+  $("sn").textContent=st.sn;
+  $("nh").textContent=st.nh;
+  $("np").innerHTML=st.np.replace(/(ERC-3643|ERC-7540|ERC-20|ERC-4626|Chainlink CCIP|CCIP|KSD|DvP|OP Stack|Besu|Ondo|ADR|발행인계좌관리기관|전자등록계좌부|전자등록주식)/g,'<span class="fn">$1</span>');
+  $("tfl").textContent=st.tfl;
+  $("tft").textContent=st.tft;
+
+  // stage scene
+  if(st.scene){
+    $("stage").innerHTML = SCENES[st.scene]();
+  }
+  // lifecycle steps reuse the lifecycle scene DOM; render actor state onto it
+  if(st.active || st.state || st.scene==="lifecycle" || st.flow){
+    renderLifecycle(st);
+  }
+}
+
+function renderLifecycle(st){
+  // ensure lifecycle DOM exists (steps after the lifecycle scene reuse it)
+  if(!$("lanes")){ $("stage").innerHTML = SCENES.lifecycle(); }
+  // reset
+  document.querySelectorAll("#lanes .actor").forEach(a=>{a.classList.remove("active");a.classList.add("dim")});
+  const fm=$("flowmsg"); if(fm)fm.classList.remove("show");
+  const oc=$("offchain"); if(oc)oc.classList.remove("show");
+  if($("gates"))$("gates").innerHTML="";
+  if($("ocfill")){$("ocfill").style.width="0";$("oct").textContent="T+0";}
+
+  // active actors
+  (st.active||[]).forEach(a=>{const el=document.querySelector('#lanes .actor[data-actor="'+a+'"]');if(el){el.classList.add("active");el.classList.remove("dim");}});
+
+  // apply metric changes
+  if(st.set) Object.assign(R,st.set);
+  updateMetrics();
+  updateBalances(st.bal||{});
+
+  // flow message
+  if(st.flow && fm){fm.textContent=st.flow;positionFlow(st.active||[]);setTimeout(()=>fm.classList.add("show"),80);}
+
+  // gates
+  if(st.gates && $("gates")){st.gates.forEach((gt,i)=>{const d=document.createElement("div");d.className="gate "+gt[1];d.textContent=gt[0];$("gates").appendChild(d);setTimeout(()=>d.classList.add("show"),120+i*200);});}
+
+  // offchain clock
+  if(st.offchain && oc){$("oc-label").textContent=st.ocLabel||"T+2 · 환전";setTimeout(()=>oc.classList.add("show"),80);setTimeout(()=>{if($("ocfill"))$("ocfill").style.width="100%";},220);const seq=["T+0","T+1","T+2","결제 완료"];seq.forEach((lab,i)=>setTimeout(()=>{if($("oct"))$("oct").textContent=lab;},220+i*380));}
+}
+
+function positionFlow(acts){
+  const map={investor:0,investor2:1,token:2,custodian:3};
+  if(!acts.length)return;const idxs=acts.map(a=>map[a]).filter(x=>x!==undefined);if(!idxs.length)return;
+  const mid=(Math.min(...idxs)+Math.max(...idxs))/2;$("flowmsg").style.left=((mid+0.5)/4*100)+"%";
+}
+function updateMetrics(){
+  if(!$("m-shares"))return;
+  $("m-shares").innerHTML=fmt(R.shares)+'<span class="u"> 주</span>';
+  $("m-usdc").innerHTML=fmt(R.usdc)+'<span class="u"> USDC</span>';
+  $("m-div").innerHTML=fmt(R.div)+'<span class="u"> USDC</span>';
+  $("m-cap").innerHTML=R.cap.toFixed(1)+'<span class="u"> %</span>';
+}
+function updateBalances(bal){
+  ["investor","investor2","token","custodian"].forEach(k=>{const el=$("bal-"+k);if(!el)return;
+    if(bal[k]!==undefined){el.innerHTML=bal[k].replace(/(\+?[\d,]+ USDC|[\d,]+ 주)/g,'<b>$1</b>').replace(/(발행량 \d+|소유자 변경)/g,'<span class="tk">$1</span>');}
+    else{el.innerHTML="";}});
+}
+
+// ---------- navigation ----------
+function step(d){
+  if(cur<0 && d<0) return;
+  cur += d;
+  if(cur<-1)cur=-1;
+  if(cur>STEPS.length-1)cur=STEPS.length-1;
+  render();
+  scrollTop();
+}
+function reset(){cur=-1;R.shares=0;R.usdc=0;R.div=0;R.cap=32.0;render();scrollTop();}
+function scrollTop(){ if(window.scrollY>140) window.scrollTo({top:0,behavior:"smooth"}); }
+
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")return;
+  if(e.key==="ArrowRight"){e.preventDefault();step(1);}
+  if(e.key==="ArrowLeft"){e.preventDefault();step(-1);}
+});
+
+// clicking an act tab jumps to that act's first step
+document.querySelectorAll(".act-tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    const a=+t.dataset.act;
+    const idx=STEPS.findIndex(s=>s.act===a);
+    if(idx>=0){cur=idx;render();scrollTop();}
+  });
+});
+
+buildRail();
+$("stage").innerHTML = SCENES.intro();
+render();
+</script>
+</body>
+</html>

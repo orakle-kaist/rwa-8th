@@ -1,0 +1,16 @@
+topic: korean-equity-rwa
+title: "외국인의 한국주식 접근성 개선을 위한 RWA 토큰화"
+quality_level: examples_level
+max_iterations: 3
+writer:
+  mode: codex_session
+  command: "internal:codex-writer"
+feedback_script:
+  mode: internal_review
+  command: "internal:codex-review --draft {draft} --output {feedback}"
+research:
+  cutoff: "2026-08-16"
+  source_priority: "official_primary_first"
+candidate_gate:
+  min_characters: 12000
+  unresolved_high_issues: 0

@@ -1,0 +1,143 @@
+meta:
+  fixtureVersion: 1.0.0
+  demoOnly: true
+  legalStatus: ILLUSTRATIVE_ONLY
+  generatedForDate: "2026-08-16"
+  timezone: Asia/Seoul
+  warning: "Synthetic prices, balances, foreign room and investor records. Not for trading or legal reliance."
+
+clock:
+  startAt: "2026-08-17T00:00:00+09:00"
+  marketOpenAt: "2026-08-17T09:00:00+09:00"
+  marketCloseAt: "2026-08-17T15:30:00+09:00"
+  tPlusTwoAt: "2026-08-19T16:00:00+09:00"
+  maximumClockSkewSeconds: 30
+
+institutions:
+  - institutionId: HK_DIST_001
+    role: FOREIGN_DISTRIBUTOR
+    displayName: Foreign Licensed Distributor - HK Reference
+  - institutionId: KR_BROKER_001
+    role: KR_BROKER_CUSTODIAN
+    displayName: Korean Broker and Custodian
+  - institutionId: KR_BANK_001
+    role: SETTLEMENT_BANK
+    displayName: Korean Settlement Bank
+  - institutionId: CONTROL_001
+    role: INDEPENDENT_CONTROL
+    displayName: Independent Consortium Control
+  - institutionId: AUDITOR_001
+    role: AUDITOR
+    displayName: Read-only Auditor
+
+policies:
+  - profileId: KR_ASSET_001
+    policyId: KR_ASSET_POLICY
+    policyVersion: 1.0.0
+    jurisdiction: KR
+    legalStatus: ILLUSTRATIVE_ONLY
+    contentHash: "0x1111111111111111111111111111111111111111111111111111111111111111"
+  - profileId: HK_DIST_POLICY_001
+    policyId: HK_DISTRIBUTION_POLICY
+    policyVersion: 1.0.0
+    jurisdiction: HK
+    legalStatus: ILLUSTRATIVE_ONLY
+    contentHash: "0x2222222222222222222222222222222222222222222222222222222222222222"
+    replaceableWithoutCoreChange: true
+
+participants:
+  - participantId: INV_HK_001
+    residenceJurisdiction: HK
+    investorCategory: PROFESSIONAL
+    wallet: "0x1111111111111111111111111111111111111111"
+    eligibilityStatus: ACTIVE
+  - participantId: INV_HK_002
+    residenceJurisdiction: HK
+    investorCategory: PROFESSIONAL
+    wallet: "0x2222222222222222222222222222222222222222"
+    eligibilityStatus: ACTIVE
+  - participantId: INV_EXPIRED_001
+    residenceJurisdiction: HK
+    investorCategory: PROFESSIONAL
+    wallet: "0x3333333333333333333333333333333333333333"
+    eligibilityStatus: EXPIRED
+  - participantId: INV_SANCTIONED_001
+    residenceJurisdiction: HK
+    investorCategory: PROFESSIONAL
+    wallet: "0x4444444444444444444444444444444444444444"
+    eligibilityStatus: SUSPENDED
+
+products:
+  - instrumentId: EQ_SKHYNIX_001
+    marketIdentifier: KRX:000660
+    underlyingName: SK hynix
+    underlyingIsin: KR7000660001
+    legalForm: CUSTODIAL_CONTRACTUAL_ENTITLEMENT
+    entitlementNumerator: 1
+    entitlementDenominator: 1
+    tokenDecimals: 0
+    governingLaw: Republic of Korea - illustrative only
+    termsVersion: 1.0.0
+    effectiveFrom: "2026-08-17T00:00:00+09:00"
+    effectiveUntil: null
+    legalStatus: ILLUSTRATIVE_ONLY
+    demoOnly: true
+  - instrumentId: EQ_KT_001
+    marketIdentifier: KRX:030200
+    underlyingName: KT
+    underlyingIsin: KR7030200000
+    legalForm: CUSTODIAL_CONTRACTUAL_ENTITLEMENT
+    entitlementNumerator: 1
+    entitlementDenominator: 1
+    tokenDecimals: 0
+    governingLaw: Republic of Korea - illustrative only
+    termsVersion: 1.0.0
+    effectiveFrom: "2026-08-17T00:00:00+09:00"
+    effectiveUntil: null
+    legalStatus: ILLUSTRATIVE_ONLY
+    demoOnly: true
+
+marketData:
+  - instrumentId: EQ_SKHYNIX_001
+    quotePriceKrw: 200000
+    quoteAsOf: "2026-08-17T09:00:00+09:00"
+    quoteValidSeconds: 30
+    aggregateForeignRoomQuantity: 1000000
+    roomAsOf: "2026-08-17T09:00:00+09:00"
+    source: KRX_MOCK
+    demoOnly: true
+  - instrumentId: EQ_KT_001
+    quotePriceKrw: 50000
+    quoteAsOf: "2026-08-17T09:00:00+09:00"
+    quoteValidSeconds: 30
+    aggregateForeignRoomQuantity: 50
+    roomAsOf: "2026-08-17T09:00:00+09:00"
+    source: KRX_MOCK
+    demoOnly: true
+
+initialLedger:
+  entitlements:
+    EQ_SKHYNIX_001:
+      settledCustody: 0
+      unallocatedCustody: 0
+      tokenizedBacking: 0
+      totalSupply: 0
+  mockKrwBalances:
+    INV_HK_001: 3000000
+    INV_HK_002: 3000000
+  systemHold: false
+
+normalScenario:
+  participantId: INV_HK_001
+  counterpartyId: INV_HK_002
+  instrumentId: EQ_SKHYNIX_001
+  primaryQuantity: 10
+  secondaryQuantity: 2
+  primaryLimitPriceKrw: 200000
+  secondaryPriceKrw: 205000
+  grossDividendPerTokenKrw: 1000
+
+failureScenario:
+  aggregateRoomInstrumentId: EQ_KT_001
+  requestedPrimaryQuantity: 100
+  availableAggregateForeignRoomQuantity: 50

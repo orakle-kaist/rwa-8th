@@ -1,0 +1,14 @@
+{"id":"U001","kind":"user_html","path":"tmp/한국주식RWA_규제부터거래까지_워크스루.html","sha256":"639e70519a145707a8423733179c6513240bdc70a5735fe0d9f8d034d0f14ee4","reliability":"C","status":"context_only"}
+{"id":"U002","kind":"user_image","path":"tmp/2kqaugmsmwbn3a.png","sha256":"bd6bfe1af061c65b42231e645f08cf4767fb8a8cb0f44ad02581cd2d20755486","reliability":"C","status":"lead_only"}
+{"id":"U003","kind":"user_pdf","path":"tmp/경서님/W1_국내_자본시장법_및_토큰증권_규제_현황.pdf","sha256":"8dd8c35620698999df17676d8a958dd0b67712825d65751476f3ea521c583398","reliability":"C","status":"accepted_with_verification"}
+{"id":"U004","kind":"user_pdf","path":"tmp/경서님/W2_vasp_지급결제_투자자식별모델구조화.pdf","sha256":"17450b72d6ba70facd7c860204678bf40f0c87a5d8f740bc157f965b4838e44b","reliability":"C","status":"accepted_in_part"}
+{"id":"U005","kind":"user_pdf","path":"tmp/경서님/W3_명의개서대리인구조_프라이버시적용가능성_온체인연동한계.pdf","sha256":"d24dbfb608408aa7a4664f3364a8b75d8fa42c325efc5a890990ce9b2d7be981","reliability":"C","status":"accepted_in_part"}
+{"id":"U006","kind":"user_pdf","path":"tmp/경서님/W5_Compliance_Rule_Engine_설계.pdf","sha256":"64455eb12bd3966475e0e9233540d94f741931eb11a4b218afa841145908504e","reliability":"C","status":"accepted_in_part"}
+{"id":"U007","kind":"user_pdf","path":"tmp/경서님/W6_신원증명_전송제한_프라이버시_결합방안.pdf","sha256":"5f2a18bd6310a7b36ebc45586874c1ab7aa4fa49c336a83e1444cc9980b95728","reliability":"C","status":"accepted"}
+{"id":"U008","kind":"user_pdf","path":"tmp/경서님/W7_투자자식별데이터_온체인상태_결합시나리오.pdf","sha256":"91c375998bfe144ed4d9df41bbf095f2f259251c864546ddb94f6addb5616d7d","reliability":"C","status":"accepted_in_part"}
+{"id":"U009","kind":"user_pdf","path":"tmp/민겸님/VerifyVasp.pdf","sha256":"68cd09db7aaf306560eb5fa92200dfd19c3b8db922d62afefe0be8f7a4c66494","reliability":"C","status":"context_only"}
+{"id":"U010","kind":"user_pdf","path":"tmp/휘서님/W1_블록체인_아키텍처_비교분석.pdf","sha256":"2c28bf2a6aaf4ee1a9a904c0a5db912c379f1a32ec816d03473952d0ee236cbd","reliability":"C","status":"accepted"}
+{"id":"U011","kind":"user_pdf","path":"tmp/휘서님/W2_블록체인_인터오퍼러빌리티_리서치보고서.pdf","sha256":"ad10790a61a8fdfc9c73d0ce8bc4897b84b66e47dd934393ffc8d4b571eac035","reliability":"C","status":"accepted_in_part"}
+{"id":"U012","kind":"user_pdf","path":"tmp/휘서님/W3_한국주식RWA_로컬노드_데이터연동_아키텍처.pdf","sha256":"929ff39dc31789d00daefdf4f51298fae476cf4b4f67e712eda80d891bec059f","reliability":"C","status":"rejected_core_architecture"}
+{"id":"U013","kind":"user_pdf","path":"tmp/휘서님/W4_오라클환경_실물자산_온체인동기화.pdf","sha256":"17725545a17f2dd7ba99552a3d0fb0b3f7637bf6830415785e4d234b9a04d2c7","reliability":"C","status":"accepted_in_part"}
+{"id":"S001-S014","kind":"official_web_notes","path":"sources/web/official-sources.md","reliability":"A-B","status":"accepted","verified_at":"2026-08-16"}

@@ -1,0 +1,2 @@
+{"run_id":"iter_01","started_at":"2026-08-16T00:00:00+09:00","completed_at":"2026-08-16T00:00:00+09:00","stage":"awaiting_human_review","writer":"codex_session","reviewer":"codex_internal","high_issues_open":0}
+{"run_id":"validation_01","started_at":"2026-08-16T21:00:00+09:00","completed_at":"2026-08-16T21:06:20+09:00","stage":"awaiting_human_review","checks":["local_design_validator","openapi_lint","asyncapi_validate","gherkin_lint","research_candidate_gate","git_diff_check"],"status":"passed"}

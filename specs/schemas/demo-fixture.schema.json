@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa.local/schemas/demo-fixture.schema.json",
+  "title": "Deterministic demo fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "clock", "institutions", "policies", "participants", "products", "marketData", "initialLedger", "normalScenario", "failureScenario"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixtureVersion", "demoOnly", "legalStatus", "generatedForDate", "timezone", "warning"],
+      "properties": {
+        "fixtureVersion": { "const": "1.0.0" },
+        "demoOnly": { "const": true },
+        "legalStatus": { "const": "ILLUSTRATIVE_ONLY" },
+        "generatedForDate": { "type": "string", "format": "date" },
+        "timezone": { "const": "Asia/Seoul" },
+        "warning": { "type": "string", "minLength": 20 }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startAt", "marketOpenAt", "marketCloseAt", "tPlusTwoAt", "maximumClockSkewSeconds"],
+      "properties": {
+        "startAt": { "type": "string", "format": "date-time" },
+        "marketOpenAt": { "type": "string", "format": "date-time" },
+        "marketCloseAt": { "type": "string", "format": "date-time" },
+        "tPlusTwoAt": { "type": "string", "format": "date-time" },
+        "maximumClockSkewSeconds": { "const": 30 }
+      }
+    },
+    "institutions": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["institutionId", "role", "displayName"],
+        "properties": {
+          "institutionId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+          "role": {
+            "type": "string",
+            "enum": ["FOREIGN_DISTRIBUTOR", "KR_BROKER_CUSTODIAN", "SETTLEMENT_BANK", "INDEPENDENT_CONTROL", "AUDITOR"]
+          },
+          "displayName": { "type": "string", "minLength": 3, "maxLength": 128 }
+        }
+      }
+    },
+    "policies": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["profileId", "policyId", "policyVersion", "jurisdiction", "legalStatus", "contentHash"],
+        "properties": {
+          "profileId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+          "policyId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+          "policyVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+          "jurisdiction": { "type": "string", "pattern": "^[A-Z]{2}$" },
+          "legalStatus": { "const": "ILLUSTRATIVE_ONLY" },
+          "contentHash": { "$ref": "domain.schema.json#/$defs/Hash" },
+          "replaceableWithoutCoreChange": { "type": "boolean" }
+        }
+      },
+      "contains": {
+        "type": "object",
+        "required": ["jurisdiction", "replaceableWithoutCoreChange"],
+        "properties": {
+          "jurisdiction": { "const": "HK" },
+          "replaceableWithoutCoreChange": { "const": true }
+        }
+      }
+    },
+    "participants": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["participantId", "residenceJurisdiction", "investorCategory", "wallet", "eligibilityStatus"],
+        "properties": {
+          "participantId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+          "residenceJurisdiction": { "type": "string", "pattern": "^[A-Z]{2}$" },
+          "investorCategory": { "type": "string", "enum": ["RETAIL", "PROFESSIONAL", "INSTITUTIONAL"] },
+          "wallet": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+          "eligibilityStatus": { "type": "string", "enum": ["ACTIVE", "EXPIRED", "SUSPENDED"] }
+        }
+      }
+    },
+    "products": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "domain.schema.json#/$defs/ProductTerms" }
+    },
+    "marketData": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["instrumentId", "quotePriceKrw", "quoteAsOf", "quoteValidSeconds", "aggregateForeignRoomQuantity", "roomAsOf", "source", "demoOnly"],
+        "properties": {
+          "instrumentId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+          "quotePriceKrw": { "type": "integer", "minimum": 1 },
+          "quoteAsOf": { "type": "string", "format": "date-time" },
+          "quoteValidSeconds": { "type": "integer", "minimum": 1 },
+          "aggregateForeignRoomQuantity": { "type": "integer", "minimum": 0 },
+          "roomAsOf": { "type": "string", "format": "date-time" },
+          "source": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+          "demoOnly": { "const": true }
+        }
+      }
+    },
+    "initialLedger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entitlements", "mockKrwBalances", "systemHold"],
+      "properties": {
+        "entitlements": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["settledCustody", "unallocatedCustody", "tokenizedBacking", "totalSupply"],
+            "properties": {
+              "settledCustody": { "type": "integer", "minimum": 0 },
+              "unallocatedCustody": { "type": "integer", "minimum": 0 },
+              "tokenizedBacking": { "type": "integer", "minimum": 0 },
+              "totalSupply": { "type": "integer", "minimum": 0 }
+            }
+          }
+        },
+        "mockKrwBalances": {
+          "type": "object",
+          "minProperties": 2,
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "systemHold": { "const": false }
+      }
+    },
+    "normalScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["participantId", "counterpartyId", "instrumentId", "primaryQuantity", "secondaryQuantity", "primaryLimitPriceKrw", "secondaryPriceKrw", "grossDividendPerTokenKrw"],
+      "properties": {
+        "participantId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "counterpartyId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "primaryQuantity": { "type": "integer", "minimum": 1 },
+        "secondaryQuantity": { "type": "integer", "minimum": 1 },
+        "primaryLimitPriceKrw": { "type": "integer", "minimum": 1 },
+        "secondaryPriceKrw": { "type": "integer", "minimum": 1 },
+        "grossDividendPerTokenKrw": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "failureScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregateRoomInstrumentId", "requestedPrimaryQuantity", "availableAggregateForeignRoomQuantity"],
+      "properties": {
+        "aggregateRoomInstrumentId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "requestedPrimaryQuantity": { "type": "integer", "minimum": 1 },
+        "availableAggregateForeignRoomQuantity": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

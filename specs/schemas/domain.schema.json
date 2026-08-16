@@ -1,0 +1,553 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa.local/schemas/domain.schema.json",
+  "title": "Korean Equity RWA PoC Domain Types",
+  "description": "Normative domain types. PII fields are intentionally absent and must not be added to shared payloads.",
+  "$defs": {
+    "OpaqueId": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_-]{2,63}$"
+    },
+    "Hash": {
+      "type": "string",
+      "pattern": "^0x[a-fA-F0-9]{64}$"
+    },
+    "PositiveInteger": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "NonNegativeInteger": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "Money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "amountMinor"],
+      "properties": {
+        "currency": {
+          "type": "string",
+          "enum": ["KRW", "HKD", "USD"]
+        },
+        "amountMinor": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "EvidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidenceId", "contentHash", "classification"],
+      "properties": {
+        "evidenceId": { "$ref": "#/$defs/OpaqueId" },
+        "contentHash": { "$ref": "#/$defs/Hash" },
+        "classification": {
+          "type": "string",
+          "enum": ["CONSORTIUM", "CONFIDENTIAL", "RESTRICTED_PII"]
+        }
+      }
+    },
+    "InstitutionSignature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alg", "kid", "value"],
+      "properties": {
+        "alg": { "const": "EdDSA" },
+        "kid": { "type": "string", "minLength": 3, "maxLength": 128 },
+        "value": { "type": "string", "minLength": 32, "maxLength": 2048 }
+      }
+    },
+    "HumanSignature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scheme", "signerWallet", "typedDataHash", "nonce", "signedAt", "expiresAt", "value"],
+      "properties": {
+        "scheme": { "const": "EIP712_SECP256K1" },
+        "signerWallet": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "typedDataHash": { "$ref": "#/$defs/Hash" },
+        "nonce": { "type": "string", "minLength": 8, "maxLength": 128 },
+        "signedAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "value": { "type": "string", "minLength": 130, "maxLength": 132 }
+      }
+    },
+    "EventEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eventId", "schemaVersion", "source", "sequence", "occurredAt", "effectiveAt", "dataAsOf", "idempotencyKey", "correlationId", "eventType", "signature", "data"],
+      "properties": {
+        "eventId": { "type": "string", "format": "uuid" },
+        "schemaVersion": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
+        "source": { "$ref": "#/$defs/OpaqueId" },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "occurredAt": { "type": "string", "format": "date-time" },
+        "effectiveAt": { "type": "string", "format": "date-time" },
+        "dataAsOf": { "type": "string", "format": "date-time" },
+        "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 128 },
+        "correlationId": { "type": "string", "format": "uuid" },
+        "causationId": { "type": ["string", "null"], "format": "uuid" },
+        "eventType": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]+$" },
+        "signature": { "$ref": "#/$defs/InstitutionSignature" },
+        "data": { "type": "object" }
+      }
+    },
+    "OnboardingCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseId", "participantId", "distributorInstitutionId", "residenceJurisdiction", "investorCategory", "status", "disclosureAcceptanceRefs", "createdAt", "updatedAt"],
+      "properties": {
+        "caseId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "distributorInstitutionId": { "$ref": "#/$defs/OpaqueId" },
+        "residenceJurisdiction": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "investorCategory": { "type": "string", "enum": ["RETAIL", "PROFESSIONAL", "INSTITUTIONAL"] },
+        "status": { "type": "string", "enum": ["DRAFT", "KYC_PENDING", "POLICY_PENDING", "MANUAL_REVIEW", "ACTIVE", "EXPIRED", "SUSPENDED", "REJECTED"] },
+        "disclosureAcceptanceRefs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/OpaqueId" }
+        },
+        "decisionIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/OpaqueId" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "KycResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kycResultId", "caseId", "participantId", "status", "reasonCodes", "evidenceRef", "verifiedAt", "validUntil", "signature"],
+      "properties": {
+        "kycResultId": { "$ref": "#/$defs/OpaqueId" },
+        "caseId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["PASSED", "FAILED"] },
+        "reasonCodes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" }
+        },
+        "evidenceRef": { "$ref": "#/$defs/EvidenceRef" },
+        "verifiedAt": { "type": "string", "format": "date-time" },
+        "validUntil": { "type": "string", "format": "date-time" },
+        "signature": { "$ref": "#/$defs/InstitutionSignature" }
+      }
+    },
+    "PolicyEvaluationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evaluationId", "participantId", "residenceJurisdiction", "investorCategory", "distributorInstitutionId", "instrumentId", "productLegalForm", "action", "quantity", "evaluationTime"],
+      "properties": {
+        "evaluationId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "residenceJurisdiction": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "investorCategory": { "type": "string", "enum": ["RETAIL", "PROFESSIONAL", "INSTITUTIONAL"] },
+        "distributorInstitutionId": { "$ref": "#/$defs/OpaqueId" },
+        "distributorLicenseClaims": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "productLegalForm": { "const": "CUSTODIAL_CONTRACTUAL_ENTITLEMENT" },
+        "action": {
+          "type": "string",
+          "enum": ["ONBOARD", "BUY_PRIMARY", "TRANSFER_SECONDARY", "RECEIVE", "REDEEM", "DIVIDEND"]
+        },
+        "quantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "disclosureAcceptanceRefs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/OpaqueId" }
+        },
+        "evaluationTime": { "type": "string", "format": "date-time" }
+      }
+    },
+    "PolicyDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decisionId", "evaluationId", "profileId", "decision", "reasonCodes", "requirements", "limits", "policyId", "policyVersion", "dataAsOf", "validUntil", "evidenceHash", "signature"],
+      "properties": {
+        "decisionId": { "$ref": "#/$defs/OpaqueId" },
+        "evaluationId": { "$ref": "#/$defs/OpaqueId" },
+        "profileId": { "$ref": "#/$defs/OpaqueId" },
+        "decision": { "type": "string", "enum": ["ALLOW", "DENY", "MANUAL_REVIEW"] },
+        "reasonCodes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" }
+        },
+        "requirements": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "maxLength": 256 }
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["limitType", "value"],
+            "properties": {
+              "limitType": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+              "value": { "type": "integer", "minimum": 0 },
+              "unit": { "type": "string", "maxLength": 32 }
+            }
+          }
+        },
+        "policyId": { "$ref": "#/$defs/OpaqueId" },
+        "policyVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "dataAsOf": { "type": "string", "format": "date-time" },
+        "validUntil": { "type": "string", "format": "date-time" },
+        "evidenceHash": { "$ref": "#/$defs/Hash" },
+        "legalStatus": { "type": "string", "enum": ["ILLUSTRATIVE_ONLY", "LEGAL_REVIEWED"] },
+        "signature": { "$ref": "#/$defs/InstitutionSignature" }
+      }
+    },
+    "InvestorEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligibilityId", "participantId", "wallet", "status", "allowedActions", "decisionIds", "validFrom", "validUntil"],
+      "properties": {
+        "eligibilityId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "wallet": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "status": { "type": "string", "enum": ["ACTIVE", "EXPIRED", "SUSPENDED", "REJECTED", "MANUAL_REVIEW"] },
+        "allowedActions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["BUY_PRIMARY", "TRANSFER_SECONDARY", "RECEIVE", "REDEEM", "DIVIDEND"] }
+        },
+        "decisionIds": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/OpaqueId" }
+        },
+        "validFrom": { "type": "string", "format": "date-time" },
+        "validUntil": { "type": "string", "format": "date-time" }
+      }
+    },
+    "OrderDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["orderId", "participantId", "instrumentId", "side", "quantity", "limitPrice", "termsVersion", "policyDecisionIds", "status", "createdAt", "expiresAt", "aiGenerated", "demoOnly"],
+      "properties": {
+        "orderId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "side": { "type": "string", "enum": ["BUY", "SELL"] },
+        "quantity": { "$ref": "#/$defs/PositiveInteger" },
+        "limitPrice": { "$ref": "#/$defs/Money" },
+        "termsVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "policyDecisionIds": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/OpaqueId" }
+        },
+        "status": {
+          "type": "string",
+          "enum": ["DRAFT", "CONFIRMED", "FUNDING_PENDING", "READY_FOR_MARKET", "EXECUTED", "AWAITING_CUSTODY_SETTLEMENT", "BACKED", "MINTED", "REJECTED", "SETTLEMENT_FAILED"]
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "aiGenerated": { "type": "boolean" },
+        "demoOnly": { "const": true },
+        "humanSignature": { "$ref": "#/$defs/HumanSignature" }
+      }
+    },
+    "FundingConfirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fundingId", "orderId", "status", "sourceCurrency", "sourceAmount", "settlementAmount", "fxRateEvidence", "confirmedAt", "signature", "demoOnly"],
+      "properties": {
+        "fundingId": { "$ref": "#/$defs/OpaqueId" },
+        "orderId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["CONFIRMED", "FAILED", "REVERSED"] },
+        "sourceCurrency": { "type": "string", "enum": ["HKD", "USD", "KRW"] },
+        "sourceAmount": { "$ref": "#/$defs/Money" },
+        "settlementAmount": { "$ref": "#/$defs/Money" },
+        "fxRateEvidence": { "$ref": "#/$defs/EvidenceRef" },
+        "confirmedAt": { "type": "string", "format": "date-time" },
+        "signature": { "$ref": "#/$defs/InstitutionSignature" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "MarketExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["executionId", "orderId", "instrumentId", "status", "executedQuantity", "executedPrice", "executedAt", "settlementDate", "marketDataAsOf", "signature", "demoOnly"],
+      "properties": {
+        "executionId": { "$ref": "#/$defs/OpaqueId" },
+        "orderId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["EXECUTED", "REJECTED"] },
+        "executedQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "executedPrice": { "$ref": "#/$defs/Money" },
+        "executedAt": { "type": "string", "format": "date-time" },
+        "settlementDate": { "type": "string", "format": "date" },
+        "marketDataAsOf": { "type": "string", "format": "date-time" },
+        "signature": { "$ref": "#/$defs/InstitutionSignature" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "CustodySettlement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["settlementId", "executionId", "instrumentId", "status", "settledQuantity", "settlementDate", "custodyAccountRef", "sourceSequence", "settledAt", "signature", "demoOnly"],
+      "properties": {
+        "settlementId": { "$ref": "#/$defs/OpaqueId" },
+        "executionId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["COMPLETED", "FAILED"] },
+        "settledQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "settlementDate": { "type": "string", "format": "date" },
+        "custodyAccountRef": { "$ref": "#/$defs/OpaqueId" },
+        "sourceSequence": { "type": "integer", "minimum": 1 },
+        "settledAt": { "type": "string", "format": "date-time" },
+        "signature": { "$ref": "#/$defs/InstitutionSignature" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "ReserveAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attestationId", "instrumentId", "settledCustodyQuantity", "tokenizedBackingQuantity", "asOf", "custodyEvidence", "approvals", "status"],
+      "properties": {
+        "attestationId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "settledCustodyQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "tokenizedBackingQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "asOf": { "type": "string", "format": "date-time" },
+        "custodyEvidence": { "$ref": "#/$defs/EvidenceRef" },
+        "approvals": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/InstitutionSignature" }
+        },
+        "status": { "type": "string", "enum": ["ACTIVE", "SUPERSEDED", "REVOKED"] }
+      }
+    },
+    "IssuanceRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuanceId", "orderId", "participantId", "instrumentId", "quantity", "custodySettlementId", "reserveAttestationId", "policyDecisionIds", "idempotencyKey"],
+      "properties": {
+        "issuanceId": { "$ref": "#/$defs/OpaqueId" },
+        "orderId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "quantity": { "$ref": "#/$defs/PositiveInteger" },
+        "custodySettlementId": { "$ref": "#/$defs/OpaqueId" },
+        "reserveAttestationId": { "$ref": "#/$defs/OpaqueId" },
+        "policyDecisionIds": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/OpaqueId" }
+        },
+        "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 128 }
+      }
+    },
+    "TradeProposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tradeId", "instrumentId", "sellerParticipantId", "buyerParticipantId", "quantity", "cashAmount", "expiresAt"],
+      "properties": {
+        "tradeId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "sellerParticipantId": { "$ref": "#/$defs/OpaqueId" },
+        "buyerParticipantId": { "$ref": "#/$defs/OpaqueId" },
+        "quantity": { "$ref": "#/$defs/PositiveInteger" },
+        "cashAmount": { "$ref": "#/$defs/Money" },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "TradeInstruction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tradeId", "instrumentId", "sellerParticipantId", "buyerParticipantId", "quantity", "cashAmount", "sellerDecisionIds", "buyerDecisionIds", "status", "expiresAt"],
+      "properties": {
+        "tradeId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "sellerParticipantId": { "$ref": "#/$defs/OpaqueId" },
+        "buyerParticipantId": { "$ref": "#/$defs/OpaqueId" },
+        "quantity": { "$ref": "#/$defs/PositiveInteger" },
+        "cashAmount": { "$ref": "#/$defs/Money" },
+        "sellerDecisionIds": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/OpaqueId" } },
+        "buyerDecisionIds": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/OpaqueId" } },
+        "sellerSignature": { "$ref": "#/$defs/HumanSignature" },
+        "buyerSignature": { "$ref": "#/$defs/HumanSignature" },
+        "status": { "type": "string", "enum": ["PROPOSED", "POLICY_CHECKED", "DUAL_SIGNED", "CASH_LOCKED", "ATOMICALLY_SETTLED", "REJECTED", "FAILED"] },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "TradeSignatureSubmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tradeId", "participantId", "party", "signature"],
+      "properties": {
+        "tradeId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "party": { "type": "string", "enum": ["SELLER", "BUYER"] },
+        "signature": { "$ref": "#/$defs/HumanSignature" }
+      }
+    },
+    "DvPResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tradeId", "status", "assetMoved", "cashMoved", "settledAt", "ledgerTransactionHash"],
+      "properties": {
+        "tradeId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["ATOMICALLY_SETTLED", "REJECTED", "FAILED"] },
+        "assetMoved": { "type": "boolean" },
+        "cashMoved": { "type": "boolean" },
+        "settledAt": { "type": "string", "format": "date-time" },
+        "ledgerTransactionHash": { "$ref": "#/$defs/Hash" }
+      }
+    },
+    "CorporateAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actionId", "instrumentId", "type", "recordDate", "status", "snapshotHash", "grossReceived", "taxWithheld", "netPayable", "residual", "demoOnly"],
+      "properties": {
+        "actionId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "type": { "const": "CASH_DIVIDEND" },
+        "recordDate": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["ANNOUNCED", "RECORD_DATE_SNAPSHOTTED", "CASH_RECEIVED", "TAX_CALCULATED", "PAYOUT_READY", "PAID", "RECONCILED", "CORPORATE_ACTION_HOLD"] },
+        "snapshotHash": { "$ref": "#/$defs/Hash" },
+        "grossReceived": { "$ref": "#/$defs/Money" },
+        "taxWithheld": { "$ref": "#/$defs/Money" },
+        "netPayable": { "$ref": "#/$defs/Money" },
+        "fees": { "$ref": "#/$defs/Money" },
+        "residual": { "$ref": "#/$defs/Money" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "Redemption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["redemptionId", "participantId", "instrumentId", "quantity", "status", "requestedAt", "policyDecisionIds"],
+      "properties": {
+        "redemptionId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "quantity": { "$ref": "#/$defs/PositiveInteger" },
+        "status": { "type": "string", "enum": ["REQUESTED", "POLICY_CHECKED", "TOKENS_LOCKED", "UNDERLYING_DISPOSITION_PENDING", "CASH_READY", "BURNED", "PAID", "RECONCILED", "REDEMPTION_REVIEW"] },
+        "requestedAt": { "type": "string", "format": "date-time" },
+        "policyDecisionIds": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/OpaqueId" } }
+      }
+    },
+    "InvariantCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["invariantId", "status", "observed", "expected"],
+      "properties": {
+        "invariantId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "observed": { "type": "string", "maxLength": 256 },
+        "expected": { "type": "string", "maxLength": 256 }
+      }
+    },
+    "ReconciliationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reconciliationId", "scope", "asOf", "status", "checks", "holdRequired", "evidenceHash"],
+      "properties": {
+        "reconciliationId": { "$ref": "#/$defs/OpaqueId" },
+        "scope": { "type": "string", "enum": ["INCREMENTAL", "END_OF_DAY", "INCIDENT_RECOVERY"] },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "asOf": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["MATCHED", "MISMATCHED", "RECOVERED"] },
+        "checks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/InvariantCheck" } },
+        "holdRequired": { "type": "boolean" },
+        "evidenceHash": { "$ref": "#/$defs/Hash" }
+      }
+    },
+    "AuditEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["auditId", "action", "actorInstitutionId", "actorRole", "reasonCode", "beforeHash", "afterHash", "evidenceRefs", "occurredAt"],
+      "properties": {
+        "auditId": { "$ref": "#/$defs/OpaqueId" },
+        "action": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+        "actorInstitutionId": { "$ref": "#/$defs/OpaqueId" },
+        "actorRole": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+        "approverInstitutionIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/OpaqueId" } },
+        "reasonCode": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+        "beforeHash": { "$ref": "#/$defs/Hash" },
+        "afterHash": { "$ref": "#/$defs/Hash" },
+        "evidenceRefs": { "type": "array", "items": { "$ref": "#/$defs/EvidenceRef" } },
+        "occurredAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "HoldApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["holdId", "action", "reasonCode", "evidenceRef", "approverRole", "signature"],
+      "properties": {
+        "holdId": { "$ref": "#/$defs/OpaqueId" },
+        "action": { "type": "string", "enum": ["PLACE", "RESUME"] },
+        "reasonCode": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+        "evidenceRef": { "$ref": "#/$defs/EvidenceRef" },
+        "approverRole": { "type": "string", "enum": ["KR_BROKER_CUSTODIAN", "INDEPENDENT_CONTROL"] },
+        "signature": { "$ref": "#/$defs/InstitutionSignature" }
+      }
+    },
+    "ProductTerms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instrumentId", "marketIdentifier", "underlyingName", "underlyingIsin", "entitlementNumerator", "entitlementDenominator", "tokenDecimals", "legalForm", "governingLaw", "termsVersion", "effectiveFrom", "legalStatus", "demoOnly"],
+      "properties": {
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "marketIdentifier": { "type": "string", "pattern": "^KRX:[0-9]{6}$" },
+        "underlyingName": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "underlyingIsin": { "type": "string", "pattern": "^KR[A-Z0-9]{10}$" },
+        "entitlementNumerator": { "const": 1 },
+        "entitlementDenominator": { "const": 1 },
+        "tokenDecimals": { "const": 0 },
+        "legalForm": { "const": "CUSTODIAL_CONTRACTUAL_ENTITLEMENT" },
+        "governingLaw": { "type": "string", "maxLength": 128 },
+        "termsVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "effectiveFrom": { "type": "string", "format": "date-time" },
+        "effectiveUntil": { "type": ["string", "null"], "format": "date-time" },
+        "legalStatus": { "const": "ILLUSTRATIVE_ONLY" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "correlationId", "retryable", "occurredAt"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "correlationId": { "type": "string", "format": "uuid" },
+        "retryable": { "type": "boolean" },
+        "occurredAt": { "type": "string", "format": "date-time" },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field", "reason"],
+            "properties": {
+              "field": { "type": "string", "maxLength": 128 },
+              "reason": { "type": "string", "maxLength": 256 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

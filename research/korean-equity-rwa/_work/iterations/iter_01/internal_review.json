@@ -1,0 +1,22 @@
+{
+  "iteration": 1,
+  "reviewed_at": "2026-08-16T00:00:00+09:00",
+  "issues": [
+    {
+      "severity": "medium",
+      "status": "disclosed",
+      "comment": "1단계 권리의 도산절연, 고객자산 분리 및 해외 판매 적법성은 거래구조별 법률의견이 필요하다."
+    },
+    {
+      "severity": "medium",
+      "status": "disclosed",
+      "comment": "KRX·KSD·은행 실제 인터페이스는 공개 계약이 아니므로 PoC에서는 서명된 mock adapter를 사용한다."
+    },
+    {
+      "severity": "low",
+      "status": "resolved",
+      "comment": "홍콩이 코어 관할로 오해될 표현을 JurisdictionPolicy 참조 프로파일로 수정했다."
+    }
+  ],
+  "decision": "review_ready"
+}
