@@ -1,0 +1,32 @@
+{
+  "iteration": 2,
+  "reviewed_at": "2026-08-17T15:50:11+09:00",
+  "issues": [
+    {
+      "severity": "medium",
+      "status": "disclosed",
+      "comment": "Dinari의 1:1 수탁과 운영권리는 회사 공개문서로 확인했으며 실제 계좌·감사보고서·도산절연은 별도 실사가 필요하다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "Dinari의 공개 흐름이 체결 후 발행을 설명할 뿐 최종 증권결제 완료를 입증하지 않으므로 한국 PoC는 결제·수탁 반영 후 발행을 유지했다."
+    },
+    {
+      "severity": "low",
+      "status": "resolved",
+      "comment": "기관용 최종 후보에서 구현 식별자, 데이터 필드, API·스키마 목록을 제거하고 업무 흐름 중심의 한국어로 재작성했다."
+    },
+    {
+      "severity": "low",
+      "status": "resolved",
+      "comment": "Dinari를 시장 1위나 유일한 모델로 단정하지 않고 공개 자료가 충분한 대표 수탁형 사례로 한정했다."
+    },
+    {
+      "severity": "low",
+      "status": "resolved",
+      "comment": "Dinari의 국제 수탁권리 모델과 2026년 미국용 이전불가 보조기록 제안을 구분하고, SEC 제출을 승인으로 오해하지 않도록 수정했다."
+    }
+  ],
+  "decision": "review_ready"
+}

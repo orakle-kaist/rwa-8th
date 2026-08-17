@@ -135,6 +135,15 @@ def validate_pii_and_neutrality() -> None:
         if re.search(r'jurisdiction[^\n]*(?:const|enum)[^\n]*["\']HK["\']', text, re.IGNORECASE):
             raise AssertionError(f"HK hard-coded in core interface: {relative}")
 
+    for path in (ROOT / "specs").rglob("*"):
+        if path.name == "traceability-matrix.md":
+            continue
+        if path.is_file() and path.suffix in {".md", ".yaml", ".json", ".feature"}:
+            if "dinari" in path.read_text(encoding="utf-8").lower():
+                raise AssertionError(
+                    f"Dinari must remain a case study, not a core dependency: {path.relative_to(ROOT)}"
+                )
+
     policies = fixture["policies"]
     hk_profiles = [policy for policy in policies if policy["jurisdiction"] == "HK"]
     if len(hk_profiles) != 1 or hk_profiles[0].get("replaceableWithoutCoreChange") is not True:
@@ -162,6 +171,44 @@ def validate_candidate_gate() -> None:
     text = candidate.read_text(encoding="utf-8")
     if len(text.strip()) < 12_000:
         raise AssertionError("final candidate is shorter than the examples-level gate")
+    if "기관 검토용 마스터 제안서" not in text:
+        raise AssertionError("final candidate must identify itself as the human-facing master proposal")
+
+    forbidden_implementation_terms = {
+        "JurisdictionPolicy",
+        "KRAssetPolicy",
+        "HKDistributionPolicy",
+        "EntitlementToken",
+        "EligibilityRegistry",
+        "PolicyRegistry",
+        "ReserveRegistry",
+        "IssuanceController",
+        "DvPSettlement",
+        "DepositToken",
+        "CorporateActionRegistry",
+        "eventId",
+        "schemaVersion",
+        "occurredAt",
+        "effectiveAt",
+        "dataAsOf",
+        "idempotencyKey",
+        "EIP-712",
+        "OpenAPI",
+        "AsyncAPI",
+        "JSON Schema",
+        "BDD",
+        "totalSupply",
+        "tokenizedBackingQuantity",
+        "settledCustodyQuantity",
+    }
+    present = sorted(term for term in forbidden_implementation_terms if term in text)
+    if present:
+        raise AssertionError(
+            f"implementation identifiers leaked into final candidate: {present}"
+        )
+    if "`" in text:
+        raise AssertionError("inline or fenced code markup is not allowed in final candidate")
+
     if (ROOT / "research/korean-equity-rwa/review/needs_work.md").exists():
         raise AssertionError("review/needs_work.md exists; folder is not review-ready")
 

@@ -9,7 +9,7 @@ feedback_script:
   mode: internal_review
   command: "internal:codex-review --draft {draft} --output {feedback}"
 research:
-  cutoff: "2026-08-16"
+  cutoff: "2026-08-17"
   source_priority: "official_primary_first"
 candidate_gate:
   min_characters: 12000

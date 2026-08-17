@@ -4,10 +4,12 @@
 
 이 저장소의 현재 산출물은 **PoC 코드가 아니라 구현 판단을 제거한 설계 패키지**입니다. 실제 자금·증권을 취급하지 않으며, 법률의견이나 인허가를 대체하지 않습니다.
 
+`final_candidate.md`는 기관·학회 구성원이 전체 제안을 이해하고 판단하는 **사람용 마스터 제안서**입니다. 구현의 규범적 기준은 `design/00_master_proposal.md`와 `specs/`이며, 사람용 제안서에는 코드명·데이터 필드·API 세부사항을 싣지 않습니다.
+
 ## 먼저 읽을 문서
 
-1. [기관 검토용 최종 후보 보고서](research/korean-equity-rwa/drafts/final_candidate.md)
-2. [설계 결정 요약](design/00_master_proposal.md)
+1. [기관 검토용 마스터 제안서](research/korean-equity-rwa/drafts/final_candidate.md)
+2. [규범적 설계 결정 요약](design/00_master_proposal.md)
 3. [법률·상품 경계](design/01_legal_product.md)
 4. [운영 모델과 라이프사이클](design/02_operating_model.md)
 5. [아키텍처·보안 통제](design/03_architecture_security.md)
@@ -42,7 +44,7 @@ tmp/                         팀이 제공한 중간발표 자료 원본(변경 
 ## 현재 상태
 
 - 설계 상태: `review-ready`
-- 리서치 기준일: `2026-08-16 Asia/Seoul`
+- 리서치 기준일: `2026-08-17 Asia/Seoul`
 - PoC 구현 상태: 미착수
 - 승인 상태: 인간 검토 대기
 

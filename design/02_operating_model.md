@@ -66,6 +66,14 @@ stateDiagram-v2
     MINTED --> [*]
 ```
 
+#### 체결과 결제 사이의 발행 게이트
+
+Dinari 공개 문서는 Alpaca의 주문 체결 완료 통지 후 dShare를 발행하는 흐름을 제시한다. 공개 문서만으로 최종 증권결제 완료, 사전 확보 재고 또는 결제실패 위험의 부담 주체는 확인되지 않는다. 따라서 이 사례를 `EXECUTED -> MINTED` 전이의 근거로 사용하지 않는다.
+
+본 PoC의 규범적 흐름은 `EXECUTED -> AWAITING_CUSTODY_SETTLEMENT -> BACKED -> MINTED`를 유지한다. KSD 결제 완료와 수탁 배정 증거가 없으면 발행할 수 없다.
+
+조기 발행은 core 옵션이나 feature flag로 두지 않는다. 향후 도입하려면 사전 확보 재고, 종목별 발행한도, 결제실패 손실흡수 주체, 미결제분 대사와 고객구제 절차를 포함한 별도 상품 버전과 승인을 요구한다.
+
 ### 2차 DvP
 
 `PROPOSED -> POLICY_CHECKED -> DUAL_SIGNED -> CASH_LOCKED -> ATOMICALLY_SETTLED` 순서다. 만료·정책거절·잔액부족은 `REJECTED`, 실행 중 revert는 `FAILED`로 종료한다. `FAILED`와 `REJECTED`에서는 자산·현금 잔액이 시작 전과 같아야 한다.

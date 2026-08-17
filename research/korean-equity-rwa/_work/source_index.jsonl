@@ -11,4 +11,5 @@
 {"id":"U011","kind":"user_pdf","path":"tmp/휘서님/W2_블록체인_인터오퍼러빌리티_리서치보고서.pdf","sha256":"ad10790a61a8fdfc9c73d0ce8bc4897b84b66e47dd934393ffc8d4b571eac035","reliability":"C","status":"accepted_in_part"}
 {"id":"U012","kind":"user_pdf","path":"tmp/휘서님/W3_한국주식RWA_로컬노드_데이터연동_아키텍처.pdf","sha256":"929ff39dc31789d00daefdf4f51298fae476cf4b4f67e712eda80d891bec059f","reliability":"C","status":"rejected_core_architecture"}
 {"id":"U013","kind":"user_pdf","path":"tmp/휘서님/W4_오라클환경_실물자산_온체인동기화.pdf","sha256":"17725545a17f2dd7ba99552a3d0fb0b3f7637bf6830415785e4d234b9a04d2c7","reliability":"C","status":"accepted_in_part"}
-{"id":"S001-S014","kind":"official_web_notes","path":"sources/web/official-sources.md","reliability":"A-B","status":"accepted","verified_at":"2026-08-16"}
+{"id":"U014","kind":"user_pdf","path":"tmp/Dinari와 토큰화 주식.pdf","sha256":"fe209321a0dfeea35c3b3dbbd0e1dda5ff22f9c59018234c5ef18b8f7d2a30ae","reliability":"C","status":"lead_only","note":"ChatGPT 대화 출력물로 확인되어 공식 원문 재검증에만 사용"}
+{"id":"S001-S022","kind":"official_web_notes","path":"sources/web/official-sources.md","reliability":"A-B","status":"accepted","verified_at":"2026-08-17"}

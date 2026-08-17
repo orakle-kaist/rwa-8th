@@ -20,6 +20,7 @@
 | REQ-16 통제된 환매 | D-001/D-011 | redemption state machine | core redemption, disposition failure |
 | REQ-17 관리자 역할분리 | D-011 | role matrix, audit event | manual review and recovery scenarios |
 | REQ-18 선택적 public anchor | D-003 | architecture trust boundary | anchor failure scenario |
+| REQ-19 Dinari는 비교사례이며 의존성 아님 | D-013 | core specs에 Dinari 식별자·연동 없음 | design review와 neutrality validation |
 
 ## 변경 규칙
 
