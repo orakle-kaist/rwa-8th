@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the plain-language master proposal with the full foreign access route comparison and record approve or revise in review/decision.md",
-  "updated_at": "2026-08-17T17:01:06+09:00",
-  "iteration": 3
+  "next_action": "Review the Dinari-to-Korea operating-model translation and three PoC workbenches, then record approve or revise in review/decision.md",
+  "updated_at": "2026-08-17T20:41:54+09:00",
+  "iteration": 4
 }

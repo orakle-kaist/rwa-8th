@@ -1,5 +1,5 @@
 meta:
-  fixtureVersion: 1.0.0
+  fixtureVersion: 1.1.0
   demoOnly: true
   legalStatus: ILLUSTRATIVE_ONLY
   generatedForDate: "2026-08-16"
@@ -23,6 +23,9 @@ institutions:
   - institutionId: KR_BANK_001
     role: SETTLEMENT_BANK
     displayName: Korean Settlement Bank
+  - institutionId: TOKEN_OPERATOR_001
+    role: TOKEN_OPERATOR
+    displayName: Korean Entitlement Token Operator
   - institutionId: CONTROL_001
     role: INDEPENDENT_CONTROL
     displayName: Independent Consortium Control
@@ -66,6 +69,98 @@ participants:
     investorCategory: PROFESSIONAL
     wallet: "0x4444444444444444444444444444444444444444"
     eligibilityStatus: SUSPENDED
+
+institutionalAccounts:
+  - accountId: ENTITLEMENT_ACCT_001
+    accountType: ENTITLEMENT_SUBLEDGER
+    ownerInstitutionId: HK_DIST_001
+    status: ACTIVE
+    currency: KRW
+    capabilities: [POSITION, CORPORATE_ACTION, REPORTING]
+    externalReference: FOREIGN_LEDGER_ACCT_001
+    asOf: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
+  - accountId: ENTITLEMENT_ACCT_002
+    accountType: ENTITLEMENT_SUBLEDGER
+    ownerInstitutionId: HK_DIST_001
+    status: ACTIVE
+    currency: KRW
+    capabilities: [POSITION, CORPORATE_ACTION, REPORTING]
+    externalReference: FOREIGN_LEDGER_ACCT_002
+    asOf: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
+  - accountId: OMNIBUS_ACCT_001
+    accountType: FOREIGN_OMNIBUS_BROKERAGE
+    ownerInstitutionId: HK_DIST_001
+    status: ACTIVE
+    currency: KRW
+    capabilities: [ORDER, CASH, POSITION, SETTLEMENT, REPORTING]
+    externalReference: KR_BROKER_OMNIBUS_REF_001
+    asOf: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
+  - accountId: CUSTODY_ACCT_001
+    accountType: STANDING_PROXY_CUSTODY
+    ownerInstitutionId: KR_BROKER_001
+    status: ACTIVE
+    currency: KRW
+    capabilities: [POSITION, SETTLEMENT, CUSTODY, CORPORATE_ACTION]
+    externalReference: STANDING_PROXY_REF_001
+    asOf: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
+  - accountId: SETTLEMENT_CASH_001
+    accountType: SETTLEMENT_CASH
+    ownerInstitutionId: KR_BANK_001
+    status: ACTIVE
+    currency: KRW
+    capabilities: [CASH, SETTLEMENT]
+    externalReference: BANK_SETTLEMENT_REF_001
+    asOf: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
+  - accountId: CONTROL_RESIDUAL_001
+    accountType: CONTROL_RESIDUAL
+    ownerInstitutionId: KR_BROKER_001
+    status: ACTIVE
+    currency: KRW
+    capabilities: [POSITION, CORPORATE_ACTION, ADJUSTMENT]
+    externalReference: CONTROL_BOOK_REF_001
+    asOf: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
+
+accountLinkages:
+  - linkageId: LINK_INV_HK_001
+    participantId: INV_HK_001
+    entitlementAccountRef: ENTITLEMENT_ACCT_001
+    wallet: "0x1111111111111111111111111111111111111111"
+    distributorInstitutionId: HK_DIST_001
+    distributorLedgerRef: FOREIGN_LEDGER_ACCT_001
+    omnibusAccountRef: OMNIBUS_ACCT_001
+    custodyAccountRef: CUSTODY_ACCT_001
+    status: ACTIVE
+    authority:
+      underlyingPositionAuthority: KR_CUSTODY_BOOK
+      investorEntitlementAuthority: FOREIGN_DISTRIBUTOR_ENTITLEMENT_BOOK
+      tokenRecordEffect: SYNCHRONIZED_PERMISSIONED_RECORD
+    effectiveFrom: "2026-08-17T00:00:00+09:00"
+    effectiveUntil: null
+    lastReconciledAt: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
+  - linkageId: LINK_INV_HK_002
+    participantId: INV_HK_002
+    entitlementAccountRef: ENTITLEMENT_ACCT_002
+    wallet: "0x2222222222222222222222222222222222222222"
+    distributorInstitutionId: HK_DIST_001
+    distributorLedgerRef: FOREIGN_LEDGER_ACCT_002
+    omnibusAccountRef: OMNIBUS_ACCT_001
+    custodyAccountRef: CUSTODY_ACCT_001
+    status: ACTIVE
+    authority:
+      underlyingPositionAuthority: KR_CUSTODY_BOOK
+      investorEntitlementAuthority: FOREIGN_DISTRIBUTOR_ENTITLEMENT_BOOK
+      tokenRecordEffect: SYNCHRONIZED_PERMISSIONED_RECORD
+    effectiveFrom: "2026-08-17T00:00:00+09:00"
+    effectiveUntil: null
+    lastReconciledAt: "2026-08-17T00:00:00+09:00"
+    demoOnly: true
 
 products:
   - instrumentId: EQ_SKHYNIX_001
@@ -115,6 +210,76 @@ marketData:
     source: KRX_MOCK
     demoOnly: true
 
+custodyPositions:
+  - positionId: CUSTODY_POSITION_SKH_001
+    accountId: CUSTODY_ACCT_001
+    instrumentId: EQ_SKHYNIX_001
+    status: CURRENT
+    settledQuantity: 0
+    unsettledQuantity: 0
+    allocatedBackingQuantity: 0
+    unallocatedQuantity: 0
+    redemptionPendingQuantity: 0
+    controlHoldQuantity: 0
+    issuableQuantity: 0
+    asOf: "2026-08-17T00:00:00+09:00"
+    evidenceRef:
+      evidenceId: EVID_CUSTODY_POSITION_001
+      contentHash: "0x5555555555555555555555555555555555555555555555555555555555555555"
+      classification: CONFIDENTIAL
+    demoOnly: true
+
+entitlementPositions:
+  - positionId: ENTITLEMENT_POSITION_SKH_001
+    entitlementAccountRef: ENTITLEMENT_ACCT_001
+    participantId: INV_HK_001
+    wallet: "0x1111111111111111111111111111111111111111"
+    instrumentId: EQ_SKHYNIX_001
+    status: CURRENT
+    totalEntitlementQuantity: 0
+    availableQuantity: 0
+    lockedQuantity: 0
+    settlementEscrowQuantity: 0
+    tokenRecordedQuantity: 0
+    asOf: "2026-08-17T00:00:00+09:00"
+    evidenceRef:
+      evidenceId: EVID_ENTITLEMENT_POSITION_001
+      contentHash: "0x7777777777777777777777777777777777777777777777777777777777777777"
+      classification: CONFIDENTIAL
+    demoOnly: true
+  - positionId: ENTITLEMENT_POSITION_SKH_002
+    entitlementAccountRef: ENTITLEMENT_ACCT_002
+    participantId: INV_HK_002
+    wallet: "0x2222222222222222222222222222222222222222"
+    instrumentId: EQ_SKHYNIX_001
+    status: CURRENT
+    totalEntitlementQuantity: 0
+    availableQuantity: 0
+    lockedQuantity: 0
+    settlementEscrowQuantity: 0
+    tokenRecordedQuantity: 0
+    asOf: "2026-08-17T00:00:00+09:00"
+    evidenceRef:
+      evidenceId: EVID_ENTITLEMENT_POSITION_002
+      contentHash: "0x8888888888888888888888888888888888888888888888888888888888888888"
+      classification: CONFIDENTIAL
+    demoOnly: true
+
+regulatoryReports:
+  - reportEvidenceId: REPORT_EVID_2026_07
+    accountId: OMNIBUS_ACCT_001
+    reportingPeriod: 2026-07
+    status: RETAINED
+    generatedAt: "2026-08-05T10:00:00+09:00"
+    submittedAt: "2026-08-10T09:00:00+09:00"
+    recipientInstitutionId: KR_BROKER_001
+    retentionUntil: "2036-08-10"
+    evidenceRef:
+      evidenceId: EVID_REPORT_2026_07
+      contentHash: "0x6666666666666666666666666666666666666666666666666666666666666666"
+      classification: RESTRICTED_PII
+    demoOnly: true
+
 initialLedger:
   entitlements:
     EQ_SKHYNIX_001:
@@ -130,6 +295,10 @@ initialLedger:
 normalScenario:
   participantId: INV_HK_001
   counterpartyId: INV_HK_002
+  accountLinkageId: LINK_INV_HK_001
+  entitlementAccountRef: ENTITLEMENT_ACCT_001
+  omnibusAccountId: OMNIBUS_ACCT_001
+  custodyAccountId: CUSTODY_ACCT_001
   instrumentId: EQ_SKHYNIX_001
   primaryQuantity: 10
   secondaryQuantity: 2
@@ -141,3 +310,4 @@ failureScenario:
   aggregateRoomInstrumentId: EQ_KT_001
   requestedPrimaryQuantity: 100
   availableAggregateForeignRoomQuantity: 50
+  duplicateWalletParticipantId: INV_EXPIRED_001

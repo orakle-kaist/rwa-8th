@@ -19,3 +19,16 @@
 {"source_id":"S024","topic":"foreign_direct_account_usage","paraphrase":"제도개편 후 2023년 12월 15일부터 2024년 6월 12일까지 LEI·여권번호 기반 외국인 계좌 1,432개가 실제 개설됐다.","use":"direct_route_baseline"}
 {"source_id":"S025","topic":"overseas_dr_structure","paraphrase":"해외 DR은 국내 원주를 원주관리기관에 보관하고 해외 예탁기관이 발행하며 원주 전환과 기업행동을 예탁기관 사슬로 처리한다.","use":"dr_comparison_and_legal_gate"}
 {"source_id":"S026","topic":"fund_indirect_exposure","paraphrase":"ETF는 거래소에서 주식처럼 거래되더라도 개별 주식이 아니라 지수를 추종하는 펀드다.","use":"direct_vs_indirect_exposure"}
+{"source_id":"S027","topic":"dinari_us_accounts","paraphrase":"Dinari 미국 고객 가이드는 완전공개 고객계좌, 통합주문 금지, 고객별 전용 지갑, 비이전 토큰과 별도 증권 화면을 설명한다.","use":"international_vs_us_model"}
+{"source_id":"S028","topic":"dinari_order_fulfillment","paraphrase":"Dinari v2 주문은 주문요청과 주문을 분리하고 부분체결, 미체결 환불과 여러 이행기록의 대사를 전제로 한다.","use":"order_lineage_and_partial_fills"}
+{"source_id":"S029","topic":"dinari_account_activity","paraphrase":"Dinari는 계좌별 브로커리지 활동 조회 인터페이스를 공개하지만 초기 개발단계이며 내부 운영화면을 보여주지는 않는다.","use":"operator_activity_view"}
+{"source_id":"S030","topic":"dinari_corporate_actions","paraphrase":"Dinari 공개 절차는 기업행동 공지와 실제 지급·수량 반영을 서로 다른 단계로 모니터링한다.","use":"corporate_action_state"}
+{"source_id":"S031","topic":"alpaca_account_models","paraphrase":"Alpaca는 완전공개 계좌와 omnibus 모델에서 법적 계좌명의, 고객정보 제공, 고객장부·세무 책임이 달라진다고 설명한다.","use":"account_model_comparison"}
+{"source_id":"S032","topic":"alpaca_omnisub","paraphrase":"OmniSub는 하나의 법적 omnibus 계좌와 기술 하위계정, 중앙자금, 통제 잔여, 기업행동·정정·명세서 책임을 분리한다.","use":"workbench_analogy_only"}
+{"source_id":"S033","topic":"alpaca_broker_operations","paraphrase":"Alpaca Broker API와 Brokerdash는 계좌, 자금, 주문과 비동기 거래결과를 시험·조회하는 업무흐름을 제공한다.","use":"broker_workbench_scope"}
+{"source_id":"S034","topic":"alpaca_activity_replication","paraphrase":"Alpaca 활동 스트림은 체결·정정·취소·배당 등 재무변경을 멱등 반영하고 재연결 지점을 유지하도록 안내한다.","use":"projection_and_recovery"}
+{"source_id":"S035","topic":"alpaca_eod_positions","paraphrase":"Alpaca는 계좌·자산별 일말 포지션 보고 인터페이스를 제공한다.","use":"three_book_reconciliation_view"}
+{"source_id":"S036","topic":"krx_trading_rules","paraphrase":"한국거래소 공식 가이드는 1주 거래단위, 시장세션, 주문유형과 정정·취소의 기본 규칙을 설명한다.","use":"investor_order_confirmation"}
+{"source_id":"S037","topic":"krx_tplus2_settlement","paraphrase":"한국거래소는 회원 주문의 체결통지 뒤 고객·회원 및 회원·거래소 사이 증권결제가 T+2에 이뤄진다고 설명한다.","use":"post_settlement_issuance_gate"}
+{"source_id":"S038","topic":"korea_fractional_structure","paraphrase":"국내주식 소수단위 거래 특례는 주문취합·온주 보충과 KSD 신탁·수익증권을 결합한 별도 권리구조다.","use":"whole_share_v1_scope"}
+{"source_id":"S039","topic":"us_tplus1_settlement","paraphrase":"미국의 대부분 브로커 거래는 2024년 5월 28일부터 T+1 표준결제를 적용한다.","use":"us_korea_settlement_comparison"}

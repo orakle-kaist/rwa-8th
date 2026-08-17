@@ -7,12 +7,16 @@
 | 상품·공시 조회 | R | R | R | R | R | R | R | R | R |
 | KYC case 생성·원본 조회 | — | E | — | — | R¹ | — | — | — | — |
 | 관할 정책 평가 요청 | — | E | E | — | E | — | R | R | — |
+| account linkage 생성·변경 | R | E | R | — | A | — | A | R | — |
+| 최종투자자 권리장부 조회 | 본인 | E/R | 집계 R | — | 최소 R | R | R | 집계 R | — |
+| monthly report evidence 생성·제출 | — | E | R | — | A/R | — | R | R | — |
 | 정책 버전 작성 | — | — | — | — | E | — | — | R | — |
 | 정책 배포 승인 | — | — | — | — | A | — | A | R | — |
 | 주문 설명·초안 | E | E | R | — | R | — | R | R | E |
 | 주문 인간확정·서명 | E | — | — | — | — | — | — | R | — |
 | 자금·FX 확인 | R | R | R | E | R | — | R | R | — |
 | KRX mock 주문·체결 | R | R | E | — | R | — | R | R | — |
+| 주문·fill·activity 조회 | 본인 | 관련고객 | E/R | 관련현금 R | R | R | R | R | — |
 | KSD mock 결제 | R | R | E | — | R | — | R | R | — |
 | 준비금 증명 작성 | — | R | E | R | R | R | A | R | — |
 | 권리토큰 mint 요청 | — | — | R | — | R | E | R | R | — |
@@ -24,6 +28,7 @@
 | 토큰 동결 요청 | — | — | E | — | E | — | A | R | — |
 | 강제이전 실행 | — | — | E | — | E | — | A | R | — |
 | 대사 실행 | — | R | E | R | R | R | A | R | — |
+| custody·EOD position 조회 | 본인요약 | 집계 R | E/R | — | R | R | R | R | — |
 | hold 배치 | — | — | E/A | — | R | — | A | R | — |
 | hold 해제 | — | — | A | — | R | — | A | R | — |
 | 감사 lineage 조회 | 본인 | 관련고객 | R | R | R | R | R | R | — |
@@ -36,6 +41,7 @@
 동일 service account 또는 인간 principal에는 다음 조합을 부여하지 않는다.
 
 - `KR_BROKER_CUSTODIAN` 준비금 작성 + `TOKEN_OPERATOR` mint 실행
+- 같은 `KR_BROKER_CUSTODIAN` principal의 `BROKERAGE_OPERATIONS` market execution + `CUSTODY_CONTROL` settlement/reserve approval
 - `COMPLIANCE_OPERATOR` 정책 작성 + `INDEPENDENT_CONTROL` 정책 승인
 - hold 원인 정정 실행 + hold 해제의 두 승인 모두
 - `AI_AGENT` + `INVESTOR` 서명 capability
@@ -49,4 +55,4 @@
 - 두 서명은 다른 `institutionId`, `kid`, principal이어야 한다.
 - 승인 payload hash가 완전히 같아야 한다.
 - 첫 승인 후 15분 안에 두 번째 승인이 없으면 만료된다.
-- 승인 대상: 정책배포, 준비금 증명, 강제이전, 긴급정지·재개, contract upgrade.
+- 승인 대상: 정책배포, account-wallet remap, 준비금 증명, 강제이전, 긴급정지·재개, contract upgrade.

@@ -4,14 +4,14 @@
   "title": "Deterministic demo fixture",
   "type": "object",
   "additionalProperties": false,
-  "required": ["meta", "clock", "institutions", "policies", "participants", "products", "marketData", "initialLedger", "normalScenario", "failureScenario"],
+  "required": ["meta", "clock", "institutions", "policies", "participants", "institutionalAccounts", "accountLinkages", "products", "marketData", "custodyPositions", "entitlementPositions", "regulatoryReports", "initialLedger", "normalScenario", "failureScenario"],
   "properties": {
     "meta": {
       "type": "object",
       "additionalProperties": false,
       "required": ["fixtureVersion", "demoOnly", "legalStatus", "generatedForDate", "timezone", "warning"],
       "properties": {
-        "fixtureVersion": { "const": "1.0.0" },
+        "fixtureVersion": { "const": "1.1.0" },
         "demoOnly": { "const": true },
         "legalStatus": { "const": "ILLUSTRATIVE_ONLY" },
         "generatedForDate": { "type": "string", "format": "date" },
@@ -33,7 +33,7 @@
     },
     "institutions": {
       "type": "array",
-      "minItems": 5,
+      "minItems": 6,
       "uniqueItems": true,
       "items": {
         "type": "object",
@@ -43,7 +43,7 @@
           "institutionId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
           "role": {
             "type": "string",
-            "enum": ["FOREIGN_DISTRIBUTOR", "KR_BROKER_CUSTODIAN", "SETTLEMENT_BANK", "INDEPENDENT_CONTROL", "AUDITOR"]
+            "enum": ["FOREIGN_DISTRIBUTOR", "KR_BROKER_CUSTODIAN", "SETTLEMENT_BANK", "TOKEN_OPERATOR", "INDEPENDENT_CONTROL", "AUDITOR"]
           },
           "displayName": { "type": "string", "minLength": 3, "maxLength": 128 }
         }
@@ -91,6 +91,16 @@
         }
       }
     },
+    "institutionalAccounts": {
+      "type": "array",
+      "minItems": 5,
+      "items": { "$ref": "domain.schema.json#/$defs/InstitutionalAccountView" }
+    },
+    "accountLinkages": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "domain.schema.json#/$defs/AccountLinkageView" }
+    },
     "products": {
       "type": "array",
       "minItems": 2,
@@ -114,6 +124,21 @@
           "demoOnly": { "const": true }
         }
       }
+    },
+    "custodyPositions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "domain.schema.json#/$defs/CustodyPositionView" }
+    },
+    "entitlementPositions": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "domain.schema.json#/$defs/EntitlementPositionView" }
+    },
+    "regulatoryReports": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "domain.schema.json#/$defs/RegulatoryReportingEvidence" }
     },
     "initialLedger": {
       "type": "object",
@@ -146,10 +171,14 @@
     "normalScenario": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["participantId", "counterpartyId", "instrumentId", "primaryQuantity", "secondaryQuantity", "primaryLimitPriceKrw", "secondaryPriceKrw", "grossDividendPerTokenKrw"],
+      "required": ["participantId", "counterpartyId", "accountLinkageId", "entitlementAccountRef", "omnibusAccountId", "custodyAccountId", "instrumentId", "primaryQuantity", "secondaryQuantity", "primaryLimitPriceKrw", "secondaryPriceKrw", "grossDividendPerTokenKrw"],
       "properties": {
         "participantId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
         "counterpartyId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "accountLinkageId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "entitlementAccountRef": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "omnibusAccountId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
+        "custodyAccountId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
         "instrumentId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
         "primaryQuantity": { "type": "integer", "minimum": 1 },
         "secondaryQuantity": { "type": "integer", "minimum": 1 },
@@ -161,11 +190,12 @@
     "failureScenario": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["aggregateRoomInstrumentId", "requestedPrimaryQuantity", "availableAggregateForeignRoomQuantity"],
+      "required": ["aggregateRoomInstrumentId", "requestedPrimaryQuantity", "availableAggregateForeignRoomQuantity", "duplicateWalletParticipantId"],
       "properties": {
         "aggregateRoomInstrumentId": { "$ref": "domain.schema.json#/$defs/OpaqueId" },
         "requestedPrimaryQuantity": { "type": "integer", "minimum": 1 },
-        "availableAggregateForeignRoomQuantity": { "type": "integer", "minimum": 0 }
+        "availableAggregateForeignRoomQuantity": { "type": "integer", "minimum": 0 },
+        "duplicateWalletParticipantId": { "$ref": "domain.schema.json#/$defs/OpaqueId" }
       }
     }
   }

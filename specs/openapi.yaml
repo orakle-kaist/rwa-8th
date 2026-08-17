@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Korean Equity RWA Institutional PoC API
-  version: 1.0.0
+  version: 1.1.0
   license:
     name: UNLICENSED - Academic PoC
     identifier: UNLICENSED
@@ -22,6 +22,8 @@ tags:
     description: Jurisdiction-neutral policy evaluation
   - name: Eligibility
     description: Minimal on-ledger eligibility result
+  - name: Accounts
+    description: PII-free legal account, entitlement linkage, position and activity views
   - name: Orders
     description: Human-confirmed primary order lifecycle
   - name: Adapters
@@ -38,6 +40,10 @@ tags:
     description: Controlled entitlement exit
   - name: Reconciliation
     description: Invariant checks, holds and recovery
+  - name: Operations
+    description: Broker, custody and cross-workbench operational projections
+  - name: Reporting
+    description: Metadata and evidence for foreign omnibus regulatory reporting
   - name: Audit
     description: Read-only event and privileged-action lineage
 paths:
@@ -57,7 +63,7 @@ paths:
                 required: [status, schemaVersion, demoOnly]
                 properties:
                   status: { type: string, enum: [UP, DEGRADED] }
-                  schemaVersion: { type: string, const: 1.0.0 }
+                  schemaVersion: { type: string, const: 1.1.0 }
                   demoOnly: { type: boolean, const: true }
         "400":
           $ref: "#/components/responses/ErrorResponse"
@@ -76,6 +82,101 @@ paths:
                 type: array
                 items:
                   $ref: ./schemas/domain.schema.json#/$defs/ProductTerms
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /participants/{participantId}/account-linkage:
+    get:
+      summary: Read the active participant, entitlement account and wallet linkage
+      tags: [Accounts]
+      operationId: getParticipantAccountLinkage
+      description: Returns opaque references and authority metadata only; no customer PII or real account number.
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - $ref: "#/components/parameters/ParticipantId"
+      responses:
+        "200":
+          description: Active or most recent account linkage
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/AccountLinkageView
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /institutional-accounts/{accountId}:
+    get:
+      summary: Read a legal or operational institutional account view
+      tags: [Accounts]
+      operationId: getInstitutionalAccount
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, SETTLEMENT_BANK, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+      responses:
+        "200":
+          description: PII-free account summary
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/InstitutionalAccountView
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /institutional-accounts/{accountId}/positions:
+    get:
+      summary: List custody and operational positions for an account
+      tags: [Accounts, Operations]
+      operationId: listInstitutionalAccountPositions
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - name: instrumentId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+      responses:
+        "200":
+          description: Position projections with freshness and authority evidence
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: ./schemas/domain.schema.json#/$defs/CustodyPositionView
+                    - $ref: ./schemas/domain.schema.json#/$defs/EntitlementPositionView
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /institutional-accounts/{accountId}/activities:
+    get:
+      summary: List financial-state activities for an account
+      tags: [Accounts, Operations]
+      operationId: listInstitutionalAccountActivities
+      description: Includes fills, corrections, busts, cash, FX, settlement, fees, dividends, refunds, adjustments and reporting activities.
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, SETTLEMENT_BANK, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - $ref: "#/components/parameters/AccountId"
+        - name: orderId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: after
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        "200":
+          description: Ordered append-only account activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/AccountActivity
         "401":
           $ref: "#/components/responses/ErrorResponse"
         default:
@@ -252,6 +353,39 @@ paths:
           $ref: "#/components/responses/ErrorResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
+  /orders:
+    get:
+      summary: List primary orders for investor and institutional workbenches
+      tags: [Orders]
+      operationId: listOrders
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - name: participantId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: entitlementAccountRef
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [DRAFT, CONFIRMED, FUNDING_PENDING, READY_FOR_MARKET, MARKET_SUBMITTED, PARTIALLY_FILLED, PARTIAL_FILL_REVIEW, EXECUTED, AWAITING_CUSTODY_SETTLEMENT, BACKED, MINTED, REJECTED, SETTLEMENT_FAILED]
+      responses:
+        "200":
+          description: Orders visible to the authorized principal
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/OrderDraft
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
   /orders/{orderId}:
     get:
       summary: Read the current primary order state
@@ -268,6 +402,27 @@ paths:
               schema:
                 $ref: ./schemas/domain.schema.json#/$defs/OrderDraft
         "404":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /orders/{orderId}/timeline:
+    get:
+      summary: Read the cross-workbench order, fill, settlement and issuance timeline
+      tags: [Orders, Operations]
+      operationId: getOrderLifecycleTimeline
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, SETTLEMENT_BANK, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - $ref: "#/components/parameters/OrderId"
+      responses:
+        "200":
+          description: Source-attributed order lifecycle projection
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/domain.schema.json#/$defs/OrderLifecycleView
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
           $ref: "#/components/responses/ErrorResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
@@ -382,6 +537,69 @@ paths:
         "409":
           $ref: "#/components/responses/ErrorResponse"
         "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /custody-positions:
+    get:
+      summary: List aggregate custody positions across institutional accounts
+      tags: [Operations, Reserve]
+      operationId: listCustodyPositions
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - name: instrumentId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [CURRENT, STALE_OR_INCOMPLETE, RECONCILIATION_HOLD]
+      responses:
+        "200":
+          description: PII-free settled, unsettled, allocated and held quantities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/CustodyPositionView
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /entitlement-positions:
+    get:
+      summary: List final-investor entitlement positions from the foreign distributor book
+      tags: [Accounts, Operations]
+      operationId: listEntitlementPositions
+      description: Returns PII-free investor entitlement allocations and synchronized token-record quantities. It is not a Korean shareholder register.
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - name: participantId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: instrumentId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [CURRENT, STALE_OR_INCOMPLETE, RECONCILIATION_HOLD]
+      responses:
+        "200":
+          description: Final-investor entitlement positions with token-record comparison
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/EntitlementPositionView
+        "401":
           $ref: "#/components/responses/ErrorResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
@@ -559,6 +777,27 @@ paths:
           $ref: "#/components/responses/ErrorResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
+  /corporate-actions/{actionId}/allocations:
+    get:
+      summary: List investor and control-residual allocations for a corporate action
+      tags: [CorporateActions, Operations]
+      operationId: listCorporateActionAllocations
+      x-required-roles: [INVESTOR, FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, SETTLEMENT_BANK, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - $ref: "#/components/parameters/ActionId"
+      responses:
+        "200":
+          description: Gross, tax, fee, net and residual allocation projections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/CorporateActionAllocation
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
   /redemptions:
     post:
       summary: Request a controlled redemption
@@ -592,6 +831,34 @@ paths:
         default:
           $ref: "#/components/responses/ErrorResponse"
   /reconciliations:
+    get:
+      summary: List reconciliation results for operational workbenches
+      tags: [Reconciliation, Operations]
+      operationId: listReconciliations
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, SETTLEMENT_BANK, COMPLIANCE_OPERATOR, TOKEN_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - name: instrumentId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [MATCHED, MISMATCHED, RECOVERED]
+      responses:
+        "200":
+          description: Reconciliation results visible to the authorized role
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/ReconciliationResult
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
     post:
       summary: Submit an invariant reconciliation result
       tags: [Reconciliation]
@@ -616,6 +883,41 @@ paths:
         "409":
           $ref: "#/components/responses/ErrorResponse"
         "422":
+          $ref: "#/components/responses/ErrorResponse"
+        default:
+          $ref: "#/components/responses/ErrorResponse"
+  /regulatory-reports:
+    get:
+      summary: List foreign omnibus monthly reporting evidence metadata
+      tags: [Reporting]
+      operationId: listRegulatoryReportingEvidence
+      description: Returns submission and retention metadata plus an opaque evidence reference; never returns the report body or PII.
+      x-required-roles: [FOREIGN_DISTRIBUTOR, KR_BROKER_CUSTODIAN, COMPLIANCE_OPERATOR, INDEPENDENT_CONTROL, AUDITOR]
+      parameters:
+        - name: accountId
+          in: query
+          schema:
+            $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+        - name: reportingPeriod
+          in: query
+          schema:
+            type: string
+            pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [GENERATED, SUBMITTED, RETAINED, OVERDUE]
+      responses:
+        "200":
+          description: Regulatory report evidence metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/domain.schema.json#/$defs/RegulatoryReportingEvidence
+        "401":
           $ref: "#/components/responses/ErrorResponse"
         default:
           $ref: "#/components/responses/ErrorResponse"
@@ -719,6 +1021,24 @@ components:
       schema: { type: string, format: uuid }
     OrderId:
       name: orderId
+      in: path
+      required: true
+      schema:
+        $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+    ParticipantId:
+      name: participantId
+      in: path
+      required: true
+      schema:
+        $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+    AccountId:
+      name: accountId
+      in: path
+      required: true
+      schema:
+        $ref: ./schemas/domain.schema.json#/$defs/OpaqueId
+    ActionId:
+      name: actionId
       in: path
       required: true
       schema:

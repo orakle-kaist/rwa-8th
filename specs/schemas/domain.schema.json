@@ -234,13 +234,69 @@
         "validUntil": { "type": "string", "format": "date-time" }
       }
     },
+    "AccountLinkageView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["linkageId", "participantId", "entitlementAccountRef", "wallet", "distributorInstitutionId", "distributorLedgerRef", "omnibusAccountRef", "custodyAccountRef", "status", "authority", "effectiveFrom", "lastReconciledAt", "demoOnly"],
+      "properties": {
+        "linkageId": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "entitlementAccountRef": { "$ref": "#/$defs/OpaqueId" },
+        "wallet": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "distributorInstitutionId": { "$ref": "#/$defs/OpaqueId" },
+        "distributorLedgerRef": { "$ref": "#/$defs/OpaqueId" },
+        "omnibusAccountRef": { "$ref": "#/$defs/OpaqueId" },
+        "custodyAccountRef": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["PENDING_VERIFICATION", "ACTIVE", "SUSPENDED", "CLOSED"] },
+        "authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["underlyingPositionAuthority", "investorEntitlementAuthority", "tokenRecordEffect"],
+          "properties": {
+            "underlyingPositionAuthority": { "const": "KR_CUSTODY_BOOK" },
+            "investorEntitlementAuthority": { "const": "FOREIGN_DISTRIBUTOR_ENTITLEMENT_BOOK" },
+            "tokenRecordEffect": { "const": "SYNCHRONIZED_PERMISSIONED_RECORD" }
+          }
+        },
+        "effectiveFrom": { "type": "string", "format": "date-time" },
+        "effectiveUntil": { "type": ["string", "null"], "format": "date-time" },
+        "lastReconciledAt": { "type": "string", "format": "date-time" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "InstitutionalAccountView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accountId", "accountType", "ownerInstitutionId", "status", "currency", "capabilities", "externalReference", "asOf", "demoOnly"],
+      "properties": {
+        "accountId": { "$ref": "#/$defs/OpaqueId" },
+        "accountType": {
+          "type": "string",
+          "enum": ["ENTITLEMENT_SUBLEDGER", "FOREIGN_OMNIBUS_BROKERAGE", "STANDING_PROXY_CUSTODY", "SETTLEMENT_CASH", "CONTROL_RESIDUAL"]
+        },
+        "ownerInstitutionId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["PENDING", "ACTIVE", "SUSPENDED", "CLOSED"] },
+        "currency": { "type": "string", "enum": ["KRW", "HKD", "USD"] },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["ORDER", "CASH", "POSITION", "SETTLEMENT", "CUSTODY", "CORPORATE_ACTION", "REPORTING", "ADJUSTMENT"] }
+        },
+        "externalReference": { "$ref": "#/$defs/OpaqueId" },
+        "asOf": { "type": "string", "format": "date-time" },
+        "demoOnly": { "const": true }
+      }
+    },
     "OrderDraft": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["orderId", "participantId", "instrumentId", "side", "quantity", "limitPrice", "termsVersion", "policyDecisionIds", "status", "createdAt", "expiresAt", "aiGenerated", "demoOnly"],
+      "required": ["orderId", "participantId", "accountLinkageId", "entitlementAccountRef", "instrumentId", "side", "quantity", "limitPrice", "termsVersion", "policyDecisionIds", "status", "createdAt", "expiresAt", "aiGenerated", "demoOnly"],
       "properties": {
         "orderId": { "$ref": "#/$defs/OpaqueId" },
         "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "accountLinkageId": { "$ref": "#/$defs/OpaqueId" },
+        "entitlementAccountRef": { "$ref": "#/$defs/OpaqueId" },
         "instrumentId": { "$ref": "#/$defs/OpaqueId" },
         "side": { "type": "string", "enum": ["BUY", "SELL"] },
         "quantity": { "$ref": "#/$defs/PositiveInteger" },
@@ -254,7 +310,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["DRAFT", "CONFIRMED", "FUNDING_PENDING", "READY_FOR_MARKET", "EXECUTED", "AWAITING_CUSTODY_SETTLEMENT", "BACKED", "MINTED", "REJECTED", "SETTLEMENT_FAILED"]
+          "enum": ["DRAFT", "CONFIRMED", "FUNDING_PENDING", "READY_FOR_MARKET", "MARKET_SUBMITTED", "PARTIALLY_FILLED", "PARTIAL_FILL_REVIEW", "EXECUTED", "AWAITING_CUSTODY_SETTLEMENT", "BACKED", "MINTED", "REJECTED", "SETTLEMENT_FAILED"]
         },
         "createdAt": { "type": "string", "format": "date-time" },
         "expiresAt": { "type": "string", "format": "date-time" },
@@ -283,17 +339,23 @@
     "MarketExecution": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["executionId", "orderId", "instrumentId", "status", "executedQuantity", "executedPrice", "executedAt", "settlementDate", "marketDataAsOf", "signature", "demoOnly"],
+      "required": ["executionId", "orderId", "marketOrderId", "accountId", "instrumentId", "status", "executedQuantity", "cumulativeQuantity", "leavesQuantity", "executedPrice", "executedAt", "settlementDate", "marketDataAsOf", "sourceRequestId", "signature", "demoOnly"],
       "properties": {
         "executionId": { "$ref": "#/$defs/OpaqueId" },
         "orderId": { "$ref": "#/$defs/OpaqueId" },
+        "marketOrderId": { "$ref": "#/$defs/OpaqueId" },
+        "accountId": { "$ref": "#/$defs/OpaqueId" },
         "instrumentId": { "$ref": "#/$defs/OpaqueId" },
-        "status": { "type": "string", "enum": ["EXECUTED", "REJECTED"] },
+        "status": { "type": "string", "enum": ["PARTIAL_FILL", "FILL", "CORRECTION", "BUST", "REJECTED"] },
         "executedQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "cumulativeQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "leavesQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
         "executedPrice": { "$ref": "#/$defs/Money" },
         "executedAt": { "type": "string", "format": "date-time" },
         "settlementDate": { "type": "string", "format": "date" },
         "marketDataAsOf": { "type": "string", "format": "date-time" },
+        "sourceRequestId": { "$ref": "#/$defs/OpaqueId" },
+        "previousActivityId": { "$ref": "#/$defs/OpaqueId" },
         "signature": { "$ref": "#/$defs/InstitutionSignature" },
         "demoOnly": { "const": true }
       }
@@ -313,6 +375,72 @@
         "sourceSequence": { "type": "integer", "minimum": 1 },
         "settledAt": { "type": "string", "format": "date-time" },
         "signature": { "$ref": "#/$defs/InstitutionSignature" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "CustodyPositionView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["positionId", "accountId", "instrumentId", "status", "settledQuantity", "unsettledQuantity", "allocatedBackingQuantity", "unallocatedQuantity", "redemptionPendingQuantity", "controlHoldQuantity", "issuableQuantity", "asOf", "evidenceRef", "demoOnly"],
+      "properties": {
+        "positionId": { "$ref": "#/$defs/OpaqueId" },
+        "accountId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["CURRENT", "STALE_OR_INCOMPLETE", "RECONCILIATION_HOLD"] },
+        "settledQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "unsettledQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "allocatedBackingQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "unallocatedQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "redemptionPendingQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "controlHoldQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "issuableQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "asOf": { "type": "string", "format": "date-time" },
+        "evidenceRef": { "$ref": "#/$defs/EvidenceRef" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "EntitlementPositionView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["positionId", "entitlementAccountRef", "participantId", "wallet", "instrumentId", "status", "totalEntitlementQuantity", "availableQuantity", "lockedQuantity", "settlementEscrowQuantity", "tokenRecordedQuantity", "asOf", "evidenceRef", "demoOnly"],
+      "properties": {
+        "positionId": { "$ref": "#/$defs/OpaqueId" },
+        "entitlementAccountRef": { "$ref": "#/$defs/OpaqueId" },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "wallet": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "status": { "type": "string", "enum": ["CURRENT", "STALE_OR_INCOMPLETE", "RECONCILIATION_HOLD"] },
+        "totalEntitlementQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "availableQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "lockedQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "settlementEscrowQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "tokenRecordedQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "asOf": { "type": "string", "format": "date-time" },
+        "evidenceRef": { "$ref": "#/$defs/EvidenceRef" },
+        "demoOnly": { "const": true }
+      }
+    },
+    "AccountActivity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["activityId", "accountId", "activityType", "direction", "status", "sourceRequestId", "effectiveAt", "demoOnly"],
+      "properties": {
+        "activityId": { "$ref": "#/$defs/OpaqueId" },
+        "accountId": { "$ref": "#/$defs/OpaqueId" },
+        "activityType": {
+          "type": "string",
+          "enum": ["TRADE_FILL", "TRADE_CORRECTION", "TRADE_BUST", "CASH_FUNDING", "FX", "SETTLEMENT", "FEE", "DIVIDEND", "REFUND", "ADJUSTMENT", "REPORTING"]
+        },
+        "direction": { "type": "string", "enum": ["CREDIT", "DEBIT", "NONE"] },
+        "status": { "type": "string", "enum": ["PENDING", "EFFECTIVE", "REVERSED", "FAILED"] },
+        "orderId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "quantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "money": { "$ref": "#/$defs/Money" },
+        "sourceRequestId": { "$ref": "#/$defs/OpaqueId" },
+        "previousActivityId": { "$ref": "#/$defs/OpaqueId" },
+        "effectiveAt": { "type": "string", "format": "date-time" },
+        "settlementDate": { "type": "string", "format": "date" },
         "demoOnly": { "const": true }
       }
     },
@@ -340,11 +468,12 @@
     "IssuanceRequest": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["issuanceId", "orderId", "participantId", "instrumentId", "quantity", "custodySettlementId", "reserveAttestationId", "policyDecisionIds", "idempotencyKey"],
+      "required": ["issuanceId", "orderId", "participantId", "accountLinkageId", "instrumentId", "quantity", "custodySettlementId", "reserveAttestationId", "policyDecisionIds", "idempotencyKey"],
       "properties": {
         "issuanceId": { "$ref": "#/$defs/OpaqueId" },
         "orderId": { "$ref": "#/$defs/OpaqueId" },
         "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "accountLinkageId": { "$ref": "#/$defs/OpaqueId" },
         "instrumentId": { "$ref": "#/$defs/OpaqueId" },
         "quantity": { "$ref": "#/$defs/PositiveInteger" },
         "custodySettlementId": { "$ref": "#/$defs/OpaqueId" },
@@ -356,6 +485,26 @@
           "items": { "$ref": "#/$defs/OpaqueId" }
         },
         "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 128 }
+      }
+    },
+    "OrderLifecycleView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correlationId", "order", "accountLinkage", "marketOrderId", "fills", "activities", "custodySettlements", "reserveAttestations", "issuanceIds", "status", "projectionStatus", "asOf", "demoOnly"],
+      "properties": {
+        "correlationId": { "type": "string", "format": "uuid" },
+        "order": { "$ref": "#/$defs/OrderDraft" },
+        "accountLinkage": { "$ref": "#/$defs/AccountLinkageView" },
+        "marketOrderId": { "$ref": "#/$defs/OpaqueId" },
+        "fills": { "type": "array", "items": { "$ref": "#/$defs/MarketExecution" } },
+        "activities": { "type": "array", "items": { "$ref": "#/$defs/AccountActivity" } },
+        "custodySettlements": { "type": "array", "items": { "$ref": "#/$defs/CustodySettlement" } },
+        "reserveAttestations": { "type": "array", "items": { "$ref": "#/$defs/ReserveAttestation" } },
+        "issuanceIds": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/OpaqueId" } },
+        "status": { "type": "string", "enum": ["OPEN", "REVIEW", "COMPLETED", "FAILED"] },
+        "projectionStatus": { "type": "string", "enum": ["CURRENT", "STALE_OR_INCOMPLETE"] },
+        "asOf": { "type": "string", "format": "date-time" },
+        "demoOnly": { "const": true }
       }
     },
     "TradeProposal": {
@@ -434,6 +583,28 @@
         "demoOnly": { "const": true }
       }
     },
+    "CorporateActionAllocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allocationId", "actionId", "instrumentId", "allocationType", "entitlementAccountRef", "entitledQuantity", "grossAmount", "taxAmount", "feeAmount", "netAmount", "residualAmount", "status", "asOf", "demoOnly"],
+      "properties": {
+        "allocationId": { "$ref": "#/$defs/OpaqueId" },
+        "actionId": { "$ref": "#/$defs/OpaqueId" },
+        "instrumentId": { "$ref": "#/$defs/OpaqueId" },
+        "allocationType": { "type": "string", "enum": ["INVESTOR", "CONTROL_RESIDUAL"] },
+        "participantId": { "$ref": "#/$defs/OpaqueId" },
+        "entitlementAccountRef": { "$ref": "#/$defs/OpaqueId" },
+        "entitledQuantity": { "$ref": "#/$defs/NonNegativeInteger" },
+        "grossAmount": { "$ref": "#/$defs/Money" },
+        "taxAmount": { "$ref": "#/$defs/Money" },
+        "feeAmount": { "$ref": "#/$defs/Money" },
+        "netAmount": { "$ref": "#/$defs/Money" },
+        "residualAmount": { "$ref": "#/$defs/Money" },
+        "status": { "type": "string", "enum": ["CALCULATED", "PAYABLE", "PAID", "RECONCILED", "HOLD"] },
+        "asOf": { "type": "string", "format": "date-time" },
+        "demoOnly": { "const": true }
+      }
+    },
     "Redemption": {
       "type": "object",
       "additionalProperties": false,
@@ -472,6 +643,23 @@
         "checks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/InvariantCheck" } },
         "holdRequired": { "type": "boolean" },
         "evidenceHash": { "$ref": "#/$defs/Hash" }
+      }
+    },
+    "RegulatoryReportingEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reportEvidenceId", "accountId", "reportingPeriod", "status", "generatedAt", "submittedAt", "recipientInstitutionId", "retentionUntil", "evidenceRef", "demoOnly"],
+      "properties": {
+        "reportEvidenceId": { "$ref": "#/$defs/OpaqueId" },
+        "accountId": { "$ref": "#/$defs/OpaqueId" },
+        "reportingPeriod": { "type": "string", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$" },
+        "status": { "type": "string", "enum": ["GENERATED", "SUBMITTED", "RETAINED", "OVERDUE"] },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "submittedAt": { "type": ["string", "null"], "format": "date-time" },
+        "recipientInstitutionId": { "$ref": "#/$defs/OpaqueId" },
+        "retentionUntil": { "type": "string", "format": "date" },
+        "evidenceRef": { "$ref": "#/$defs/EvidenceRef" },
+        "demoOnly": { "const": true }
       }
     },
     "AuditEvent": {

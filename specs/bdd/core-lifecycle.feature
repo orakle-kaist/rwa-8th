@@ -4,7 +4,7 @@ Feature: Backed Korean equity entitlement lifecycle
   presenting the entitlement as a directly registered share.
 
   Background:
-    Given the deterministic demo fixture version "1.0.0" is loaded
+    Given the deterministic demo fixture version "1.1.0" is loaded
     And the system is not under "RECONCILIATION_HOLD"
     And every displayed market value is labelled "DEMO_ONLY"
 
@@ -19,8 +19,11 @@ Feature: Backed Korean equity entitlement lifecycle
 
   Scenario: AI creates an order draft but cannot confirm it
     Given active participant "INV_HK_001"
+    And account linkage "LINK_INV_HK_001" is "ACTIVE"
+    And the linkage binds participant "INV_HK_001" to entitlement account "ENTITLEMENT_ACCT_001" and its dedicated wallet
     When the AI agent creates a draft to buy 10 units of "EQ_SKHYNIX_001"
     Then the order status is "DRAFT"
+    And the order records account linkage "LINK_INV_HK_001" and entitlement account "ENTITLEMENT_ACCT_001"
     And no market order has been submitted
     And no cash or entitlement balance has changed
     When the human verifies the displayed fields and signs the EIP-712 payload
@@ -29,6 +32,9 @@ Feature: Backed Korean equity entitlement lifecycle
 
   Scenario: Market execution does not mint before T+2 custody settlement
     Given a human-confirmed and funded order for 10 units of "EQ_SKHYNIX_001"
+    And one correlation ID links the investor request, omnibus order and custody allocation
+    When the Korean broker submits the order to the KRX mock
+    Then the order status is "MARKET_SUBMITTED"
     When the KRX mock records a full execution
     Then the order status is "AWAITING_CUSTODY_SETTLEMENT"
     And the entitlement total supply is 0
@@ -39,8 +45,21 @@ Feature: Backed Korean equity entitlement lifecycle
     And the entitlement total supply is still 0
     When the token operator submits the issuance request
     Then exactly 10 entitlement units are minted
+    And the issuance evidence links the same account linkage, market order, fill and custody position
     And "INV_SUPPLY_BACKING_EQUAL" passes
     And "INV_BACKING_NOT_ABOVE_CUSTODY" passes
+
+  Scenario: The three authoritative books reconcile for each instrument and account
+    Given the Korean custody book records 10 settled shares of "EQ_SKHYNIX_001"
+    And the foreign distributor entitlement book allocates 10 units across active entitlement accounts
+    And the permissioned token record has a total supply of 10 units
+    When end-of-day reconciliation runs for "EQ_SKHYNIX_001"
+    Then Korean settled custody equals foreign investor entitlement plus control residual
+    And foreign investor entitlement equals permissioned token supply
+    And every investor allocation maps to exactly one active account linkage
+    And "INV_ENTITLEMENT_BOOK_MATCH" passes
+    And "INV_ENTITLEMENT_POSITION_COMPLETE" passes
+    And "INV_ACCOUNT_WALLET_ONE_TO_ONE" passes
 
   Scenario: Eligible parties settle a secondary RFQ atomically
     Given "INV_HK_001" owns 10 available units of "EQ_SKHYNIX_001"
@@ -62,6 +81,14 @@ Feature: Backed Korean equity entitlement lifecycle
     When the bank mock pays every net amount
     Then the corporate action status is "RECONCILED"
     And no tax identity data appears in shared events
+
+  Scenario: Monthly omnibus reporting evidence is retained without shared PII
+    Given the foreign distributor has month-end investor allocation records for July 2026
+    When the distributor submits the required aggregate report evidence by 10 August 2026
+    Then the report status is "RETAINED"
+    And the evidence records period, submission time, recipient, retention date and content hash
+    And the underlying investor records remain in the distributor restricted vault
+    And no restricted PII appears in the shared report event
 
   Scenario: Redemption burns only after underlying disposition and cash readiness
     Given "INV_HK_001" requests redemption of 3 available units

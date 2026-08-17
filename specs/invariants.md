@@ -38,6 +38,25 @@ totalSupply
 == circulatingTokens + lockedTokens + settlementEscrowTokens
 ```
 
+### `INV_ENTITLEMENT_BOOK_MATCH`
+
+```text
+sum(activeFinalInvestorEntitlementPositions(instrumentId))
+== totalSupply(instrumentId)
+```
+
+해외 유통사의 최종투자자 권리장부 합계는 토큰 공급량과 같아야 한다. 차이가 있으면 `RECONCILIATION_HOLD`를 걸고 어느 장부도 다른 장부를 자동 덮어쓰지 않는다.
+
+### `INV_ENTITLEMENT_POSITION_COMPLETE`
+
+```text
+totalEntitlementQuantity
+== availableQuantity + lockedQuantity + settlementEscrowQuantity
+== tokenRecordedQuantity
+```
+
+첫 번째 등식은 해외 유통사 권리장부의 투자자별 완결성을 뜻한다. 두 번째 등식은 projection이 `CURRENT`일 때만 성립해야 하며, 불일치 또는 source sequence gap이 있으면 해당 position을 `STALE_OR_INCOMPLETE`로 표시하고 mint·transfer·redemption에 사용하지 않는다.
+
 ## 발행·환매
 
 ### `INV_MINT_EVIDENCE_SINGLE_USE`
@@ -50,12 +69,30 @@ mint에 사용된 `custodySettlementId`와 `reserveAttestationId` 조합은 한 
 mintAllowed
 == custodySettlement.status == COMPLETED
 AND reserveAttestation.status == ACTIVE
+AND accountLinkage.status == ACTIVE
 AND policyDecisions.all(ALLOW and unexpired)
 AND eligibility.status == ACTIVE
 AND systemHold == false
 ```
 
 시장 체결만으로는 mint를 허용하지 않는다.
+
+### `INV_ACCOUNT_WALLET_ONE_TO_ONE`
+
+한 시점에 active `participantId`, `entitlementAccountRef`와 `wallet`은 1:1이어야 한다. 같은 wallet 또는 entitlement account를 다른 participant에 연결하는 create/remap은 `ACCOUNT_LINKAGE_INVALID`로 거절한다. remap은 기존 linkage 종료와 새 linkage activation을 하나의 audited workflow로 수행한다.
+
+### `INV_FILL_ACCOUNTING_COMPLETE`
+
+```text
+orderQuantity
+== cumulativeFilledQuantity + leavesQuantity
+```
+
+`PARTIALLY_FILLED`에서는 두 값이 모두 0보다 커야 한다. `EXECUTED`에서는 `leavesQuantity == 0`이어야 한다. terminal partial fill은 `PARTIAL_FILL_REVIEW`이며 승인된 settled filled quantity가 정해지기 전에는 mint할 수 없다.
+
+### `INV_CORRECTION_APPEND_ONLY`
+
+fill correction 또는 bust는 원 `activityId`를 수정·삭제하지 않고 `previousActivityId`로 연결된 새 activity를 추가한다. correction 대상 order는 재결제·대사 완료 전 `RECONCILIATION_HOLD` 또는 order-level hold 상태여야 한다.
 
 ### `INV_BURN_AFTER_DISPOSITION_READY`
 
@@ -113,6 +150,10 @@ AI 생성 여부와 관계없이 주문 `DRAFT -> CONFIRMED`, 거래 `PROPOSED -
 
 모든 privileged action은 actor, role, reason, evidence refs, before/after hash와 승인자를 기록한다. 과거 이벤트는 수정·삭제하지 않고 정정 이벤트로 연결한다.
 
+### `INV_REPORTING_EVIDENCE_COMPLETE`
+
+각 active foreign omnibus account는 월별 `RegulatoryReportingEvidence`를 하나 이상 가져야 한다. evidence는 `reportingPeriod`, `generatedAt`, `submittedAt`, `recipientInstitutionId`, `retentionUntil`, `evidenceRef`를 포함하고 원문·PII는 포함하지 않는다. 기한이 지났는데 `submittedAt`이 없으면 `REGULATORY_REPORT_OVERDUE`이며 configurable order hold를 건다.
+
 ## 사고 대응
 
 ### `INV_HOLD_FAIL_CLOSED`
@@ -128,5 +169,6 @@ hold 해제에는 `KR_BROKER_CUSTODIAN`과 `INDEPENDENT_CONTROL`의 서로 다�
 - 명령 실행 전: guard 관련 불변식
 - 원장 트랜잭션 직후: 공급·준비금·DvP 불변식
 - event 소비 후: provenance·sequence·멱등성
-- 영업일 종료: 전체 수량·현금·기업행동 대사
+- 영업일 종료: 수탁·최종투자자 권리·토큰·현금·activity·기업행동 전체 대사
+- 월말 및 다음 달 10일: 최종투자자 reporting evidence 생성·제출·보존기한 검증
 - 사고 복구 전: 모든 불변식 전체 재실행

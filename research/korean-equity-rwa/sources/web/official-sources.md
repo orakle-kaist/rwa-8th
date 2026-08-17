@@ -4,7 +4,7 @@
 
 | ID | 등급 | 출처 | 확인된 범위 | 설계 사용 |
 |---|---:|---|---|---|
-| S001 | A | [금융위원회, 외국인 통합계좌 이용 가이드라인 발표](https://www.fsc.go.kr/no010101/85748) | 외국인이 별도 국내 계좌 없이 해외 금융투자업자 명의 통합계좌로 주문·결제할 수 있음. 2025년 8월 하나증권–Emperor 계좌 개설 | 문제를 접근 불가가 아닌 잔존 운영 마찰로 재정의 |
+| S001 | A | [금융위원회, 외국인 통합계좌 이용 가이드라인](https://www.fsc.go.kr/po010104/85748) | 해외 금융투자업자와 국내 증권사의 계약, 상임대리인 보관계좌, 통합계좌 순서와 최종투자자 기록 10년 보존, 월말 기준 다음 달 10일 제출, 배당 안분·불통일 의결권 행사 절차 | 한국형 계좌·보고·기업행동 책임의 기준 |
 | S002 | A | [금융위원회, 외국인 통합계좌 운영 설명](https://www.fsc.go.kr/no010102/86339) | 2025년 10월 최초 투자 개시, 2026년 1월 개설주체 제한 폐지, 해외 증권사의 고객·주문 취합 역할 | 홍콩을 첫 실재 참조 경로로 선택하되 코어에 하드코딩하지 않음 |
 | S003 | A | [국가법령정보센터, 개정 전자증권법](https://law.go.kr/LSW/lsInfoP.do?lsiSeq=283195&viewCls=lsRvsDocInfoR) | 2026년 2월 3일 공포, 공포 후 1년 시행; 분산원장과 관련 계좌관리 법적 기반 | 2단계 로드맵의 법적 출발점 |
 | S004 | A | [금융위원회, 토큰증권 법률 개정안 통과 설명](https://www.fsc.go.kr/po010105/86064) | 분산원장을 증권 계좌부로 이용할 수 있으나 자본시장법상 증권 규제가 그대로 적용됨 | 기술표준이 인허가·공시·중개규제를 대체하지 않는다는 경계 |
@@ -30,6 +30,19 @@
 | S024 | A | [금융위원회, 외국인 투자자 등록제 폐지 이후 계좌개설 실적](https://www.fsc.go.kr/po010107/82508) | 2023년 12월 15일부터 2024년 6월 12일까지 LEI·여권번호 기반 계좌 1,432개 개설. 법인서류와 위임장 확인관행의 후속 개선도 설명 | 직접계좌가 명목상 제도가 아니라 실제 이용되는 기준선임을 확인 |
 | S025 | A | [한국예탁결제원, 해외 DR 원주관리 서비스](https://www.ksd.or.kr/ko/api/download/static?fileNm=%ED%95%B4%EC%99%B8DR%EC%9B%90%EC%A3%BC%EA%B4%80%EB%A6%AC%EC%84%9C%EB%B9%84%EC%8A%A4_FN.pdf) | 국내 원주를 원주관리기관에 보관하고 해외 예탁기관이 ADR·GDR을 발행하며 원주 전환과 기업행동을 처리하는 구조 | 해외 DR을 기존 접근수단이자 수탁 권리 토큰의 기능적 비교대상으로 추가 |
 | S026 | A | [한국거래소, ETF의 상품 성격과 거래](https://global.krx.co.kr/contents/GLB/06/0605/0605010103/GLB0605010103.jsp) | ETF는 주식처럼 거래되더라도 개별 주식이 아니라 지수를 추종하는 펀드라는 상품 경계 | 한국주식 직접 보유와 ETF·펀드 간접노출을 구분 |
+| S027 | B | [Dinari Docs, US Customers](https://docs.dinari.com/docs/us) | 2026-06-22 갱신 가이드상 미국 고객은 완전공개 계좌를 사용하고 통합주문이 금지되며, 고객별 전용 지갑·비이전 토큰·브로커 시스템 기업행동·별도 증권화면과 주문확인 통제를 요구 | 국제형과 미국형의 계좌·지갑·이전·화면 차이를 비교 |
+| S028 | B | [Dinari Docs, Order Types & Behaviors](https://docs.dinari.com/docs/order-type) | 모든 v2 주문이 주문요청에서 주문으로 이어지고, 부분체결·미체결 환불과 복수 이행기록 대사를 예상하도록 안내 | 고객요청·시장주문·개별 체결·결제를 분리한 상태모델 근거 |
+| S029 | B | [Dinari Docs, Get Brokerage Account Activities](https://docs.dinari.com/reference/getbrokerageaccountactivities) | 계좌별 브로커리지 활동 조회와 페이지네이션을 제공하는 초기 개발 단계 인터페이스 | 운영자 화면의 계좌 활동·재처리 조회 근거 |
+| S030 | B | [Dinari Docs, Corporate Actions](https://docs.dinari.com/docs/corporate-actions) | 기업행동 공지와 실제 지급·수량반영을 구분해 모니터링하는 공개 절차 | 기업행동 상태와 실제 배정활동 분리 |
+| S031 | B | [Alpaca Docs, Use Cases](https://docs.alpaca.markets/us/docs/use-cases) | 완전공개 계좌와 omnibus 모델에서 계좌명의, 최종고객 정보, 주문 태그, 고객장부·세무 책임이 달라짐 | 브로커 인프라 화면의 법적 계좌와 고객 하위장부 구분 |
+| S032 | B | [Alpaca Docs, OmniSub](https://docs.alpaca.markets/us/v1.4.2/docs/omnisub) | 하나의 법적 omnibus 계좌와 기술 하위계정, 중앙자금, 통합·하위 포지션, 통제계정 잔여, 기업행동·정정·명세서 책임을 구분 | 한국 통합계좌 화면을 설계할 때의 기능 비교사례 |
+| S033 | B | [Alpaca Docs, Getting Started with Broker API](https://docs.alpaca.markets/us/docs/getting-started-with-broker-api) | Brokerdash에서 계좌·자금·주문·활동 API를 시험하고 비동기 계좌·거래 결과를 확인하는 운영 흐름 | 국내 브로커·수탁 인프라 콘솔의 업무 탭 구성 근거 |
+| S034 | B | [Alpaca Docs, Activities](https://docs.alpaca.markets/us/docs/activity-sse) | 체결·정정·거래취소·배당·수수료·이체 등 재무상태 변경 이벤트를 로컬 계정 상태에 멱등 반영하고 재연결 지점을 유지하도록 안내 | 상태변경과 재무활동 분리, 이벤트 중복·복구 통제 |
+| S035 | B | [Alpaca Docs, Retrieve EOD Positions](https://docs.alpaca.markets/us/reference/get-v1-reporting-eod-positions) | 계좌·자산별 일말 포지션 보고 인터페이스 | 국내 수탁·해외 권리·토큰 공급량의 일말 대사 화면 근거 |
+| S036 | A | [한국거래소, Guide to Trading in the Korean Stock Market](https://global.krx.co.kr/contents/GLB/01/0109/0109000000/guide_to_trading_in_the_korean_stock_market.pdf) | 1주 거래단위, 시장세션, 주문유형·호가단위와 정정·취소 등 한국 주식시장 거래 기초 | 투자자 주문확인 화면을 미국 NBBO 화면과 구분 |
+| S037 | A | [한국거래소, Settlement Procedures](https://global.krx.co.kr/contents/GLB/06/0602/0602010201/GLB0602010201T1.jsp) | 회원 주문 체결통지, 고객과 회원 및 회원과 거래소 사이 T+2 결제 절차 | 한국형 권리발행을 체결이 아닌 T+2 결제·수탁 뒤로 제한 |
+| S038 | A | [금융위원회, 국내주식 소수단위 거래](https://www.fsc.go.kr/po010101/77381) | 증권사가 소수단위 주문을 취합·온주 보충한 뒤 KSD 신탁과 수익증권 발행으로 고객 권리를 구성한 혁신금융 구조 | 소수단위를 단순 토큰 소수점이 아닌 별도 법률·재고 모델로 분리 |
+| S039 | A | [미국 SEC, T+1 Settlement Cycle](https://www.sec.gov/newsroom/press-releases/2024-62) | 2024-05-28부터 미국의 대부분 브로커 거래에 T+1 표준결제주기 시행 | Dinari 기초시장과 한국 T+2 구조의 시간 차이 설명 |
 
 ## 소스별 해석 제한
 
@@ -47,3 +60,9 @@
 - S024의 1,432개는 2023년 12월 15일부터 2024년 6월 12일까지의 역사적 실적이며 현재 누적계좌 수로 사용하지 않는다.
 - S025의 상품 구조는 해외 DR 비교에 사용하되, 안내서에 수록된 2019년 말 종목 수와 종목 목록을 현재 현황으로 사용하지 않는다. 수탁 권리 토큰이 법률상 DR에 해당하거나 해당하지 않는다는 결론도 이 자료만으로 내리지 않는다.
 - S026은 ETF가 개별 주식이 아닌 펀드라는 상품 경계의 근거다. 특정 해외시장에서 모든 외국인이 한국지수 ETF를 이용할 수 있다는 근거로 사용하지 않는다.
+- S027은 Dinari의 회사 가이드이며 SEC·FINRA가 미국 서비스의 모든 법적 표현에 동의했다는 근거가 아니다. 특히 SEC 제출서와 함께 회사의 설명·확인요청으로 표시한다.
+- S028~S030은 공개 제품·API 동작을 보여주지만 Dinari 내부 운영화면, 최종 증권결제 시점, 계좌계약과 통제의 실제 이행을 입증하지 않는다.
+- S031~S035는 Alpaca가 제공하는 일반적인 계좌·하위장부·활동 모델이다. Dinari 국제 dShares가 OmniSub를 실제 사용한다거나 한국 통합계좌와 법적으로 동일하다는 근거로 사용하지 않는다.
+- S036~S037은 한국 시장의 주문·결제 기준으로 사용한다. PoC의 모의 어댑터가 실제 KRX·KSD 연결 또는 운영승인을 받았다는 의미가 아니다.
+- S038의 소수단위 신탁 구조는 별도 특례 사례다. 본 수탁 권리 토큰을 허용하거나 같은 법률형식을 사용해야 한다는 결론이 아니라 소수점만으로 구현할 수 없다는 근거로 한정한다.
+- S039의 T+1은 미국시장 비교에만 사용한다. Dinari가 어떤 주문에서 정확히 언제 고객 토큰을 발행하고 결제위험을 부담하는지는 별도 확인이 필요하다.

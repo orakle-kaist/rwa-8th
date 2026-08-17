@@ -1,7 +1,7 @@
 asyncapi: 3.1.0
 info:
   title: Korean Equity RWA PoC Event Contract
-  version: 1.0.0
+  version: 1.1.0
   description: |
     Ordered, signed and idempotent event contract. The application receives adapter
     facts and emits domain outcomes. Event bodies MUST contain no restricted PII.
@@ -22,6 +22,11 @@ channels:
     messages:
       policyDecisionRecorded:
         $ref: "#/components/messages/PolicyDecisionRecorded"
+  accountLinkages:
+    address: rwa.accounts.linkages.v1
+    messages:
+      accountLinkageChanged:
+        $ref: "#/components/messages/AccountLinkageChanged"
   fundingConfirmations:
     address: rwa.funding.confirmations.v1
     messages:
@@ -32,6 +37,11 @@ channels:
     messages:
       marketExecutionRecorded:
         $ref: "#/components/messages/MarketExecutionRecorded"
+  accountActivities:
+    address: rwa.accounts.activities.v1
+    messages:
+      accountActivityRecorded:
+        $ref: "#/components/messages/AccountActivityRecorded"
   custodySettlements:
     address: rwa.custody.settlements.v1
     messages:
@@ -42,6 +52,16 @@ channels:
     messages:
       reserveAttestationRecorded:
         $ref: "#/components/messages/ReserveAttestationRecorded"
+  custodyPositions:
+    address: rwa.custody.positions.v1
+    messages:
+      custodyPositionUpdated:
+        $ref: "#/components/messages/CustodyPositionUpdated"
+  entitlementPositions:
+    address: rwa.entitlement.positions.v1
+    messages:
+      entitlementPositionUpdated:
+        $ref: "#/components/messages/EntitlementPositionUpdated"
   issuanceOutcomes:
     address: rwa.issuance.outcomes.v1
     messages:
@@ -57,6 +77,11 @@ channels:
     messages:
       corporateActionUpdated:
         $ref: "#/components/messages/CorporateActionUpdated"
+  corporateActionAllocations:
+    address: rwa.corporate.action.allocations.v1
+    messages:
+      corporateActionAllocationUpdated:
+        $ref: "#/components/messages/CorporateActionAllocationUpdated"
   redemptions:
     address: rwa.redemptions.v1
     messages:
@@ -72,6 +97,11 @@ channels:
     messages:
       privilegedActionAudited:
         $ref: "#/components/messages/PrivilegedActionAudited"
+  regulatoryReports:
+    address: rwa.regulatory.reports.v1
+    messages:
+      regulatoryReportingEvidenceRecorded:
+        $ref: "#/components/messages/RegulatoryReportingEvidenceRecorded"
 operations:
   receiveKycResult:
     action: receive
@@ -85,6 +115,12 @@ operations:
       $ref: "#/channels/policyDecisions"
     messages:
       - $ref: "#/channels/policyDecisions/messages/policyDecisionRecorded"
+  receiveAccountLinkage:
+    action: receive
+    channel:
+      $ref: "#/channels/accountLinkages"
+    messages:
+      - $ref: "#/channels/accountLinkages/messages/accountLinkageChanged"
   receiveFundingConfirmation:
     action: receive
     channel:
@@ -97,6 +133,12 @@ operations:
       $ref: "#/channels/marketExecutions"
     messages:
       - $ref: "#/channels/marketExecutions/messages/marketExecutionRecorded"
+  receiveAccountActivity:
+    action: receive
+    channel:
+      $ref: "#/channels/accountActivities"
+    messages:
+      - $ref: "#/channels/accountActivities/messages/accountActivityRecorded"
   receiveCustodySettlement:
     action: receive
     channel:
@@ -109,6 +151,18 @@ operations:
       $ref: "#/channels/reserveAttestations"
     messages:
       - $ref: "#/channels/reserveAttestations/messages/reserveAttestationRecorded"
+  sendCustodyPosition:
+    action: send
+    channel:
+      $ref: "#/channels/custodyPositions"
+    messages:
+      - $ref: "#/channels/custodyPositions/messages/custodyPositionUpdated"
+  receiveEntitlementPosition:
+    action: receive
+    channel:
+      $ref: "#/channels/entitlementPositions"
+    messages:
+      - $ref: "#/channels/entitlementPositions/messages/entitlementPositionUpdated"
   sendIssuanceOutcome:
     action: send
     channel:
@@ -127,6 +181,12 @@ operations:
       $ref: "#/channels/corporateActions"
     messages:
       - $ref: "#/channels/corporateActions/messages/corporateActionUpdated"
+  sendCorporateActionAllocation:
+    action: send
+    channel:
+      $ref: "#/channels/corporateActionAllocations"
+    messages:
+      - $ref: "#/channels/corporateActionAllocations/messages/corporateActionAllocationUpdated"
   sendRedemptionUpdate:
     action: send
     channel:
@@ -145,6 +205,12 @@ operations:
       $ref: "#/channels/auditEvents"
     messages:
       - $ref: "#/channels/auditEvents/messages/privilegedActionAudited"
+  receiveRegulatoryReportingEvidence:
+    action: receive
+    channel:
+      $ref: "#/channels/regulatoryReports"
+    messages:
+      - $ref: "#/channels/regulatoryReports/messages/regulatoryReportingEvidenceRecorded"
 components:
   messages:
     KycResultRecorded:
@@ -169,6 +235,17 @@ components:
               eventType: { const: PolicyDecisionRecorded }
               data:
                 $ref: ./schemas/domain.schema.json#/$defs/PolicyDecision
+    AccountLinkageChanged:
+      name: AccountLinkageChanged
+      title: A PII-free participant, entitlement account and dedicated wallet linkage changed
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: AccountLinkageChanged }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/AccountLinkageView
     FundingConfirmed:
       name: FundingConfirmed
       title: Bank and FX mock result
@@ -182,7 +259,7 @@ components:
                 $ref: ./schemas/domain.schema.json#/$defs/FundingConfirmation
     MarketExecutionRecorded:
       name: MarketExecutionRecorded
-      title: KRX mock execution result; never authorizes mint by itself
+      title: One KRX mock fill, correction or bust; never authorizes mint by itself
       payload:
         allOf:
           - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
@@ -191,6 +268,17 @@ components:
               eventType: { const: MarketExecutionRecorded }
               data:
                 $ref: ./schemas/domain.schema.json#/$defs/MarketExecution
+    AccountActivityRecorded:
+      name: AccountActivityRecorded
+      title: An append-only financial-state account activity was recorded
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: AccountActivityRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/AccountActivity
     CustodySettlementRecorded:
       name: CustodySettlementRecorded
       title: KSD mock settlement result
@@ -213,6 +301,28 @@ components:
               eventType: { const: ReserveAttestationRecorded }
               data:
                 $ref: ./schemas/domain.schema.json#/$defs/ReserveAttestation
+    CustodyPositionUpdated:
+      name: CustodyPositionUpdated
+      title: A settled, unsettled and allocated custody position projection changed
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: CustodyPositionUpdated }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/CustodyPositionView
+    EntitlementPositionUpdated:
+      name: EntitlementPositionUpdated
+      title: A final-investor entitlement position changed in the foreign distributor book
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: EntitlementPositionUpdated }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/EntitlementPositionView
     EntitlementIssued:
       name: EntitlementIssued
       title: Mint outcome after settlement and reserve checks
@@ -261,6 +371,17 @@ components:
               eventType: { const: CorporateActionUpdated }
               data:
                 $ref: ./schemas/domain.schema.json#/$defs/CorporateAction
+    CorporateActionAllocationUpdated:
+      name: CorporateActionAllocationUpdated
+      title: An investor or control-residual corporate action allocation changed
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: CorporateActionAllocationUpdated }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/CorporateActionAllocation
     RedemptionUpdated:
       name: RedemptionUpdated
       title: Redemption lifecycle transition
@@ -294,3 +415,14 @@ components:
               eventType: { const: PrivilegedActionAudited }
               data:
                 $ref: ./schemas/domain.schema.json#/$defs/AuditEvent
+    RegulatoryReportingEvidenceRecorded:
+      name: RegulatoryReportingEvidenceRecorded
+      title: Foreign omnibus monthly report submission and retention evidence was recorded
+      payload:
+        allOf:
+          - $ref: ./schemas/domain.schema.json#/$defs/EventEnvelope
+          - type: object
+            properties:
+              eventType: { const: RegulatoryReportingEvidenceRecorded }
+              data:
+                $ref: ./schemas/domain.schema.json#/$defs/RegulatoryReportingEvidence

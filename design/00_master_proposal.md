@@ -16,12 +16,14 @@
 
 ## 목표 결과
 
-직접계좌, 외국인 통합계좌, 해외 DR과 간접노출을 비교한 뒤 1단계 기준경로로 선택한 외국인 통합계좌의 주문·수탁 구조를 유지하면서 다음을 검증한다.
+직접계좌, 외국인 통합계좌, 해외 DR과 간접노출을 비교한 뒤 1단계 기준경로로 선택한 외국인 통합계좌의 주문·수탁 구조를 유지한다. Dinari 국제형과 미국형의 차이에서 관할에 따라 고객계좌·권위장부·지갑·이전성이 달라진다는 원리를 추출하고, 이를 한국 제도에 번역해 다음을 검증한다.
 
 - 해외 판매기관의 관할별 적격성 결과와 한국 자산정책을 하나의 주문에 결합한다.
 - 결제 완료 수탁분을 초과하는 권리토큰 발행을 차단한다.
 - 적격 참여자 간 2차 권리 이전을 동일 원장의 모의 원화 현금과 원자적으로 결제한다.
 - 배당·환매·대사·사고복구까지 기관별 책임과 증거를 추적한다.
+- 투자자, 토큰화 운영자, 국내 브로커·수탁 인프라가 같은 주문요청·시장주문·체결·결제·발행 계보를 서로의 책임에 맞게 조회한다.
+- 최종투자자 장부의 규제상 보존·월별 보고 책임을 개인정보 비공유 원칙과 동시에 충족한다.
 - 홍콩 프로파일을 제거하거나 다른 프로파일로 바꿔도 코어 도메인과 컨트랙트가 변하지 않는다.
 
 ## 확정 결정
@@ -42,6 +44,10 @@
 | D-012 | 2단계는 발행인 참여형 별도 승인 | 2027년 제도화와 단계적 인프라 준비 반영 | 1단계 계약을 자동 업그레이드 금지 |
 | D-013 | Dinari는 수탁형 비교사례이며 구현 의존성이 아님 | 공개된 중개·수탁·발행 흐름에서 제도적 교훈을 추출 | Dinari 연동, 미국 구조의 복제 또는 상품 동등성 주장 금지 |
 | D-014 | 통합계좌는 여러 접근경로 중 선택한 1단계 기준 인프라 | 최종투자자별 국내계좌 없이 다수 KRX 종목의 결제 완료 재고와 해외 권리를 연결하는 수탁형 PoC에 가장 적합 | 통합계좌를 외국인의 유일한 접근경로로 표시하거나 직접계좌·DR보다 항상 우월하다고 주장 금지 |
+| D-015 | 실제 주식·최종투자자 권리·토큰 이전은 서로 다른 권위장부를 가진다 | 국내 수탁원장, 해외 유통사 권리장부와 허가형 토큰 원장의 법적 역할을 혼동하지 않기 위함 | 토큰 잔액만으로 주식 수탁이나 고객의 법적 권리를 확정하는 해석 금지 |
+| D-016 | 한국형 발행은 KRX 체결이 아니라 T+2 결제와 수탁 배정 뒤에만 가능 | 미국 T+1 또는 Dinari 공개 체결 흐름을 한국시장에 그대로 복제할 수 없음 | 체결 이벤트만으로 발행하거나 결제실패 위험의 부담주체 없이 선발행 금지 |
+| D-017 | 계좌·지갑은 1대1 검증 연결하고 고객요청·시장주문·복수 체결·결제·발행을 분리 | 투자자 화면과 두 기관 콘솔에서 같은 거래를 재구성하고 부분체결·정정을 처리 | 단일 완료상태로 체결·결제·발행을 덮거나 지갑을 여러 고객에게 공유 금지 |
+| D-018 | Alpaca 계좌·활동 모델은 화면·운영 비교사례일 뿐 실제 Dinari 구성이나 한국 법적 구조가 아님 | 공개 문서로 확인할 수 있는 범위와 추론을 구분 | 비공개 내부화면 복제, Dinari의 OmniSub 사용 또는 Alpaca 연동을 사실로 주장 금지 |
 
 ## 시스템 경계
 
@@ -50,11 +56,14 @@ flowchart LR
     I[Foreign Investor] --> FD[Foreign Licensed Distributor]
     FD --> PE[Jurisdiction Policy Engine]
     PE --> OS[Order and RFQ Service]
+    FD --> EB[Final-investor Entitlement Book]
+    EB --> OS
     OS --> KB[Korean Broker and Custodian]
     KB --> KRX[KRX Mock Adapter]
     KB --> KSD[KSD Mock Adapter]
     FD --> BF[Bank and FX Mock Adapter]
     KSD --> RR[Reserve and Reconciliation]
+    EB --> RR
     BF --> UL[Permissioned Unified Ledger]
     RR --> UL
     PE --> UL
@@ -70,8 +79,10 @@ flowchart LR
 ```text
 totalSupply(instrument) = tokenizedBacking(instrument)
 tokenizedBacking(instrument) <= settledCustody(instrument)
+sum(finalInvestorEntitlements(instrument)) = totalSupply(instrument)
 DvP = assetMoved AND cashMoved, or NOT assetMoved AND NOT cashMoved
 confirmedOrder => humanSignatureVerified = true
+mint => accountLinkage.status = ACTIVE
 mint => custodySettlement.consumed = true AND reserveAttestation.consumed = true
 reconciliationMismatch => issuancePaused = true AND secondarySettlementPaused = true
 ```
@@ -87,4 +98,6 @@ reconciliationMismatch => issuancePaused = true AND secondarySettlementPaused = 
 - 정상 수명주기와 필수 실패 시나리오가 BDD로 정의된다.
 - 역할별 허용·금지 동작과 2인 승인 경계가 명시된다.
 - 법적 미확정 사항이 시스템의 config와 manual-review gate로 격리된다.
+- 세 업무화면의 read model이 같은 `correlationId`와 원천 식별자를 통해 주문요청·체결·활동·수탁·발행을 일관되게 재현한다.
+- 최종투자자 보고 증거는 조회할 수 있지만 원본 PII와 실제 계좌번호는 공유 payload에 포함되지 않는다.
 - 구현 스택을 바꾸더라도 외부 계약, 불변식과 합격 조건이 유지된다.

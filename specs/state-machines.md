@@ -21,7 +21,18 @@
 
 `EXPIRED`, `SUSPENDED`, `REJECTED`에서는 신규 매수·일반 이전을 허용하지 않는다. 환매는 별도 `REDEEM` 정책결정이 `ALLOW`일 때만 시작한다.
 
-## 2. 1차 취득·발행 주문
+## 2. 계좌·지갑 연결
+
+| From | Trigger | Guard | To | 실패코드 |
+|---|---|---|---|---|
+| `PENDING_VERIFICATION` | `VerifyLinkage` | participant, entitlement account, wallet ownership, distributor ledger and omnibus/custody refs complete | `ACTIVE` | `ACCOUNT_LINKAGE_INVALID` |
+| `ACTIVE` | `SuspendLinkage` | sanctions, lost key, duplicate mapping or incident evidence | `SUSPENDED` | — |
+| `SUSPENDED` | `RemapLinkage` | old wallet frozen, new proof, foreign distributor + independent control approvals | `ACTIVE` | `DUAL_CONTROL_REQUIRED` |
+| `ACTIVE` | `CloseLinkage` | zero available/pending/locked balance and no open order/action | `CLOSED` | `STATE_TRANSITION_INVALID` |
+
+한 `participantId`, `entitlementAccountRef`, wallet 조합만 같은 effective time에 `ACTIVE`일 수 있다. history는 append-only이며 주문확정·수령·발행 guard는 `ACTIVE` linkage를 요구한다.
+
+## 3. 1차 취득·발행 주문
 
 | From | Trigger | Guard | To | Side effects |
 |---|---|---|---|---|
@@ -29,16 +40,24 @@
 | `CONFIRMED` | `StartFunding` | two policies ALLOW and current | `FUNDING_PENDING` | funding request created |
 | `FUNDING_PENDING` | `FundingConfirmed` | bank signature, sufficient amount | `READY_FOR_MARKET` | institution cash reserved |
 | `FUNDING_PENDING` | `FundingFailed` | signed failure | `REJECTED` | no token/cash movement |
-| `READY_FOR_MARKET` | `MarketExecutionRecorded` | market open, quote fresh, aggregate room sufficient | `EXECUTED` | execution recorded only |
+| `READY_FOR_MARKET` | `MarketOrderAccepted` | market open, quote fresh, aggregate room sufficient, active linkage | `MARKET_SUBMITTED` | market order reference recorded |
 | `READY_FOR_MARKET` | `MarketRejected` | signed reason | `REJECTED` | release funding reservation |
+| `MARKET_SUBMITTED` | `MarketFillRecorded` | cumulative < order quantity, fill provenance valid | `PARTIALLY_FILLED` | append fill activity only |
+| `MARKET_SUBMITTED` | `MarketFillRecorded` | cumulative = order quantity, leaves=0 | `EXECUTED` | append fill activity only |
+| `PARTIALLY_FILLED` | `MarketFillRecorded` | cumulative = order quantity, leaves=0 | `EXECUTED` | append fill activity only |
+| `PARTIALLY_FILLED` | `MarketOrderTerminal` | leaves > 0 | `PARTIAL_FILL_REVIEW` | release unfilled funding; no mint |
+| `PARTIAL_FILL_REVIEW` | `ApproveFilledQuantity` | human review, investor partial-fill consent, filled quantity final | `AWAITING_CUSTODY_SETTLEMENT` | approved settlement quantity fixed |
+| `PARTIAL_FILL_REVIEW` | `CancelFilledQuantity` | authorized unwind | `REJECTED` | manual cash/position unwind |
 | `EXECUTED` | internal | always | `AWAITING_CUSTODY_SETTLEMENT` | none |
 | `AWAITING_CUSTODY_SETTLEMENT` | `CustodySettlementCompleted` | correct execution, quantity and sequence | `BACKED` | custody and reserve workflow update |
 | `AWAITING_CUSTODY_SETTLEMENT` | `CustodySettlementFailed` | signed failure | `SETTLEMENT_FAILED` | manual cash unwind |
 | `BACKED` | `IssueEntitlement` | all mint invariants pass | `MINTED` | evidence consumed and mint atomic |
 
-부분체결·부분결제는 core demo에서 성공 전이로 구현하지 않는다. 이를 받으면 `PARTIAL_SETTLEMENT_UNSUPPORTED`로 `SETTLEMENT_FAILED`에 보내고 수동 처리한다.
+정상 fixture는 full fill을 사용한다. 복수 fill 자체는 지원하지만 terminal partial fill은 자동발행하지 않고 `PARTIAL_FILL_REVIEW_REQUIRED`로 보류한다. 검토승인 후에는 승인된 filled quantity 전부가 결제된 경우에만 계속한다. custody settlement가 승인된 quantity보다 작은 partial settlement이면 `PARTIAL_SETTLEMENT_UNSUPPORTED`로 `SETTLEMENT_FAILED`에 보낸다.
 
-## 3. 2차 RFQ·DvP
+어느 fill에 correction 또는 bust가 연결되면 order는 현재 상태와 관계없이 order-level hold가 되고 `EXECUTION_CORRECTION_HOLD`를 반환한다. 정정된 cumulative quantity, funding, settlement와 custody position을 모두 재대사한 뒤 정의된 상태로 새 correction event를 통해 복귀한다.
+
+## 4. 2차 RFQ·DvP
 
 | From | Trigger | Guard | To |
 |---|---|---|---|
@@ -51,7 +70,7 @@
 
 `ATOMICALLY_SETTLED`, `REJECTED`, `FAILED`는 terminal이다. `FAILED` 후 재시도는 새 `tradeId`와 새 nonce를 사용한다.
 
-## 4. 현금배당
+## 5. 현금배당
 
 | From | Trigger | Guard | To |
 |---|---|---|---|
@@ -63,9 +82,9 @@
 | `PAID` | `Reconcile` | all investor payouts accounted | `RECONCILED` |
 | any non-terminal | amount/snapshot mismatch | mismatch evidence | `CORPORATE_ACTION_HOLD` |
 
-`grossReceived = taxWithheld + netPayable + fees + residual`을 만족하지 않으면 지급을 시작하지 않는다.
+`grossReceived = sum(investorGrossAllocations) + controlResidual`과 각 투자자의 `gross = tax + fees + net`을 모두 만족하지 않으면 지급을 시작하지 않는다. 처리 미완료 동안 해당 instrument/account는 거래를 block한다.
 
-## 5. 환매
+## 6. 환매
 
 | From | Trigger | Guard | To |
 |---|---|---|---|
@@ -78,7 +97,7 @@
 | `BURNED` | `Pay` | settlement cash available | `PAID` |
 | `PAID` | `Reconcile` | supply/backing/cash match | `RECONCILED` |
 
-## 6. 대사·hold
+## 7. 대사·hold
 
 | From | Trigger | Guard | To |
 |---|---|---|---|
@@ -91,3 +110,16 @@
 
 hold 중 허용: 조회, 감사, 증거수집, 정정 이벤트, 전체 대사, resume 승인.
 hold 중 금지: mint, 신규 reserve consumption, secondary DvP, 정책 우회 강제이전.
+
+## 8. 월별 최종투자자 보고
+
+| From | Trigger | Guard | To |
+|---|---|---|---|
+| `REPORTING_PERIOD_OPEN` | `ClosePeriod` | month-end reached | `REPORT_DUE` |
+| `REPORT_DUE` | `GenerateReportEvidence` | foreign distributor book complete | `GENERATED` |
+| `GENERATED` | `SubmitReportEvidence` | recipient and evidence ref valid, deadline not passed | `SUBMITTED` |
+| `SUBMITTED` | `VerifyRetention` | `retentionUntil` at least 10 years from required base date | `RETAINED` |
+| `REPORT_DUE` 또는 `GENERATED` | `DeadlineElapsed` | after next-month day 10 without `submittedAt` | `OVERDUE` |
+| `OVERDUE` | `SubmitLateWithReview` | compliance approval and evidence | `SUBMITTED` |
+
+`OVERDUE`는 `REGULATORY_REPORT_OVERDUE` alert를 만들며 product policy가 정한 account-level new-order hold를 적용할 수 있다. report body와 PII는 shared event에 포함하지 않는다.

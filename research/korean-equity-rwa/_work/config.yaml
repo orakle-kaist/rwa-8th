@@ -1,7 +1,7 @@
 topic: korean-equity-rwa
 title: "외국인의 한국주식 접근성 개선을 위한 RWA 토큰화"
 quality_level: examples_level
-max_iterations: 3
+max_iterations: 4
 writer:
   mode: codex_session
   command: "internal:codex-writer"

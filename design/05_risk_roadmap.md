@@ -19,6 +19,11 @@
 | R-13 | 체결 후 결제 전 조기발행 | 매우 높음 | KSD 결제·수탁 반영 후에만 발행 | 낮음 | 사전재고·한도·손실흡수 주체의 별도 승인 |
 | R-14 | 브로커·청산·수탁·권리장부 중개사슬 단절 | 매우 높음 | 역할분리, 계좌참조, 전 구간 대사와 거래중지 | 높음 | 대체기관 이전·고객구제·도산처리 계약 |
 | R-15 | 해외 DR과의 기능적 유사성 및 법적 재분류 | 매우 높음 | 직접계좌·통합계좌·DR·간접노출 구분, 상품명과 권위장부 명시 | 높음 | 한국·판매관할의 상품분류 및 중첩규제 법률의견 |
+| R-16 | 최종투자자 장부·지갑·통합계좌 매핑 오류 | 매우 높음 | active 1:1 linkage, 권위장부 표시, 변경 이력·2인 승인 | 중간 | 계좌개설·이전·복구 운영감사 |
+| R-17 | 부분체결·정정·거래취소를 완료체결로 오인 | 높음 | order와 fill/activity 분리, terminal partial manual review, compensating event | 중간 | 실 OMS·시장 정정 SLA와 고객구제 절차 |
+| R-18 | 최종투자자 기록·월별 보고 누락 | 매우 높음 | report evidence, 10년 retention metadata, overdue alert·hold | 중간 | 해외 유통사 보고 프로세스·감독요청 리허설 |
+| R-19 | 미국 시장정보·계좌규칙의 한국 오적용 | 높음 | KRX quote·session·T+2와 외국인 통합계좌를 별도 profile로 명시 | 낮음 | 국내 법무·준법·시장운영 검토 |
+| R-20 | 공개 vendor 문서를 실제 내부구조로 오인 | 중간 | 규제사실·회사주장·미검증 사항 분리, reconstruction badge | 낮음 | vendor due diligence와 계약·화면 walkthrough |
 
 ### Dinari 비교에서 확인한 잔여위험
 
@@ -28,6 +33,8 @@ Dinari는 브로커딜러, 청산·수탁기관, 이전대리인·권리장부�
 - 수탁계좌가 모든 관계기관의 도산에서 법적으로 절연된다는 점
 - 토큰 보유만으로 배당·환매·이전 자격이 항상 유지된다는 점
 - 주문 체결 시점에 최종 증권결제까지 완료됐다는 점
+- 국제 dShares의 고객계좌가 Alpaca OmniSub 구조라는 점
+- 회사가 안내하는 준비금 감사의 최신 원문·범위와 bankruptcy remoteness
 
 PoC 실사 체크리스트는 토큰 발행자뿐 아니라 중개, 청산·수탁, 권리장부와 해외 판매기관을 모두 포함해야 한다. 한 기관의 장애·탈퇴·도산 때 권리장부와 기초주식을 다른 적격기관으로 이전하는 절차가 없으면 상용화 게이트를 통과할 수 없다.
 
@@ -38,6 +45,8 @@ PoC 실사 체크리스트는 토큰 발행자뿐 아니라 중개, 청산·수�
 - 기관이 문제정의와 1단계 권리 경계에 합의한다.
 - 직접계좌·통합계좌·해외 DR·간접노출 비교와 통합계좌 기준경로 선택을 승인한다.
 - 홍콩 사례와 관할중립 코어의 관계를 승인한다.
+- Dinari 국제형·미국형과 한국 제안형의 account/book/transfer 차이를 승인한다.
+- 실제 주식 수탁, 최종투자자 권리와 token record의 권위 hierarchy를 승인한다.
 - 핵심 불변식, 실패 시나리오, PoC 비범위를 확정한다.
 - 결과물: 이 저장소의 human review decision.
 
@@ -45,13 +54,16 @@ PoC 실사 체크리스트는 토큰 발행자뿐 아니라 중개, 청산·수�
 
 - 허가형 단일원장, mock adapters, 역할 워크벤치 구현
 - SK하이닉스 정상 수명주기와 KT 한도 실패 시나리오
-- 준비금·DvP·PII·멱등성·사고복구 BDD 통과
+- account linkage, fills/activities, 준비금·DvP·PII·report evidence·멱등성·사고복구 BDD 통과
+- investor, token operator, broker/custody console의 동일 correlation lineage
 - 결과물: 재현 가능한 데모와 테스트 리포트
 
 ### Gate 2 — 기관 시스템 샌드박스
 
 - 익명·합성 데이터로 국내 증권·수탁·은행 샌드박스 어댑터 연결
 - 실제 API 계약, SLA, key management와 운영 RACI 검증
+- foreign omnibus brokerage, standing-proxy custody와 final-investor ledger의 실제 account mapping 검증
+- partial fill·correction/bust·corporate action·monthly reporting dry run
 - 외부 스마트컨트랙트·보안·개인정보 설계 검토
 - 결과물: 운영 gap assessment. 실거래는 여전히 제외
 
@@ -76,7 +88,10 @@ PoC 실사 체크리스트는 토큰 발행자뿐 아니라 중개, 청산·수�
 
 - 주문부터 결제·발행까지 상태 확인에 필요한 기관 간 문의 횟수
 - 거래 승인 근거와 당시 정책 버전을 재현하는 시간
+- 하나의 고객요청에서 market order·복수 fill·settlement·issuance를 재구성하는 시간
 - 일일 수탁·토큰·현금 대사 시간과 수동조정 건수
+- 국내 수탁, 최종투자자 entitlement와 token supply의 자동 match 비율
+- 월별 최종투자자 보고 누락·지연과 감독요청 자료 회수시간
 - 중복·순서역전 이벤트가 잔액에 반영된 건수
 - 신규 판매관할 프로파일 추가 시 코어 변경량
 - 사고 탐지부터 hold, 원인 식별, 복구승인까지의 시간
@@ -86,6 +101,6 @@ PoC 실사 체크리스트는 토큰 발행자뿐 아니라 중개, 청산·수�
 
 ## 4. 후속 범위
 
-Gate 1에서 제외하고 이후 별도 설계하는 항목은 의결권 지시, 주식배당·분할, 유상증자, 합병·공개매수, 상속, 대차·공매도, 신용, 부분주, 복수 결제통화, 크로스원장 DvP, 실시간 규제보고와 네이티브 토큰증권 전환이다.
+Gate 1에서 제외하고 이후 별도 설계하는 항목은 의결권 실제 지시, 주식배당·분할, 유상증자, 합병·공개매수, 상속, 대차·공매도, 신용, 부분주, 복수 결제통화, 크로스원장 DvP, 실시간 규제보고와 네이티브 토큰증권 전환이다. 한국 거주자용 fully disclosed account와 non-transferable supplemental record 프로파일도 별도 상품으로 둔다.
 
 각 기능은 기존 상태기계에 임시 분기를 추가하지 않고 새로운 기업행동 또는 상품 버전으로 설계한다.

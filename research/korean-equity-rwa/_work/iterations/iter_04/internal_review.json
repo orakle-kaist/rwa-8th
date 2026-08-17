@@ -1,0 +1,32 @@
+{
+  "iteration": 4,
+  "reviewed_at": "2026-08-17T20:31:37+09:00",
+  "issues": [
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "Regulation S는 미국 역외거래 기준일 뿐 한국·판매관할 허가가 아니라는 경계를 서두와 비교표에 반영했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "한국형 모델의 통합계좌·상임대리인·T+2·최종투자자 보고 책임과 세 권위장부를 일관된 운영모델로 고정했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "투자자, 토큰 운영자, 국내 브로커·수탁 콘솔을 공개자료에서 확인되는 계좌·주문·활동 단위로 구체화하고 실제 내부화면 재현 주장을 제거했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "부분체결, 정정·취소, stale projection, 보고 지연과 계정·지갑 중복을 명세와 BDD에 추가했다."
+    },
+    {
+      "severity": "medium",
+      "status": "disclosed",
+      "comment": "상품분류, 고객자산 분리·도산절연과 실제 기관 인터페이스는 외부 법률의견·계약·실사가 필요한 사업화 게이트다."
+    }
+  ],
+  "decision": "review_ready"
+}

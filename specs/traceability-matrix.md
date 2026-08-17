@@ -21,6 +21,13 @@
 | REQ-17 관리자 역할분리 | D-011 | role matrix, audit event | manual review and recovery scenarios |
 | REQ-18 선택적 public anchor | D-003 | architecture trust boundary | anchor failure scenario |
 | REQ-19 Dinari는 비교사례이며 의존성 아님 | D-013 | core specs에 Dinari 식별자·연동 없음 | design review와 neutrality validation |
+| REQ-20 세 권위장부 분리 | D-015 | `AccountLinkageView`, `INV_ENTITLEMENT_BOOK_MATCH` | account mapping·three-book mismatch scenarios |
+| REQ-21 한국 T+2 후 발행 | D-016 | order/fill/settlement state machine, `INV_MINT_AFTER_SETTLEMENT` | fill-before-settlement and custody mismatch scenarios |
+| REQ-22 계좌·지갑 1:1과 주문 계보 | D-017 | `INV_ACCOUNT_WALLET_ONE_TO_ONE`, `OrderLifecycleView` | duplicate linkage, partial fill and cross-screen lineage scenarios |
+| REQ-23 broker/custody 운영 화면 | D-017/D-018 | account/activity/custody/corporate-action query models | three workbench acceptance scenarios |
+| REQ-24 최종투자자 기록·월별 보고 | D-015 | `RegulatoryReportingEvidence`, `INV_REPORTING_EVIDENCE_COMPLETE` | on-time and overdue report scenarios |
+| REQ-25 vendor 공개자료의 한계 | D-018 | vendor-neutral interfaces and reconstruction labels | design review, neutrality validation |
+| REQ-26 최종투자자 권리 포지션 분리 | D-015/D-017 | `EntitlementPositionView`, `INV_ENTITLEMENT_POSITION_COMPLETE` | three-book reconciliation and stale projection scenarios |
 
 ## 변경 규칙
 

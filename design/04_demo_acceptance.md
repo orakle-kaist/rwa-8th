@@ -1,120 +1,284 @@
 # 데모와 인수 기준
 
-## 1. 데모 목적
+## 1. 데모 목적과 표현 원칙
 
-데모는 “토큰을 전송했다”가 아니라 기관 통제가 처음부터 끝까지 연결됨을 보여준다. 발표자는 각 화면에서 다음 질문에 답할 수 있어야 한다.
+데모는 “토큰을 전송했다”가 아니라 동일한 고객 주문을 세 책임영역이 서로 다른 권위장부에 근거해 처리하고, T+2 결제 전 발행을 차단하는 모습을 보여준다. 발표자는 모든 화면에서 다음 질문에 답할 수 있어야 한다.
 
-- 누가 이 상태를 만들었는가?
-- 어떤 정책 버전과 데이터 기준시점을 사용했는가?
-- 실제 수탁주식과 토큰 수량이 맞는가?
-- 실패했을 때 어떤 잔액도 잘못 움직이지 않았는가?
-- 개인정보 없이도 감사 가능한가?
+- 누가 이 상태를 만들었고 어느 account·book이 권위기록인가?
+- 고객요청, 국내 시장주문, fill, 결제, 수탁배정과 issuance를 어떻게 연결했는가?
+- 어떤 policy·terms version과 data as-of를 사용했는가?
+- 실제 수탁주식, 최종투자자 entitlement와 token supply가 맞는가?
+- 실패·정정·재전송 시 현금이나 권리가 중복 반영되지 않았는가?
+- PII를 공유하지 않으면서 10년 기록보존과 월별 보고 증거를 확인할 수 있는가?
 
-## 2. 역할 전환형 워크벤치
+모든 화면에 `DEMO_ONLY`를 고정 표시한다. “Dinari reference”와 “Alpaca reference” 설명은 source-backed reconstruction badge 안에서만 사용한다. 실제 Dinari·Alpaca 연동, 내부 UI 복제 또는 특정 account configuration을 사용한다는 표현은 금지한다.
 
-### 투자자 화면
+## 2. 세 개의 핵심 workbench
 
-- `DEMO_ONLY` 배너와 현재 판매 관할 프로파일
-- 적격 상태·만료일과 상세 PII를 제외한 사유
-- 상품의 `수탁 권리` 성격, 1:1 준비금, 비보장 유동성 설명
-- 자연어 입력 → AI 설명 → 구조화 주문초안 비교
-- 사람 서명 전후 상태가 명확히 구분된 확인 화면
-- 보유수량, 잠금수량, 배당·환매 상태와 감사 타임라인
+### A. Investor Trading App
 
-### 해외 판매기관 화면
+#### A-1. Onboarding and disclosures
 
-- KYC case의 opaque ID, 공시동의, `HKDistributionPolicy` 결과
-- `ALLOW/DENY/MANUAL_REVIEW`, 사유코드, 정책 버전, 만료
-- 국내기관에 공유된 필드와 공유되지 않은 PII 목록
+- current distribution profile, investor category, eligibility status·expiry
+- product를 crypto·non-security RWA와 분리한 securities listing
+- facing foreign distributor, Korean underlying, custody chain의 역할 설명
+- custodial entitlement, not direct registered share, T+2 issuance, transfer·liquidity·FX·tax risk
+- agreement/disclosure version과 human acceptance timestamp
+- raw PII는 화면 밖 foreign distributor vault에 있다는 설명
 
-### 한국 증권·수탁 화면
+#### A-2. Instrument detail
 
-- KRX mock 주문·체결, T+2 simulation clock, KSD mock 결제
-- settled custody, unallocated, tokenized backing, redemption pending
-- 외국인 room 데이터의 출처·기준시점·서명
-- 준비금 승인과 mint 요청의 분리
+- `marketIdentifier`, underlying name, 1 share : 1 entitlement, `tokenDecimals=0`
+- KRX mock quote source, bid/ask 또는 last price, local timestamp, session, quote freshness
+- supported order types: MARKET·LIMIT, supported TIF와 partial fill policy
+- dividend·redemption terms, voting은 legal path 설명만 하고 core unavailable 표시
+- direct account·DR·ETF alternative와 본 product 차이 link
 
-### 은행 화면
+미국 Dinari 가이드의 NBBO 15초 규칙을 한국 의무처럼 복사하지 않는다. 한국 화면은 KRX source·session·tick/price constraints와 quote timestamp를 사용하며 mock임을 명확히 한다.
 
-- 외화수취·FX·기관자금확인 상태
-- 모의 원화 예금토큰 발행·소각과 정산지갑
-- 실예금이 아니라는 명확한 표시
+#### A-3. Pre-trade confirmation
 
-### 컴플라이언스·감사 화면
+- side, integer quantity, order type, limit price와 TIF
+- estimated KRW notional, source currency, FX rate·as-of, fees·tax disclosure
+- expected settlement date와 earliest issuance time
+- partial fill·unfilled fund release·correction/bust·settlement failure behavior
+- exact `termsVersion`, policy outcome summary와 quote refresh action
+- AI가 만든 draft와 human-confirmed fields diff
+- EIP-712 human signature 직전 final confirmation
 
-- 정책 비교, manual review, 동결·강제이전·재개 2인 승인
-- 주문 ID 기반 전체 event lineage
-- 불변식 대시보드와 `RECONCILIATION_HOLD`
-- 원장 transaction hash, 증거 hash, 선택적 anchor 상태
+#### A-4. Order tracker
 
-## 3. 정상 시연 스크립트
+다음 stage를 한 progress bar로 뭉치지 않고 각 source와 timestamp를 표시한다.
 
-1. `INV_HK_001`이 홍콩 참조 프로파일에서 KYC와 공시동의를 완료한다.
-2. `HK_DIST_POLICY_001`과 `KR_ASSET_001` 정책이 SK하이닉스 10주 매수에 `ALLOW`를 반환한다.
-3. 사용자가 “SK하이닉스 10주 사고 싶어”를 입력하면 AI가 합성 시세와 권리 성격을 설명하고 초안을 만든다.
-4. 사용자가 구조화된 필드와 약관버전을 확인해 EIP-712로 서명한다.
-5. 은행 mock이 자금·FX 완료를 확인하고 국내 정산지갑에 모의 KRW를 준비한다.
-6. KRX mock이 주문을 체결한다. 이 시점에는 토큰 잔액이 0임을 보여준다.
-7. 시뮬레이션 시계를 T+2로 이동하고 KSD mock이 10주 결제를 완료한다.
-8. 수탁기관과 독립 통제가 10주 준비금을 승인한다.
-9. `IssuanceController`가 권리토큰 10개를 발행하고 3개 수량식을 모두 `PASS`로 표시한다.
-10. 다른 적격 투자자와 2주 RFQ를 만들고 양쪽 서명 후 원자적 DvP를 실행한다.
-11. 기준일 snapshot, gross 배당수령, 합성 세금계산과 net 지급을 진행한다.
-12. 잔여 권리의 환매를 요청하고 토큰 잠금, 기초처분, 소각, 현금지급과 최종대사를 보여준다.
+1. `DRAFT`
+2. `CONFIRMED`
+3. `FUNDING_PENDING`
+4. `READY_FOR_MARKET`
+5. `MARKET_SUBMITTED`
+6. `PARTIALLY_FILLED` 또는 `EXECUTED`
+7. `AWAITING_CUSTODY_SETTLEMENT`
+8. `BACKED`
+9. `MINTED`
 
-## 4. 실패 주입 시연
+fill drawer에는 `executionId`, quantity, price, cumulative quantity, leaves quantity, executed time, expected settlement date를 표시한다. terminal partial fill은 `PARTIAL_FILL_REVIEW`와 unfilled fund release를 표시한다. settlement·issuance는 fill 완료와 별도 card로 보여준다.
 
-| ID | 실패 | 기대 결과 |
+#### A-5. Portfolio and entitlements
+
+- available, pending settlement, locked, redemption pending balances
+- entitlement account와 verified wallet의 masked reference
+- last reconciled time, position source와 stale warning
+- dividend gross·tax·fee·net, redemption timeline
+- authoritative-book explanation: custody book → foreign entitlement book → synchronized token record
+
+### B. Tokenization Operator Console
+
+Dinari가 공개한 Entity·Account·Wallet·OrderRequest·Order·OrderFulfillment·portfolio·activity 개념에서 업무기능을 추출하되 명칭과 데이터는 vendor-neutral core model을 사용한다.
+
+#### B-1. Entity and eligibility cases
+
+- opaque participant and entity reference, foreign distributor
+- residence jurisdiction, investor category, KYC·policy status and expiry
+- disclosure refs, source institution signatures, manual-review queue
+- regulatory retrieval evidence without raw PII
+
+#### B-2. Account mapping
+
+- participant → entitlement account → verified wallet
+- entitlement account → foreign distributor ledger reference
+- foreign distributor → foreign omnibus brokerage account
+- omnibus account → standing-proxy custody reference and settlement cash account
+- authority column: underlying position, investor entitlement, token transfer record
+- linkage status: `PENDING_VERIFICATION | ACTIVE | SUSPENDED | CLOSED`
+- duplicate wallet, unknown account, expired mapping and last reconciliation alerts
+
+#### B-3. Order orchestration
+
+- customer order request and human signature
+- funding·FX confirmation and fund release
+- market order reference and all fills
+- correction·bust·cancel linked as activities, not overwritten state
+- T+2 settlement, custody allocation, reserve and issuance references
+- `correlationId`, source request IDs, source sequence, idempotency outcome
+- retry/replay status and missing-sequence alert
+
+#### B-4. Issuance and redemption queue
+
+- requested, settled, allocated, already tokenized and available-to-issue quantities
+- `CustodySettlement`, `ReserveAttestation`, approvals and evidence
+- mint/burn transaction, consumed evidence and duplicate prevention
+- hold reason, responsible institution, next permitted action
+- redemption: lock → underlying disposition/cash source → cash ready → burn → pay → reconcile
+
+#### B-5. Portfolio, corporate actions and reports
+
+- aggregate custody, sum of investor entitlement positions and token supply
+- KSD aggregate dividend receipt → investor gross/tax/fee/net allocations → control residual
+- EOD and incremental reconciliation, stale projection, open exceptions
+- monthly beneficial-owner report period, generated/submitted timestamps, recipient and `retentionUntil`
+- report body is not exposed; authorized evidence retrieval only
+
+### C. Korean Broker and Custody Infrastructure Console
+
+Alpaca Broker API·Brokerdash·OmniSub·Activities는 기능 비교사례다. Dinari가 OmniSub를 사용한다고 표시하지 않고, 국내 화면은 FSC foreign omnibus guideline과 KRX·KSD 역할을 우선한다.
+
+#### C-1. Legal accounts
+
+| view | meaning | required fields |
 |---|---|---|
-| F-01 | KYC 만료 | 신규 주문 `ELIGIBILITY_EXPIRED`, 잔액 변화 없음 |
-| F-02 | 제재대상 | 송·수신 차단, 컴플라이언스 alert, PII 비노출 |
-| F-03 | HK 판매정책 거절 | `JURISDICTION_POLICY_DENIED`, 한국 주문 미생성 |
-| F-04 | 수동심사 | 2인 승인 전 다음 상태로 진행 불가 |
-| F-05 | KRX 시장마감 | `MARKET_CLOSED`, 다음 영업일 재시도 가능 |
-| F-06 | quote 만료 | `QUOTE_STALE`, 새 quote 없이는 제출 불가 |
-| F-07 | KT foreign room 부족 | 기초재고 주문 거절, 내부 외국인 간 이전 규칙과 구분 표시 |
-| F-08 | 현금 부족 | DvP 전체 revert, 두 잔액 불변 |
-| F-09 | KSD 이벤트 중복 | 두 번째 이벤트 no-op, 발행량 증가 없음 |
-| F-10 | KSD sequence 역전 | 주문 상태 대기, missing sequence alert |
-| F-11 | 수탁 9주·토큰 10개 | `RECONCILIATION_HOLD`, mint·2차결제 중지 |
-| F-12 | 단일 관리자 mint | `DUAL_CONTROL_REQUIRED` 또는 `UNAUTHORIZED_ROLE` |
-| F-13 | 키 분실 | 기존지갑 동결→신규 적격성→2인 승인 강제이전 |
-| F-14 | validator 1대 중지 | 정족수 유지 조건에서 거래·조회 지속 |
-| F-15 | public anchor 장애 | 내부 처리 성공, anchor warning과 재시도 큐 |
+| Foreign omnibus brokerage | foreign distributor가 owner인 법적 국내 account | opaque account ID, owner institution, status, currency, capabilities |
+| Standing-proxy custody reference | 상임대리인 보관계좌와 KSD-derived custody function | opaque ref, status, source, last verified |
+| Settlement cash | trade·FX settlement cash | currency, available/held/pending amounts |
+| Entitlement subledger | foreign distributor가 책임지는 technical/customer allocation | distributor, participant ref, position, reporting status |
+| Control residual | rounding·correction·unallocated operations | position/activity and reason |
 
-## 5. 합격 기준
+`custodial account`를 Alpaca의 별도 account product처럼 만들지 않는다. brokerage는 법적 거래·position account, custody는 safekeeping·settlement function/status로 설명한다. 같은 institution이 두 기능을 수행해도 `BROKERAGE_OPERATIONS`와 `CUSTODY_CONTROL` principal을 분리한다.
 
-### 기능
+#### C-2. Orders and fills
 
-- 정상 스크립트의 모든 상태가 정의된 순서로 진행된다.
-- 모든 실패는 `specs/error-taxonomy.md`의 코드로 종료된다.
-- 사용자 서명 없는 주문은 adapter에 도달하지 않는다.
-- 동일 이벤트를 세 번 보내도 상태변경과 발행은 한 번이다.
-- 권리와 현금 중 한쪽만 이전된 관찰 상태가 없다.
-- 불일치 발생 후 재개에는 서로 다른 두 role의 승인이 필요하다.
+- inbound token-operator request and validation result
+- broker order ID, KRX mock order ID, accepted/rejected/canceled/replaced/expired state
+- fills with quantity, cumulative/leaves, price, time, settlement date
+- correction·bust activity with `previousActivityId`
+- outbound acknowledgment and stable source reference
 
-### 데이터·보안
+#### C-3. Settlement timeline
 
-- 공용 DB dump, event stream, ledger calldata, application log에 금지 PII key가 없다.
-- 모든 외부 이벤트의 schema, signature, `kid`, sequence, timestamp를 검증한다.
-- 모든 관리자 동작에 전·후 상태 hash와 증거 참조가 있다.
-- fixture 값이 실시간 시장데이터로 보이지 않도록 모든 화면·내보내기에 `DEMO_ONLY`가 있다.
+- T, T+1 and T+2 business timeline
+- securities leg, cash leg, KRX/KSD mock evidence and finality
+- settlement completed/failed, source sequence and received time
+- custody allocation to token backing only after final settlement
+- failed or corrected fill automatically blocks downstream issuance
 
-### 재현성
+#### C-4. Custody positions
 
-- 빈 개발환경에서 한 개의 문서화된 bootstrap command로 로컬 서비스를 시작한다.
-- seed를 고정하면 ID를 제외한 상태 전이와 최종 잔액이 동일하다.
-- 외부 유료 API·실기관 계정·퍼블릭 테스트넷 없이 핵심 시나리오가 끝난다.
-- 테스트넷 또는 인터넷이 끊겨도 핵심 데모는 계속된다.
+- `settledQuantity`
+- `unsettledQuantity`
+- `allocatedBackingQuantity`
+- `unallocatedQuantity`
+- `redemptionPendingQuantity`
+- `controlHoldQuantity`
+- `asOf`, evidence ref, source and status
 
-## 6. 구현자가 선택할 수 있는 것
+`allocatedBackingQuantity <= settledQuantity`와 account-level sum을 실시간 표시한다. mismatch 또는 stale source에서는 `issuableQuantity=0`으로 projection한다.
 
-구현 언어, 웹 프레임워크, 데이터베이스, event bus 제품과 UI 컴포넌트는 자유다. 다만 다음은 선택할 수 없다.
+#### C-5. Cash and activities
 
-- API 경로·상태·오류·이벤트의 의미
-- 서명해야 할 필드와 인간 확인 단계
-- 역할분리와 2인 승인
-- 수량식과 hold 조건
-- PII 금지규칙
-- 홍콩이 참조 프로파일이라는 데이터·UI 표현
-- 실제 기관 연결처럼 오해시키지 않는 `DEMO_ONLY` 표시
+- funding, FX, fill, settlement, fee, dividend, refund, correction and journal-like adjustment
+- financial-state activity와 non-financial order lifecycle event 구분
+- stable `activityId`, source reference, previous activity, `effectiveAt`, settlement date
+- stream cursor and duplicate/replay outcome
+
+#### C-6. Corporate actions and reconciliation
+
+- KSD aggregate receipt, effective account and record date
+- foreign distributor allocation status, tax/fee/net and control residual
+- incomplete corporate action causes instrument/account trading block
+- EOD omnibus position, entitlement subledger sum and token supply comparison
+- exception owner, evidence, correction and dual-approved resume
+
+## 3. 보조 workbench
+
+### Bank and FX
+
+- source currency receipt, FX quote·expiry, KRW settlement amount
+- settlement cash available/held/refunded
+- mock KRW deposit token issue·burn and institutional wallet
+- actual deposit·CBDC·foreign investor claim이 아니라는 fixed warning
+
+### Compliance and Audit
+
+- policy comparison, manual review, sanctions, freeze·forced transfer·resume dual approval
+- one order/correlation based full lineage across all three workbenches
+- account linkage history, privileged actions and evidence access audit
+- invariant dashboard, `RECONCILIATION_HOLD`, regulatory report SLA
+- ledger tx hash, evidence hash and optional anchor status
+
+## 4. 정상 시연 스크립트
+
+1. `INV_HK_001`의 KYC·공시동의와 두 policy decision이 유효해진다.
+2. `LINK_INV_HK_001`이 entitlement account, dedicated wallet, foreign distributor ledger, omnibus brokerage와 custody reference를 `ACTIVE`로 연결한다.
+3. 투자자가 SK하이닉스 10주를 선택하고 KRX mock quote, 환율·수수료, T+2와 권리성격을 확인한다.
+4. AI draft와 구조화 필드를 비교한 뒤 사용자가 EIP-712로 서명한다.
+5. Bank·FX mock이 funding을 확인하고 domestic settlement cash를 준비한다.
+6. broker console이 order를 `MARKET_SUBMITTED`로 만들고 10주 fill을 기록한다. investor·operator 화면의 token balance는 0이다.
+7. simulation clock을 T+2로 이동하고 KSD mock이 cash/securities settlement와 custody allocation 10주를 확인한다.
+8. custody control과 independent control이 reserve 10주를 승인한다.
+9. token operator가 entitlement token 10개를 발행하고 custody, foreign entitlement book과 token supply를 `MATCHED`로 표시한다.
+10. 적격 investor 2와 2주 RFQ를 dual-sign한 뒤 mock KRW와 entitlement를 atomic DvP로 이동한다.
+11. KSD aggregate cash dividend를 두 investor entitlement에 배분하고 gross·tax·fee·net·residual을 reconcile한다.
+12. EOD reconciliation과 monthly reporting evidence를 생성해 세 workbench에 같은 correlation lineage를 보여준다.
+13. 잔여 entitlement redemption에서 lock, underlying disposition, cash-ready, burn, pay, final reconciliation을 시연한다.
+
+## 5. 실패 주입 시연
+
+| ID | failure | expected result |
+|---|---|---|
+| F-01 | KYC expired | `ELIGIBILITY_EXPIRED`, 신규 주문 불가, balance unchanged |
+| F-02 | sanctioned participant | send/receive blocked, compliance alert, raw PII absent |
+| F-03 | jurisdiction denied | `JURISDICTION_POLICY_DENIED`, domestic order not created |
+| F-04 | manual review | no next transition before dual approval |
+| F-05 | market closed | `MARKET_CLOSED`, retry on permitted session |
+| F-06 | quote stale | `QUOTE_STALE`, confirmation disabled until refresh |
+| F-07 | foreign room insufficient | new underlying purchase rejected; entitlement transfer rule kept separate |
+| F-08 | unknown or duplicate account-wallet mapping | `ACCOUNT_LINKAGE_INVALID`, order/receive/mint blocked |
+| F-09 | terminal partial fill | unfilled funds released, `PARTIAL_FILL_REVIEW`, no auto mint |
+| F-10 | fill correction or bust | compensating activity, settlement/issuance hold |
+| F-11 | custody event duplicate | second event no-op, supply unchanged |
+| F-12 | source sequence gap | projection stale, missing sequence alert, issuance blocked |
+| F-13 | custody 9, requested mint 10 | `RECONCILIATION_HOLD`, mint and secondary settlement paused |
+| F-14 | cash insufficient | DvP reverts, both balances unchanged |
+| F-15 | single principal creates execution and reserve approval | `SEGREGATION_OF_DUTIES_VIOLATION` |
+| F-16 | lost wallet key | old wallet freeze → new proof/linkage → dual-approved forced transfer |
+| F-17 | corporate action residual mismatch | instrument trading block and `CORPORATE_ACTION_HOLD` |
+| F-18 | monthly report overdue | `REGULATORY_REPORT_OVERDUE`, compliance alert and configurable new-order hold |
+| F-19 | one validator unavailable | lifecycle continues only if quorum remains |
+| F-20 | public anchor unavailable | core succeeds, warning and retry queue |
+
+## 6. 합격 기준
+
+### Cross-screen consistency
+
+- investor, operator and broker/custody console show the same order request, fills, settlement and issuance by `correlationId`.
+- no workbench labels a fill as settlement or a brokerage account as a separate custodial product.
+- each state shows source, authority, `dataAsOf`, stale status and next responsible role.
+- public-source reconstruction badges appear on vendor-reference explanation panels.
+
+### Function and control
+
+- all defined normal transitions complete in order and all failure scenarios return taxonomy codes.
+- no market adapter request without human signature and active account linkage.
+- fill alone never enables mint; settlement, custody allocation and reserve are all required.
+- duplicate event replay changes state and balances once only.
+- a correction/bust never deletes the original activity.
+- no observable DvP state moves only cash or only entitlement.
+- hold/resume, remap and forced transfer require distinct principals and dual approval.
+
+### Data, privacy and reporting
+
+- no forbidden PII key or real account number in shared DB, stream, ledger calldata, log or exported fixture.
+- foreign distributor can expose regulatory-report evidence metadata and authorized retrieval path without sharing the report body.
+- every external event validates schema, signature, `kid`, sequence, source time and idempotency.
+- every privileged action includes before/after hashes, reason and evidence reference.
+- every screen and export containing synthetic market/account data shows `DEMO_ONLY`.
+
+### Reproducibility
+
+- one documented bootstrap command starts all local services from an empty developer environment.
+- fixed seed produces the same business states and balances except explicitly random IDs.
+- core scenario finishes without paid APIs, real institution accounts, public testnet or internet.
+- source-backed UI copy and fixture data can be replaced without changing normative state or invariant behavior.
+
+## 7. 구현자가 선택할 수 없는 사항
+
+구현 언어, web framework, database, event bus와 visual component는 자유다. 다음 의미는 바꿀 수 없다.
+
+- public API path, schema, state, error and event semantics
+- human confirmation fields and signature boundary
+- account/book authority and one-to-one account-wallet linkage
+- T+2 settlement-before-mint and dual control
+- fill/activity/correction lineage and idempotency
+- custody, final-investor entitlement and token-supply reconciliation
+- regulatory reporting evidence without shared PII
+- Hong Kong as replaceable demonstration profile
+- vendor references as case studies rather than dependencies
+- `DEMO_ONLY` representation of all mock integrations and values

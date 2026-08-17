@@ -18,8 +18,8 @@ Quantity = uint256, integer shares only
 
 | Method | Caller | Guard | Effect/Event |
 |---|---|---|---|
-| `canSend(account, amount)` | anyone/read | eligibility, freeze, balance, policy validity | bool+reason |
-| `canReceive(account, amount)` | anyone/read | eligibility, jurisdiction action | bool+reason |
+| `canSend(account, amount)` | anyone/read | active account linkage, eligibility, freeze, balance, policy validity | bool+reason |
+| `canReceive(account, amount)` | anyone/read | active 1:1 account-wallet linkage, eligibility, jurisdiction action | bool+reason |
 | `canTransfer(from, to, amount)` | anyone/read | send+receive+instrument rules | bool+reason |
 | `transferWithDecision(from, to, amount, tradeId, decisions)` | `DVP_SETTLEMENT` | current decisions, no hold | balances; `TransferWithPolicy` |
 | `mintBacked(to, amount, issuanceId)` | `ISSUANCE_CONTROLLER` | controller already verified | supply; `BackedMint` |
@@ -36,6 +36,7 @@ Quantity = uint256, integer shares only
 ```text
 recordEligibility(
   participantId,
+  accountLinkageId,
   wallet,
   allowedActions,
   validUntil,
@@ -44,7 +45,7 @@ recordEligibility(
 )
 
 suspendEligibility(participantId, reasonCode, evidenceHash)
-getEligibility(participantId, action) -> status, validUntil, decisionIds
+getEligibility(participantId, action) -> accountLinkageId, wallet, status, validUntil, decisionIds
 ```
 
 Caller는 `COMPLIANCE_OPERATOR`; record/suspend에는 독립 승인 정책을 적용한다. PII 문자열 또는 해시 인자는 제공하지 않는다.
@@ -59,6 +60,16 @@ isAllowed(decisionId, participantId, instrumentId, action, at) -> bool
 ```
 
 `profileId`는 임의 ID다. core contract는 `HK`, `US`, `SG` 문자열을 분기조건으로 사용하지 않는다.
+
+## 오프체인 account·activity projection
+
+`AccountLinkageView`, `InstitutionalAccountView`, `OrderLifecycleView`, `AccountActivity`, `CustodyPositionView`, `EntitlementPositionView`, `CorporateActionAllocation`, `RegulatoryReportingEvidence`는 법적 account body나 PII를 원장에 저장하는 contract가 아니라 서명된 event의 read model이다.
+
+- active participant·entitlement account·wallet은 1:1이어야 한다.
+- brokerage account는 법적 주문·position account이고 custody는 safekeeping·settlement function이다.
+- order request, market order, fill, correction/bust, settlement와 issuance는 stable source reference와 `correlationId`로 연결한다.
+- projection sequence gap 또는 unknown mapping은 `STALE_OR_INCOMPLETE`이며 mint·receive guard에 사용할 수 없다.
+- 보고서는 본문 대신 period·submission·retention metadata와 `EvidenceRef`만 공유한다.
 
 ## `ReserveRegistry`
 
@@ -87,6 +98,7 @@ issue(
   issuanceId,
   orderId,
   participantId,
+  accountLinkageId,
   instrumentId,
   quantity,
   custodySettlementId,
@@ -97,7 +109,7 @@ issue(
 burn(redemptionId, participantId, instrumentId, quantity, dispositionEvidenceId)
 ```
 
-`issue`는 `INV_MINT_AFTER_SETTLEMENT`, `INV_MINT_EVIDENCE_SINGLE_USE`, 공급·준비금 불변식을 모두 검사하고 evidence consumption과 mint를 한 트랜잭션으로 처리한다.
+`issue`는 active 1:1 account linkage, `INV_MINT_AFTER_SETTLEMENT`, `INV_MINT_EVIDENCE_SINGLE_USE`, 공급·준비금·최종투자자 권리장부 불변식을 모두 검사하고 evidence consumption과 mint를 한 트랜잭션으로 처리한다.
 
 ## `DvPSettlement`
 
@@ -136,7 +148,11 @@ reconcile(actionId, reconciliationId)
 ```text
 PolicyDecisionRecorded
 EligibilityChanged
+AccountLinkageChanged
+AccountActivityRecorded
 ReserveAttestationRecorded
+CustodyPositionUpdated
+EntitlementPositionUpdated
 CustodyEvidenceConsumed
 BackedMint
 RedemptionBurn
@@ -146,7 +162,9 @@ ForcedTransfer
 SystemPaused
 SystemResumed
 CorporateActionUpdated
+CorporateActionAllocationUpdated
 ReconciliationHoldPlaced
+RegulatoryReportingEvidenceRecorded
 PrivilegedActionAudited
 ```
 
