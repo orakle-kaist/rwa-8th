@@ -1,0 +1,32 @@
+{
+  "iteration": 3,
+  "reviewed_at": "2026-08-17T16:58:46+09:00",
+  "issues": [
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "통합계좌를 외국인의 유일한 접근경로처럼 보이게 한 문제를 직접계좌·해외 DR·ETF·펀드·합성노출 비교표와 공식 근거로 보완했다."
+    },
+    {
+      "severity": "medium",
+      "status": "disclosed",
+      "comment": "수탁 권리 토큰과 해외 DR의 기능적 유사성은 확인했지만 실제 상품분류와 중첩규제는 한국·판매관할의 구조별 법률의견이 필요하다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "통합계좌를 국내 직접계좌 연결이 없는 해외 투자자에게 복수 KRX 종목을 제공하는 1단계 기준경로로 한정하고 보편적 우월성 주장을 제거했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "한국예탁결제원 DR 안내서의 과거 종목 수는 사용하지 않고 원주 보관·예탁증서 발행·전환·기업행동 메커니즘만 채택했다."
+    },
+    {
+      "severity": "low",
+      "status": "resolved",
+      "comment": "기관용 최종 후보의 대괄호 출처 ID를 모두 제거하고 자연어 귀속과 주제별 공식 링크 목록으로 교체했다."
+    }
+  ],
+  "decision": "review_ready"
+}

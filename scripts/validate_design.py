@@ -208,6 +208,24 @@ def validate_candidate_gate() -> None:
         )
     if "`" in text:
         raise AssertionError("inline or fenced code markup is not allowed in final candidate")
+    if re.search(r"\[S\d{3}\]", text):
+        raise AssertionError("internal source IDs must not appear in final candidate")
+
+    required_access_route_terms = {
+        "국내 직접계좌",
+        "외국인 통합계좌",
+        "ADR·GDR",
+        "해외 ETF·펀드",
+        "합성·파생형 상품",
+        "주요 공식 참고자료",
+    }
+    missing_access_route_terms = sorted(
+        term for term in required_access_route_terms if term not in text
+    )
+    if missing_access_route_terms:
+        raise AssertionError(
+            f"foreign access route comparison is incomplete: {missing_access_route_terms}"
+        )
 
     if (ROOT / "research/korean-equity-rwa/review/needs_work.md").exists():
         raise AssertionError("review/needs_work.md exists; folder is not review-ready")

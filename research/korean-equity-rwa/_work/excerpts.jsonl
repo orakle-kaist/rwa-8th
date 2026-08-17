@@ -15,3 +15,7 @@
 {"source_id":"S020","topic":"dinari_dividends","paraphrase":"dShares 배당은 지정 시점 보유 외에도 등록 계정·지갑, 유효한 KYC와 최소 지급액 요건을 둔다.","use":"corporate_action_controls"}
 {"source_id":"S021","topic":"dinari_splits","paraphrase":"Dinari는 주식분할 때 거래를 중지하고 토큰·기초주식 수량 반영을 검증한 후 재개한다고 설명한다.","use":"future_corporate_actions"}
 {"source_id":"S022","topic":"dinari_us_secondary_record","paraphrase":"Dinari의 2026년 SEC 제출서는 미국용 제안에서 브로커 오프체인 장부를 권위기록으로 두고 토큰을 이전불가·독립권리 없는 보조기록으로 설명한다.","use":"jurisdiction_and_product_distinction"}
+{"source_id":"S023","topic":"foreign_direct_account_reform","paraphrase":"외국인 사전등록은 2023년 12월 폐지됐고 법인은 LEI, 개인은 여권번호로 국내 금융회사에 계좌를 개설해 상장증권에 투자할 수 있다.","use":"access_route_comparison"}
+{"source_id":"S024","topic":"foreign_direct_account_usage","paraphrase":"제도개편 후 2023년 12월 15일부터 2024년 6월 12일까지 LEI·여권번호 기반 외국인 계좌 1,432개가 실제 개설됐다.","use":"direct_route_baseline"}
+{"source_id":"S025","topic":"overseas_dr_structure","paraphrase":"해외 DR은 국내 원주를 원주관리기관에 보관하고 해외 예탁기관이 발행하며 원주 전환과 기업행동을 예탁기관 사슬로 처리한다.","use":"dr_comparison_and_legal_gate"}
+{"source_id":"S026","topic":"fund_indirect_exposure","paraphrase":"ETF는 거래소에서 주식처럼 거래되더라도 개별 주식이 아니라 지수를 추종하는 펀드다.","use":"direct_vs_indirect_exposure"}
