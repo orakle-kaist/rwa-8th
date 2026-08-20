@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review only drafts/final_candidate.md and record approve or revise. Start the PoC charter and PRD only after master approval.",
-  "updated_at": "2026-08-20T10:38:32+09:00",
+  "next_action": "Review the simplified drafts/final_candidate.md and record approve or revise. Start PoC goals and the PRD only after master approval.",
+  "updated_at": "2026-08-20T11:27:08+09:00",
   "iteration": 4
 }
