@@ -183,9 +183,16 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("archive README must mark the snapshot as non-normative")
 
     workflow = (REPO_ROOT / "PROJECT_WORKFLOW.md").read_text(encoding="utf-8")
-    for stage in range(1, 15):
-        if f"| {stage}." not in workflow:
-            errors.append(f"PROJECT_WORKFLOW.md is missing stage {stage}")
+    stage_numbers = [
+        int(match.group(1))
+        for match in re.finditer(r"^\|\s+(\d+)\.\s+", workflow, flags=re.MULTILINE)
+    ]
+    expected_stage_numbers = list(range(1, 12))
+    if stage_numbers != expected_stage_numbers:
+        errors.append(
+            "PROJECT_WORKFLOW.md stages must be exactly 1 through 11 in order: "
+            f"found {stage_numbers}"
+        )
 
 
 def main() -> int:
