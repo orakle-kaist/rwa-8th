@@ -12,7 +12,7 @@
 | S006 | A | [한국은행, Project Hangang 1단계 보고서](https://www.bok.or.kr/eng/bbs/E0000654/view.do?menuNo=400048&nttId=10095216) | 허가형 통합원장, Hyperledger Besu, QBFT, 토큰화 예금 구조의 실제 파일럿 | 단일 허가형 원장과 모의 원화 예금토큰의 참조 근거 |
 | S007 | A | [금융위원회, Project Hangang 2단계 지정](https://www.fsc.go.kr/no010101/87338) | 2026년 7월 15일, 하나은행 포함 7개 은행, 이용자·사용처 확대 및 송금 추가 | 은행 결제 역할의 현실성 근거. 본 PoC와 직접 연동을 의미하지 않음 |
 | S008 | B | [하나은행, 예금토큰 서비스 이용약관](https://www.kebhana.com/cont/customer/customer07/customer0702/customer070209/1507311_115365.jsp) | 2025년 4월 1일 시행 약관의 존재 | 기관별 실증 경험의 참고. 특정 은행 종속성은 만들지 않음 |
-| S009 | A | [홍콩 SFC, Tokenised Securities 관련 Circular](https://apps.sfc.hk/edistributionWeb/api/circular/openFile?lang=EN&refNo=23EC52) | 소유권 기록, 기술위험, 결제 완결성, 이전제한, 키 관리, BCP, 감사, 수탁 공시 통제 | `HKDistributionPolicy`와 통제 체크리스트의 참조 |
+| S009 | A | [홍콩 SFC, Tokenised Securities 관련 Circular](https://apps.sfc.hk/edistributionWeb/api/circular/openFile?lang=EN&refNo=23EC52) | 토큰화 증권의 소유권 기록, 기술위험, 결제 완결성, 이전제한, 수탁 공시 통제. 기술위험을 낮춘 전통 증권의 토큰화에는 일률적인 전문투자자 전용 제한을 두지 않지만 공모 규정과 복잡상품 판매규칙은 별도 적용 | 홍콩 일반 개인 대상 판매 가능성, 상품 복잡성과 자기주도 주문 통제를 구분하는 근거 |
 | S010 | A | [미국 SEC Corporation Finance, Tokenized Securities Statement](https://www.sec.gov/newsroom/speeches-statements/corp-fin-statement-tokenized-securities-012826-statement-tokenized-securities) | 발행인 주도형과 제3자 주도형을 구분하고, 제3자가 수탁된 기초주식에 대한 권리를 만들어 토큰으로 표시할 수 있다는 미국법상 분류를 설명 | 1단계 권리를 직접 주식이나 합성형 가격노출과 구분하고 수탁자와 권리 책임주체를 개념적으로 분리 |
 | S011 | A | [ERC-3643](https://eips.ethereum.org/EIPS/eip-3643), [ERC-7943](https://eips.ethereum.org/EIPS/eip-7943), [ERC-7540](https://eips.ethereum.org/EIPS/eip-7540) | 세 표준 모두 Final. ERC-3643은 적격성·통제, ERC-7943은 최소 RWA 통제 인터페이스, ERC-7540은 비동기 ERC-4626 요청 | 전송통제·상태모델 참조. ERC-7540을 일반 주식거래 전체에 적용하지 않음 |
 | S012 | A | [Hyperledger Besu changelog](https://github.com/besu-eth/besu/blob/main/CHANGELOG.md) | Tessera·사설거래 기능 sunset/removal 이력 | Tessera 프라이버시를 전제하지 않고 데이터 최소화·오프체인 분리를 사용 |
@@ -22,7 +22,7 @@
 | S016 | A | [FINRA BrokerCheck, Dinari Securities LLC](https://files.brokercheck.finra.org/firm/firm_329672.pdf) | CRD 329672, SEC·FINRA 등록, Alpaca Securities에 고객을 소개하고 청산·수탁 서비스를 이용하는 구조 | 브로커와 청산·수탁 역할을 분리해 설명 |
 | S017 | B | [Dinari, dShares 상품 설명](https://dinari.com/dshares) | 기초주식 1:1 수탁, Dinari Securities의 매입, Alpaca 수탁, 적격 지갑 발행, 배당·분할·환매에 관한 회사 설명 | 대표 수탁형 사례의 수명주기와 권리·중개사슬 비교 |
 | S018 | B | [Dinari Docs, What are dShares?](https://docs.dinari.com/docs/what-is-dshare) | 브로커 주문 체결 완료 통지 후 발행하고, 환매 주문 체결 후 소각·지급하는 공개 흐름 | 체결 후 발행과 최종 증권결제 후 발행의 위험·속도 차이 분석 |
-| S019 | B | [Dinari Docs, Restrictions](https://docs.dinari.com/docs/restrictions) | Regulation S, 미국인·제한관할 및 비적법 이전에 관한 제한 | 토큰 보유·이전 가능성이 판매관할과 적격성에 종속됨을 설명 |
+| S019 | B | [Dinari Docs, Restrictions](https://docs.dinari.com/docs/restrictions) | Regulation S, 미국인, 제한 국가와 비적법 이전에 관한 제한. 공개 페이지에는 모든 국제형 고객을 전문투자자로 한정하는 일반 조건이 표시되지 않음 | 국제형의 판매 통제가 일률적인 전문투자자 분류보다 거주지와 관할 제한을 중심으로 공개돼 있음을 확인 |
 | S020 | B | [Dinari Docs, Dividends](https://docs.dinari.com/docs/dividends) | 지정 시점 보유, 등록 계정·지갑, 유효한 KYC와 최소 지급액 등 배당 자격요건 | 토큰 잔액과 권리행사 자격을 구분하고 기업행동 통제를 설계 |
 | S021 | B | [Dinari Docs, Stock Splits](https://docs.dinari.com/docs/stock-splits) | 거래중지, 주문취소, 토큰 수량조정, 기초주식 반영 검증 후 재개하는 회사 절차 | 주식분할을 후속 기업행동 범위로 두되 필요한 통제 순서를 설명 |
 | S022 | B | [Dinari, SEC Crypto Task Force 제출서](https://www.sec.gov/files/ctf-written-input-dinari-inc-040226.pdf) | 2026년 4월 미국용 제안은 브로커의 오프체인 장부를 권위기록으로 두고 토큰을 이전불가·독립권리 없는 보조기록으로 설명 | 국제 dShares 수탁권리 모델과 미국 보조기록 제안을 구분하고 관할·상품별 권리정의 필요성을 설명 |
@@ -30,7 +30,7 @@
 | S024 | A | [금융위원회, 외국인 투자자 등록제 폐지 이후 계좌개설 실적](https://www.fsc.go.kr/po010107/82508) | 2023년 12월 15일부터 2024년 6월 12일까지 LEI·여권번호 기반 계좌 1,432개 개설. 법인서류와 위임장 확인관행의 후속 개선도 설명 | 직접계좌가 명목상 제도가 아니라 실제 이용되는 기준선임을 확인 |
 | S025 | A | [한국예탁결제원, 해외 DR 원주관리 서비스](https://www.ksd.or.kr/ko/api/download/static?fileNm=%ED%95%B4%EC%99%B8DR%EC%9B%90%EC%A3%BC%EA%B4%80%EB%A6%AC%EC%84%9C%EB%B9%84%EC%8A%A4_FN.pdf) | 국내 원주를 원주관리기관에 보관하고 해외 예탁기관이 ADR·GDR을 발행하며 원주 전환과 기업행동을 처리하는 구조 | 해외 DR을 기존 접근수단이자 수탁 권리 토큰의 기능적 비교대상으로 추가 |
 | S026 | A | [한국거래소, ETF의 상품 성격과 거래](https://global.krx.co.kr/contents/GLB/06/0605/0605010103/GLB0605010103.jsp) | ETF는 주식처럼 거래되더라도 개별 주식이 아니라 지수를 추종하는 펀드라는 상품 경계 | 한국주식 직접 보유와 ETF·펀드 간접노출을 구분 |
-| S027 | B | [Dinari Docs, US Customers](https://docs.dinari.com/docs/us) | 2026-06-22 갱신 가이드상 미국 고객은 완전공개 계좌를 사용하고 통합주문이 금지되며, 고객별 전용 지갑·비이전 토큰·브로커 시스템 기업행동·별도 증권화면과 주문확인 통제를 요구 | 국제형과 미국형의 계좌·지갑·이전·화면 차이를 비교 |
+| S027 | B | [Dinari Docs, US Customers](https://docs.dinari.com/docs/us) | 2026-06-22 갱신 가이드상 미국 고객은 완전공개 계좌를 사용한다. 대부분 제공 자산은 등록 공개주식이고 사모나 미등록 증권 등 일부 자산만 적격투자자 확인을 요구한다. 고객확인, 공시와 전자 동의, 민원 전달, 전용 지갑, 비이전 토큰과 별도 증권화면도 요구 | 일반 고객 대상 공개주식과 자산별 적격투자자 제한을 구분하고 미국형 고객 보호와 계좌 통제를 비교 |
 | S028 | B | [Dinari Docs, Order Types & Behaviors](https://docs.dinari.com/docs/order-type) | 모든 v2 주문이 주문요청에서 주문으로 이어지고, 부분체결·미체결 환불과 복수 이행기록 대사를 예상하도록 안내 | 고객요청·시장주문·개별 체결·결제를 분리한 상태모델 근거 |
 | S029 | B | [Dinari Docs, Get Brokerage Account Activities](https://docs.dinari.com/reference/getbrokerageaccountactivities) | 계좌별 브로커리지 활동 조회와 페이지네이션을 제공하는 초기 개발 단계 인터페이스 | 운영자 화면의 계좌 활동·재처리 조회 근거 |
 | S030 | B | [Dinari Docs, Corporate Actions](https://docs.dinari.com/docs/corporate-actions) | 기업행동 공지와 실제 지급·수량반영을 구분해 모니터링하는 공개 절차 | 기업행동 상태와 실제 배정활동 분리 |
@@ -45,13 +45,16 @@
 | S039 | A | [미국 SEC, T+1 Settlement Cycle](https://www.sec.gov/newsroom/press-releases/2024-62) | 2024-05-28부터 미국의 대부분 브로커 거래에 T+1 표준결제주기 시행 | Dinari 기초시장과 한국 T+2 구조의 시간 차이 설명 |
 | S040 | A | [국가법령정보센터, 자본시장법 제11조와 제12조](https://www.law.go.kr/LSW/lsLawLinkInfo.do?chrClsCd=010202&lsId=010513&lsJoLnkSeq=900295097&print=print) | 무인가 금융투자업을 금지하고 인가업무를 금융투자업 종류, 상품 범위와 투자자 유형으로 구분 | 토큰형 증권의 매매와 중개에 적용할 금융투자업 인가 원칙의 근거 |
 | S041 | A | [금융위원회, 자본시장 인프라 혁신 점검회의](https://www.fsc.go.kr/po010106/87166) | 2026년 6월 23일 기준 T+1, 거래시간 연장, 토큰증권 인프라와 실시간·상시거래·통합 디지털 시장 전환을 연계해 검토 | 2단계를 제도권 자본시장 인프라 전환 과제로 설명 |
+| S042 | A | [국가법령정보센터, 자본시장법 제9조](https://www.law.go.kr/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1031901795) | 전문투자자를 전문성이나 자산 등에 비추어 위험감수능력이 있는 투자자로 정의하고, 전문투자자가 아닌 투자자를 일반투자자로 정의 | 한 번의 거래금액이 아니라 법적 고객분류를 기준으로 대표 투자자를 정의 |
+| S043 | B | [Dinari Docs, Identity Verification](https://docs.dinari.com/docs/managing-kyc) | 모든 고객의 신원확인을 요구하고 제휴사가 수행한 고객확인 또는 Dinari가 관리하는 고객확인 흐름과 국가별 추가요건을 설명 | 국제형도 일반 개인 여부와 별개로 고객확인과 국가별 통제를 거친다는 근거 |
+| S044 | A | [홍콩 SFC, 승인 투자상품의 토큰화 지침](https://apps.sfc.hk/edistributionWeb/api/circular/list-content/circular/doc?lang=EN&refNo=26EC22) | 2026년 4월 20일 개정. SFC 승인 투자상품의 일반 대중 대상 토큰화에는 기초상품 승인요건, 토큰화 통제, 인가된 판매기관, 고객 등록과 적합성 평가, 권리와 위험 공시 및 사전 협의를 요구 | 홍콩 일반 개인 대상 토큰화 상품의 보호절차를 참고하되 본 수탁 권리의 승인 근거로 사용하지 않음 |
 
 ## 소스별 해석 제한
 
 - S001·S002는 해외 금융투자업자가 다수 고객의 주문과 결제를 취합하고 고객별 권리를 배정하는 통합계좌 구조의 근거다. 고객 적합성과 토큰 수요는 별도의 사업 검증 대상이다. S001은 상임대리인의 국내 보관 및 권리업무를 설명하며, 수탁은행이 상임대리인을 겸하는 구성은 PoC의 기준 설계다.
 - S003~S005는 분산원장 기록에 법적 효력이 생기는 경로를 보여준다. 1단계는 수탁주식에 대한 계약상 권리로 다루고, 2단계는 기존 전자등록기관과 계좌관리기관 또는 등록된 발행인계좌관리기관이 참여하는 법적 증권 계좌부로 구분한다. 기존 상장주식의 적용 대상과 시장 인프라는 하위규정과 참여기관 준비를 확인해야 한다.
 - S006~S008은 예금토큰 기술과 기관 경험의 참조다. 외국인 개인이 한국 예금토큰을 직접 보유할 수 있다는 근거로 사용하지 않는다.
-- S009의 홍콩 통제는 참조 프로파일에만 적용한다. 한국 코어 계약이나 다른 관할의 법적 의무로 일반화하지 않는다.
+- S009의 홍콩 통제는 참조 프로파일에만 적용한다. 일률적인 전문투자자 전용 제한이 없다는 설명은 공모 승인이나 일반 개인 판매 허가를 뜻하지 않으며 한국 또는 다른 관할의 의무로 일반화하지 않는다.
 - S010은 미국 규제기관의 분류다. 제3자 수탁형 권리에서 수탁자와 권리 책임주체를 구분하는 개념만 참고하며 해외 현지증권사가 한국형 권리를 적법하게 발행할 수 있다는 근거로 사용하지 않는다.
 - S011의 표준 준수는 증권법 준수를 의미하지 않는다. 특히 ERC-3643의 agent mint·forced transfer 기능에는 별도의 기관 승인과 준비금 게이트가 필요하다.
 - S014의 49%는 법률상 일반 범주 설명이다. PoC의 잔여수량과 시세는 전부 합성 fixture이며 실제 투자 판단에 사용할 수 없다.
@@ -63,7 +66,7 @@
 - S024의 1,432개는 2023년 12월 15일부터 2024년 6월 12일까지의 역사적 실적이며 현재 누적계좌 수로 사용하지 않는다.
 - S025의 상품 구조는 해외 DR 비교에 사용하되, 안내서에 수록된 2019년 말 종목 수와 종목 목록을 현재 현황으로 사용하지 않는다. 수탁 권리 토큰이 법률상 DR에 해당하거나 해당하지 않는다는 결론도 이 자료만으로 내리지 않는다.
 - S026은 ETF가 개별 주식이 아닌 펀드라는 상품 경계의 근거다. 특정 해외시장에서 모든 외국인이 한국지수 ETF를 이용할 수 있다는 근거로 사용하지 않는다.
-- S027은 Dinari의 회사 가이드이며 SEC·FINRA가 미국 서비스의 모든 법적 표현에 동의했다는 근거가 아니다. 특히 SEC 제출서와 함께 회사의 설명·확인요청으로 표시한다.
+- S027은 Dinari의 회사 가이드이며 SEC·FINRA가 미국 서비스의 모든 법적 표현에 동의했다는 근거가 아니다. 미국 공개주식의 일반 고객 제공과 일부 자산의 적격투자자 제한은 미국형 설명이며 국제형이나 한국형 판매 가능성을 보장하지 않는다.
 - S028~S030은 공개 제품·API 동작을 보여주지만 Dinari 내부 운영화면, 최종 증권결제 시점, 계좌계약과 통제의 실제 이행을 입증하지 않는다.
 - S031~S035는 Alpaca가 제공하는 일반적인 계좌·하위장부·활동 모델이다. Dinari 국제 dShares가 OmniSub를 실제 사용한다거나 한국 통합계좌와 법적으로 동일하다는 근거로 사용하지 않는다.
 - S036~S037은 한국 시장의 주문·결제 기준으로 사용한다. PoC의 모의 어댑터가 실제 KRX·KSD 연결 또는 운영승인을 받았다는 의미가 아니다.
@@ -71,3 +74,6 @@
 - S039의 T+1은 미국시장 비교에만 사용한다. Dinari가 어떤 주문에서 정확히 언제 고객 토큰을 발행하고 결제위험을 부담하는지는 별도 확인이 필요하다.
 - S040은 금융투자업의 인가 원칙을 확인하는 자료다. 개별 상품의 증권성, 국외 발행이나 판매 범위에 관한 법률의견을 대신하지 않는다.
 - S041은 정책 방향과 기관 논의를 보여주지만 기존 상장주식의 24시간 거래, T+0 결제나 네이티브 토큰화가 승인됐다는 근거는 아니다.
+- S042는 한국법의 투자자 분류를 설명한다. 실제 판매 국가에서 누구를 일반 고객이나 전문 고객으로 분류하는지는 해당 국가 법률을 적용한다.
+- S043은 Dinari의 고객확인 절차를 보여주지만 고객확인을 통과하면 모든 국가와 상품에서 판매가 허용된다는 뜻은 아니다.
+- S044는 SFC가 승인한 투자상품에 관한 지침이다. 한국주식에 대한 제3자 수탁 권리의 상품 분류, 공모 승인 또는 일반 개인 판매 가능성을 직접 확인하는 자료가 아니다.
