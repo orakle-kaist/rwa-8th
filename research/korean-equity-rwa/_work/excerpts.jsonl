@@ -1,6 +1,8 @@
 {"source_id":"S001","topic":"foreign_omnibus","paraphrase":"해외 금융투자업자는 국내 증권사와 계약한 뒤 국내 상임대리인에 보관계좌를 열고 통합계좌로 여러 최종투자자의 주문과 결제를 처리한다. 고객별 기록과 배당배분 책임은 해외 기관에 남는다.","use":"route_selection_and_role_separation"}
-{"source_id":"S002","topic":"hana_emperor","paraphrase":"하나증권과 홍콩 Emperor증권의 계좌가 2025년 개설돼 최초 투자가 시작됐고 이후 해외 중소형 증권사로 제도범위가 확대됐다.","use":"omnibus_operational_evidence"}
-{"source_id":"S003-S005","topic":"token_securities_law","paraphrase":"분산원장 기반 계좌부의 법적 기반은 마련됐으나 시행과 세부제도 준비가 남았고 기존 정형증권 토큰화는 단계적 접근 대상이다.","use":"two_stage_roadmap"}
+{"source_id":"S002","topic":"hana_emperor","paraphrase":"하나증권과 홍콩 Emperor증권의 계좌가 2025년 개설돼 최초 투자가 시작됐고 이후 해외 증권사의 통합계좌 개설 제한이 폐지됐다.","use":"omnibus_operational_evidence"}
+{"source_id":"S003","topic":"distributed_ledger_legal_register","paraphrase":"2027년 시행 예정인 개정 전자증권법은 기존 전자등록기관과 계좌관리기관의 분산원장 이용, 발행인계좌관리기관 등록, KSD 총량관리와 전자등록증권 사이의 전환 절차를 마련한다.","use":"native_token_rail_roles"}
+{"source_id":"S004","topic":"token_form_and_securities_rules","paraphrase":"토큰증권은 새로운 규제 밖 자산군이 아니라 증권의 형식이므로 금융투자업 인가, 공시와 투자자 보호 규제가 적용된다.","use":"negative_regulation_boundary"}
+{"source_id":"S005","topic":"standard_securities_roadmap","paraphrase":"금융위 협의체는 기존 주식·채권·MMF의 토큰화와 온체인 결제를 일괄 전환이 아닌 단계별 테스트와 인프라 개선 과제로 다룬다.","use":"native_token_roadmap_caveat"}
 {"source_id":"S006","topic":"unified_ledger","paraphrase":"Project Hangang은 Besu·QBFT 기반 허가형 통합원장과 토큰화 예금을 실제 파일럿했다.","use":"reference_architecture"}
 {"source_id":"S009","topic":"hk_controls","paraphrase":"홍콩 SFC는 소유권 기록, 결제완결성, 이전제한, 키·BCP·감사·수탁 통제를 강조한다.","use":"jurisdiction_profile"}
 {"source_id":"S010","topic":"taxonomy","paraphrase":"제3자가 수탁된 기초주식에 대한 권리를 만들어 토큰으로 표시하는 구조는 발행인 주도형 토큰화 주식 및 합성형 가격노출과 구별된다. 미국 분류이므로 한국형 발행 허용의 근거는 아니다.","use":"product_and_role_classification"}
@@ -32,3 +34,5 @@
 {"source_id":"S037","topic":"krx_tplus2_settlement","paraphrase":"한국거래소는 회원 주문의 체결통지 뒤 고객·회원 및 회원·거래소 사이 증권결제가 T+2에 이뤄진다고 설명한다.","use":"post_settlement_issuance_gate"}
 {"source_id":"S038","topic":"korea_fractional_structure","paraphrase":"국내주식 소수단위 거래 특례는 주문취합·온주 보충과 KSD 신탁·수익증권을 결합한 별도 권리구조다.","use":"whole_share_v1_scope"}
 {"source_id":"S039","topic":"us_tplus1_settlement","paraphrase":"미국의 대부분 브로커 거래는 2024년 5월 28일부터 T+1 표준결제를 적용한다.","use":"us_korea_settlement_comparison"}
+{"source_id":"S040","topic":"unauthorized_investment_business","paraphrase":"자본시장법은 금융투자업 인가 없이 증권 매매나 중개 등 금융투자업을 영위하는 것을 금지하고 인가 범위를 상품과 투자자 유형별로 구분한다.","use":"regulated_new_rail_boundary"}
+{"source_id":"S041","topic":"capital_market_infrastructure_transition","paraphrase":"금융위는 토큰증권 인프라를 T+1, 거래시간 연장과 실시간·상시거래·통합 디지털 시장 전환 과제와 연계해 검토하고 있다.","use":"future_native_rail_context"}
