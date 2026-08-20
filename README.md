@@ -1,60 +1,56 @@
-# Korean Equity RWA Institutional PoC Design
+# Korean Equity RWA Institutional PoC
 
-Dinari의 해외 수탁형 토큰화 주식 사례를 출발점으로 삼되, 외국인의 한국 상장주식 접근 과정에 맞게 계좌, T+2 결제, 수탁, 권리배정, 보고와 국가별 판매규제를 다시 설계한 기관용 프로젝트입니다.
+Dinari의 수탁형 토큰화 주식 사례를 출발점으로, 외국인이 한국 상장주식에 접근할 때 필요한 계좌·주문·T+2 결제·수탁·권리배정·보고 구조를 한국 시장과 국내 규제 맥락에 맞게 다시 설계하는 기관 제안형 프로젝트입니다.
 
-이 저장소의 현재 산출물은 **PoC 코드가 아니라 구현 판단을 제거한 설계 패키지**입니다. 실제 자금·증권을 취급하지 않으며, 법률의견이나 인허가를 대체하지 않습니다.
+현재는 **마스터 제안서 검토 단계**입니다. PoC 코드, PRD, 화면·API·상태기계·스마트컨트랙트 명세는 아직 확정하지 않았으며 실제 자금·증권·개인정보를 취급하지 않습니다. 이 저장소의 내용은 학술 프로젝트의 설계 가설로서 법률의견, 인허가 판단 또는 기관의 승인을 대체하지 않습니다.
 
-`final_candidate.md`는 기관·학회 구성원이 전체 제안을 이해하고 판단하는 **사람용 마스터 제안서**입니다. 구현의 규범적 기준은 `design/00_master_proposal.md`와 `specs/`이며, 사람용 제안서에는 코드명·데이터 필드·API 세부사항을 싣지 않습니다.
+## 현재 기준 문서
 
-## 먼저 읽을 문서
+[final_candidate.md](research/korean-equity-rwa/drafts/final_candidate.md)가 현재 단계의 **유일한 마스터 설계 후보이자 판단 기준**입니다. 아래 문서는 후보를 이해하고 검토하기 위한 보조자료이며, 마스터의 결정을 덮어쓰지 않습니다.
 
-1. [기관 검토용 마스터 제안서](research/korean-equity-rwa/drafts/final_candidate.md)
-2. [규범적 설계 결정 요약](design/00_master_proposal.md)
-3. [법률·상품 경계](design/01_legal_product.md)
-4. [운영 모델과 라이프사이클](design/02_operating_model.md)
-5. [아키텍처·보안 통제](design/03_architecture_security.md)
-6. [데모·인수 기준](design/04_demo_acceptance.md)
-7. [위험·2단계 로드맵](design/05_risk_roadmap.md)
+- [리서치 브리프](research/korean-equity-rwa/brief.md): 질문, 범위와 성공 기준
+- [공식 출처 정리](research/korean-equity-rwa/sources/web/official-sources.md): 공개 근거와 확인 기준일
+- [팀 제공 자료 인덱스](research/korean-equity-rwa/sources/notes/user-material-index.md): 원자료 위치, 체크섬과 반영 판단
+- [내부 인간 검토 메모](research/korean-equity-rwa/review/human_review.md): 승인 전 판단할 쟁점과 알려진 한계
 
-구현 에이전트는 위 설명 문서보다 `specs/`의 OpenAPI, AsyncAPI, JSON Schema, 상태기계, 오류 분류 및 BDD 시나리오를 우선해야 합니다. 문서 간 충돌 시 [추적성 매트릭스](specs/traceability-matrix.md)의 우선순위를 따릅니다.
+`_work/`는 조사 과정과 검증 이력을 보존하는 내부 작업 기록입니다. 과거에 먼저 작성했던 상세 설계와 기계 판독 명세는 [pre-PRD v1 아카이브](archive/pre-prd-v1/README.md)에 동결했습니다. 해당 아카이브는 참고자료일 뿐 현재 또는 향후 구현의 규범적 기준이 아닙니다.
 
 ## 한 문장 구조
 
-해외 판매기관이 확인한 투자자와 전용 권리계정·지갑을 국내 외국인 통합계좌 및 상임대리인 수탁계좌에 연결하고, 한국시장의 T+2 결제와 수탁이 완료된 수량만큼만 `1 token = 1 share entitlement`를 발행합니다. 국내 수탁장부, 해외 투자자 권리장부와 허가형 토큰 기록은 서로 대사합니다.
+해외 판매기관이 확인한 투자자와 권리계정·지갑을 국내 외국인 통합계좌 및 수탁 구조에 연결하고, 한국시장의 T+2 결제와 수탁 반영이 확인된 수량 범위 안에서만 `1 token = 1 share entitlement` 권리를 발행한 뒤 국내 수탁장부, 해외 투자자 권리장부와 허가형 토큰 기록을 지속 대사합니다.
 
-PoC는 같은 거래를 투자자 거래 화면, 토큰화 운영 콘솔, 국내 브로커·수탁 인프라 콘솔에서 각각 보여줍니다. 공개자료로 확인되는 Dinari·Alpaca의 계좌·주문·활동 개념을 참고하되, 비공개 내부 화면이나 실제 업체 연동을 재현한다고 주장하지 않습니다.
-
-## 고정된 설계 원칙
-
-- 코어는 관할 중립적입니다. 한국은 기초자산 관할이고 홍콩은 교체 가능한 첫 참조 판매 관할입니다.
-- Dinari의 Regulation S 국제형과 미국 내 완전공개 계좌형은 서로 다른 운영모델로 구분하며, 어느 하나를 한국에 그대로 복제하지 않습니다.
-- 1단계 토큰은 직접 주식이나 주주명부상 지위가 아니라 수탁 중인 주식에 대한 계약상·수익적 권리입니다.
-- 발행량은 결제 완료된 수탁수량을 초과할 수 없습니다.
-- 투자자 PII, 여권번호 및 그 해시는 원장·이벤트·로그에 기록하지 않습니다.
-- AI는 설명과 주문 초안만 만들며 주문 확정과 서명은 사람이 수행합니다.
-- 1차 KRX 매입은 시장시간과 T+2 외부결제를 따릅니다. 24/7 즉시 유동성을 주장하지 않습니다.
-- 2차 권리토큰 거래만 동일 원장 내 원자적 DvP를 사용합니다.
+PoC는 같은 거래를 투자자 거래 화면, 토큰화 운영 화면, 국내 브로커·수탁 인프라 화면에서 각자의 책임과 증거에 맞게 보여주는 것을 목표로 합니다. 공개자료로 확인되는 Dinari·Alpaca의 계좌·주문·활동 개념을 참고하되, 비공개 내부 화면이나 실제 업체 연동을 재현한다고 주장하지 않습니다.
 
 ## 저장소 구조
 
 ```text
-research/korean-equity-rwa/  조사 원본 인덱스, 공식 출처, 최종 후보 보고서, 리뷰 기록
-design/                      기관·운영·개발팀이 함께 읽는 모듈형 설계
-specs/                       구현 에이전트가 준수할 기계 판독 및 테스트 명세
-tmp/                         팀이 제공한 중간발표 자료 원본(변경 금지)
+research/korean-equity-rwa/
+  brief.md                  조사 질문·범위·성공 기준
+  drafts/final_candidate.md 현재 단계의 유일한 마스터 후보
+  sources/                  공식 출처, 팀 제공 원자료와 인덱스
+  review/human_review.md    내부 검토 쟁점과 한계
+  _work/                    조사·검증 이력
+archive/pre-prd-v1/         확정 전 작성된 과거 설계·명세의 비규범 스냅샷
+scripts/                    현재 단계의 저장소·리서치 검증기
+PROJECT_WORKFLOW.md         승인 이후를 포함한 단계별 산출물·검토 게이트
 ```
+
+PRD와 후속 산출물 폴더는 마스터가 승인된 뒤 해당 단계가 시작될 때 생성합니다. 산출물 순서와 각 단계의 완료 조건은 [프로젝트 워크플로](PROJECT_WORKFLOW.md)를 따릅니다.
 
 ## 현재 상태
 
-- 설계 상태: `review-ready`
-- 리서치 기준일: `2026-08-17 Asia/Seoul`
-- PoC 구현 상태: 미착수
-- 승인 상태: 인간 검토 대기
+- 단계: `master review`
+- 리서치 사실 검증 기준일: `2026-08-17 Asia/Seoul`
+- PoC 구현: 미착수
+- 마스터 승인: 내부 인간 검토 대기
+- 외부 기관 검증: 수행하지 않음
 
-## 설계 검증
+팀원은 증권사·수탁기관·은행·해외 판매기관·규제·감사·투자자 역할을 번갈아 맡아 **기관 관점의 가설을 내부 검토**합니다. 이 활동은 실제 기관의 검토나 제도적 타당성 확인으로 표현하지 않습니다.
 
-Node.js, Python, PyYAML, jsonschema가 준비된 환경에서 다음 한 명령으로 문서·스키마·fixture·출처 체크섬·OpenAPI·AsyncAPI·BDD와 리서치 review gate를 다시 검사할 수 있습니다.
+## 검증
+
+현재 활성 문서의 구조, 링크, JSON·JSONL·YAML, 팀 제공 원자료 체크섬과 RWA 리서치 후보 게이트는 다음 명령으로 검사합니다.
 
 ```bash
-bash scripts/validate-design.sh
+bash scripts/validate-research.sh
 ```
