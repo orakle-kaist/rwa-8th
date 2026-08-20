@@ -1,9 +1,9 @@
-{"source_id":"S001","topic":"foreign_omnibus","paraphrase":"외국인은 해외 금융투자업자 명의 통합계좌를 통해 별도 국내 계좌 없이 국내 주식을 일괄 주문·결제할 수 있다.","use":"problem_definition"}
-{"source_id":"S002","topic":"hana_emperor","paraphrase":"하나증권과 홍콩 Emperor증권의 계좌가 2025년 8월 개설되고 같은 해 10월 최초 투자가 개시됐다.","use":"hk_reference_profile"}
+{"source_id":"S001","topic":"foreign_omnibus","paraphrase":"해외 금융투자업자는 국내 증권사와 계약한 뒤 국내 상임대리인에 보관계좌를 열고 통합계좌로 여러 최종투자자의 주문과 결제를 처리한다. 고객별 기록과 배당배분 책임은 해외 기관에 남는다.","use":"route_selection_and_role_separation"}
+{"source_id":"S002","topic":"hana_emperor","paraphrase":"하나증권과 홍콩 Emperor증권의 계좌가 2025년 개설돼 최초 투자가 시작됐고 이후 해외 중소형 증권사로 제도범위가 확대됐다.","use":"omnibus_operational_evidence"}
 {"source_id":"S003-S005","topic":"token_securities_law","paraphrase":"분산원장 기반 계좌부의 법적 기반은 마련됐으나 시행과 세부제도 준비가 남았고 기존 정형증권 토큰화는 단계적 접근 대상이다.","use":"two_stage_roadmap"}
 {"source_id":"S006","topic":"unified_ledger","paraphrase":"Project Hangang은 Besu·QBFT 기반 허가형 통합원장과 토큰화 예금을 실제 파일럿했다.","use":"reference_architecture"}
 {"source_id":"S009","topic":"hk_controls","paraphrase":"홍콩 SFC는 소유권 기록, 결제완결성, 이전제한, 키·BCP·감사·수탁 통제를 강조한다.","use":"jurisdiction_profile"}
-{"source_id":"S010","topic":"taxonomy","paraphrase":"제3자 수탁형 권리는 발행인 주도형 토큰화 주식 및 합성형 가격노출과 구별해야 한다.","use":"product_classification"}
+{"source_id":"S010","topic":"taxonomy","paraphrase":"제3자가 수탁된 기초주식에 대한 권리를 만들어 토큰으로 표시하는 구조는 발행인 주도형 토큰화 주식 및 합성형 가격노출과 구별된다. 미국 분류이므로 한국형 발행 허용의 근거는 아니다.","use":"product_and_role_classification"}
 {"source_id":"S011","topic":"standards","paraphrase":"ERC-3643은 규제형 토큰 통제, ERC-7943은 최소 RWA 통제 인터페이스, ERC-7540은 비동기 vault 요청을 다룬다.","use":"contract_boundaries"}
 {"source_id":"S012","topic":"privacy","paraphrase":"Besu의 Tessera 기반 사설거래 기능에 의존하지 않고 데이터 최소화와 오프체인 분리를 사용해야 한다.","use":"privacy_architecture"}
 {"source_id":"S014","topic":"foreign_ownership","paraphrase":"전기통신사업법은 일정 기간통신사업자의 외국인 합산 주식소유를 49%로 제한한다.","use":"quota_failure_fixture"}

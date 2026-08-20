@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the simplified drafts/final_candidate.md and record approve or revise. Start PoC goals and the PRD only after master approval.",
-  "updated_at": "2026-08-20T11:27:08+09:00",
+  "next_action": "Review the revised route rationale, Dinari-to-Korea translation, and institution roles in drafts/final_candidate.md. Record approve or revise before starting PoC goals and the PRD.",
+  "updated_at": "2026-08-20T14:39:46+09:00",
   "iteration": 4
 }
