@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the scale-neutral target definition and the stage-one custodial-right versus stage-two legal-ledger distinction in drafts/final_candidate.md. Record approve or revise before starting PoC goals and the PRD.",
-  "updated_at": "2026-08-20T15:21:17+09:00",
+  "next_action": "Review the context-independent target definition, the two token rails, and the institutional adoption criteria in drafts/final_candidate.md. Record approve or revise before starting PoC goals and the PRD.",
+  "updated_at": "2026-08-20T16:27:10+09:00",
   "iteration": 4
 }
