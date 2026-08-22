@@ -57,7 +57,7 @@ def parse_structured_files(errors: list[str]) -> None:
 
 
 def validate_source_index(errors: list[str]) -> None:
-    expected_ids = {f"U{number:03d}" for number in range(1, 15)}
+    expected_ids = {f"U{number:03d}" for number in range(1, 16)}
     found_ids: set[str] = set()
 
     for line_number, line in enumerate(
@@ -195,12 +195,65 @@ def validate_workspace_contract(errors: list[str]) -> None:
         )
 
 
+def validate_master_regulatory_contract(errors: list[str]) -> None:
+    master_path = RESEARCH_ROOT / "drafts" / "final_candidate.md"
+    master = master_path.read_text(encoding="utf-8")
+
+    expected_sections = [
+        "1. 의사결정 요약",
+        "2. 외국인의 한국주식 접근경로와 PoC 선택",
+        "3. 한국주식의 법적 장부와 현행 토큰화의 한계",
+        "4. Dinari 사례와 한국형 변환",
+        "5. 1단계 PoC와 2단계 목표 구조",
+        "6. 기관별 역할, 계좌와 기준 장부",
+        "7. PoC 업무화면",
+        "8. 통제, 위험과 검증 기준",
+        "9. 전환 조건과 사업화 과제",
+        "10. 결론",
+    ]
+    found_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", master, flags=re.MULTILINE)
+    ]
+    if found_sections != expected_sections:
+        errors.append(
+            "final_candidate.md numbered sections do not match the approved structure: "
+            f"found {found_sections}"
+        )
+
+    required_terms = [
+        "전자등록계좌부",
+        "계좌 간 대체",
+        "주주명부",
+        "계약상 권리",
+        "발행인계좌관리기관",
+        "연계장부",
+        "최종투자자 직접 기록",
+        "읽기 전용",
+        "기존 상장주식",
+    ]
+    missing_terms = [term for term in required_terms if term not in master]
+    if missing_terms:
+        errors.append(
+            "final_candidate.md is missing required Korean securities-ledger concepts: "
+            + ", ".join(missing_terms)
+        )
+
+    internal_source_ids = sorted(set(re.findall(r"(?<![A-Za-z0-9])S\d{3}(?!\d)", master)))
+    if internal_source_ids:
+        errors.append(
+            "final_candidate.md exposes internal source IDs: "
+            + ", ".join(internal_source_ids)
+        )
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
     validate_source_index(errors)
     validate_markdown_links(errors)
     validate_workspace_contract(errors)
+    validate_master_regulatory_contract(errors)
 
     if errors:
         print("Active research validation failed:", file=sys.stderr)
@@ -208,7 +261,7 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print("Active research workspace, links, metadata, and 14 source checksums passed.")
+    print("Active research workspace, links, metadata, master contract, and 15 source checksums passed.")
     return 0
 
 

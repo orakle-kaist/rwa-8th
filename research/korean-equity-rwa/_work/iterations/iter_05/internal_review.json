@@ -1,0 +1,50 @@
+{
+  "iteration": 5,
+  "reviewed_at": "2026-08-22T15:35:56+09:00",
+  "issues": [
+    {
+      "severity": "medium",
+      "original_severity": "high",
+      "status": "resolved",
+      "comment": "현행 전자등록주식은 전자등록계좌부의 계좌 간 대체로 권리이전 효력이 생기며 별도 토큰 이전만으로 기초주식이 이전되지 않는다고 명시했다."
+    },
+    {
+      "severity": "medium",
+      "original_severity": "high",
+      "status": "resolved",
+      "comment": "전자등록계좌부의 권리이전 기능과 주주명부의 회사 대항 및 기업행동 기능을 구분했다."
+    },
+    {
+      "severity": "medium",
+      "original_severity": "high",
+      "status": "resolved",
+      "comment": "2027년 제도가 임의의 토큰 장부나 기존 상장주식의 자동 전환을 허용한다는 해석을 배제하고 별도 승인조건을 제시했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "기존 통합계좌, 1단계 수탁 권리형 PoC와 2단계 법정 장부형 목표 구조를 동일한 판단 항목으로 비교했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "기관용 2단계 화면을 근거와 기준일을 보여주는 읽기 전용 비교로 한정하고 거래 기능을 제외했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "분산원장과 연계장부의 결합 및 증권시장 상장 시 일반 전자등록주식으로 전환할 수 있는 규정을 2단계 정보배치와 기존 상장주식 승인조건에 반영했다."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "comment": "2단계의 최종투자자 직접 기록 목표와 해외 금융기관 통합명의 유지 대안을 구분해 직접 권리연결과 운영개선의 편익을 혼동하지 않게 했다."
+    },
+    {
+      "severity": "medium",
+      "status": "disclosed",
+      "comment": "상품 분류, 권리 책임주체, 하위규정, 기존 상장주식 적용과 단계 전환은 외부 법률검토 및 참여기관 승인이 필요한 사업화 게이트다."
+    }
+  ],
+  "decision": "review_ready"
+}

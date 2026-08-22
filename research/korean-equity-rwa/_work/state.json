@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the general retail investor target, jurisdiction-specific sale gates, self-directed order controls, and Dinari-to-Korea translation in drafts/final_candidate.md. Record approve or revise before starting PoC goals and the PRD.",
-  "updated_at": "2026-08-20T17:59:00+09:00",
-  "iteration": 4
+  "next_action": "Review the current-law securities ledger analysis, the stage-one contractual-rights PoC, and the post-2027 legal-ledger target architecture in drafts/final_candidate.md. Record approve or revise before starting PoC goals and the PRD.",
+  "updated_at": "2026-08-22T15:46:35+09:00",
+  "iteration": 5
 }
