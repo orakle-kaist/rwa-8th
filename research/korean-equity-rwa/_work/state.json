@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the current-law securities ledger analysis, the stage-one contractual-rights PoC, and the post-2027 legal-ledger target architecture in drafts/final_candidate.md. Record approve or revise before starting PoC goals and the PRD.",
-  "updated_at": "2026-08-22T15:46:35+09:00",
-  "iteration": 5
+  "next_action": "Review the stage-one custodial-rights lifecycle from product eligibility through issuance, rights management, RFQ, redemption, and payout in drafts/final_candidate.md. Record approve or revise before starting PoC goals and the PRD.",
+  "updated_at": "2026-08-22T21:52:14+09:00",
+  "iteration": 6
 }

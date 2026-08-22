@@ -204,11 +204,11 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "2. 외국인의 한국주식 접근경로와 PoC 선택",
         "3. 한국주식의 법적 장부와 현행 토큰화의 한계",
         "4. Dinari 사례와 한국형 변환",
-        "5. 1단계 PoC와 2단계 목표 구조",
+        "5. 1단계 수탁 권리형 PoC 생애주기",
         "6. 기관별 역할, 계좌와 기준 장부",
         "7. PoC 업무화면",
         "8. 통제, 위험과 검증 기준",
-        "9. 전환 조건과 사업화 과제",
+        "9. 사업화 과제와 2단계 전망",
         "10. 결론",
     ]
     found_sections = [
@@ -231,6 +231,9 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "최종투자자 직접 기록",
         "읽기 전용",
         "기존 상장주식",
+        "T+2 매도대금 결제",
+        "환매 대기열",
+        "기준 생애주기",
     ]
     missing_terms = [term for term in required_terms if term not in master]
     if missing_terms:

@@ -1,0 +1,22 @@
+{
+  "iteration": 6,
+  "status": "awaiting_human_review",
+  "unresolved_high_issues": 0,
+  "checks": {
+    "stage_one_lifecycle_is_primary": "pass",
+    "transfer_agent_one_to_one_mapping_removed": "pass",
+    "dinari_functions_translated_to_korean_operations": "pass",
+    "issuance_through_redemption_is_complete": "pass",
+    "rights_and_token_records_move_together": "pass",
+    "corporate_action_exceptions_are_visible": "pass",
+    "workbenches_share_lineage_and_as_of_time": "pass",
+    "stage_two_is_read_only_outlook": "pass"
+  },
+  "open_external_decisions": [
+    "legal_classification_and_retail_distribution",
+    "contractual_rights_obligor_and_asset_segregation",
+    "redemption_pricing_and_delay_allocation",
+    "institutional_integration_and_reporting",
+    "post_2027_listed_equity_applicability"
+  ]
+}
