@@ -226,6 +226,15 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "계좌 간 대체",
         "주주명부",
         "계약상 권리",
+        "발행인관리계좌부",
+        "고객관리계좌부",
+        "자기계좌부",
+        "고객계좌부",
+        "체결 직후",
+        "국내 결제 대기",
+        "결제차이 위험",
+        "USDC",
+        "지정 마켓메이커",
         "발행인계좌관리기관",
         "연계장부",
         "최종투자자 직접 기록",
@@ -248,6 +257,18 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
             "final_candidate.md exposes internal source IDs: "
             + ", ".join(internal_source_ids)
         )
+
+    stale_issuance_patterns = [
+        r"T\+2 결제[·와 ]*수탁 뒤에만 권리를 발행",
+        r"결제[·와 ]*수탁 완료를 발행 기준",
+        r"결제[·와 ]*수탁 반영 후 발행",
+    ]
+    for pattern in stale_issuance_patterns:
+        if re.search(pattern, master):
+            errors.append(
+                "final_candidate.md retains the superseded post-settlement issuance rule: "
+                + pattern
+            )
 
 
 def main() -> int:
