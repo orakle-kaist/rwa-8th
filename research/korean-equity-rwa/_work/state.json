@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the revised stage-one master, especially the four Korean securities ledgers, foreign-broker customer rights, post-fill issuance, T+2 risk allocation, USDC funding flow, and post-PoC market-maker roadmap. Record approve or revise before starting PoC goals and the PRD.",
-  "updated_at": "2026-08-23T18:52:37+09:00",
-  "iteration": 7
+  "next_action": "Review the omnibus-account rationale, the current-law limit of direct-account mirror tokens, the all-rightsholder consent gate for converting existing listed shares, the dedicated customer wallet policy, and PROJECT_DECISIONS.md. Record approve or revise before starting PoC goals and the PRD.",
+  "updated_at": "2026-08-24T21:39:41+09:00",
+  "iteration": 8
 }
