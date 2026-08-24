@@ -108,9 +108,11 @@ def validate_source_index(errors: list[str]) -> None:
 
 
 def markdown_files() -> list[Path]:
-    return [REPO_ROOT / "README.md", REPO_ROOT / "PROJECT_WORKFLOW.md"] + sorted(
-        RESEARCH_ROOT.rglob("*.md")
-    )
+    return [
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "PROJECT_WORKFLOW.md",
+        REPO_ROOT / "PROJECT_DECISIONS.md",
+    ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
 def normalize_link_target(raw_target: str) -> str:
@@ -150,6 +152,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
         RESEARCH_ROOT / "_work" / "config.yaml",
+        REPO_ROOT / "PROJECT_DECISIONS.md",
         ARCHIVE_ROOT / "README.md",
         ARCHIVE_ROOT / "design",
         ARCHIVE_ROOT / "specs",
@@ -192,6 +195,39 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append(
             "PROJECT_WORKFLOW.md stages must be exactly 1 through 11 in order: "
             f"found {stage_numbers}"
+        )
+
+    workflow_terms = [
+        "기술 선택을 기록하는 위치",
+        "토큰 표준",
+        "발행할 블록체인",
+        "외부 정보 전달",
+    ]
+    missing_workflow_terms = [term for term in workflow_terms if term not in workflow]
+    if missing_workflow_terms:
+        errors.append(
+            "PROJECT_WORKFLOW.md is missing the approved technical-decision boundary: "
+            + ", ".join(missing_workflow_terms)
+        )
+
+    decisions = (REPO_ROOT / "PROJECT_DECISIONS.md").read_text(encoding="utf-8")
+    decision_terms = [
+        "지원 종목 범위",
+        "KOSPI 200",
+        "대표 시연 종목",
+        "토큰 표준과 배포 방식",
+        "발행 블록체인",
+        "외부 정보 전달",
+    ]
+    missing_decision_terms = [term for term in decision_terms if term not in decisions]
+    if missing_decision_terms:
+        errors.append(
+            "PROJECT_DECISIONS.md is missing approved scope or pending technical decisions: "
+            + ", ".join(missing_decision_terms)
+        )
+    if "| 첫 지원 종목 |" in decisions:
+        errors.append(
+            "PROJECT_DECISIONS.md still marks the overall PoC instrument universe as undecided"
         )
 
 
@@ -243,6 +279,11 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "T+2 매도대금 결제",
         "환매 대기열",
         "기준 생애주기",
+        "KOSPI 200",
+        "대표 6종목",
+        "PoC 목표 승인일",
+        "토큰 표준",
+        "발행할 블록체인",
     ]
     missing_terms = [term for term in required_terms if term not in master]
     if missing_terms:
