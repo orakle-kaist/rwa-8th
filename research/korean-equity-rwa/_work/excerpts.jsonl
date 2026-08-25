@@ -21,7 +21,7 @@
 {"source_id":"S024","topic":"foreign_direct_account_usage","paraphrase":"제도개편 후 2023년 12월 15일부터 2024년 6월 12일까지 LEI·여권번호 기반 외국인 계좌 1,432개가 실제 개설됐다.","use":"direct_route_baseline"}
 {"source_id":"S025","topic":"overseas_dr_structure","paraphrase":"해외 DR은 국내 원주를 원주관리기관에 보관하고 해외 예탁기관이 발행하며 원주 전환과 기업행동을 예탁기관 사슬로 처리한다.","use":"dr_comparison_and_legal_gate"}
 {"source_id":"S026","topic":"fund_indirect_exposure","paraphrase":"ETF는 거래소에서 주식처럼 거래되더라도 개별 주식이 아니라 지수를 추종하는 펀드다.","use":"direct_vs_indirect_exposure"}
-{"source_id":"S027","topic":"dinari_us_retail_accounts","paraphrase":"Dinari 미국 고객 가이드는 대부분 제공 자산을 등록 공개주식으로 설명하고 일부 사모와 미등록 자산만 적격투자자 확인을 요구한다. 8월 출시 뒤 수정된 페이지에도 완전공개 고객계좌, 옴니버스 금지, 전용 지갑과 비이전 토큰 요건이 남아 있다.","use":"retail_account_model_and_post_launch_transfer_restrictions"}
+{"source_id":"S027","topic":"dinari_us_retail_accounts","paraphrase":"기준일 현재 공개된 Dinari 미국 고객 가이드는 대부분 제공 자산을 등록 공개주식으로 설명하고 일부 사모와 미등록 자산만 적격투자자 확인을 요구한다. 완전공개 고객계좌, 옴니버스 금지, 전용 지갑과 비이전 토큰 요건도 설명한다.","use":"retail_account_model_and_current_public_transfer_restrictions"}
 {"source_id":"S028","topic":"dinari_order_fulfillment","paraphrase":"Dinari v2 주문은 주문요청과 주문을 분리하고 부분체결, 미체결 환불과 여러 이행기록의 대사를 전제로 한다.","use":"order_lineage_and_partial_fills"}
 {"source_id":"S029","topic":"dinari_account_activity","paraphrase":"Dinari는 계좌별 브로커리지 활동 조회 인터페이스를 공개하지만 초기 개발단계이며 내부 운영화면을 보여주지는 않는다.","use":"operator_activity_view"}
 {"source_id":"S030","topic":"dinari_corporate_actions","paraphrase":"Dinari 공개 절차는 기업행동 공지와 실제 지급·수량 반영을 서로 다른 단계로 모니터링한다.","use":"corporate_action_state"}

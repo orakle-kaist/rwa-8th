@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the post-launch Dinari US account and transfer restrictions, the international dShares ownership-versus-segregation analysis, the updated Korean omnibus market status, the limited 24/7 rollout and DFN roadmap, and the neutral treatment of statutory conversion directions. Record approve or revise before starting PoC goals and the PRD.",
-  "updated_at": "2026-08-25T15:18:51+09:00",
-  "iteration": 11
+  "next_action": "Review the current-guide treatment of Dinari US restrictions, the licensed overseas broker boundary, and the baseline-versus-token measurement and attribution gate. Approve or revise the master, then set validated baseline values, numeric thresholds and sample sizes in PoC goals before deciding whether to proceed with a token PRD.",
+  "updated_at": "2026-08-25T16:14:22+09:00",
+  "iteration": 12
 }
