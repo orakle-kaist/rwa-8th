@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the omnibus-account rationale, the fixed KOSPI 200 scope, the all-200 common lifecycle with six detailed demo symbols, the dedicated customer wallet policy, and the boundary between the master, PRD, technical architecture, and smart-contract design. Record approve or revise before starting PoC goals and the PRD.",
-  "updated_at": "2026-08-24T22:01:56+09:00",
-  "iteration": 9
+  "next_action": "Review the dual USD and USDC customer-funding paths, the distinction between the Korean legal omnibus balance and overseas final-investor allocations, the replaceable Circle reference, and the removal of the stage-two PoC screen. Record approve or revise before starting PoC goals and the PRD.",
+  "updated_at": "2026-08-25T14:27:30+09:00",
+  "iteration": 10
 }

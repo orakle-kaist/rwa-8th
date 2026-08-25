@@ -269,12 +269,14 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "체결 직후",
         "국내 결제 대기",
         "결제차이 위험",
+        "USD 또는 USDC",
         "USDC",
+        "고객 현금계좌",
+        "적격 전환사업자",
         "지정 마켓메이커",
         "발행인계좌관리기관",
         "연계장부",
         "최종투자자 직접 기록",
-        "읽기 전용",
         "기존 상장주식",
         "T+2 매도대금 결제",
         "환매 대기열",
@@ -297,6 +299,17 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         errors.append(
             "final_candidate.md exposes internal source IDs: "
             + ", ".join(internal_source_ids)
+        )
+
+    removed_screen_terms = [
+        "### 7.6 기관용 2단계 전환 비교 화면",
+        "기관용 읽기 전용 화면",
+    ]
+    present_removed_terms = [term for term in removed_screen_terms if term in master]
+    if present_removed_terms:
+        errors.append(
+            "final_candidate.md retains the removed stage-two PoC screen: "
+            + ", ".join(present_removed_terms)
         )
 
     stale_issuance_patterns = [
