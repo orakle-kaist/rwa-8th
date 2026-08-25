@@ -1,6 +1,6 @@
 {"source_id":"S001","topic":"foreign_omnibus","paraphrase":"해외 금융투자업자는 국내 증권사와 계약한 뒤 국내 상임대리인에 보관계좌를 열고 통합계좌로 여러 최종투자자의 주문과 결제를 처리한다. 고객별 기록과 배당배분 책임은 해외 기관에 남는다.","use":"route_selection_and_role_separation"}
-{"source_id":"S002","topic":"hana_emperor","paraphrase":"하나증권과 홍콩 Emperor증권의 계좌가 2025년 개설돼 최초 투자가 시작됐고 이후 해외 증권사의 통합계좌 개설 제한이 폐지됐다.","use":"omnibus_operational_evidence"}
-{"source_id":"S003","topic":"distributed_ledger_legal_register","paraphrase":"2027년 시행 예정인 개정 전자증권법은 기존 전자등록기관과 계좌관리기관의 분산원장 이용, 발행인계좌관리기관 등록, 분산원장과 연계장부의 결합을 허용한다. 일반 전자등록주식과 분산원장등록주식 사이의 전환에는 발행인의 신청과 해당 주식 권리자 전원의 동의가 필요하며, 증권시장 상장은 일반 전자등록주식으로 전환할 수 있는 별도 사유다.","use":"native_token_rail_roles_and_listed_equity_conversion_gate"}
+{"source_id":"S002","topic":"foreign_omnibus_market_status","paraphrase":"하나증권과 홍콩 Emperor증권의 계좌에서 최초 투자가 시작됐고 2026년 1월 통합계좌 개설주체 제한이 폐지됐다. 2026년 2월 기준 금융위는 1개사 운영과 7개사 준비를 설명했다.","use":"omnibus_operational_evidence_and_account_rule_reform"}
+{"source_id":"S003","topic":"distributed_ledger_legal_register","paraphrase":"2027년 시행 예정인 개정 전자증권법은 기존 전자등록기관과 계좌관리기관의 분산원장 이용, 발행인계좌관리기관 등록, 분산원장과 연계장부의 결합을 허용한다. 양 장부형태 사이 전환 사유로 전원 동의 신청과 상장 등을 열거하지만 공개 법문만으로 사유별 방향을 직접 배분하지 않는다.","use":"native_token_rail_roles_and_conversion_interpretation_gate"}
 {"source_id":"S004","topic":"token_form_and_securities_rules","paraphrase":"토큰증권은 새로운 규제 밖 자산군이 아니라 증권의 형식이므로 금융투자업 인가, 공시와 투자자 보호 규제가 적용된다.","use":"negative_regulation_boundary"}
 {"source_id":"S005","topic":"standard_securities_roadmap","paraphrase":"금융위 협의체는 기존 주식·채권·MMF의 토큰화와 온체인 결제를 일괄 전환이 아닌 단계별 테스트와 인프라 개선 과제로 다룬다.","use":"native_token_roadmap_caveat"}
 {"source_id":"S006","topic":"unified_ledger","paraphrase":"Project Hangang은 Besu·QBFT 기반 허가형 통합원장과 토큰화 예금을 실제 파일럿했다.","use":"reference_architecture"}
@@ -12,7 +12,7 @@
 {"source_id":"S015","topic":"dinari_transfer_agent","paraphrase":"Dinari Inc.의 SEC 이전대리인 연차공시가 EDGAR에 존재한다. 등록사실은 상품 승인을 뜻하지 않는다.","use":"dinari_role_separation"}
 {"source_id":"S016","topic":"dinari_broker_custody","paraphrase":"FINRA BrokerCheck는 Dinari Securities의 SEC·FINRA 등록과 Alpaca Securities 청산·수탁 소개관계를 확인한다.","use":"dinari_role_separation"}
 {"source_id":"S017","topic":"dinari_custodial_model","paraphrase":"Dinari는 dShares가 실제 주식에 1:1 대응하고 Alpaca에 수탁되며 배당·분할·환매를 처리한다고 설명한다.","use":"custodial_case_study"}
-{"source_id":"S018","topic":"dinari_mint_timing","paraphrase":"Dinari 공개 흐름은 브로커 주문 체결 완료 통지 후 dShare를 발행한다. 최종 증권결제 완료 여부는 문서에 명시되지 않는다.","use":"settlement_gate_comparison"}
+{"source_id":"S018","topic":"dinari_mint_timing","paraphrase":"Dinari 공개 흐름은 브로커 주문 체결 완료 통지 후 dShare를 발행한다. 최종 증권결제 완료 여부는 문서에 명시되지 않는다.","use":"post_fill_issuance_and_settlement_risk_split"}
 {"source_id":"S019","topic":"dinari_restrictions","paraphrase":"dShares 이전은 Regulation S, 미국인, 제한 국가와 적법한 이전요건에 영향을 받는다. 공개 페이지에는 모든 국제형 고객을 전문투자자로 한정하는 일반 조건이 표시되지 않는다.","use":"jurisdiction_policy_rationale"}
 {"source_id":"S020","topic":"dinari_dividends","paraphrase":"dShares 배당은 지정 시점 보유 외에도 등록 계정·지갑, 유효한 KYC와 최소 지급액 요건을 둔다.","use":"corporate_action_controls"}
 {"source_id":"S021","topic":"dinari_splits","paraphrase":"Dinari는 주식분할 때 거래를 중지하고 토큰·기초주식 수량 반영을 검증한 후 재개한다고 설명한다.","use":"future_corporate_actions"}
@@ -21,7 +21,7 @@
 {"source_id":"S024","topic":"foreign_direct_account_usage","paraphrase":"제도개편 후 2023년 12월 15일부터 2024년 6월 12일까지 LEI·여권번호 기반 외국인 계좌 1,432개가 실제 개설됐다.","use":"direct_route_baseline"}
 {"source_id":"S025","topic":"overseas_dr_structure","paraphrase":"해외 DR은 국내 원주를 원주관리기관에 보관하고 해외 예탁기관이 발행하며 원주 전환과 기업행동을 예탁기관 사슬로 처리한다.","use":"dr_comparison_and_legal_gate"}
 {"source_id":"S026","topic":"fund_indirect_exposure","paraphrase":"ETF는 거래소에서 주식처럼 거래되더라도 개별 주식이 아니라 지수를 추종하는 펀드다.","use":"direct_vs_indirect_exposure"}
-{"source_id":"S027","topic":"dinari_us_retail_accounts","paraphrase":"Dinari 미국 고객 가이드는 대부분 제공 자산을 등록 공개주식으로 설명하고 일부 사모와 미등록 자산만 적격투자자 확인을 요구한다. 완전공개 고객계좌, 공시 동의, 민원 전달, 전용 지갑과 비이전 토큰도 요구한다.","use":"retail_and_account_model"}
+{"source_id":"S027","topic":"dinari_us_retail_accounts","paraphrase":"Dinari 미국 고객 가이드는 대부분 제공 자산을 등록 공개주식으로 설명하고 일부 사모와 미등록 자산만 적격투자자 확인을 요구한다. 8월 출시 뒤 수정된 페이지에도 완전공개 고객계좌, 옴니버스 금지, 전용 지갑과 비이전 토큰 요건이 남아 있다.","use":"retail_account_model_and_post_launch_transfer_restrictions"}
 {"source_id":"S028","topic":"dinari_order_fulfillment","paraphrase":"Dinari v2 주문은 주문요청과 주문을 분리하고 부분체결, 미체결 환불과 여러 이행기록의 대사를 전제로 한다.","use":"order_lineage_and_partial_fills"}
 {"source_id":"S029","topic":"dinari_account_activity","paraphrase":"Dinari는 계좌별 브로커리지 활동 조회 인터페이스를 공개하지만 초기 개발단계이며 내부 운영화면을 보여주지는 않는다.","use":"operator_activity_view"}
 {"source_id":"S030","topic":"dinari_corporate_actions","paraphrase":"Dinari 공개 절차는 기업행동 공지와 실제 지급·수량 반영을 서로 다른 단계로 모니터링한다.","use":"corporate_action_state"}
@@ -31,7 +31,7 @@
 {"source_id":"S034","topic":"alpaca_activity_replication","paraphrase":"Alpaca 활동 스트림은 체결·정정·취소·배당 등 재무변경을 멱등 반영하고 재연결 지점을 유지하도록 안내한다.","use":"projection_and_recovery"}
 {"source_id":"S035","topic":"alpaca_eod_positions","paraphrase":"Alpaca는 계좌·자산별 일말 포지션 보고 인터페이스를 제공한다.","use":"three_book_reconciliation_view"}
 {"source_id":"S036","topic":"krx_trading_rules","paraphrase":"한국거래소 공식 가이드는 1주 거래단위, 시장세션, 주문유형과 정정·취소의 기본 규칙을 설명한다.","use":"investor_order_confirmation"}
-{"source_id":"S037","topic":"krx_tplus2_settlement","paraphrase":"한국거래소는 회원 주문의 체결통지 뒤 고객·회원 및 회원·거래소 사이 증권결제가 T+2에 이뤄진다고 설명한다.","use":"post_settlement_issuance_gate"}
+{"source_id":"S037","topic":"krx_tplus2_settlement","paraphrase":"한국거래소는 회원 주문의 체결통지 뒤 고객·회원 및 회원·거래소 사이 증권결제가 T+2에 이뤄진다고 설명한다.","use":"post_fill_settlement_tracking"}
 {"source_id":"S038","topic":"korea_fractional_structure","paraphrase":"국내주식 소수단위 거래 특례는 주문취합·온주 보충과 KSD 신탁·수익증권을 결합한 별도 권리구조다.","use":"whole_share_v1_scope"}
 {"source_id":"S039","topic":"us_tplus1_settlement","paraphrase":"미국의 대부분 브로커 거래는 2024년 5월 28일부터 T+1 표준결제를 적용한다.","use":"us_korea_settlement_comparison"}
 {"source_id":"S040","topic":"unauthorized_investment_business","paraphrase":"자본시장법은 금융투자업 인가 없이 증권 매매나 중개 등 금융투자업을 영위하는 것을 금지하고 인가 범위를 상품과 투자자 유형별로 구분한다.","use":"regulated_new_rail_boundary"}
@@ -42,3 +42,11 @@
 {"source_id":"U015","topic":"korean_ledger_design_input","paraphrase":"팀 설계 자료는 현행 전자등록계좌부와 토큰 장부의 법적 단절, 간접 수탁 권리 구조, 2027년 분산원장 계좌부 모델을 하나의 전환 경로로 제안한다.","use":"design_input_requires_official_verification"}
 {"source_id":"S045","topic":"current_electronic_securities_legal_effect","paraphrase":"현행 전자증권법은 전자등록계좌부에 기록된 자를 권리자로 추정하고 전자등록주식의 양도에 계좌 간 대체 전자등록을 요구한다.","use":"stage_one_legal_ledger_boundary"}
 {"source_id":"S046","topic":"shareholder_register_function","paraphrase":"상법 제337조는 주식 이전을 회사에 대해 주장하려면 주주명부 기재가 필요하다고 규정하며 명의개서대리인의 기록 효력을 두고 있다.","use":"legal_ledger_vs_shareholder_register"}
+{"source_id":"S048","topic":"dinari_international_rights_and_segregation","paraphrase":"국제 dShares 약관은 기초자산 취득 뒤 토큰을 인도하고 보유자에게 기초주식 소유권이나 의결권을 주지 않는다. 버뮤다 분리계정과 독립 분리계정 대표의 정리절차도 둔다.","use":"ownership_and_asset_segregation_axes"}
+{"source_id":"S049","topic":"dinari_us_self_custody_and_rights_claims","paraphrase":"Dinari의 2026년 8월 미국 발표는 자기보관 지갑의 USDC 거래와 기초증권 권리 및 의결권 보존을 표방하지만 dShares 자체의 SIPC 제외도 공시한다.","use":"us_international_rights_contrast_with_caveat"}
+{"source_id":"S052","topic":"dinari_flow_traders_live_announcement","paraphrase":"Dinari는 2026년 5월 Flow Traders가 유동성을 공급하는 일부 dShares의 24시간 거래 개시를 발표하고 100개 이상 확대는 향후 계획으로 제시했다.","use":"limited_live_secondary_market_reference"}
+{"source_id":"S060","topic":"dinari_24_7_asset_list","paraphrase":"Dinari 공식 24시간 거래 목록은 기준일 현재 9개 티커를 게시한다.","use":"limited_rollout_boundary"}
+{"source_id":"S061","topic":"dinari_dfn_flow_structure","paraphrase":"Dinari의 2025년 12월 발표는 DFN의 중앙지정가호가장부와 제휴 거래소 유동성 조정, Flow Traders의 전략적 마켓메이커 역할을 설명했다. 당시에는 미래형 출시 공지였다.","use":"post_poc_secondary_market_architecture"}
+{"source_id":"S062","topic":"samsung_ibkr_omnibus_launch","paraphrase":"연합뉴스는 삼성증권과 IBKR이 2026년 5월 외국인 통합계좌 서비스를 공식 출시했다고 보도했다.","use":"multi_partner_operational_status"}
+{"source_id":"S063","topic":"hana_futu_omnibus_launch","paraphrase":"뉴스웨이는 하나증권과 Futu의 통합계좌 서비스 개시 및 CITIC과 Wedbush 연계 추진을 보도했다.","use":"operating_and_planned_partner_distinction"}
+{"source_id":"S064","topic":"hana_capital_partners_expansion","paraphrase":"코리아타임스는 하나증권이 2026년 4월 일본 Capital Partners로 통합계좌 서비스를 확대했다고 보도했다.","use":"operating_partner_expansion"}

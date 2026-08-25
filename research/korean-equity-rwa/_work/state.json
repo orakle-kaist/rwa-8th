@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review the dual USD and USDC customer-funding paths, the distinction between the Korean legal omnibus balance and overseas final-investor allocations, the replaceable Circle reference, and the removal of the stage-two PoC screen. Record approve or revise before starting PoC goals and the PRD.",
-  "updated_at": "2026-08-25T14:27:30+09:00",
-  "iteration": 10
+  "next_action": "Review the post-launch Dinari US account and transfer restrictions, the international dShares ownership-versus-segregation analysis, the updated Korean omnibus market status, the limited 24/7 rollout and DFN roadmap, and the neutral treatment of statutory conversion directions. Record approve or revise before starting PoC goals and the PRD.",
+  "updated_at": "2026-08-25T15:18:51+09:00",
+  "iteration": 11
 }
