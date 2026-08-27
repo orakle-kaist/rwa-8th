@@ -13,8 +13,10 @@ if [[ ! -f "${research_validator}" ]]; then
   exit 1
 fi
 
-git -C "${repo_root}" diff --check
-git -C "${repo_root}" diff --cached --check
+# Team-provided source files are immutable and are verified by SHA-256 below.
+# Exclude them from whitespace normalization checks so validation never rewrites originals.
+git -C "${repo_root}" diff --check -- . ':(exclude)research/korean-equity-rwa/sources/user/**'
+git -C "${repo_root}" diff --cached --check -- . ':(exclude)research/korean-equity-rwa/sources/user/**'
 python3 "${repo_root}/scripts/validate_active_research.py"
 python3 "${research_validator}" "${research_topic}"
 python3 "${research_validator}" --candidate "${research_topic}"

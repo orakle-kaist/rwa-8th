@@ -57,7 +57,7 @@ def parse_structured_files(errors: list[str]) -> None:
 
 
 def validate_source_index(errors: list[str]) -> None:
-    expected_ids = {f"U{number:03d}" for number in range(1, 16)}
+    expected_ids = {f"U{number:03d}" for number in range(1, 17)}
     found_ids: set[str] = set()
 
     for line_number, line in enumerate(
@@ -286,6 +286,10 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "PoC 목표 승인일",
         "토큰 표준",
         "발행할 블록체인",
+        "토큰 플랫폼",
+        "인가 해외 증권사 파트너",
+        "고객 권리 기준장부",
+        "불통일 행사",
     ]
     missing_terms = [term for term in required_terms if term not in master]
     if missing_terms:
@@ -339,7 +343,7 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print("Active research workspace, links, metadata, master contract, and 15 source checksums passed.")
+    print("Active research workspace, links, metadata, master contract, and 16 source checksums passed.")
     return 0
 
 
