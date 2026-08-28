@@ -1,6 +1,6 @@
 {
   "stage": "awaiting_human_review",
-  "next_action": "Review and approve the platform-led, licensed-partner operating model and the dividend and voting approval flows. Then set validated baseline values, numeric success thresholds and sample sizes in PoC goals before deciding whether to proceed with a token PRD.",
-  "updated_at": "2026-08-28T02:14:18+09:00",
-  "iteration": 13
+  "next_action": "Review and approve the controlled 24/7 secondary-market objective. Then define the six representative assets, simulated market-maker inventory and quotes, price staleness, risk limits, halt rules, atomic recovery and hedge-queue acceptance tests in PoC goals.",
+  "updated_at": "2026-08-28T18:00:00+09:00",
+  "iteration": 14
 }

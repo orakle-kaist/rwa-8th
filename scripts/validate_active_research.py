@@ -230,6 +230,36 @@ def validate_workspace_contract(errors: list[str]) -> None:
             "PROJECT_DECISIONS.md still marks the overall PoC instrument universe as undecided"
         )
 
+    aligned_documents = [
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "PROJECT_WORKFLOW.md",
+        REPO_ROOT / "PROJECT_DECISIONS.md",
+        RESEARCH_ROOT / "brief.md",
+        RESEARCH_ROOT / "review" / "human_review.md",
+        RESEARCH_ROOT / "_work" / "report_template.md",
+    ]
+    required_24_7_terms = ["24/7", "지정 마켓메이커", "결제 완료 재고", "지정가"]
+    superseded_phrases = [
+        "24시간 거래는 PoC에서 제외",
+        "24시간 거래는 이번 PoC에 포함하지 않는다",
+        "비토큰 업무플랫폼 권고",
+        "제한된 RFQ만 지원",
+    ]
+    for path in aligned_documents:
+        text = path.read_text(encoding="utf-8")
+        missing = [term for term in required_24_7_terms if term not in text]
+        if missing:
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)} is not aligned to the 24/7 PoC contract: "
+                + ", ".join(missing)
+            )
+        stale = [phrase for phrase in superseded_phrases if phrase in text]
+        if stale:
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)} retains superseded PoC language: "
+                + ", ".join(stale)
+            )
+
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
     master_path = RESEARCH_ROOT / "drafts" / "final_candidate.md"
@@ -274,6 +304,14 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "고객 현금계좌",
         "적격 전환사업자",
         "지정 마켓메이커",
+        "24/7",
+        "결제 완료 재고",
+        "지정가",
+        "순포지션",
+        "손실한도",
+        "거래중지",
+        "헤지 대기열",
+        "국내 통합 보유총량",
         "발행인계좌관리기관",
         "연계장부",
         "최종투자자 직접 기록",
@@ -325,6 +363,21 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         if re.search(pattern, master):
             errors.append(
                 "final_candidate.md retains the superseded post-settlement issuance rule: "
+                + pattern
+            )
+
+    superseded_poc_patterns = [
+        r"24시간 거래는 이번 PoC에 포함하지 않는다",
+        r"24시간 거래 \| PoC에서 제외",
+        r"### 8\.3 토큰의 추가 가치를 검증하는 기준",
+        r"현재 비토큰 통합계좌.*기준선",
+        r"비토큰 업무플랫폼 권고",
+        r"판매 가능 판정을 통과한 고객 사이의 제한된 RFQ",
+    ]
+    for pattern in superseded_poc_patterns:
+        if re.search(pattern, master):
+            errors.append(
+                "final_candidate.md retains a superseded operational-efficiency or RFQ PoC rule: "
                 + pattern
             )
 
