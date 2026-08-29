@@ -1,6 +1,6 @@
 {
-  "stage": "awaiting_poc_goals_approval",
-  "next_action": "Review and approve POC_GOALS.md. Do not start the PRD until the six representative assets, synthetic control values, scenarios and success criteria are approved.",
+  "stage": "ready_for_prd",
+  "next_action": "Start stage three and draft the PRD from the approved master and POC_GOALS.md without choosing implementation technologies.",
   "updated_at": "2026-08-29T00:00:00+09:00",
-  "iteration": 15
+  "iteration": 16
 }

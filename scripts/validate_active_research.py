@@ -311,7 +311,7 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
             )
 
     required_terms = [
-        "승인 대기",
+        "팀 내부 승인 완료",
         "201개",
         "삼성전자",
         "SK하이닉스",
@@ -324,7 +324,11 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
         "0.50%",
         "1.50%",
         "결제 완료 재고",
-        "결제 대기 재고",
+        "1차시장 재고 보충 결제 대기분",
+        "새로운 T+2 결제 대기 상태를 만들지 않는다",
+        "오프아워 순포지션",
+        "합성 위험조정 신호",
+        "합성 위험 입력",
         "±20단위",
         "2%",
         "1.5%",
@@ -383,10 +387,6 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
                 f"{path.relative_to(REPO_ROOT)} hard-codes a stale KOSPI 200 count: "
                 + ", ".join(stale)
             )
-
-    if (REPO_ROOT / "PRD.md").exists():
-        errors.append("PRD.md must not be active before stage-two approval")
-
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
     master_path = RESEARCH_ROOT / "drafts" / "final_candidate.md"

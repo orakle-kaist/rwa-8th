@@ -8,7 +8,7 @@
 
 [final_candidate.md](research/korean-equity-rwa/drafts/final_candidate.md)가 승인된 **마스터이자 제품 원칙의 판단 기준**입니다. 다음 문서는 마스터의 근거와 남은 쟁점을 관리하는 보조자료입니다.
 
-- [PoC 목표와 성공 기준](POC_GOALS.md): 기준일, 대표 종목, 합성 통제값과 통과조건을 담은 2단계 승인 대기 문서
+- [PoC 목표와 성공 기준](POC_GOALS.md): 기준일, 대표 종목, 합성 통제값과 통과조건을 담은 승인된 2단계 문서
 - [리서치 브리프](research/korean-equity-rwa/brief.md): 조사 질문, 범위와 성공 기준
 - [공식 출처 정리](research/korean-equity-rwa/sources/web/official-sources.md): 공개 근거와 확인 기준일
 - [팀 제공 자료 인덱스](research/korean-equity-rwa/sources/notes/user-material-index.md): 원자료 위치, 체크섬과 반영 판단
@@ -45,7 +45,7 @@ research/korean-equity-rwa/
   _work/                    조사 과정과 검증 이력
 archive/pre-prd-v1/         마스터 승인 전에 만든 과거 설계의 참고용 보관소
 scripts/                    현재 문서와 연구 자료를 확인하는 검증기
-POC_GOALS.md                2단계 PoC 목표와 성공 기준 검토안
+POC_GOALS.md                승인된 2단계 PoC 목표와 성공 기준
 PROJECT_WORKFLOW.md         단계별 산출물과 승인 기준
 PROJECT_DECISIONS.md        확정된 제품 원칙과 후속 결정 항목
 ```
@@ -54,8 +54,8 @@ PROJECT_DECISIONS.md        확정된 제품 원칙과 후속 결정 항목
 
 ## 현재 상태
 
-- 현재 단계: 2단계 PoC 목표와 성공 기준 정리
-- 2단계 승인: 팀 검토 대기
+- 현재 단계: 3단계 제품 요구사항 문서 작성 준비
+- 2단계 승인: 2026-08-29 팀 내부 승인 완료
 - 리서치 사실 확인 기준일: 2026-08-28, 한국 시간
 - PoC 구현: 시작 전
 - 마스터 승인: 2026-08-29 팀 내부 승인 완료
