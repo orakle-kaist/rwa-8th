@@ -324,9 +324,13 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "PoC 목표 승인일",
         "토큰 표준",
         "발행할 블록체인",
+        "제휴 플랫폼",
         "토큰 플랫폼",
-        "인가 해외 증권사 파트너",
-        "고객 권리 기준장부",
+        "인가 해외 증권사",
+        "고객별 수탁권리 원장",
+        "토큰 1차시장",
+        "토큰 2차시장",
+        "LayerZero V2 OFT Burn&Mint",
         "불통일 행사",
     ]
     missing_terms = [term for term in required_terms if term not in master]
@@ -352,6 +356,18 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         errors.append(
             "final_candidate.md retains the removed stage-two PoC screen: "
             + ", ".join(present_removed_terms)
+        )
+
+    stale_role_terms = [
+        "인가 해외 증권사 파트너",
+        "인가 파트너",
+        "고객 권리 기준장부",
+    ]
+    present_stale_role_terms = [term for term in stale_role_terms if term in master]
+    if present_stale_role_terms:
+        errors.append(
+            "final_candidate.md retains ambiguous or superseded role terms: "
+            + ", ".join(present_stale_role_terms)
         )
 
     stale_issuance_patterns = [
