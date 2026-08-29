@@ -1,6 +1,6 @@
 {
-  "stage": "awaiting_human_review",
-  "next_action": "Review and approve the controlled 24/7 secondary-market objective. Then define the six representative assets, simulated market-maker inventory and quotes, price staleness, risk limits, halt rules, atomic recovery and hedge-queue acceptance tests in PoC goals.",
-  "updated_at": "2026-08-28T18:00:00+09:00",
-  "iteration": 14
+  "stage": "awaiting_poc_goals_approval",
+  "next_action": "Review and approve POC_GOALS.md. Do not start the PRD until the six representative assets, synthetic control values, scenarios and success criteria are approved.",
+  "updated_at": "2026-08-29T00:00:00+09:00",
+  "iteration": 15
 }

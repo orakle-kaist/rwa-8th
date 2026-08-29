@@ -7,6 +7,7 @@ import hashlib
 import json
 import re
 import sys
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -21,6 +22,8 @@ RESEARCH_ROOT = REPO_ROOT / "research" / "korean-equity-rwa"
 ARCHIVE_ROOT = REPO_ROOT / "archive" / "pre-prd-v1"
 SOURCE_ROOT = RESEARCH_ROOT / "sources" / "user"
 SOURCE_INDEX = RESEARCH_ROOT / "_work" / "source_index.jsonl"
+POC_GOALS = REPO_ROOT / "POC_GOALS.md"
+KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
 
@@ -112,6 +115,7 @@ def markdown_files() -> list[Path]:
         REPO_ROOT / "README.md",
         REPO_ROOT / "PROJECT_WORKFLOW.md",
         REPO_ROOT / "PROJECT_DECISIONS.md",
+        POC_GOALS,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -149,6 +153,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
     required_paths = [
         RESEARCH_ROOT / "brief.md",
         RESEARCH_ROOT / "drafts" / "final_candidate.md",
+        POC_GOALS,
+        KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
         RESEARCH_ROOT / "_work" / "config.yaml",
@@ -238,6 +244,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         REPO_ROOT / "README.md",
         REPO_ROOT / "PROJECT_WORKFLOW.md",
         REPO_ROOT / "PROJECT_DECISIONS.md",
+        POC_GOALS,
         RESEARCH_ROOT / "brief.md",
         RESEARCH_ROOT / "review" / "human_review.md",
         RESEARCH_ROOT / "_work" / "report_template.md",
@@ -263,6 +270,122 @@ def validate_workspace_contract(errors: list[str]) -> None:
                 f"{path.relative_to(REPO_ROOT)} retains superseded PoC language: "
                 + ", ".join(stale)
             )
+
+
+def validate_poc_goals_contract(errors: list[str]) -> None:
+    if not POC_GOALS.is_file() or not KOSPI_SNAPSHOT.is_file():
+        return  # validate_workspace_contract reports missing required files
+
+    poc_goals = POC_GOALS.read_text(encoding="utf-8")
+    snapshot = json.loads(KOSPI_SNAPSHOT.read_text(encoding="utf-8"))
+    constituents = snapshot.get("constituents", [])
+
+    if snapshot.get("as_of") != "2026-08-28":
+        errors.append("KOSPI 200 snapshot must use the approved 2026-08-28 date")
+    if snapshot.get("row_count") != 201 or len(constituents) != 201:
+        errors.append("KOSPI 200 snapshot must contain the approved 201 rows")
+
+    codes = [item.get("code") for item in constituents]
+    if len(set(codes)) != len(codes):
+        errors.append("KOSPI 200 snapshot contains duplicate security codes")
+
+    expected_securities = {
+        "005930": ("삼성전자", 257000),
+        "000660": ("SK하이닉스", 1653000),
+        "017670": ("SK텔레콤", 98600),
+        "005380": ("현대차", 399500),
+        "035420": ("NAVER", 220500),
+        "006800": ("미래에셋증권", 36150),
+        "000880": ("한화", 134900),
+        "0220W0": ("한화머시너리앤서비스홀딩스", 7440),
+    }
+    indexed = {
+        item.get("code"): (item.get("name"), item.get("close_krw"))
+        for item in constituents
+    }
+    for code, expected in expected_securities.items():
+        if indexed.get(code) != expected:
+            errors.append(
+                f"KOSPI 200 snapshot mismatch for {code}: "
+                f"expected {expected}, found {indexed.get(code)}"
+            )
+
+    required_terms = [
+        "승인 대기",
+        "201개",
+        "삼성전자",
+        "SK하이닉스",
+        "SK텔레콤",
+        "현대차",
+        "NAVER",
+        "미래에셋증권",
+        "1,380.3원",
+        "0.9950~1.0050",
+        "0.50%",
+        "1.50%",
+        "결제 완료 재고",
+        "결제 대기 재고",
+        "±20단위",
+        "2%",
+        "1.5%",
+        "30초",
+        "60초",
+        "실제 기준값",
+        "합성 시험값",
+        "국내 통합 보유총량",
+        "중간 실패",
+    ]
+    missing_terms = [term for term in required_terms if term not in poc_goals]
+    if missing_terms:
+        errors.append(
+            "POC_GOALS.md is missing approved stage-two terms: "
+            + ", ".join(missing_terms)
+        )
+
+    fx = Decimal("1380.3")
+    expected_usd_prices = {
+        "삼성전자": "$186.19",
+        "SK하이닉스": "$1,197.57",
+        "SK텔레콤": "$71.43",
+        "현대차": "$289.43",
+        "NAVER": "$159.75",
+        "미래에셋증권": "$26.19",
+    }
+    for code, (name, close_krw) in list(expected_securities.items())[:6]:
+        if name not in expected_usd_prices:
+            continue
+        calculated = (Decimal(close_krw) / fx).quantize(
+            Decimal("0.01"), rounding=ROUND_HALF_UP
+        )
+        formatted = f"${calculated:,.2f}"
+        if formatted != expected_usd_prices[name] or formatted not in poc_goals:
+            errors.append(
+                f"POC_GOALS.md USD reference price mismatch for {name}: {formatted}"
+            )
+
+    stale_fixed_count_phrases = [
+        "KOSPI 200 구성종목 200개",
+        "공식 구성종목 200개",
+        "200종목 모두",
+    ]
+    active_documents = [
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "PROJECT_DECISIONS.md",
+        RESEARCH_ROOT / "brief.md",
+        RESEARCH_ROOT / "drafts" / "final_candidate.md",
+        RESEARCH_ROOT / "review" / "human_review.md",
+    ]
+    for path in active_documents:
+        text = path.read_text(encoding="utf-8")
+        stale = [phrase for phrase in stale_fixed_count_phrases if phrase in text]
+        if stale:
+            errors.append(
+                f"{path.relative_to(REPO_ROOT)} hard-codes a stale KOSPI 200 count: "
+                + ", ".join(stale)
+            )
+
+    if (REPO_ROOT / "PRD.md").exists():
+        errors.append("PRD.md must not be active before stage-two approval")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -325,7 +448,7 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "기준 생애주기",
         "KOSPI 200",
         "대표 6종목",
-        "PoC 목표 승인일",
+        "기준일의 공식 KOSPI 200 구성종목 전체",
         "토큰 표준",
         "발행할 블록체인",
         "제휴 플랫폼",
@@ -408,6 +531,7 @@ def main() -> int:
     validate_source_index(errors)
     validate_markdown_links(errors)
     validate_workspace_contract(errors)
+    validate_poc_goals_contract(errors)
     validate_master_regulatory_contract(errors)
 
     if errors:
