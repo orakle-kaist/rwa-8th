@@ -178,8 +178,12 @@ def validate_workspace_contract(errors: list[str]) -> None:
             errors.append(f"retired path is still active: {path.relative_to(REPO_ROOT)}")
 
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-    if "final_candidate.md" not in readme or "유일한 마스터" not in readme:
-        errors.append("README must identify final_candidate.md as the sole current master")
+    if (
+        "final_candidate.md" not in readme
+        or "승인된" not in readme
+        or "마스터" not in readme
+    ):
+        errors.append("README must identify final_candidate.md as the approved master")
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
