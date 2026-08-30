@@ -1,6 +1,6 @@
 {
-  "stage": "ready_for_stage_five",
-  "next_action": "Start stage five screen flows, state transitions, and error rules from the approved stage-four documents.",
+  "stage": "awaiting_stage_five_approval",
+  "next_action": "Review and approve SCREEN_FLOWS.md, STATE_MODEL.md, and ERROR_AND_RECOVERY.md together before starting stage six.",
   "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 22
+  "iteration": 23
 }

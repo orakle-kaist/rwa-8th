@@ -27,6 +27,9 @@ POC_TEST_DATA = REPO_ROOT / "POC_TEST_DATA.md"
 PRD = REPO_ROOT / "PRD.md"
 INSTITUTION_WORKFLOWS = REPO_ROOT / "INSTITUTION_WORKFLOWS.md"
 REFERENCE_DATA = REPO_ROOT / "REFERENCE_DATA.md"
+SCREEN_FLOWS = REPO_ROOT / "SCREEN_FLOWS.md"
+STATE_MODEL = REPO_ROOT / "STATE_MODEL.md"
+ERROR_AND_RECOVERY = REPO_ROOT / "ERROR_AND_RECOVERY.md"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
@@ -124,6 +127,9 @@ def markdown_files() -> list[Path]:
         PRD,
         INSTITUTION_WORKFLOWS,
         REFERENCE_DATA,
+        SCREEN_FLOWS,
+        STATE_MODEL,
+        ERROR_AND_RECOVERY,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -166,6 +172,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         PRD,
         INSTITUTION_WORKFLOWS,
         REFERENCE_DATA,
+        SCREEN_FLOWS,
+        STATE_MODEL,
+        ERROR_AND_RECOVERY,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -210,6 +219,13 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "4단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme
     ):
         errors.append("README must identify both stage-four documents as approved")
+    if (
+        "SCREEN_FLOWS.md" not in readme
+        or "STATE_MODEL.md" not in readme
+        or "ERROR_AND_RECOVERY.md" not in readme
+        or "5단계 승인: 팀 내부 검토안, 승인 대기" not in readme
+    ):
+        errors.append("README must identify all three stage-five drafts and their pending approval")
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
@@ -633,6 +649,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_four",
         "awaiting_stage_four_approval",
         "ready_for_stage_five",
+        "awaiting_stage_five_approval",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
 
@@ -857,16 +874,372 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_five":
-        errors.append("active project state must be ready for stage five after stage-four approval")
-    if state.get("iteration") != 22:
-        errors.append("active project iteration must be 22 after stage-four approval")
+    if state.get("stage") not in {"ready_for_stage_five", "awaiting_stage_five_approval"}:
+        errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
+
+
+def validate_stage_five_contract(errors: list[str]) -> None:
+    stage_five_paths = [SCREEN_FLOWS, STATE_MODEL, ERROR_AND_RECOVERY]
+    if not all(path.is_file() for path in stage_five_paths):
+        return  # validate_workspace_contract reports missing required files
+
+    screens = SCREEN_FLOWS.read_text(encoding="utf-8")
+    states = STATE_MODEL.read_text(encoding="utf-8")
+    recovery = ERROR_AND_RECOVERY.read_text(encoding="utf-8")
+
+    forbidden_technology_choices = [
+        "ERC-20",
+        "ERC-3643",
+        "ERC-4626",
+        "LayerZero",
+        "OFT Burn&Mint",
+        "Avalanche",
+        "Solana",
+        "OpenAPI",
+        "AsyncAPI",
+    ]
+    superseded_terms = [
+        "고객 간 RFQ",
+        "결제 후 발행",
+        "결제완료 뒤 토큰 발행",
+        "T+2 결제 뒤 토큰 발행",
+    ]
+    for path, text in [
+        (SCREEN_FLOWS, screens),
+        (STATE_MODEL, states),
+        (ERROR_AND_RECOVERY, recovery),
+    ]:
+        if "·" in text:
+            errors.append(
+                f"{path.name}: use commas or natural conjunctions instead of middle-dot list separators"
+            )
+        opaque_terms = [term for term in ["RACI", "REQ-", "INV-", "DEC-"] if term in text]
+        if opaque_terms:
+            errors.append(
+                f"{path.name} uses opaque workflow identifiers: " + ", ".join(opaque_terms)
+            )
+        selected_technologies = [
+            term for term in forbidden_technology_choices if term in text
+        ]
+        if selected_technologies:
+            errors.append(
+                f"{path.name} selects technologies reserved for later stages: "
+                + ", ".join(selected_technologies)
+            )
+        stale = [term for term in superseded_terms if term in text]
+        if stale:
+            errors.append(
+                f"{path.name} revives superseded market or issuance behavior: "
+                + ", ".join(stale)
+            )
+
+    expected_screen_sections = [
+        "1. 이 문서가 정하는 것",
+        "2. 모든 화면의 공통 원칙",
+        "3. 전체 화면 이동 흐름",
+        "4. 투자자 앱 화면",
+        "5. 통합 기관 콘솔 공통 틀",
+        "6. 통합 기관 콘솔의 역할별 업무공간",
+        "7. 화면 사이의 공통 생애주기",
+        "8. 인수 시나리오와 화면 연결",
+        "9. 5단계 승인 기준",
+    ]
+    found_screen_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", screens, flags=re.MULTILINE)
+    ]
+    if found_screen_sections != expected_screen_sections:
+        errors.append(
+            "SCREEN_FLOWS.md numbered sections do not match stage five: "
+            f"found {found_screen_sections}"
+        )
+
+    required_screen_terms = [
+        "팀 내부 검토안, 승인 대기",
+        "투자자 앱",
+        "통합 기관 콘솔",
+        "역할 전환은 시연 편의를 위한 화면 전환",
+        "실제 담당자의 실행권한이나 승인권한을 바꾸지 않는다",
+        "고객확인 결과와 전용 지갑",
+        "KOSPI 200 상품목록",
+        "종목 상세와 주문 경로 선택",
+        "1차 발행 주문과 자금 확인",
+        "1차 발행 진행내역",
+        "보유권리와 수량 구분",
+        "24/7 지정가 주문",
+        "24/7 거래 진행내역",
+        "환매 요청과 진행내역",
+        "배당, 의결권과 기업행동",
+        "토큰 플랫폼 운영 업무공간",
+        "인가 해외 증권사 업무공간",
+        "국내 주문집행 업무공간",
+        "수탁은행과 상임대리인 업무공간",
+        "지정 시장조성자 업무공간",
+        "준법과 감사 업무공간",
+        "상품 등록과 기능판정",
+        "모의 기관연계",
+        "기준 기록",
+        "가능한 행동",
+        "금지된 행동",
+        "차단 사유",
+        "감사 증거",
+        "KSD와 자금 및 환전기관은 별도 화면이 아닌 모의 외부 응답",
+        "모든 상태를 하나 이상의 화면에서 확인할 수 있다",
+        "세 문서를 함께 승인하기 전에는 6단계",
+    ]
+    missing_screen_terms = [term for term in required_screen_terms if term not in screens]
+    if missing_screen_terms:
+        errors.append(
+            "SCREEN_FLOWS.md is missing required screens or responsibility boundaries: "
+            + ", ".join(missing_screen_terms)
+        )
+
+    investor_screen_headings = re.findall(
+        r"^### 4\.(?:[1-9]|10) .+$", screens, flags=re.MULTILINE
+    )
+    if len(investor_screen_headings) != 10:
+        errors.append(
+            "SCREEN_FLOWS.md must define ten investor screens: "
+            f"found {len(investor_screen_headings)}"
+        )
+    institution_workspace_headings = re.findall(
+        r"^### 6\.[1-7] .+$", screens, flags=re.MULTILINE
+    )
+    if len(institution_workspace_headings) != 7:
+        errors.append(
+            "SCREEN_FLOWS.md must define the overview and six role workspaces: "
+            f"found {len(institution_workspace_headings)}"
+        )
+    screen_approval_items = re.findall(r"^- \[ \] ", screens, flags=re.MULTILINE)
+    if len(screen_approval_items) != 8:
+        errors.append(
+            "SCREEN_FLOWS.md must have eight pending approval items: "
+            f"found {len(screen_approval_items)}"
+        )
+
+    expected_state_sections = [
+        "1. 이 문서가 정하는 것",
+        "2. 공통 전환 원칙",
+        "3. 고객 적격성과 계좌 및 지갑",
+        "4. 상품의 기능별 가능 상태",
+        "5. 1차 주문, 권리기입, 발행과 T+2",
+        "6. 24/7 호가, 자금과 2차거래",
+        "7. 시장조성자 재고, 순포지션과 헤지",
+        "8. 1차 환매, 권리종료, 소각과 USD 지급",
+        "9. 배당, 의결권, 기업행동과 월별 보고",
+        "10. 두 축 대사, 중지, 격리와 재개",
+        "11. 절대 허용하지 않는 전환과 수량 규칙",
+        "12. 상태와 화면 연결",
+        "13. 5단계 승인 기준",
+    ]
+    found_state_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", states, flags=re.MULTILINE)
+    ]
+    if found_state_sections != expected_state_sections:
+        errors.append(
+            "STATE_MODEL.md numbered sections do not match stage five: "
+            f"found {found_state_sections}"
+        )
+
+    required_state_terms = [
+        "팀 내부 검토안, 승인 대기",
+        "하나의 상태값으로 고객, 주문, 권리, 토큰, 자금, 결제와 수탁을 모두 표현하지 않는다",
+        "고객 적격성",
+        "계좌와 전용 지갑",
+        "상품의 기능별 가능 상태",
+        "고객 원주문과 국내 체결",
+        "권리기입과 토큰 발행",
+        "국내 결제와 수탁 확인",
+        "지정 시장조성자 호가",
+        "24/7 거래",
+        "자금경로",
+        "시장조성자 재고, 순포지션과 헤지",
+        "1차 환매, 권리종료, 소각과 USD 지급",
+        "현금배당",
+        "의결권",
+        "비현금 기업행동",
+        "월별 최종투자자 보고",
+        "두 축 대사, 중지, 격리와 재개",
+        "체결 후 미발행",
+        "국내 결제 대기",
+        "결제만 확인",
+        "수탁만 확인",
+        "거래 가능",
+        "소각 대기",
+        "24/7 USDC 이전의 기술 방식은 이 단계에서 정하지 않는다",
+        "위험한도 위반을 줄이는 요청",
+        "절대 허용하지 않는 전환과 수량 규칙",
+        "상태와 화면 연결",
+        "세 문서를 함께 승인하기 전에는 6단계",
+    ]
+    missing_state_terms = [term for term in required_state_terms if term not in states]
+    if missing_state_terms:
+        errors.append(
+            "STATE_MODEL.md is missing required state axes or invariants: "
+            + ", ".join(missing_state_terms)
+        )
+
+    state_table_headers = states.count(
+        "| 상태 | 진입 조건 | 다음 상태 | 실행과 승인 | 기준 기록 | 화면 | 허용과 금지 |"
+    )
+    if state_table_headers < 8:
+        errors.append(
+            "STATE_MODEL.md must map the major state axes to owners, records and screens: "
+            f"found {state_table_headers} full state tables"
+        )
+    state_rows_with_screen = re.findall(
+        r"^\| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$",
+        states,
+        flags=re.MULTILINE,
+    )
+    if len(state_rows_with_screen) < 60:
+        errors.append(
+            "STATE_MODEL.md must map every detailed state row to a visible screen: "
+            f"found {len(state_rows_with_screen)} rows"
+        )
+    state_approval_items = re.findall(r"^- \[ \] ", states, flags=re.MULTILINE)
+    if len(state_approval_items) != 8:
+        errors.append(
+            "STATE_MODEL.md must have eight pending approval items: "
+            f"found {len(state_approval_items)}"
+        )
+
+    expected_recovery_sections = [
+        "1. 이 문서가 정하는 것",
+        "2. 오류 처리의 공통 원칙",
+        "3. 영향범위와 중지 수준",
+        "4. 자동 처리와 사람 검토의 경계",
+        "5. 고객, 계좌와 상품 오류",
+        "6. 가격, 호가와 시장조성자 오류",
+        "7. 1차 발행과 T+2 오류",
+        "8. 24/7 거래와 자금 오류",
+        "9. 환매와 권리업무 오류",
+        "10. 비현금 기업행동과 기준정보 정정",
+        "11. 두 축 대사 불일치와 복구 순서",
+        "12. 재개 승인 규칙",
+        "13. 인수 시나리오와 오류 규칙 연결",
+        "14. 5단계 승인 기준",
+    ]
+    found_recovery_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", recovery, flags=re.MULTILINE)
+    ]
+    if found_recovery_sections != expected_recovery_sections:
+        errors.append(
+            "ERROR_AND_RECOVERY.md numbered sections do not match stage five: "
+            f"found {found_recovery_sections}"
+        )
+
+    required_recovery_terms = [
+        "팀 내부 검토안, 승인 대기",
+        "가능한 가장 좁은 범위만 차단",
+        "고객 요청 하나",
+        "고객 하나",
+        "자금경로 하나",
+        "종목 하나",
+        "시장조성자 방향 하나",
+        "업무 종류",
+        "전체 시스템",
+        "자동으로 처리할 수 있는 경우",
+        "사람 검토가 필요한 경우",
+        "기준 기록이 하나라도 확정된 뒤",
+        "고객확인 만료",
+        "USDC 경로만 중지",
+        "호가 만료",
+        "위험을 늘리는 방향의 새 호가",
+        "권리기입 승인 누락",
+        "T+2 위험 승인 누락",
+        "결제응답만 확인",
+        "수탁응답만 확인",
+        "같은 주문 재전송",
+        "시스템 재시작",
+        "환매와 권리업무 오류",
+        "비현금 기업행동과 기준정보 정정",
+        "두 축 대사 불일치와 복구 순서",
+        "독립된 준법 또는 감사 담당",
+        "세 문서를 함께 승인하기 전에는 6단계",
+    ]
+    missing_recovery_terms = [
+        term for term in required_recovery_terms if term not in recovery
+    ]
+    if missing_recovery_terms:
+        errors.append(
+            "ERROR_AND_RECOVERY.md is missing required scope or recovery rules: "
+            + ", ".join(missing_recovery_terms)
+        )
+
+    full_error_header = (
+        "| 상황 | 영향범위 | 고객 안내 | 자동조치 | 사람 책임자 | 필요한 증거 | 재개조건 |"
+    )
+    if recovery.count(full_error_header) != 5:
+        errors.append(
+            "ERROR_AND_RECOVERY.md must define complete handling for five error groups: "
+            f"found {recovery.count(full_error_header)}"
+        )
+    full_error_rows = re.findall(
+        r"^\| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$",
+        recovery,
+        flags=re.MULTILINE,
+    )
+    if len(full_error_rows) < 40:
+        errors.append(
+            "ERROR_AND_RECOVERY.md must give scope, action, owner, evidence and resume conditions for each error: "
+            f"found {len(full_error_rows)} complete rows"
+        )
+    recovery_approval_items = re.findall(r"^- \[ \] ", recovery, flags=re.MULTILINE)
+    if len(recovery_approval_items) != 8:
+        errors.append(
+            "ERROR_AND_RECOVERY.md must have eight pending approval items: "
+            f"found {len(recovery_approval_items)}"
+        )
+
+    lifecycle_terms = [
+        "고객확인",
+        "지갑",
+        "상품",
+        "1차 발행",
+        "T+2",
+        "24/7",
+        "시장조성자",
+        "환매",
+        "USD",
+        "USDC",
+        "배당",
+        "의결권",
+        "월별 보고",
+        "두 축 대사",
+        "중복",
+        "재개",
+        "감사",
+    ]
+    for term in lifecycle_terms:
+        missing_from = [
+            path.name
+            for path, text in [
+                (SCREEN_FLOWS, screens),
+                (STATE_MODEL, states),
+                (ERROR_AND_RECOVERY, recovery),
+            ]
+            if term not in text
+        ]
+        if missing_from:
+            errors.append(
+                f"stage-five traceability term {term} is missing from: "
+                + ", ".join(missing_from)
+            )
+
+    state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
+    if state.get("stage") != "awaiting_stage_five_approval":
+        errors.append("active project state must await approval of all three stage-five drafts")
+    if state.get("iteration") != 23:
+        errors.append("active project iteration must be 23 for the stage-five review draft")
     expected_next_action = (
-        "Start stage five screen flows, state transitions, and error rules from the "
-        "approved stage-four documents."
+        "Review and approve SCREEN_FLOWS.md, STATE_MODEL.md, and "
+        "ERROR_AND_RECOVERY.md together before starting stage six."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must start stage five from both approved documents")
+        errors.append("active project next action must block stage six until all three drafts are approved")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -1018,6 +1391,7 @@ def main() -> int:
     validate_poc_goals_contract(errors)
     validate_prd_contract(errors)
     validate_stage_four_contract(errors)
+    validate_stage_five_contract(errors)
     validate_master_regulatory_contract(errors)
 
     if errors:
@@ -1027,7 +1401,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD and stage-four contracts, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four and stage-five contracts, "
         "and 16 source checksums passed."
     )
     return 0
