@@ -513,6 +513,25 @@ def validate_prd_contract(errors: list[str]) -> None:
             + ", ".join(missing_terms)
         )
 
+    custody_review_terms = [
+        "체결 후 미발행",
+        "국내 결제완료 응답과 수탁수량 반영 응답",
+        "위험한도 회복",
+        "권리와 토큰 축",
+        "국내 수탁 축",
+        "체결, 권리, 위험 승인과 토큰 실행",
+        "동일한 기관 증거 또는 승인 재사용",
+        "환매대금 결제 후 소각 대기",
+        "배당락 기준",
+        "원자적 처리",
+    ]
+    missing_custody_terms = [term for term in custody_review_terms if term not in prd]
+    if missing_custody_terms:
+        errors.append(
+            "PRD.md is missing approved custody review refinements: "
+            + ", ".join(missing_custody_terms)
+        )
+
     requirement_families = {
         "고객확인": 4,
         "상품목록": 3,
@@ -560,6 +579,20 @@ def validate_prd_contract(errors: list[str]) -> None:
 
     if "REQ-" in prd or re.search(r"(?<![A-Za-z])[A-Z]{3}-\d{2}(?!\d)", prd):
         errors.append("PRD.md must use readable Korean requirement identifiers, not opaque English codes")
+
+    imported_draft_details = [
+        "OnchainID",
+        "MockRightsLedger",
+        "RFQCoordinator",
+        "INV-C",
+        "DEC-CUST",
+    ]
+    found_imported_details = [term for term in imported_draft_details if term in prd]
+    if found_imported_details:
+        errors.append(
+            "PRD.md imports implementation details from the unapproved custody draft: "
+            + ", ".join(found_imported_details)
+        )
 
     forbidden_technology_choices = [
         "ERC-20",
