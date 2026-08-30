@@ -1,6 +1,6 @@
 {
-  "stage": "awaiting_stage_seven_approval",
-  "next_action": "Review and approve the stage-seven common data, API, event, and machine-readable contracts before starting stage eight.",
+  "stage": "ready_for_stage_eight",
+  "next_action": "Start stage eight smart-contract design from the approved stage-one-to-seven documents and machine-readable contracts.",
   "updated_at": "2026-08-31T00:00:00+09:00",
-  "iteration": 29
+  "iteration": 30
 }

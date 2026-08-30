@@ -288,9 +288,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "7단계 검토 대기" not in readme
+        or "7단계 승인 완료, 8단계 스마트컨트랙트 설계 착수 가능" not in readme
     ):
-        errors.append("README must identify PRD.md and the stage-seven review status")
+        errors.append("README must identify PRD.md and the approved stage-seven status")
     if (
         "docs/04-institution-design/INSTITUTION_WORKFLOWS.md" not in readme
         or "docs/04-institution-design/REFERENCE_DATA.md" not in readme
@@ -313,10 +313,10 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "docs/07-data-api-events/DATA_MODEL.md" not in readme
         or "docs/07-data-api-events/API_CONTRACTS.md" not in readme
         or "docs/07-data-api-events/EVENT_CONTRACTS.md" not in readme
-        or "7단계 검토 대기" not in readme
+        or "7단계 세 문서와 기계 명세" not in readme
         or "8단계" not in readme
     ):
-        errors.append("README must identify all stage-seven review documents and block stage eight")
+        errors.append("README must identify approved stage-seven documents and stage-eight readiness")
     if "실제 PoC 코드 구현: **10단계**" not in readme:
         errors.append("README must distinguish stage-six design from stage-ten implementation")
 
@@ -792,6 +792,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "awaiting_stage_six_approval",
         "ready_for_stage_seven",
         "awaiting_stage_seven_approval",
+        "ready_for_stage_eight",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1023,6 +1024,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "awaiting_stage_six_approval",
         "ready_for_stage_seven",
         "awaiting_stage_seven_approval",
+        "ready_for_stage_eight",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1385,6 +1387,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "awaiting_stage_six_approval",
         "ready_for_stage_seven",
         "awaiting_stage_seven_approval",
+        "ready_for_stage_eight",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1617,7 +1620,9 @@ def validate_stage_six_contract(errors: list[str]) -> None:
             errors.append(f"DECISIONS.md is missing stage-six decision: {term}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") not in {"ready_for_stage_seven", "awaiting_stage_seven_approval"}:
+    if state.get("stage") not in {
+        "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight"
+    }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
         errors.append("active project iteration must preserve stage-six approval history")
@@ -1630,16 +1635,16 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
 
     documents = {path.name: path.read_text(encoding="utf-8") for path in stage_seven_paths}
     for path, content in [(path, documents[path.name]) for path in stage_seven_paths]:
-        if "상태: **7단계 검토 대기**" not in content:
-            errors.append(f"{path.name} must be marked as awaiting stage-seven review")
+        if "상태: **7단계 팀 내부 승인 완료**" not in content:
+            errors.append(f"{path.name} must be marked as approved at stage seven")
         if "·" in content:
             errors.append(f"{path.name}: use natural conjunctions instead of middle-dot separators")
         opaque_terms = [term for term in ["REQ-", "INV-", "DEC-"] if term in content]
         if opaque_terms:
             errors.append(f"{path.name} uses opaque identifiers: " + ", ".join(opaque_terms))
-        pending_items = re.findall(r"^- \[ \] ", content, flags=re.MULTILINE)
-        if len(pending_items) < 6:
-            errors.append(f"{path.name} must keep at least six stage-seven approval checks pending")
+        approved_items = re.findall(r"^- \[x\] ", content, flags=re.MULTILINE)
+        if len(approved_items) < 6:
+            errors.append(f"{path.name} must record at least six approved stage-seven checks")
 
     required_terms = {
         "DATA_MODEL.md": [
@@ -1904,33 +1909,27 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
     if found_forbidden:
         errors.append("stage-seven contracts revive retired assumptions: " + ", ".join(found_forbidden))
 
-    if (DOCS_ROOT / "08-smart-contract-design").exists():
-        errors.append("stage eight must not start before stage-seven approval")
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     workflow = WORKFLOW.read_text(encoding="utf-8")
     decisions = DECISIONS.read_text(encoding="utf-8")
     for label, content in [("README", readme), ("WORKFLOW", workflow)]:
-        if (
-            "7단계 검토 대기" not in content
-            or "8단계" not in content
-            or not any(term in content for term in ["보류", "시작하지 않는다"])
-        ):
-            errors.append(f"{label} must record stage-seven review and block stage eight")
-    for term in ["공통 데이터 형식", "API 처리", "이벤트 전달", "기계 명세", "팀 검토 대기"]:
+        if "7단계" not in content or "승인" not in content or "8단계" not in content:
+            errors.append(f"{label} must record stage-seven approval and stage-eight readiness")
+    for term in ["공통 데이터 형식", "API 처리", "이벤트 전달", "기계 명세", "팀 결정 완료"]:
         if term not in decisions:
             errors.append(f"DECISIONS.md is missing stage-seven draft decision: {term}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "awaiting_stage_seven_approval":
-        errors.append("active project state must await stage-seven approval")
-    if state.get("iteration") != 29:
-        errors.append("active project iteration must be 29 for the stage-seven draft")
+    if state.get("stage") != "ready_for_stage_eight":
+        errors.append("active project state must be ready for stage eight after stage-seven approval")
+    if state.get("iteration") != 30:
+        errors.append("active project iteration must be 30 after stage-seven approval")
     expected_next_action = (
-        "Review and approve the stage-seven common data, API, event, and machine-readable contracts "
-        "before starting stage eight."
+        "Start stage eight smart-contract design from the approved stage-one-to-seven documents "
+        "and machine-readable contracts."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must review stage seven before stage eight")
+        errors.append("active project next action must start stage-eight smart-contract design")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
