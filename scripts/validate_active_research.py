@@ -318,7 +318,7 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
             )
 
     required_goal_terms = [
-        "재검토안, 승인 대기",
+        "팀 내부 승인 완료",
         "POC_TEST_DATA.md",
         "1차 발행",
         "24/7 토큰 2차거래",
@@ -358,7 +358,7 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
         )
 
     required_test_terms = [
-        "2단계 재검토용 시험자료",
+        "2단계 승인 시험자료",
         "201개",
         "삼성전자",
         "SK하이닉스",

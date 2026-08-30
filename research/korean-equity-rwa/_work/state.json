@@ -1,6 +1,6 @@
 {
-  "stage": "awaiting_revised_poc_goals_approval",
-  "next_action": "Review and approve the revised end-to-end primary issuance, 24/7 secondary trading, market-maker hedge and primary redemption lifecycle plus POC_TEST_DATA.md before starting the PRD.",
+  "stage": "ready_for_prd",
+  "next_action": "Start stage three and draft the PRD from the approved master, POC_GOALS.md and POC_TEST_DATA.md without choosing implementation technologies.",
   "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 17
+  "iteration": 18
 }
