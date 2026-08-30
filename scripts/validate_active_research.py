@@ -207,9 +207,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
     if (
         "INSTITUTION_WORKFLOWS.md" not in readme
         or "REFERENCE_DATA.md" not in readme
-        or "4단계 승인: 팀 내부 검토안, 승인 대기" not in readme
+        or "4단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme
     ):
-        errors.append("README must identify both stage-four drafts and their pending approval")
+        errors.append("README must identify both stage-four documents as approved")
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
@@ -629,8 +629,12 @@ def validate_prd_contract(errors: list[str]) -> None:
         errors.append(f"PRD.md must record eight approved checklist items: found {len(approval_items)}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") not in {"ready_for_stage_four", "awaiting_stage_four_approval"}:
-        errors.append("active project state must be ready for or reviewing stage four after PRD approval")
+    if state.get("stage") not in {
+        "ready_for_stage_four",
+        "awaiting_stage_four_approval",
+        "ready_for_stage_five",
+    }:
+        errors.append("active project state must be at or beyond stage-four review after PRD approval")
 
 
 def validate_stage_four_contract(errors: list[str]) -> None:
@@ -696,7 +700,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         )
 
     required_workflow_terms = [
-        "팀 내부 검토안, 승인 대기",
+        "팀 내부 승인 완료",
         "투자자",
         "토큰 플랫폼",
         "인가 해외 증권사",
@@ -731,7 +735,8 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "보정",
         "사람 승인",
         "같은 증거와 승인을 발행, 이전, 소각 또는 지급에 두 번 사용할 수 없어야 한다",
-        "5단계 화면, 상태와 오류 규칙 설계를 시작하지 않는다",
+        "5단계 화면, 상태와 오류 규칙 설계를 시작할 수 있다",
+        "승인일은 2026년 8월 30일",
     ]
     missing_workflow_terms = [
         term for term in required_workflow_terms if term not in workflows
@@ -751,10 +756,10 @@ def validate_stage_four_contract(errors: list[str]) -> None:
             f"found {workflows.count(handoff_header)}"
         )
 
-    workflow_approval_items = re.findall(r"^- \[ \] ", workflows, flags=re.MULTILINE)
+    workflow_approval_items = re.findall(r"^- \[x\] ", workflows, flags=re.MULTILINE)
     if len(workflow_approval_items) != 8:
         errors.append(
-            "INSTITUTION_WORKFLOWS.md must have eight pending approval items: "
+            "INSTITUTION_WORKFLOWS.md must have eight approved checklist items: "
             f"found {len(workflow_approval_items)}"
         )
 
@@ -782,7 +787,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         )
 
     required_reference_terms = [
-        "팀 내부 검토안, 승인 대기",
+        "팀 내부 승인 완료",
         "2026년 8월 28일 KRX KOSPI 200 스냅샷",
         "서로 다른 종목코드 201개",
         "KRX 종목코드",
@@ -818,7 +823,8 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "실제 상품 활성화 데이터로 사용하지 않는다",
         "기존 기록을 덮어쓰지 않는다",
         "마지막 종가, 거래대금, USD/KRW, USDC/USD",
-        "5단계 화면, 상태와 오류 규칙 설계를 시작하지 않는다",
+        "5단계 화면, 상태와 오류 규칙 설계를 시작할 수 있다",
+        "승인일은 2026년 8월 30일",
     ]
     missing_reference_terms = [
         term for term in required_reference_terms if term not in reference
@@ -843,24 +849,24 @@ def validate_stage_four_contract(errors: list[str]) -> None:
                 f"REFERENCE_DATA.md is missing representative security {code} {name}"
             )
 
-    reference_approval_items = re.findall(r"^- \[ \] ", reference, flags=re.MULTILINE)
+    reference_approval_items = re.findall(r"^- \[x\] ", reference, flags=re.MULTILINE)
     if len(reference_approval_items) != 8:
         errors.append(
-            "REFERENCE_DATA.md must have eight pending approval items: "
+            "REFERENCE_DATA.md must have eight approved checklist items: "
             f"found {len(reference_approval_items)}"
         )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "awaiting_stage_four_approval":
-        errors.append("active project state must await approval of both stage-four drafts")
-    if state.get("iteration") != 21:
-        errors.append("active project iteration must be 21 for the stage-four review draft")
+    if state.get("stage") != "ready_for_stage_five":
+        errors.append("active project state must be ready for stage five after stage-four approval")
+    if state.get("iteration") != 22:
+        errors.append("active project iteration must be 22 after stage-four approval")
     expected_next_action = (
-        "Review and approve INSTITUTION_WORKFLOWS.md and REFERENCE_DATA.md together "
-        "before starting stage five."
+        "Start stage five screen flows, state transitions, and error rules from the "
+        "approved stage-four documents."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must block stage five until both drafts are approved")
+        errors.append("active project next action must start stage five from both approved documents")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:

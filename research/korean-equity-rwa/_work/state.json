@@ -1,6 +1,6 @@
 {
-  "stage": "awaiting_stage_four_approval",
-  "next_action": "Review and approve INSTITUTION_WORKFLOWS.md and REFERENCE_DATA.md together before starting stage five.",
+  "stage": "ready_for_stage_five",
+  "next_action": "Start stage five screen flows, state transitions, and error rules from the approved stage-four documents.",
   "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 21
+  "iteration": 22
 }
