@@ -23,6 +23,7 @@ ARCHIVE_ROOT = REPO_ROOT / "archive" / "pre-prd-v1"
 SOURCE_ROOT = RESEARCH_ROOT / "sources" / "user"
 SOURCE_INDEX = RESEARCH_ROOT / "_work" / "source_index.jsonl"
 POC_GOALS = REPO_ROOT / "POC_GOALS.md"
+POC_TEST_DATA = REPO_ROOT / "POC_TEST_DATA.md"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
@@ -116,6 +117,7 @@ def markdown_files() -> list[Path]:
         REPO_ROOT / "PROJECT_WORKFLOW.md",
         REPO_ROOT / "PROJECT_DECISIONS.md",
         POC_GOALS,
+        POC_TEST_DATA,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -154,6 +156,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         RESEARCH_ROOT / "brief.md",
         RESEARCH_ROOT / "drafts" / "final_candidate.md",
         POC_GOALS,
+        POC_TEST_DATA,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -255,6 +258,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "24시간 거래는 이번 PoC에 포함하지 않는다",
         "비토큰 업무플랫폼 권고",
         "제한된 RFQ만 지원",
+        "요청 접수와 헤지 대기만",
+        "요청, 잠금 또는 헤지 대기만",
+        "요청 접수, 권리 잠금 또는 헤지 대기만",
     ]
     for path in aligned_documents:
         text = path.read_text(encoding="utf-8")
@@ -273,10 +279,11 @@ def validate_workspace_contract(errors: list[str]) -> None:
 
 
 def validate_poc_goals_contract(errors: list[str]) -> None:
-    if not POC_GOALS.is_file() or not KOSPI_SNAPSHOT.is_file():
+    if not POC_GOALS.is_file() or not POC_TEST_DATA.is_file() or not KOSPI_SNAPSHOT.is_file():
         return  # validate_workspace_contract reports missing required files
 
     poc_goals = POC_GOALS.read_text(encoding="utf-8")
+    test_data = POC_TEST_DATA.read_text(encoding="utf-8")
     snapshot = json.loads(KOSPI_SNAPSHOT.read_text(encoding="utf-8"))
     constituents = snapshot.get("constituents", [])
 
@@ -310,8 +317,48 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
                 f"expected {expected}, found {indexed.get(code)}"
             )
 
-    required_terms = [
-        "팀 내부 승인 완료",
+    required_goal_terms = [
+        "재검토안, 승인 대기",
+        "POC_TEST_DATA.md",
+        "1차 발행",
+        "24/7 토큰 2차거래",
+        "MM 헤지와 재고조정",
+        "1차 발행용 기초주식 매수",
+        "1차 환매용 기초주식 매도",
+        "1차 환매",
+        "투자자",
+        "토큰 플랫폼",
+        "인가 해외 증권사",
+        "국내 주문집행 증권사",
+        "수탁은행·상임대리인",
+        "KSD",
+        "지정 마켓메이커",
+        "모의 자금·환전 사업자",
+        "종목별로 취합",
+        "비례해 배분",
+        "주문 접수시각",
+        "T+2 결제차이 위험",
+        "국내 결제 대기",
+        "결제완료·거래 가능",
+        "권리종료",
+        "토큰 플랫폼이 같은 수량을 소각",
+        "고객 USD 현금계좌",
+        "USDC 재전환",
+        "수량과 처리 원칙",
+        "전체 발행토큰수량",
+        "같은 요청번호",
+        "시스템 재시작",
+        "한 번만 최종 반영",
+    ]
+    missing_goal_terms = [term for term in required_goal_terms if term not in poc_goals]
+    if missing_goal_terms:
+        errors.append(
+            "POC_GOALS.md is missing the revised end-to-end market contract: "
+            + ", ".join(missing_goal_terms)
+        )
+
+    required_test_terms = [
+        "2단계 재검토용 시험자료",
         "201개",
         "삼성전자",
         "SK하이닉스",
@@ -323,10 +370,9 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
         "0.9950~1.0050",
         "0.50%",
         "1.50%",
-        "결제 완료 재고",
-        "1차시장 재고 보충 결제 대기분",
-        "새로운 T+2 결제 대기 상태를 만들지 않는다",
-        "오프아워 순포지션",
+        "1차시장 재고 보충 결제대기분",
+        "순포지션",
+        "MM이 투자자로부터 매수한 결제완료 수량",
         "합성 위험조정 신호",
         "합성 위험 입력",
         "±20단위",
@@ -336,14 +382,15 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
         "60초",
         "실제 기준값",
         "합성 시험값",
-        "국내 통합 보유총량",
-        "중간 실패",
+        "비례배분",
+        "A 4단위, B 2단위",
+        "시스템을 재시작",
     ]
-    missing_terms = [term for term in required_terms if term not in poc_goals]
-    if missing_terms:
+    missing_test_terms = [term for term in required_test_terms if term not in test_data]
+    if missing_test_terms:
         errors.append(
-            "POC_GOALS.md is missing approved stage-two terms: "
-            + ", ".join(missing_terms)
+            "POC_TEST_DATA.md is missing the reproducible test fixtures: "
+            + ", ".join(missing_test_terms)
         )
 
     fx = Decimal("1380.3")
@@ -362,9 +409,9 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
         formatted = f"${calculated:,.2f}"
-        if formatted != expected_usd_prices[name] or formatted not in poc_goals:
+        if formatted != expected_usd_prices[name] or formatted not in test_data:
             errors.append(
-                f"POC_GOALS.md USD reference price mismatch for {name}: {formatted}"
+                f"POC_TEST_DATA.md USD reference price mismatch for {name}: {formatted}"
             )
 
     stale_fixed_count_phrases = [
@@ -457,6 +504,9 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         "고객별 수탁권리 원장",
         "토큰 1차시장",
         "토큰 2차시장",
+        "비례배분",
+        "USD 지급",
+        "시스템을 재시작",
         "LayerZero V2 OFT Burn&Mint",
         "불통일 행사",
     ]
