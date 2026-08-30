@@ -1,0 +1,847 @@
+{
+  "$schema": "./schemas/state-catalog.schema.json",
+  "catalogVersion": "1.0.0",
+  "source": "../../05-screens-states-recovery/STATE_MODEL.md",
+  "entries": [
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "code": "ELIGIBILITY_PENDING",
+      "labelKo": "판정 대기"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "code": "ELIGIBLE",
+      "labelKo": "판매 허용"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "code": "INELIGIBLE",
+      "labelKo": "판매 거절"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "code": "ELIGIBILITY_EXPIRED",
+      "labelKo": "판정 만료"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "code": "ELIGIBILITY_SUSPENDED",
+      "labelKo": "일시중지"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "PROTECTION_REVIEW_PENDING",
+      "labelKo": "보호판정 대기"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "PROTECTION_PASSED",
+      "labelKo": "보호판정 통과"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "PROTECTION_FAILED",
+      "labelKo": "보호판정 실패"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "PROTECTION_EXPIRED",
+      "labelKo": "보호판정 만료"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "DISCLOSURE_CONSENT_PENDING",
+      "labelKo": "위험공시 동의 대기"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "DISCLOSURE_CONSENT_VALID",
+      "labelKo": "동의 유효"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "DISCLOSURE_CONSENT_MISSING",
+      "labelKo": "동의 누락"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "code": "DISCLOSURE_CONSENT_EXPIRED",
+      "labelKo": "동의 만료"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "code": "WALLET_UNLINKED",
+      "labelKo": "지갑 미연결"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "code": "WALLET_LINK_APPROVAL_PENDING",
+      "labelKo": "연결 승인 대기"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "code": "WALLET_LINKED",
+      "labelKo": "연결 완료"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "code": "WALLET_REPLACEMENT_REVIEW",
+      "labelKo": "교체 검토"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "code": "WALLET_FROZEN",
+      "labelKo": "지갑 동결"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "code": "PRODUCT_CANDIDATE",
+      "labelKo": "후보"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "code": "PRODUCT_REVIEWED",
+      "labelKo": "검토 완료"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "code": "PRODUCT_INFORMATION_UNCONFIRMED",
+      "labelKo": "정보 미확인"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "code": "MATERIAL_EVENT_REVIEW",
+      "labelKo": "중요사건 검토"
+    },
+    {
+      "axis": "PRIMARY_AVAILABILITY",
+      "code": "PRIMARY_ENABLED",
+      "labelKo": "발행 허용"
+    },
+    {
+      "axis": "PRIMARY_AVAILABILITY",
+      "code": "PRIMARY_DISABLED",
+      "labelKo": "발행 중지"
+    },
+    {
+      "axis": "SECONDARY_AVAILABILITY",
+      "code": "SECONDARY_ENABLED",
+      "labelKo": "24/7 허용"
+    },
+    {
+      "axis": "SECONDARY_AVAILABILITY",
+      "code": "SECONDARY_DISABLED",
+      "labelKo": "24/7 중지"
+    },
+    {
+      "axis": "REDEMPTION_AVAILABILITY",
+      "code": "REDEMPTION_ENABLED",
+      "labelKo": "환매 허용"
+    },
+    {
+      "axis": "REDEMPTION_AVAILABILITY",
+      "code": "REDEMPTION_RESTRICTED",
+      "labelKo": "환매 제한"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_DRAFT",
+      "labelKo": "주문 작성"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_FUNDS_CHECK",
+      "labelKo": "자금 확인"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_FUNDS_CHECK_FAILED",
+      "labelKo": "자금 확인 실패"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_AGGREGATION_PENDING",
+      "labelKo": "취합 대기"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_KRX_OPEN_PENDING",
+      "labelKo": "KRX 개장 대기"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_SUBMITTED_DOMESTICALLY",
+      "labelKo": "국내 제출"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_UNFILLED",
+      "labelKo": "미체결"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_PARTIALLY_FILLED",
+      "labelKo": "부분체결"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_FULLY_FILLED",
+      "labelKo": "전량체결"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_ALLOCATION_COMPLETED",
+      "labelKo": "고객별 배분"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_CORRECTION_REVIEW",
+      "labelKo": "정정 검토"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "code": "PRIMARY_CANCELLED",
+      "labelKo": "취소 완료"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "code": "EXECUTED_NOT_ISSUED",
+      "labelKo": "체결 후 미발행"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "code": "T2_RISK_APPROVAL_PENDING",
+      "labelKo": "위험 승인 대기"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "code": "RIGHTS_APPROVAL_PENDING",
+      "labelKo": "권리기입 승인 대기"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "code": "RIGHTS_ENTRY_PENDING",
+      "labelKo": "권리기입 실행 대기"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "code": "RIGHTS_ENTRY_COMPLETED",
+      "labelKo": "권리기입 완료"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "code": "TOKEN_MINT_PENDING",
+      "labelKo": "발행 실행 대기"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "code": "RIGHTS_ENTRY_QUARANTINED",
+      "labelKo": "격리 검토"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_UNMINTED",
+      "labelKo": "미발행"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_SETTLEMENT_PENDING",
+      "labelKo": "국내 결제 대기"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_TRADABLE",
+      "labelKo": "거래 가능"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_RESERVED",
+      "labelKo": "24/7 예약"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_REDEMPTION_LOCKED",
+      "labelKo": "환매 잠금"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_BURN_PENDING",
+      "labelKo": "환매 소각 대기"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_BURNED",
+      "labelKo": "소각 완료"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "code": "TOKEN_QUARANTINED",
+      "labelKo": "격리 검토"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "code": "SETTLEMENT_AND_CUSTODY_PENDING",
+      "labelKo": "두 확인 대기"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "code": "SETTLEMENT_ONLY_CONFIRMED",
+      "labelKo": "결제만 확인"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "code": "CUSTODY_ONLY_CONFIRMED",
+      "labelKo": "수탁만 확인"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "code": "SETTLEMENT_AND_CUSTODY_CONFIRMED",
+      "labelKo": "거래 가능"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "code": "SETTLEMENT_EXCEPTION_REVIEW",
+      "labelKo": "결제 예외 검토"
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "code": "CUSTODY_CONFIRMATION_PENDING",
+      "labelKo": "수탁 확인 대기"
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "code": "CUSTODY_CONFIRMED",
+      "labelKo": "수탁 확인 완료"
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "code": "CUSTODY_MISMATCH",
+      "labelKo": "수탁수량 불일치"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "FUNDS_AVAILABLE",
+      "labelKo": "사용 가능"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "FUNDS_RECEIPT_CONFIRMED",
+      "labelKo": "수취 확인"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "USD_CONVERSION_PENDING",
+      "labelKo": "USD 전환 대기"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "USD_ATTRIBUTED",
+      "labelKo": "USD 귀속"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "FUNDS_RESERVED",
+      "labelKo": "예약"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "FUNDS_USED",
+      "labelKo": "사용"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "RESERVATION_RELEASED",
+      "labelKo": "잔여 예약 해제"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "FUNDS_RETURN_PENDING",
+      "labelKo": "반환 검토"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "WALLET_BALANCE_CONFIRMED",
+      "labelKo": "지갑잔액 확인"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "TRANSFER_CONFIRMED",
+      "labelKo": "이전 확인"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "PAYMENT_PENDING",
+      "labelKo": "지급 대기"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "PAYMENT_COMPLETED",
+      "labelKo": "지급 완료"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "CONVERSION_QUOTED",
+      "labelKo": "견적 제시"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "CUSTOMER_CONVERSION_CONFIRMED",
+      "labelKo": "고객 확인"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "USDC_PAYMENT_CONFIRMED",
+      "labelKo": "USDC 지급 확인"
+    },
+    {
+      "axis": "FUNDING",
+      "code": "RESERVATION_RELEASED_AFTER_FAILURE",
+      "labelKo": "예약 해제"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_DRAFT",
+      "labelKo": "호가 작성"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_REVIEW",
+      "labelKo": "호가 검토"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_ACTIVE",
+      "labelKo": "유효 호가"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_PARTIALLY_FILLED",
+      "labelKo": "일부 소진"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_FULLY_FILLED",
+      "labelKo": "전량 소진"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_EXPIRED",
+      "labelKo": "만료"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_WITHDRAWN",
+      "labelKo": "철회"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "code": "QUOTE_BLOCKED",
+      "labelKo": "호가 차단"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_ORDER_RECEIVED",
+      "labelKo": "주문 접수"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_PRECHECK",
+      "labelKo": "사전검사"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_RESERVED",
+      "labelKo": "예약"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_PARTIALLY_CONFIRMED",
+      "labelKo": "부분 확정"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_FULLY_CONFIRMED",
+      "labelKo": "전량 확정"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_AUTO_REVERSED",
+      "labelKo": "자동 원복"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_QUARANTINED",
+      "labelKo": "격리 검토"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_COMPLETED",
+      "labelKo": "완료"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "code": "SECONDARY_REJECTED",
+      "labelKo": "거절"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "MM_NORMAL",
+      "labelKo": "정상 운영"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "MM_RISK_REDUCING_ONLY",
+      "labelKo": "위험 축소 전용"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "MM_QUOTING_HALTED",
+      "labelKo": "호가 중지"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_CREATED",
+      "labelKo": "헤지 생성"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_RISK_REVIEW",
+      "labelKo": "위험 검토"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_KRX_OPEN_PENDING",
+      "labelKo": "KRX 개장 대기"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_SUBMITTED_DOMESTICALLY",
+      "labelKo": "국내 제출"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_PARTIALLY_FILLED",
+      "labelKo": "부분체결"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_FULLY_FILLED",
+      "labelKo": "전량체결"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_T2_PENDING",
+      "labelKo": "T+2 대기"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_INVENTORY_ADJUSTED",
+      "labelKo": "재고조정 완료"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "code": "HEDGE_ON_HOLD",
+      "labelKo": "헤지 보류"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_REQUESTED",
+      "labelKo": "환매 요청"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "RIGHTS_AND_TOKEN_LOCKED",
+      "labelKo": "권리와 토큰 잠금"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "DOMESTIC_SALE_PENDING",
+      "labelKo": "국내 매도 대기"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_SUBMITTED_DOMESTICALLY",
+      "labelKo": "국내 제출"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_UNFILLED",
+      "labelKo": "미체결"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_PARTIALLY_FILLED",
+      "labelKo": "부분체결"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_FULLY_FILLED",
+      "labelKo": "전량체결"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "SALE_PROCEEDS_SETTLEMENT_PENDING",
+      "labelKo": "매도대금 결제 대기"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "RIGHTS_TERMINATED_CASH_CLAIM_CREATED",
+      "labelKo": "권리종료와 지급청구 전환"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_BURN_PENDING",
+      "labelKo": "환매 소각 대기"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_COMPLETED",
+      "labelKo": "환매 완료"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_EXCEPTION_REVIEW",
+      "labelKo": "환매 예외 검토"
+    },
+    {
+      "axis": "REDEMPTION",
+      "code": "REDEMPTION_QUARANTINED",
+      "labelKo": "격리 검토"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_EVENT_CONFIRMED",
+      "labelKo": "사건 확인"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_SNAPSHOT_REVIEW",
+      "labelKo": "권리 스냅샷 검토"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_ALLOCATION_APPROVED",
+      "labelKo": "배분안 승인"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_USD_PAYMENT_PENDING",
+      "labelKo": "USD 지급 대기"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_USD_PAID",
+      "labelKo": "USD 배당 완료"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_USDC_QUOTED",
+      "labelKo": "USDC 전환 견적"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_CONVERSION_CONFIRMED",
+      "labelKo": "고객 전환 확인"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_USD_RESERVED",
+      "labelKo": "USD 예약"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_USDC_PAID",
+      "labelKo": "USDC 지급 확인"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_QUOTE_EXPIRED",
+      "labelKo": "견적 만료"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_RESERVATION_RELEASED",
+      "labelKo": "예약 해제"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_CONVERSION_COMPLETED",
+      "labelKo": "전환 완료"
+    },
+    {
+      "axis": "DIVIDEND",
+      "code": "DIVIDEND_RIGHTS_EXCEPTION_REVIEW",
+      "labelKo": "권리 예외 검토"
+    },
+    {
+      "axis": "VOTING",
+      "code": "VOTE_AGENDA_CONFIRMED",
+      "labelKo": "안건 확인"
+    },
+    {
+      "axis": "VOTING",
+      "code": "VOTE_INSTRUCTION_COLLECTION",
+      "labelKo": "지시 수집"
+    },
+    {
+      "axis": "VOTING",
+      "code": "VOTE_TALLY_APPROVED",
+      "labelKo": "집계 승인"
+    },
+    {
+      "axis": "VOTING",
+      "code": "VOTE_DOMESTIC_EXECUTION_PENDING",
+      "labelKo": "국내 행사 대기"
+    },
+    {
+      "axis": "VOTING",
+      "code": "VOTE_EXECUTION_CONFIRMED",
+      "labelKo": "행사 결과 확인"
+    },
+    {
+      "axis": "VOTING",
+      "code": "VOTE_COMPLETED",
+      "labelKo": "의결권 완료"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "code": "CORPORATE_ACTION_DETECTED",
+      "labelKo": "사건 감지"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "code": "CORPORATE_ACTION_ALL_WORK_HELD",
+      "labelKo": "세 업무 중지"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "code": "CORPORATE_ACTION_PLAN_REVIEW",
+      "labelKo": "변경안 검토"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "code": "CORPORATE_ACTION_PLAN_APPROVED",
+      "labelKo": "변경안 승인"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "code": "CORPORATE_ACTION_QUANTITY_APPLIED",
+      "labelKo": "수량 반영"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "code": "CORPORATE_ACTION_RECONCILED",
+      "labelKo": "전체 재대사"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "code": "CORPORATE_ACTION_RELEASE_APPROVED",
+      "labelKo": "재개 승인"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORTING_PERIOD_CLOSED",
+      "labelKo": "보고기간 마감"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_GENERATED",
+      "labelKo": "보고 생성"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_APPROVED",
+      "labelKo": "보고 승인"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_SUBMISSION_PENDING",
+      "labelKo": "제출 대기"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_SUBMITTED_ON_TIME",
+      "labelKo": "기한 내 제출"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_SUBMITTED_LATE",
+      "labelKo": "지연 제출"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_RECEIPT_CONFIRMED",
+      "labelKo": "제출 확인"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_CORRECTION_REVIEW",
+      "labelKo": "정정 검토"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_CORRECTED",
+      "labelKo": "정정 제출"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "code": "REPORT_COMPLETED",
+      "labelKo": "보고 완료"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "RECONCILIATION_MATCHED",
+      "labelKo": "대사 일치"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "EXPECTED_TRANSITION_CONFIRMED",
+      "labelKo": "정상 과도기 확인"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "MISMATCH_SUSPECTED",
+      "labelKo": "불일치 의심"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "WORK_HALTED",
+      "labelKo": "업무 중지"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "EVIDENCE_COLLECTION",
+      "labelKo": "증거 수집"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "ROOT_CAUSE_CONFIRMED",
+      "labelKo": "원인 확정"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "RECONCILIATION_QUARANTINED",
+      "labelKo": "격리 검토"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "CORRECTION_PENDING",
+      "labelKo": "보정 대기"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "FULL_RECONCILIATION_COMPLETED",
+      "labelKo": "전체 재대사"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "RELEASE_APPROVED",
+      "labelKo": "재개 승인"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "code": "WORK_RESUMED",
+      "labelKo": "업무 재개"
+    }
+  ]
+}

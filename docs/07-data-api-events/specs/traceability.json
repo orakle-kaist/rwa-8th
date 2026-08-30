@@ -1,0 +1,427 @@
+{
+  "version": "1.0.0",
+  "stateAxes": [
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "queryOperationIds": [
+        "getSession"
+      ],
+      "commandOperationIds": [
+        "requestWalletLink"
+      ],
+      "eventTypes": [
+        "workflow.state.changed.v1"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "queryOperationIds": [
+        "getSession"
+      ],
+      "commandOperationIds": [],
+      "eventTypes": [
+        "workflow.state.changed.v1"
+      ]
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "queryOperationIds": [
+        "getWorkflow"
+      ],
+      "commandOperationIds": [
+        "requestWalletLink",
+        "requestWalletReplacement"
+      ],
+      "eventTypes": [
+        "workflow.state.changed.v1"
+      ]
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "queryOperationIds": [
+        "listProducts",
+        "getProduct"
+      ],
+      "commandOperationIds": [],
+      "eventTypes": [
+        "workflow.state.changed.v1"
+      ]
+    },
+    {
+      "axis": "PRIMARY_AVAILABILITY",
+      "queryOperationIds": [
+        "getProduct"
+      ],
+      "commandOperationIds": [],
+      "eventTypes": [
+        "workflow.state.changed.v1"
+      ]
+    },
+    {
+      "axis": "SECONDARY_AVAILABILITY",
+      "queryOperationIds": [
+        "getProduct",
+        "listQuotes"
+      ],
+      "commandOperationIds": [],
+      "eventTypes": [
+        "workflow.state.changed.v1",
+        "hold.placed.v1"
+      ]
+    },
+    {
+      "axis": "REDEMPTION_AVAILABILITY",
+      "queryOperationIds": [
+        "getProduct"
+      ],
+      "commandOperationIds": [],
+      "eventTypes": [
+        "workflow.state.changed.v1"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "queryOperationIds": [
+        "listPrimaryOrders",
+        "getWorkflow"
+      ],
+      "commandOperationIds": [
+        "createPrimaryOrder",
+        "cancelPrimaryOrder"
+      ],
+      "eventTypes": [
+        "primary.order.submitted.v1",
+        "primary.execution.recorded.v1",
+        "primary.allocation.completed.v1"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "queryOperationIds": [
+        "getWorkflow",
+        "listPositions"
+      ],
+      "commandOperationIds": [
+        "decideInstitutionTask"
+      ],
+      "eventTypes": [
+        "primary.risk.approved.v1",
+        "rights.entry.completed.v1",
+        "token.mint.confirmed.v1"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "queryOperationIds": [
+        "listPositions",
+        "getWorkflow"
+      ],
+      "commandOperationIds": [
+        "decideInstitutionTask"
+      ],
+      "eventTypes": [
+        "token.mint.confirmed.v1",
+        "token.trading-enabled.v1",
+        "token.burn.confirmed.v1"
+      ]
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "queryOperationIds": [
+        "getWorkflow",
+        "getWorkflowTimeline"
+      ],
+      "commandOperationIds": [
+        "receiveAdapterEvent"
+      ],
+      "eventTypes": [
+        "domestic.settlement.confirmed.v1"
+      ]
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "queryOperationIds": [
+        "getWorkflow",
+        "getWorkflowTimeline"
+      ],
+      "commandOperationIds": [
+        "receiveAdapterEvent"
+      ],
+      "eventTypes": [
+        "custody.position.confirmed.v1"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "queryOperationIds": [
+        "getWorkflow",
+        "listActivities"
+      ],
+      "commandOperationIds": [
+        "createPrimaryOrder",
+        "createSecondaryOrder",
+        "createDividendConversion"
+      ],
+      "eventTypes": [
+        "secondary.funds-ledger.confirmed.v1",
+        "redemption.usd-paid.v1",
+        "dividend.usd-paid.v1",
+        "dividend.usdc-converted.v1"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "queryOperationIds": [
+        "listQuotes"
+      ],
+      "commandOperationIds": [
+        "publishMarketMakerQuote"
+      ],
+      "eventTypes": [
+        "market-maker.quote.published.v1",
+        "market-maker.quote.expired.v1"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "queryOperationIds": [
+        "getWorkflow",
+        "getWorkflowTimeline"
+      ],
+      "commandOperationIds": [
+        "createSecondaryOrder"
+      ],
+      "eventTypes": [
+        "secondary.order.accepted.v1",
+        "secondary.reservation.completed.v1",
+        "secondary.trade.completed.v1"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "queryOperationIds": [
+        "listMarketMakerPositions",
+        "listMarketMakerHedges"
+      ],
+      "commandOperationIds": [
+        "decideMarketMakerHedge"
+      ],
+      "eventTypes": [
+        "market-maker.position.changed.v1",
+        "market-maker.hedge.requested.v1"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "queryOperationIds": [
+        "getWorkflow",
+        "listPositions"
+      ],
+      "commandOperationIds": [
+        "createRedemption"
+      ],
+      "eventTypes": [
+        "redemption.locked.v1",
+        "redemption.cash-claim.created.v1",
+        "redemption.completed.v1"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "queryOperationIds": [
+        "getWorkflow",
+        "listActivities"
+      ],
+      "commandOperationIds": [
+        "createDividendConversion"
+      ],
+      "eventTypes": [
+        "dividend.snapshot.recorded.v1",
+        "dividend.usd-paid.v1",
+        "dividend.usdc-converted.v1"
+      ]
+    },
+    {
+      "axis": "VOTING",
+      "queryOperationIds": [
+        "getWorkflow",
+        "listActivities"
+      ],
+      "commandOperationIds": [
+        "submitVotingInstruction"
+      ],
+      "eventTypes": [
+        "vote.instruction.recorded.v1",
+        "vote.execution.recorded.v1"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "queryOperationIds": [
+        "getProduct",
+        "getWorkflow"
+      ],
+      "commandOperationIds": [
+        "decideHoldRelease"
+      ],
+      "eventTypes": [
+        "corporate-action.hold-placed.v1",
+        "corporate-action.adjustment-approved.v1",
+        "hold.released.v1"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "queryOperationIds": [
+        "listRegulatoryReports",
+        "getWorkflow"
+      ],
+      "commandOperationIds": [
+        "recordRegulatoryReportSubmission"
+      ],
+      "eventTypes": [
+        "regulatory-report.submitted.v1",
+        "regulatory-report.corrected.v1"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "queryOperationIds": [
+        "startReconciliation",
+        "getWorkflowTimeline"
+      ],
+      "commandOperationIds": [
+        "startReconciliation",
+        "decideHoldRelease"
+      ],
+      "eventTypes": [
+        "reconciliation.completed.v1",
+        "reconciliation.mismatch-detected.v1",
+        "workflow.quarantined.v1",
+        "hold.release-approved.v1"
+      ]
+    }
+  ],
+  "architectureComponents": [
+    {
+      "component": "투자자 앱",
+      "interfaces": [
+        "getSession",
+        "listProducts",
+        "listPositions",
+        "createPrimaryOrder",
+        "createSecondaryOrder",
+        "createRedemption"
+      ]
+    },
+    {
+      "component": "통합 기관 콘솔",
+      "interfaces": [
+        "listInstitutionTasks",
+        "decideInstitutionTask",
+        "startReconciliation",
+        "decideHoldRelease"
+      ]
+    },
+    {
+      "component": "업무 조정기",
+      "interfaces": [
+        "workflow.command.accepted.v1",
+        "workflow.state.changed.v1",
+        "workflow.quarantined.v1"
+      ]
+    },
+    {
+      "component": "인가 해외 증권사 권리원장 모의 모듈",
+      "interfaces": [
+        "rights.entry.completed.v1",
+        "secondary.rights-ledger.confirmed.v1",
+        "redemption.cash-claim.created.v1"
+      ]
+    },
+    {
+      "component": "1차 주문 모듈",
+      "interfaces": [
+        "createPrimaryOrder",
+        "primary.execution.recorded.v1",
+        "primary.allocation.completed.v1"
+      ]
+    },
+    {
+      "component": "24/7 거래 모듈",
+      "interfaces": [
+        "createSecondaryOrder",
+        "secondary.reservation.completed.v1",
+        "secondary.trade.completed.v1"
+      ]
+    },
+    {
+      "component": "시장조성 모듈",
+      "interfaces": [
+        "publishMarketMakerQuote",
+        "decideMarketMakerHedge",
+        "market-maker.position.changed.v1"
+      ]
+    },
+    {
+      "component": "환매 모듈",
+      "interfaces": [
+        "createRedemption",
+        "redemption.locked.v1",
+        "redemption.completed.v1"
+      ]
+    },
+    {
+      "component": "권리관리 모듈",
+      "interfaces": [
+        "createDividendConversion",
+        "submitVotingInstruction",
+        "corporate-action.hold-placed.v1"
+      ]
+    },
+    {
+      "component": "대사와 감사 모듈",
+      "interfaces": [
+        "runReconciliation",
+        "getWorkflowTimeline",
+        "reconciliation.mismatch-detected.v1",
+        "audit.privileged-action-recorded.v1"
+      ]
+    },
+    {
+      "component": "블록체인 연계 모듈",
+      "interfaces": [
+        "secondary.chain-settlement.confirmed.v1",
+        "token.mint.confirmed.v1",
+        "token.burn.confirmed.v1"
+      ]
+    },
+    {
+      "component": "기관 모의 어댑터",
+      "interfaces": [
+        "receiveAdapterEvent",
+        "domestic.settlement.confirmed.v1",
+        "custody.position.confirmed.v1"
+      ]
+    },
+    {
+      "component": "PostgreSQL 업무와 증거 저장소",
+      "interfaces": [
+        "getWorkflow",
+        "getWorkflowTimeline",
+        "workflow.state.changed.v1"
+      ]
+    },
+    {
+      "component": "PostgreSQL 발송함과 재처리기",
+      "interfaces": [
+        "workflow.events.v1",
+        "institution.events.v1",
+        "chain.events.v1",
+        "reconciliation.events.v1",
+        "audit.events.v1",
+        "quarantine.events.v1"
+      ]
+    }
+  ]
+}

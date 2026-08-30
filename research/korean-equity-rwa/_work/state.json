@@ -1,6 +1,6 @@
 {
-  "stage": "ready_for_stage_six",
-  "next_action": "Start stage six system architecture, technology selection, and security design from the aligned and approved stage-one-to-five documents.",
-  "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 26
+  "stage": "ready_for_stage_eight",
+  "next_action": "Start stage eight smart-contract design from the approved stage-one-to-seven documents and machine-readable contracts.",
+  "updated_at": "2026-08-31T00:00:00+09:00",
+  "iteration": 30
 }

@@ -1,0 +1,52 @@
+[
+  {
+    "case": "duplicateCommand",
+    "expectedResult": "EXISTING_ACCEPTED_RESULT",
+    "descriptionKo": "같은 멱등키와 같은 주문본문을 다시 보내 기존 업무 ID를 받는다."
+  },
+  {
+    "case": "idempotencyBodyConflict",
+    "expectedError": "IDEMPOTENCY_CONFLICT",
+    "descriptionKo": "같은 멱등키에 다른 주문본문을 사용한다."
+  },
+  {
+    "case": "duplicateEvent",
+    "expectedResult": "NO_ADDITIONAL_EFFECT",
+    "descriptionKo": "같은 eventId를 다시 소비한다."
+  },
+  {
+    "case": "eventSequenceGap",
+    "expectedError": "EVENT_SEQUENCE_GAP",
+    "descriptionKo": "기관 순번 10 다음에 12가 도착해 11을 기다린다."
+  },
+  {
+    "case": "staleMarketData",
+    "expectedError": "STALE_DATA",
+    "descriptionKo": "기준시각부터 61초 지난 위험정보로 24시간 정산을 승인한다."
+  },
+  {
+    "case": "fractionalShare",
+    "expectedError": "INTEGER_QUANTITY_REQUIRED",
+    "invalidValue": "0.5"
+  },
+  {
+    "case": "custodyMissingAfterSettlement",
+    "expectedResult": "SETTLEMENT_PENDING",
+    "descriptionKo": "국내 결제만 확인되고 수탁수량 확인은 도착하지 않았다."
+  },
+  {
+    "case": "rightsLedgerFailureAfterChain",
+    "expectedError": "RIGHTS_LEDGER_CONFIRMATION_FAILED",
+    "expectedResult": "QUARANTINED"
+  },
+  {
+    "case": "lateCorrection",
+    "expectedResult": "QUARANTINED_FOR_RECONCILIATION",
+    "descriptionKo": "토큰 발행 뒤 국내 체결 정정이 도착한다."
+  },
+  {
+    "case": "forbiddenPii",
+    "expectedError": "PII_FIELD_FORBIDDEN",
+    "forbiddenField": "passportNumber"
+  }
+]

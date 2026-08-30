@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/state-catalog.schema.json",
+  "title": "Korean Equity RWA PoC State Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["catalogVersion", "source", "entries"],
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "catalogVersion": { "const": "1.0.0" },
+    "source": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "domain.schema.json#/$defs/StateCatalogEntry" }
+    }
+  }
+}

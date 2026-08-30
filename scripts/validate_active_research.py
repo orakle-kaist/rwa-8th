@@ -16,6 +16,12 @@ try:
 except ImportError as exc:  # pragma: no cover - environment guard
     raise SystemExit("PyYAML is required: python3 -m pip install pyyaml") from exc
 
+try:
+    from jsonschema import Draft202012Validator
+    from referencing import Registry, Resource
+except ImportError as exc:  # pragma: no cover - environment guard
+    raise SystemExit("jsonschema is required: python3 -m pip install jsonschema") from exc
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS_ROOT = REPO_ROOT / "docs"
@@ -34,9 +40,30 @@ REFERENCE_DATA = DOCS_ROOT / "04-institution-design" / "REFERENCE_DATA.md"
 SCREEN_FLOWS = DOCS_ROOT / "05-screens-states-recovery" / "SCREEN_FLOWS.md"
 STATE_MODEL = DOCS_ROOT / "05-screens-states-recovery" / "STATE_MODEL.md"
 ERROR_AND_RECOVERY = DOCS_ROOT / "05-screens-states-recovery" / "ERROR_AND_RECOVERY.md"
+ARCHITECTURE = DOCS_ROOT / "06-architecture-security" / "ARCHITECTURE.md"
+TECHNOLOGY_DECISIONS = DOCS_ROOT / "06-architecture-security" / "TECHNOLOGY_DECISIONS.md"
+SECURITY_AND_PRIVACY = DOCS_ROOT / "06-architecture-security" / "SECURITY_AND_PRIVACY.md"
+STAGE_SEVEN_ROOT = DOCS_ROOT / "07-data-api-events"
+DATA_MODEL = STAGE_SEVEN_ROOT / "DATA_MODEL.md"
+API_CONTRACTS = STAGE_SEVEN_ROOT / "API_CONTRACTS.md"
+EVENT_CONTRACTS = STAGE_SEVEN_ROOT / "EVENT_CONTRACTS.md"
+STAGE_SEVEN_SPECS = STAGE_SEVEN_ROOT / "specs"
+COMMON_SCHEMA = STAGE_SEVEN_SPECS / "schemas" / "common.schema.json"
+DOMAIN_SCHEMA = STAGE_SEVEN_SPECS / "schemas" / "domain.schema.json"
+SIGNATURES_SCHEMA = STAGE_SEVEN_SPECS / "schemas" / "signatures.schema.json"
+EVENTS_SCHEMA = STAGE_SEVEN_SPECS / "schemas" / "events.schema.json"
+STATE_CATALOG_SCHEMA = STAGE_SEVEN_SPECS / "schemas" / "state-catalog.schema.json"
+STATE_CATALOG = STAGE_SEVEN_SPECS / "state-catalog.json"
+TRACEABILITY = STAGE_SEVEN_SPECS / "traceability.json"
+PLATFORM_OPENAPI = STAGE_SEVEN_SPECS / "openapi.platform.yaml"
+ADAPTER_OPENAPI = STAGE_SEVEN_SPECS / "openapi.adapters.yaml"
+ASYNCAPI = STAGE_SEVEN_SPECS / "asyncapi.yaml"
+LIFECYCLE_EXAMPLES = STAGE_SEVEN_SPECS / "examples" / "lifecycle-events.jsonl"
+FAILURE_EXAMPLES = STAGE_SEVEN_SPECS / "examples" / "failure-cases.json"
+SIGNED_INTENT_EXAMPLES = STAGE_SEVEN_SPECS / "examples" / "signed-intents.json"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
-OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
+OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|tmp)/")
 
 
 class ValidationFailure(Exception):
@@ -135,6 +162,12 @@ def markdown_files() -> list[Path]:
         SCREEN_FLOWS,
         STATE_MODEL,
         ERROR_AND_RECOVERY,
+        ARCHITECTURE,
+        TECHNOLOGY_DECISIONS,
+        SECURITY_AND_PRIVACY,
+        DATA_MODEL,
+        API_CONTRACTS,
+        EVENT_CONTRACTS,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -180,6 +213,25 @@ def validate_workspace_contract(errors: list[str]) -> None:
         SCREEN_FLOWS,
         STATE_MODEL,
         ERROR_AND_RECOVERY,
+        ARCHITECTURE,
+        TECHNOLOGY_DECISIONS,
+        SECURITY_AND_PRIVACY,
+        DATA_MODEL,
+        API_CONTRACTS,
+        EVENT_CONTRACTS,
+        COMMON_SCHEMA,
+        DOMAIN_SCHEMA,
+        SIGNATURES_SCHEMA,
+        EVENTS_SCHEMA,
+        STATE_CATALOG_SCHEMA,
+        STATE_CATALOG,
+        TRACEABILITY,
+        PLATFORM_OPENAPI,
+        ADAPTER_OPENAPI,
+        ASYNCAPI,
+        LIFECYCLE_EXAMPLES,
+        FAILURE_EXAMPLES,
+        SIGNED_INTENT_EXAMPLES,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -216,6 +268,12 @@ def validate_workspace_contract(errors: list[str]) -> None:
         REPO_ROOT / "SCREEN_FLOWS.md",
         REPO_ROOT / "STATE_MODEL.md",
         REPO_ROOT / "ERROR_AND_RECOVERY.md",
+        REPO_ROOT / "ARCHITECTURE.md",
+        REPO_ROOT / "TECHNOLOGY_DECISIONS.md",
+        REPO_ROOT / "SECURITY_AND_PRIVACY.md",
+        REPO_ROOT / "DATA_MODEL.md",
+        REPO_ROOT / "API_CONTRACTS.md",
+        REPO_ROOT / "EVENT_CONTRACTS.md",
     ]
     for path in retired_active_paths:
         if path.exists():
@@ -224,15 +282,15 @@ def validate_workspace_contract(errors: list[str]) -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     if (
         "docs/01-master/MASTER.md" not in readme
-        or "정합성 보완 승인 완료" not in readme
+        or "정합성 보완까지 승인된" not in readme
         or "마스터" not in readme
     ):
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "6단계 시스템 구조와 보안 설계 착수 가능" not in readme
+        or "7단계 승인 완료, 8단계 스마트컨트랙트 설계 착수 가능" not in readme
     ):
-        errors.append("README must identify PRD.md and allow stage six after alignment approval")
+        errors.append("README must identify PRD.md and the approved stage-seven status")
     if (
         "docs/04-institution-design/INSTITUTION_WORKFLOWS.md" not in readme
         or "docs/04-institution-design/REFERENCE_DATA.md" not in readme
@@ -244,6 +302,21 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md" not in readme
     ):
         errors.append("README must identify all three stage-five documents as approved")
+    if (
+        "docs/06-architecture-security/ARCHITECTURE.md" not in readme
+        or "docs/06-architecture-security/TECHNOLOGY_DECISIONS.md" not in readme
+        or "docs/06-architecture-security/SECURITY_AND_PRIVACY.md" not in readme
+        or "7단계 설계의 입력" not in readme
+    ):
+        errors.append("README must identify all three stage-six documents as approved inputs")
+    if (
+        "docs/07-data-api-events/DATA_MODEL.md" not in readme
+        or "docs/07-data-api-events/API_CONTRACTS.md" not in readme
+        or "docs/07-data-api-events/EVENT_CONTRACTS.md" not in readme
+        or "7단계 세 문서와 기계 명세" not in readme
+        or "8단계" not in readme
+    ):
+        errors.append("README must identify approved stage-seven documents and stage-eight readiness")
     if "실제 PoC 코드 구현: **10단계**" not in readme:
         errors.append("README must distinguish stage-six design from stage-ten implementation")
 
@@ -266,6 +339,12 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "SCREEN_FLOWS.md": SCREEN_FLOWS,
         "STATE_MODEL.md": STATE_MODEL,
         "ERROR_AND_RECOVERY.md": ERROR_AND_RECOVERY,
+        "ARCHITECTURE.md": ARCHITECTURE,
+        "TECHNOLOGY_DECISIONS.md": TECHNOLOGY_DECISIONS,
+        "SECURITY_AND_PRIVACY.md": SECURITY_AND_PRIVACY,
+        "DATA_MODEL.md": DATA_MODEL,
+        "API_CONTRACTS.md": API_CONTRACTS,
+        "EVENT_CONTRACTS.md": EVENT_CONTRACTS,
     }
     for filename, expected_path in canonical_documents.items():
         matches = [
@@ -710,6 +789,10 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_five",
         "awaiting_stage_five_approval",
         "ready_for_stage_six",
+        "awaiting_stage_six_approval",
+        "ready_for_stage_seven",
+        "awaiting_stage_seven_approval",
+        "ready_for_stage_eight",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -938,6 +1021,10 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "ready_for_stage_five",
         "awaiting_stage_five_approval",
         "ready_for_stage_six",
+        "awaiting_stage_six_approval",
+        "ready_for_stage_seven",
+        "awaiting_stage_seven_approval",
+        "ready_for_stage_eight",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1295,15 +1382,554 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_six":
-        errors.append("active project state must allow stage six after alignment approval")
-    if state.get("iteration") != 26:
-        errors.append("active project iteration must be 26 after alignment approval")
+    if state.get("stage") not in {
+        "ready_for_stage_six",
+        "awaiting_stage_six_approval",
+        "ready_for_stage_seven",
+        "awaiting_stage_seven_approval",
+        "ready_for_stage_eight",
+    }:
+        errors.append("active project state must be at or beyond stage-six preparation")
+
+
+def validate_stage_six_contract(errors: list[str]) -> None:
+    stage_six_paths = [ARCHITECTURE, TECHNOLOGY_DECISIONS, SECURITY_AND_PRIVACY]
+    if not all(path.is_file() for path in stage_six_paths):
+        return  # validate_workspace_contract reports missing required files
+
+    architecture = ARCHITECTURE.read_text(encoding="utf-8")
+    technology = TECHNOLOGY_DECISIONS.read_text(encoding="utf-8")
+    security = SECURITY_AND_PRIVACY.read_text(encoding="utf-8")
+
+    for path, content in [
+        (ARCHITECTURE, architecture),
+        (TECHNOLOGY_DECISIONS, technology),
+        (SECURITY_AND_PRIVACY, security),
+    ]:
+        if "상태: **6단계 팀 내부 승인 완료**" not in content:
+            errors.append(f"{path.name} must be marked as approved at stage six")
+        if "·" in content:
+            errors.append(
+                f"{path.name}: use commas or natural conjunctions instead of middle-dot list separators"
+            )
+        opaque_terms = [term for term in ["REQ-", "INV-", "DEC-"] if term in content]
+        if opaque_terms:
+            errors.append(f"{path.name} uses opaque identifiers: " + ", ".join(opaque_terms))
+
+    expected_architecture_sections = [
+        "1. 구조가 지켜야 하는 기준",
+        "2. 전체 구조",
+        "3. 구성요소와 책임",
+        "4. 외부기관 경계",
+        "5. 정보가 놓이는 위치",
+        "6. 공통 처리 구조",
+        "7. 1차 발행과 T+2",
+        "8. 24/7 USD 거래",
+        "9. 24/7 USDC 거래",
+        "10. 시장조성자 헤지와 재고조정",
+        "11. 1차 환매",
+        "12. 배당, 의결권과 기업행동",
+        "13. 대사와 복구",
+        "14. 배포 구조",
+        "15. 요구사항 연결",
+        "16. 범위 밖",
+        "17. 승인 기준",
+    ]
+    found_architecture_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", architecture, flags=re.MULTILINE)
+    ]
+    if found_architecture_sections != expected_architecture_sections:
+        errors.append(
+            "ARCHITECTURE.md numbered sections do not match stage six: "
+            f"found {found_architecture_sections}"
+        )
+
+    required_architecture_terms = [
+        "고객별 수탁권리 원장이 최종투자자 권리의 기준 기록",
+        "업무별 단일 백엔드",
+        "PostgreSQL",
+        "트랜잭션 발송함",
+        "투자자 앱",
+        "통합 기관 콘솔",
+        "업무 조정기",
+        "기관 모의 어댑터",
+        "Avalanche Fuji",
+        "실제 기관, 데이터베이스와 블록체인을 하나의 원자적 거래로 묶을 수 있다고 가정하지 않는다",
+        "1차 발행과 T+2",
+        "24/7 USD 거래",
+        "24/7 USDC 거래",
+        "시장조성자 헤지와 재고조정",
+        "환매대금 지급청구",
+        "배당, 의결권과 기업행동",
+        "전체 발행토큰 - 환매 소각 대기 토큰",
+        "7단계 공통 데이터, API와 이벤트 설계를 시작할 수 있다",
+    ]
+    missing_architecture_terms = [
+        term for term in required_architecture_terms if term not in architecture
+    ]
+    if missing_architecture_terms:
+        errors.append(
+            "ARCHITECTURE.md is missing approved boundaries or lifecycle paths: "
+            + ", ".join(missing_architecture_terms)
+        )
+
+    expected_technology_sections = [
+        "1. 선택 원칙",
+        "2. 애플리케이션 기술",
+        "3. 발행 블록체인",
+        "4. 토큰 표준",
+        "5. 종목별 배포 구조",
+        "6. 온체인 적격성",
+        "7. USD와 USDC 정산 기술",
+        "8. 외부 정보와 오라클",
+        "9. 다중체인",
+        "10. 확정하지 않는 세부사항",
+        "11. 승인 기준",
+    ]
+    found_technology_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", technology, flags=re.MULTILINE)
+    ]
+    if found_technology_sections != expected_technology_sections:
+        errors.append(
+            "TECHNOLOGY_DECISIONS.md numbered sections do not match stage six: "
+            f"found {found_technology_sections}"
+        )
+
+    required_technology_terms = [
+        "TypeScript 모노레포",
+        "Next.js",
+        "PostgreSQL",
+        "viem",
+        "Solidity와 Foundry",
+        "Docker Compose",
+        "Avalanche Fuji C-Chain",
+        "Hyperledger Besu 프라이빗 체인",
+        "Base Sepolia",
+        "ERC-3643 기반 제한형 토큰",
+        "일반 `transfer`나 `transferFrom`",
+        "EIP-712",
+        "소수점 0",
+        "KOSPI 200 기준 스냅샷 201개",
+        "대표 6종목",
+        "6자리 소수점",
+        "탈중앙화 가격 오라클을 필수 구성요소로 사용하지 않는다",
+        "LayerZero V2 OFT Burn&Mint",
+        "상용 메인넷을 Avalanche로 확정한다는 뜻이 아니다",
+    ]
+    missing_technology_terms = [term for term in required_technology_terms if term not in technology]
+    if missing_technology_terms:
+        errors.append(
+            "TECHNOLOGY_DECISIONS.md is missing selected technologies or rejected alternatives: "
+            + ", ".join(missing_technology_terms)
+        )
+
+    expected_security_sections = [
+        "1. 보호 대상",
+        "2. 신뢰 경계",
+        "3. 역할과 권한 분리",
+        "4. 관리자와 운영키",
+        "5. 고객 지갑과 복구",
+        "6. 개인정보 최소화",
+        "7. 주요 위협과 통제",
+        "8. 사건별 중지와 재개",
+        "9. 감사와 변경 이력",
+        "10. 안전한 개발 기준",
+        "11. 보안 인수 시나리오",
+        "12. 남는 한계",
+        "13. 승인 기준",
+    ]
+    found_security_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", security, flags=re.MULTILINE)
+    ]
+    if found_security_sections != expected_security_sections:
+        errors.append(
+            "SECURITY_AND_PRIVACY.md numbered sections do not match stage six: "
+            f"found {found_security_sections}"
+        )
+
+    required_security_terms = [
+        "고객 자기보관 지갑",
+        "2-of-3",
+        "발행, 정산, 소각, 적격성, 복구와 긴급중지는 서로 다른 키",
+        "긴급중지 키는 즉시 중지할 수 있지만 재개할 수 없다",
+        "여권번호나 고유식별정보의 해시",
+        "공개 체인의 내용은 누구나 볼 수 있다고 전제",
+        "무승인 발행",
+        "고객 직접이전",
+        "발행 승인 재사용",
+        "USD 장부와 체인 일부 완료",
+        "USDC DvP 뒤 권리 원장 실패",
+        "운영키 탈취",
+        "관리자 권한 남용",
+        "NIST SSDF 1.1",
+        "OWASP ASVS",
+        "7단계를 시작할 수 있다",
+    ]
+    missing_security_terms = [term for term in required_security_terms if term not in security]
+    if missing_security_terms:
+        errors.append(
+            "SECURITY_AND_PRIVACY.md is missing required assets, threats, controls or boundaries: "
+            + ", ".join(missing_security_terms)
+        )
+
+    for path, content, minimum in [
+        (ARCHITECTURE, architecture, 5),
+        (TECHNOLOGY_DECISIONS, technology, 6),
+        (SECURITY_AND_PRIVACY, security, 6),
+    ]:
+        approved_items = re.findall(r"^- \[x\] ", content, flags=re.MULTILINE)
+        if len(approved_items) < minimum:
+            errors.append(
+                f"{path.name} must record its approved stage-six checklist: "
+                f"found {len(approved_items)}"
+            )
+
+    combined = "\n".join([architecture, technology, security])
+    forbidden_claims = [
+        "토큰이 고객 권리의 기준 기록이다",
+        "외부기관과 블록체인이 원자적으로 완료된다",
+        "실제 개인정보를 사용한다",
+        "고객 간 자유이전을 허용한다",
+        "상용 메인넷으로 확정",
+    ]
+    found_forbidden_claims = [claim for claim in forbidden_claims if claim in combined]
+    if found_forbidden_claims:
+        errors.append(
+            "stage-six documents overstate token rights, atomicity, privacy or production scope: "
+            + ", ".join(found_forbidden_claims)
+        )
+
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    decisions = DECISIONS.read_text(encoding="utf-8")
+    for label, content in [("README", readme), ("WORKFLOW", workflow)]:
+        if "6단계" not in content or "7단계" not in content or "승인" not in content:
+            errors.append(f"{label} must record stage-six approval and stage-seven readiness")
+    for term in [
+        "애플리케이션 구조",
+        "ERC-3643 기반 제한형 토큰",
+        "Avalanche Fuji C-Chain",
+        "24/7 정산",
+        "탈중앙화 가격 오라클",
+        "2-of-3",
+    ]:
+        if term not in decisions:
+            errors.append(f"DECISIONS.md is missing stage-six decision: {term}")
+
+    state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
+    if state.get("stage") not in {
+        "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight"
+    }:
+        errors.append("active project state must be at or beyond stage-seven preparation")
+    if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
+        errors.append("active project iteration must preserve stage-six approval history")
+
+
+def validate_stage_seven_contract(errors: list[str]) -> None:
+    stage_seven_paths = [DATA_MODEL, API_CONTRACTS, EVENT_CONTRACTS]
+    if not all(path.is_file() for path in stage_seven_paths):
+        return  # validate_workspace_contract reports missing required files
+
+    documents = {path.name: path.read_text(encoding="utf-8") for path in stage_seven_paths}
+    for path, content in [(path, documents[path.name]) for path in stage_seven_paths]:
+        if "상태: **7단계 팀 내부 승인 완료**" not in content:
+            errors.append(f"{path.name} must be marked as approved at stage seven")
+        if "·" in content:
+            errors.append(f"{path.name}: use natural conjunctions instead of middle-dot separators")
+        opaque_terms = [term for term in ["REQ-", "INV-", "DEC-"] if term in content]
+        if opaque_terms:
+            errors.append(f"{path.name} uses opaque identifiers: " + ", ".join(opaque_terms))
+        approved_items = re.findall(r"^- \[x\] ", content, flags=re.MULTILINE)
+        if len(approved_items) < 6:
+            errors.append(f"{path.name} must record at least six approved stage-seven checks")
+
+    required_terms = {
+        "DATA_MODEL.md": [
+            "lowerCamelCase", "UPPER_SNAKE_CASE", "UTC RFC 3339", "Asia/Seoul",
+            "정수 문자열", "amountMinor", "KRW", "USD", "USDC", "sourceInstitutionId",
+            "sourceRecordId", "correctsEventId", "simulation", "projectionStatus", "EIP-712",
+            "43113", "PrimaryOrderIntent", "SecondaryOrderIntent", "RedemptionIntent",
+            "MarketMakerQuote", "BrokerSettlementApproval", "고객별 수탁권리 원장",
+            "state-catalog.json", "traceability.json",
+        ],
+        "API_CONTRACTS.md": [
+            "/api/v1", "202 Accepted", "Idempotency-Key", "X-Correlation-Id", "409",
+            "합성 Bearer", "Ed25519", "RFC 8785", "projectionAsOf", "lastEventSequence",
+            "projectionStatus", "WebSocket", "SSE", "재시도 가능", "책임 역할", "다음 행동",
+            "/adapter-events", "traceability.json",
+        ],
+        "EVENT_CONTRACTS.md": [
+            "PostgreSQL", "최소 한 번", "eventId", "sourceSequence", "aggregateVersion",
+            "workflow.events.v1", "institution.events.v1", "chain.events.v1",
+            "reconciliation.events.v1", "audit.events.v1", "quarantine.events.v1",
+            "정정", "30초", "60초", "Kafka", "traceability.json",
+        ],
+    }
+    for name, terms in required_terms.items():
+        missing = [term for term in terms if term not in documents[name]]
+        if missing:
+            errors.append(f"{name} is missing stage-seven contract terms: " + ", ".join(missing))
+
+    structured_paths = [
+        COMMON_SCHEMA, DOMAIN_SCHEMA, SIGNATURES_SCHEMA, EVENTS_SCHEMA, STATE_CATALOG_SCHEMA,
+        STATE_CATALOG, TRACEABILITY, PLATFORM_OPENAPI, ADAPTER_OPENAPI, ASYNCAPI,
+        LIFECYCLE_EXAMPLES, FAILURE_EXAMPLES,
+        SIGNED_INTENT_EXAMPLES,
+    ]
+    parsed: dict[Path, object] = {}
+    for path in structured_paths:
+        try:
+            if path.suffix == ".json":
+                parsed[path] = json.loads(path.read_text(encoding="utf-8"))
+            elif path.suffix == ".jsonl":
+                parsed[path] = [
+                    json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+                ]
+            else:
+                parsed[path] = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append(f"stage-seven structured data parse failed: {path.name}: {exc}")
+    if len(parsed) != len(structured_paths):
+        return
+
+    schema_paths = [COMMON_SCHEMA, DOMAIN_SCHEMA, SIGNATURES_SCHEMA, EVENTS_SCHEMA, STATE_CATALOG_SCHEMA]
+    schema_documents = [parsed[path] for path in schema_paths]
+    registry = Registry()
+    for path, schema in zip(schema_paths, schema_documents):
+        try:
+            Draft202012Validator.check_schema(schema)
+            registry = registry.with_resource(schema["$id"], Resource.from_contents(schema))
+        except Exception as exc:
+            errors.append(f"invalid Draft 2020-12 schema {path.name}: {exc}")
+
+    try:
+        catalog_validator = Draft202012Validator(parsed[STATE_CATALOG_SCHEMA], registry=registry)
+        for error in catalog_validator.iter_errors(parsed[STATE_CATALOG]):
+            errors.append(f"state catalog schema violation: {error.message}")
+        event_validator = Draft202012Validator(parsed[EVENTS_SCHEMA], registry=registry)
+        for index, event in enumerate(parsed[LIFECYCLE_EXAMPLES], start=1):
+            for error in event_validator.iter_errors(event):
+                errors.append(f"lifecycle event line {index}: {error.message}")
+        signed_intent_validator = Draft202012Validator(
+            {"$ref": parsed[SIGNATURES_SCHEMA]["$id"] + "#/$defs/SignedTypedData"},
+            registry=registry,
+        )
+        for index, signed_intent in enumerate(parsed[SIGNED_INTENT_EXAMPLES], start=1):
+            for error in signed_intent_validator.iter_errors(signed_intent):
+                errors.append(f"signed intent example {index}: {error.message}")
+    except Exception as exc:
+        errors.append(f"stage-seven schema reference validation failed: {exc}")
+
+    def iter_refs(value: object):
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if key == "$ref" and isinstance(child, str):
+                    yield child
+                else:
+                    yield from iter_refs(child)
+        elif isinstance(value, list):
+            for child in value:
+                yield from iter_refs(child)
+
+    def resolve_pointer(document: object, fragment: str) -> bool:
+        current = document
+        if not fragment or fragment == "#":
+            return True
+        if not fragment.startswith("#/"):
+            return False
+        for raw_part in fragment[2:].split("/"):
+            part = raw_part.replace("~1", "/").replace("~0", "~")
+            if isinstance(current, dict) and part in current:
+                current = current[part]
+            else:
+                return False
+        return True
+
+    for path in [PLATFORM_OPENAPI, ADAPTER_OPENAPI, ASYNCAPI, *schema_paths]:
+        document = parsed[path]
+        for reference in iter_refs(document):
+            target, separator, fragment = reference.partition("#")
+            if target.startswith(("http://", "https://")):
+                continue
+            target_path = path if not target else (path.parent / target).resolve()
+            if not target_path.is_file():
+                errors.append(f"unresolved local reference in {path.name}: {reference}")
+                continue
+            try:
+                if target_path in parsed:
+                    target_document = parsed[target_path]
+                elif target_path.suffix == ".json":
+                    target_document = json.loads(target_path.read_text(encoding="utf-8"))
+                else:
+                    target_document = yaml.safe_load(target_path.read_text(encoding="utf-8"))
+                pointer = f"#{fragment}" if separator else ""
+                if pointer and not resolve_pointer(target_document, pointer):
+                    errors.append(f"unresolved JSON pointer in {path.name}: {reference}")
+            except Exception as exc:
+                errors.append(f"failed to inspect reference in {path.name}: {reference}: {exc}")
+
+    openapi_documents = [parsed[PLATFORM_OPENAPI], parsed[ADAPTER_OPENAPI]]
+    if any(document.get("openapi") != "3.1.2" for document in openapi_documents):
+        errors.append("both OpenAPI documents must use version 3.1.2")
+    if parsed[ASYNCAPI].get("asyncapi") != "3.1.0":
+        errors.append("AsyncAPI document must use version 3.1.0")
+
+    operation_ids: list[str] = []
+    mutating_operations: list[tuple[str, dict]] = []
+    for document in openapi_documents:
+        for route, path_item in document.get("paths", {}).items():
+            for method, operation in path_item.items():
+                if method.lower() not in {"get", "post", "put", "patch", "delete"}:
+                    continue
+                operation_id = operation.get("operationId")
+                if operation_id:
+                    operation_ids.append(operation_id)
+                if method.lower() != "get" and operation_id != "receiveAdapterEvent":
+                    mutating_operations.append((operation_id or route, operation))
+    duplicate_operation_ids = sorted({item for item in operation_ids if operation_ids.count(item) > 1})
+    if duplicate_operation_ids:
+        errors.append("duplicate OpenAPI operationIds: " + ", ".join(duplicate_operation_ids))
+
+    for operation_id, operation in mutating_operations:
+        if "202" not in operation.get("responses", {}):
+            errors.append(f"state-changing operation must return 202: {operation_id}")
+        if "409" not in operation.get("responses", {}):
+            errors.append(f"state-changing operation must expose idempotency conflict 409: {operation_id}")
+        parameter_refs = [parameter.get("$ref", "") for parameter in operation.get("parameters", [])]
+        if not any("IdempotencyKey" in ref for ref in parameter_refs):
+            errors.append(f"state-changing platform command lacks Idempotency-Key: {operation_id}")
+        if not any("CorrelationId" in ref for ref in parameter_refs):
+            errors.append(f"state-changing platform command lacks correlation ID: {operation_id}")
+
+    async_messages = parsed[ASYNCAPI].get("components", {}).get("messages", {})
+    message_names = [message.get("name") for message in async_messages.values()]
+    if None in message_names or len(message_names) != len(set(message_names)):
+        errors.append("AsyncAPI component message names must exist and be unique")
+    expected_channels = {
+        "workflow.events.v1", "institution.events.v1", "chain.events.v1",
+        "reconciliation.events.v1", "audit.events.v1", "quarantine.events.v1",
+    }
+    actual_channels = {channel.get("address") for channel in parsed[ASYNCAPI].get("channels", {}).values()}
+    if actual_channels != expected_channels:
+        errors.append(f"AsyncAPI logical channels do not match approved set: {sorted(actual_channels)}")
+
+    state_axes = set(parsed[DOMAIN_SCHEMA]["$defs"]["StateCatalogEntry"]["properties"]["axis"]["enum"])
+    catalog_entries = parsed[STATE_CATALOG].get("entries", [])
+    catalog_axes = {entry.get("axis") for entry in catalog_entries}
+    catalog_keys = [(entry.get("axis"), entry.get("code")) for entry in catalog_entries]
+    if catalog_axes != state_axes:
+        errors.append("state catalog must cover every approved state axis")
+    if len(catalog_keys) != len(set(catalog_keys)):
+        errors.append("state catalog has duplicate axis and code pairs")
+
+    traceability = parsed[TRACEABILITY]
+    trace_axes = {entry.get("axis") for entry in traceability.get("stateAxes", [])}
+    if trace_axes != state_axes:
+        errors.append("traceability map must cover every state axis")
+    known_operations = set(operation_ids)
+    known_event_types = set(parsed[EVENTS_SCHEMA]["properties"]["eventType"]["enum"])
+    for entry in traceability.get("stateAxes", []):
+        referenced_operations = set(entry.get("queryOperationIds", []) + entry.get("commandOperationIds", []))
+        if not referenced_operations.issubset(known_operations):
+            errors.append(f"traceability has unknown operation for {entry.get('axis')}")
+        if not set(entry.get("eventTypes", [])).issubset(known_event_types):
+            errors.append(f"traceability has unknown event type for {entry.get('axis')}")
+        if not entry.get("queryOperationIds") or not entry.get("eventTypes"):
+            errors.append(f"traceability must connect query and event for {entry.get('axis')}")
+    required_components = {
+        "투자자 앱", "통합 기관 콘솔", "업무 조정기", "인가 해외 증권사 권리원장 모의 모듈",
+        "1차 주문 모듈", "24/7 거래 모듈", "시장조성 모듈", "환매 모듈", "권리관리 모듈",
+        "대사와 감사 모듈", "블록체인 연계 모듈", "기관 모의 어댑터",
+        "PostgreSQL 업무와 증거 저장소", "PostgreSQL 발송함과 재처리기",
+    }
+    component_entries = traceability.get("architectureComponents", [])
+    if {entry.get("component") for entry in component_entries} != required_components:
+        errors.append("traceability map must cover every stage-six architecture component")
+    if any(not entry.get("interfaces") for entry in component_entries):
+        errors.append("every architecture component needs at least one interface")
+
+    forbidden_schema_keys = {
+        "passportNumber", "nationality", "taxResidence", "bankAccountNumber",
+        "securitiesAccountNumber", "customerName",
+    }
+    for path in schema_paths:
+        keys: set[str] = set()
+        stack = [parsed[path]]
+        while stack:
+            value = stack.pop()
+            if isinstance(value, dict):
+                keys.update(value.keys())
+                stack.extend(value.values())
+            elif isinstance(value, list):
+                stack.extend(value)
+        found_keys = sorted(keys & forbidden_schema_keys)
+        if found_keys:
+            errors.append(f"{path.name} exposes forbidden personal data fields: {', '.join(found_keys)}")
+
+    expected_failure_cases = {
+        "duplicateCommand", "idempotencyBodyConflict", "lateCorrection", "duplicateEvent",
+        "eventSequenceGap", "staleMarketData", "fractionalShare", "custodyMissingAfterSettlement",
+        "rightsLedgerFailureAfterChain", "forbiddenPii",
+    }
+    actual_failure_cases = {case.get("case") for case in parsed[FAILURE_EXAMPLES]}
+    if actual_failure_cases != expected_failure_cases:
+        errors.append(f"failure examples do not match approved cases: {sorted(actual_failure_cases)}")
+    signed_primary_types = {item.get("primaryType") for item in parsed[SIGNED_INTENT_EXAMPLES]}
+    expected_primary_types = {
+        "PrimaryOrderIntent", "SecondaryOrderIntent", "RedemptionIntent",
+        "MarketMakerQuote", "BrokerSettlementApproval",
+    }
+    if signed_primary_types != expected_primary_types:
+        errors.append("signed examples must cover all five EIP-712 primary types")
+    lifecycle_event_types = {event.get("eventType") for event in parsed[LIFECYCLE_EXAMPLES]}
+    expected_lifecycle_events = {
+        "primary.execution.recorded.v1", "domestic.settlement.confirmed.v1",
+        "custody.position.confirmed.v1", "secondary.trade.completed.v1",
+        "market-maker.hedge.requested.v1", "redemption.cash-claim.created.v1",
+        "dividend.usd-paid.v1", "vote.execution.recorded.v1", "regulatory-report.submitted.v1",
+    }
+    if not expected_lifecycle_events.issubset(lifecycle_event_types):
+        errors.append("lifecycle examples must cover issuance, T+2, trading, hedge, redemption and rights")
+    secondary_payment_modes = {
+        event.get("data", {}).get("paymentMode")
+        for event in parsed[LIFECYCLE_EXAMPLES]
+        if event.get("eventType") == "secondary.trade.completed.v1"
+    }
+    if secondary_payment_modes != {"USD_LEDGER", "USDC_ONCHAIN"}:
+        errors.append("lifecycle examples must cover both USD and USDC 24/7 settlement paths")
+
+    combined = "\n".join(documents.values()) + "\n" + json.dumps(parsed[TRACEABILITY], ensure_ascii=False)
+    forbidden_assumptions = [
+        "protocol: kafka", "결제 후 발행", "고객 간 RFQ", "토큰이 고객 권리의 기준 기록이다",
+    ]
+    found_forbidden = [term for term in forbidden_assumptions if term in combined]
+    if found_forbidden:
+        errors.append("stage-seven contracts revive retired assumptions: " + ", ".join(found_forbidden))
+
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    decisions = DECISIONS.read_text(encoding="utf-8")
+    for label, content in [("README", readme), ("WORKFLOW", workflow)]:
+        if "7단계" not in content or "승인" not in content or "8단계" not in content:
+            errors.append(f"{label} must record stage-seven approval and stage-eight readiness")
+    for term in ["공통 데이터 형식", "API 처리", "이벤트 전달", "기계 명세", "팀 결정 완료"]:
+        if term not in decisions:
+            errors.append(f"DECISIONS.md is missing stage-seven draft decision: {term}")
+
+    state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
+    if state.get("stage") != "ready_for_stage_eight":
+        errors.append("active project state must be ready for stage eight after stage-seven approval")
+    if state.get("iteration") != 30:
+        errors.append("active project iteration must be 30 after stage-seven approval")
     expected_next_action = (
-        "Start stage six system architecture, technology selection, and security design from the aligned and approved stage-one-to-five documents."
+        "Start stage eight smart-contract design from the approved stage-one-to-seven documents "
+        "and machine-readable contracts."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must start stage six after alignment approval")
+        errors.append("active project next action must start stage-eight smart-contract design")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -1565,6 +2191,8 @@ def main() -> int:
     validate_prd_contract(errors)
     validate_stage_four_contract(errors)
     validate_stage_five_contract(errors)
+    validate_stage_six_contract(errors)
+    validate_stage_seven_contract(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -1575,7 +2203,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four and stage-five contracts, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-seven contracts, "
         "and 16 source checksums passed."
     )
     return 0

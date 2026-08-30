@@ -1,0 +1,125 @@
+openapi: 3.1.2
+info:
+  title: Korean Equity RWA PoC Mock Institution Adapter API
+  version: 1.0.0
+  description: 모의 기관은 요청을 접수만 하고 결과를 플랫폼 adapter-events 경로로 비동기 전달한다.
+servers:
+  - url: http://localhost:3100/mock/v1
+security:
+  - syntheticAdapterToken: []
+paths:
+  /domestic-orders:
+    post:
+      operationId: submitDomesticOrder
+      summary: 국내 모의 주문 접수
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AdapterCommand' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /funding-requests:
+    post:
+      operationId: submitFundingRequest
+      summary: 모의 자금 예약과 확정 요청 접수
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AdapterCommand' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /settlement-inquiries:
+    post:
+      operationId: requestSettlementConfirmation
+      summary: KSD 모의 결제 확인 요청 접수
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AdapterCommand' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /custody-inquiries:
+    post:
+      operationId: requestCustodyConfirmation
+      summary: 수탁수량 모의 확인 요청 접수
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AdapterCommand' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /rights-actions:
+    post:
+      operationId: requestRightsActionConfirmation
+      summary: 배당과 의결권 및 기업행동 확인 요청 접수
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AdapterCommand' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    syntheticAdapterToken:
+      type: http
+      scheme: bearer
+      bearerFormat: Synthetic-Adapter-Token
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 16, maxLength: 128 }
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    AdapterCommand:
+      type: object
+      additionalProperties: false
+      required: [commandId, workflowId, commandType, requestedAt, simulation, data]
+      properties:
+        commandId: { type: string, format: uuid }
+        workflowId: { type: string, format: uuid }
+        commandType: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        requestedAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+        simulation: { const: true }
+        data: { $ref: './schemas/events.schema.json#/properties/data' }
+  responses:
+    Accepted:
+      description: 요청이 접수됐으며 기관 사실은 나중에 이벤트로 도착한다.
+      content:
+        application/json:
+          schema: { $ref: './schemas/common.schema.json#/$defs/AcceptedCommand' }
+    Error:
+      description: 멱등 충돌 또는 상태 충돌
+      content:
+        application/json:
+          schema: { $ref: './schemas/common.schema.json#/$defs/ErrorResponse' }

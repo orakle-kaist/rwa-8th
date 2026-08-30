@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/common.schema.json",
+  "title": "Korean Equity RWA PoC Common Types",
+  "type": "object",
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "UtcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "KoreaBusinessDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "NonNegativeIntegerString": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)$"
+    },
+    "PositiveIntegerString": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$"
+    },
+    "DecimalString": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,8})?$"
+    },
+    "EvmAddress": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$"
+    },
+    "EvidenceHash": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "SecurityId": {
+      "type": "string",
+      "pattern": "^[0-9A-Z]{6}$"
+    },
+    "Isin": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"
+    },
+    "Currency": {
+      "type": "string",
+      "enum": ["KRW", "USD", "USDC"]
+    },
+    "Money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "amountMinor", "decimals"],
+      "properties": {
+        "currency": { "$ref": "#/$defs/Currency" },
+        "amountMinor": { "$ref": "#/$defs/NonNegativeIntegerString" },
+        "decimals": { "type": "integer", "enum": [0, 2, 6] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "currency": { "const": "KRW" } } },
+          "then": { "properties": { "decimals": { "const": 0 } } }
+        },
+        {
+          "if": { "properties": { "currency": { "const": "USD" } } },
+          "then": { "properties": { "decimals": { "const": 2 } } }
+        },
+        {
+          "if": { "properties": { "currency": { "const": "USDC" } } },
+          "then": { "properties": { "decimals": { "const": 6 } } }
+        }
+      ]
+    },
+    "SourceMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceInstitutionId",
+        "sourceRecordId",
+        "asOf",
+        "receivedAt",
+        "policyVersion",
+        "evidenceHash",
+        "simulation"
+      ],
+      "properties": {
+        "sourceInstitutionId": { "$ref": "#/$defs/Uuid" },
+        "sourceRecordId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "asOf": { "$ref": "#/$defs/UtcTimestamp" },
+        "receivedAt": { "$ref": "#/$defs/UtcTimestamp" },
+        "validUntil": { "$ref": "#/$defs/UtcTimestamp" },
+        "policyVersion": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "correctsEventId": { "$ref": "#/$defs/Uuid" },
+        "evidenceHash": { "$ref": "#/$defs/EvidenceHash" },
+        "simulation": { "const": true }
+      }
+    },
+    "ProjectionMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projectionAsOf", "lastEventSequence", "projectionStatus"],
+      "properties": {
+        "projectionAsOf": { "$ref": "#/$defs/UtcTimestamp" },
+        "lastEventSequence": { "type": "integer", "minimum": 0 },
+        "projectionStatus": {
+          "type": "string",
+          "enum": ["CURRENT", "INCOMPLETE", "STALE"]
+        },
+        "missingSequences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "type": "integer", "minimum": 1 },
+              "to": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "AcceptedCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requestId", "workflowId", "status", "statusUrl"],
+      "properties": {
+        "requestId": { "$ref": "#/$defs/Uuid" },
+        "workflowId": { "$ref": "#/$defs/Uuid" },
+        "status": { "const": "ACCEPTED" },
+        "statusUrl": { "type": "string", "pattern": "^/api/v1/workflows/[0-9a-fA-F-]{36}$" }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "messageKo",
+        "retryable",
+        "requestId",
+        "correlationId",
+        "responsibleRole",
+        "nextActionKo"
+      ],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "messageKo": { "type": "string", "minLength": 1 },
+        "retryable": { "type": "boolean" },
+        "requestId": { "$ref": "#/$defs/Uuid" },
+        "correlationId": { "$ref": "#/$defs/Uuid" },
+        "responsibleRole": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "nextActionKo": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

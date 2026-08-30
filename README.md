@@ -2,9 +2,9 @@
 
 이 프로젝트는 비거주 일반 개인투자자가 해외 금융기관을 통해 한국 상장주식에 접근할 수 있도록 `한국형 규제 수탁 권리의 24/7 2차시장 통제`를 설계하고 검증하는 PoC다. Dinari의 수탁형 토큰화 주식을 참고하되 한국의 외국인 통합계좌, KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
 
-> 현재 상태: **1~5단계 정합성 보완 승인 완료, 6단계 시스템 구조와 보안 설계 착수 가능**
+> 현재 상태: **7단계 승인 완료, 8단계 스마트컨트랙트 설계 착수 가능**
 >
-> 다음 행동: 승인된 1~5단계 문서를 기준으로 토큰 표준, 발행 체인, 시스템 경계, 권한, 키와 개인정보 보호 및 외부 정보 전달 구조를 비교하고 결정한다.
+> 다음 행동: 승인된 1~7단계를 기준으로 스마트컨트랙트 역할, 함수, 전환조건과 배포구조를 설계한다.
 >
 > 실제 PoC 코드 구현: **10단계**에서 시작한다.
 
@@ -29,20 +29,20 @@
 | 3. 제품 요구사항 | 승인 완료 | [제품 요구사항](docs/03-product-requirements/PRD.md) | 사용자와 기관에 필요한 기능 및 완료 조건을 확인할 때 |
 | 4. 기관 업무 설계 | 승인 완료 | [기관 업무와 책임](docs/04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보](docs/04-institution-design/REFERENCE_DATA.md) | 업무 인계, 기준 장부, 승인 책임과 데이터 원본을 확인할 때 |
 | 5. 제품 동작 설계 | 승인 완료 | [화면 흐름](docs/05-screens-states-recovery/SCREEN_FLOWS.md), [상태와 전환](docs/05-screens-states-recovery/STATE_MODEL.md), [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md) | 화면, 업무 상태, 차단, 격리와 재개 규칙을 확인할 때 |
-| 6. 시스템 구조와 보안 | 착수 가능 | `docs/06-architecture-security/` 예정 | 승인된 1~5단계를 기준으로 기술 구성과 보안 방식을 선택할 때 |
-| 7. 데이터와 연계 | 시작 전 | `docs/07-data-api-events/` 예정 | 공통 데이터, API와 이벤트를 설계할 때 |
-| 8. 스마트컨트랙트 | 시작 전 | `docs/08-smart-contract-design/` 예정 | 발행, 소각, 이전 제한과 권한을 설계할 때 |
+| 6. 시스템 구조와 보안 | 승인 완료 | [시스템 구조](docs/06-architecture-security/ARCHITECTURE.md), [기술 선택](docs/06-architecture-security/TECHNOLOGY_DECISIONS.md), [보안과 개인정보](docs/06-architecture-security/SECURITY_AND_PRIVACY.md) | 구성요소, 토큰과 체인 및 외부정보, 권한과 키, 개인정보와 위협 통제를 확인할 때 |
+| 7. 데이터와 연계 | 승인 완료 | [공통 데이터](docs/07-data-api-events/DATA_MODEL.md), [API 계약](docs/07-data-api-events/API_CONTRACTS.md), [이벤트 계약](docs/07-data-api-events/EVENT_CONTRACTS.md)과 [기계 명세](docs/07-data-api-events/specs/) | 공통 데이터, API와 이벤트를 설계할 때 |
+| 8. 스마트컨트랙트 | 착수 가능 | `docs/08-smart-contract-design/` 예정 | 발행, 소각, 이전 제한과 권한을 설계할 때 |
 | 9. 테스트 설계 | 시작 전 | `docs/09-test-design/` 예정 | 구현 전 인수 및 실패 시험을 확정할 때 |
 | 10. PoC 구현 | 시작 전 | `docs/10-poc-implementation/`과 구현 코드 예정 | 승인된 설계를 실제 코드로 만들 때 |
 | 11. 결과 정리 | 시작 전 | `docs/11-results/` 예정 | 시연 결과, 확인된 사실과 한계를 정리할 때 |
 
-6단계 이후 폴더는 해당 단계가 시작될 때 만든다. 빈 폴더나 내용이 정해지지 않은 문서를 미리 만들지 않는다.
+7단계 이후 폴더는 해당 단계가 시작될 때 만든다. 빈 폴더나 내용이 정해지지 않은 문서를 미리 만들지 않는다.
 
 ## 역할별 읽는 순서
 
 - 기관 업무 검토자: [마스터](docs/01-master/MASTER.md) → [기관 업무](docs/04-institution-design/INSTITUTION_WORKFLOWS.md) → [기준정보](docs/04-institution-design/REFERENCE_DATA.md) → [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md)
 - 화면 및 개발 담당자: [제품 요구사항](docs/03-product-requirements/PRD.md) → [화면](docs/05-screens-states-recovery/SCREEN_FLOWS.md) → [상태](docs/05-screens-states-recovery/STATE_MODEL.md) → [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md)
-- 기술 설계 담당자: [결정 기록](docs/00-project/DECISIONS.md) → 재승인된 1~5단계 문서 → 6단계 산출물
+- 기술 설계 담당자: [결정 기록](docs/00-project/DECISIONS.md) → 재승인된 1~5단계 문서 → [시스템 구조](docs/06-architecture-security/ARCHITECTURE.md) → [기술 선택](docs/06-architecture-security/TECHNOLOGY_DECISIONS.md) → [보안과 개인정보](docs/06-architecture-security/SECURITY_AND_PRIVACY.md)
 - 근거 확인 담당자: [마스터](docs/01-master/MASTER.md) → [리서치 브리프](research/korean-equity-rwa/brief.md) → [공식 출처](research/korean-equity-rwa/sources/web/official-sources.md) → [내부 검토](research/korean-equity-rwa/review/human_review.md)
 
 ## 저장소에서 자료를 구분하는 법
@@ -56,6 +56,8 @@ docs/                             단계별 설계와 프로젝트 결정
   03-product-requirements/        3단계
   04-institution-design/          4단계
   05-screens-states-recovery/     5단계
+  06-architecture-security/       6단계
+  07-data-api-events/             7단계
 research/korean-equity-rwa/
   brief.md                        조사 질문과 범위
   sources/                        공식 자료와 팀 제공 원문
@@ -66,6 +68,8 @@ scripts/                          문서, 링크와 원자료 검증
 ```
 
 - `docs/`는 단계별 기준 문서의 유일한 위치다. 1~5단계 문서는 정합성 보완까지 승인된 6단계 설계의 입력이다.
+- 6단계 세 문서는 2026년 8월 31일 팀 내부 승인된 7단계 설계의 입력이다.
+- 7단계 세 문서와 기계 명세는 2026년 8월 31일 팀 내부 승인된 8단계 설계의 입력이다.
 - `research/`는 설계의 근거와 조사과정을 보존하지만 승인 문서를 대신하지 않는다.
 - `research/korean-equity-rwa/_work/`는 검증과 이력용이므로 일반 독자가 먼저 읽을 필요가 없다.
 - `archive/pre-prd-v1/`은 과거 아이디어를 보존한 자료이며 현재 요구사항이나 구현 기준으로 사용하지 않는다.
