@@ -2,7 +2,7 @@
 
 이 문서는 마스터 제안서 검토부터 PoC 결과 보고까지의 작업 순서를 정합니다. 앞 단계에서 결정하지 않은 내용을 뒤 단계의 작성자나 AI가 임의로 정하지 않게 하는 것이 목적입니다.
 
-1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 한 차례 승인했다. 이후 단계 간 차이를 발견해 [PoC 목표와 성공 기준](../02-poc-definition/POC_GOALS.md), [시험 데이터](../02-poc-definition/POC_TEST_DATA.md), [제품 요구사항 문서](../03-product-requirements/PRD.md), [기관 업무와 책임 설계](../04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보 설계](../04-institution-design/REFERENCE_DATA.md), [역할별 화면 흐름](../05-screens-states-recovery/SCREEN_FLOWS.md), [업무 상태와 전환 규칙](../05-screens-states-recovery/STATE_MODEL.md)과 [오류와 복구 규칙](../05-screens-states-recovery/ERROR_AND_RECOVERY.md)을 함께 보완하고 2026년 8월 30일 다시 승인했다. 현재 [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md)과 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)를 작성해 **6단계 검토 대기** 상태다. 세 문서를 함께 승인하기 전에는 7단계를 시작하지 않는다.
+1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 승인했다. 이후 단계 간 정합성을 보완해 1~5단계를 같은 날 다시 승인했다. [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md)과 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)는 2026년 8월 31일 승인했다. 다음 단계는 **7단계 공통 데이터, API와 이벤트 설계**다.
 
 ## 기본 원칙
 
@@ -77,6 +77,6 @@ PRD에는 확인된 고객만 이전할 수 있어야 한다거나 오래된 시
 
 ## 문서의 우선순위
 
-현재 [마스터](../01-master/MASTER.md)부터 [오류와 복구 규칙](../05-screens-states-recovery/ERROR_AND_RECOVERY.md)까지 1~5단계 문서는 정합성 보완까지 승인된 기준 문서다. 6단계 세 문서는 이 기준을 기술 구조와 보안 통제로 옮긴 검토안이며 아직 승인 문서가 아니다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
+현재 [마스터](../01-master/MASTER.md)부터 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)까지 1~6단계 문서는 승인된 기준 문서다. 7단계는 이 기준의 의미를 바꾸지 않고 공통 데이터, API와 이벤트로 구체화한다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
 
 2단계에서는 PoC의 기준일, 대표 시연 종목, 합성 데이터와 통과조건을 별도 문서로 확정합니다. 이후에는 각 단계에서 승인한 문서가 해당 범위의 기준이 됩니다.
