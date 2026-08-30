@@ -1,0 +1,1230 @@
+{
+  "as_of": "2026-08-28",
+  "retrieved_at": "2026-08-29T15:57:38+09:00",
+  "source": {
+    "publisher": "한국거래소",
+    "index_name": "KOSPI 200",
+    "url": "https://index.krx.co.kr/contents/MKD/03/0304/03040101/MKD03040101T3.jsp?upmidCd=0102&idxCd=1028&idxId=1",
+    "query": {
+      "ind_tp_cd": "1",
+      "idx_ind_cd": "028",
+      "idx_id": "1",
+      "compst_isu_tp": "1",
+      "schdate": "20260828"
+    }
+  },
+  "row_count": 201,
+  "notes": [
+    "기준일의 공식 구성종목 행을 보존한 2단계 최소 기준정보다.",
+    "종목코드, 종목명과 종가는 KRX 응답값이며 거래대금은 검증 참고용이다.",
+    "ISIN, 업종, 거래 가능 상태와 데이터 연결 식별자는 4단계 기준정보 설계에서 보강한다."
+  ],
+  "constituents": [
+    {
+      "code": "282330",
+      "name": "BGF리테일",
+      "close_krw": 147000,
+      "trading_value_krw": 5982760350
+    },
+    {
+      "code": "138930",
+      "name": "BNK금융지주",
+      "close_krw": 15120,
+      "trading_value_krw": 10810673215
+    },
+    {
+      "code": "001040",
+      "name": "CJ",
+      "close_krw": 130500,
+      "trading_value_krw": 8374679450
+    },
+    {
+      "code": "000120",
+      "name": "CJ대한통운",
+      "close_krw": 74700,
+      "trading_value_krw": 2739276650
+    },
+    {
+      "code": "097950",
+      "name": "CJ제일제당",
+      "close_krw": 189300,
+      "trading_value_krw": 11238970700
+    },
+    {
+      "code": "005830",
+      "name": "DB손해보험",
+      "close_krw": 187400,
+      "trading_value_krw": 37258884050
+    },
+    {
+      "code": "000990",
+      "name": "DB하이텍",
+      "close_krw": 93900,
+      "trading_value_krw": 21486961850
+    },
+    {
+      "code": "000210",
+      "name": "DL",
+      "close_krw": 50000,
+      "trading_value_krw": 2891835675
+    },
+    {
+      "code": "375500",
+      "name": "DL이앤씨",
+      "close_krw": 73300,
+      "trading_value_krw": 18250463850
+    },
+    {
+      "code": "007340",
+      "name": "DN오토모티브",
+      "close_krw": 47200,
+      "trading_value_krw": 5888729875
+    },
+    {
+      "code": "383220",
+      "name": "F&F",
+      "close_krw": 66900,
+      "trading_value_krw": 5142882850
+    },
+    {
+      "code": "078930",
+      "name": "GS",
+      "close_krw": 129200,
+      "trading_value_krw": 67800718700
+    },
+    {
+      "code": "007070",
+      "name": "GS리테일",
+      "close_krw": 26650,
+      "trading_value_krw": 4575016725
+    },
+    {
+      "code": "267270",
+      "name": "HD건설기계",
+      "close_krw": 136600,
+      "trading_value_krw": 25199734900
+    },
+    {
+      "code": "009540",
+      "name": "HD한국조선해양",
+      "close_krw": 354500,
+      "trading_value_krw": 51986560750
+    },
+    {
+      "code": "267250",
+      "name": "HD현대",
+      "close_krw": 218000,
+      "trading_value_krw": 19543290000
+    },
+    {
+      "code": "443060",
+      "name": "HD현대마린솔루션",
+      "close_krw": 221000,
+      "trading_value_krw": 24051191250
+    },
+    {
+      "code": "071970",
+      "name": "HD현대마린엔진",
+      "close_krw": 53100,
+      "trading_value_krw": 10625146450
+    },
+    {
+      "code": "267260",
+      "name": "HD현대일렉트릭",
+      "close_krw": 814000,
+      "trading_value_krw": 173129888491
+    },
+    {
+      "code": "329180",
+      "name": "HD현대중공업",
+      "close_krw": 457000,
+      "trading_value_krw": 106166785000
+    },
+    {
+      "code": "204320",
+      "name": "HL만도",
+      "close_krw": 50300,
+      "trading_value_krw": 13304333675
+    },
+    {
+      "code": "011200",
+      "name": "HMM",
+      "close_krw": 21700,
+      "trading_value_krw": 15033777100
+    },
+    {
+      "code": "298050",
+      "name": "HS효성첨단소재",
+      "close_krw": 178800,
+      "trading_value_krw": 3592468200
+    },
+    {
+      "code": "175330",
+      "name": "JB금융지주",
+      "close_krw": 29050,
+      "trading_value_krw": 6936854900
+    },
+    {
+      "code": "105560",
+      "name": "KB금융",
+      "close_krw": 171600,
+      "trading_value_krw": 149193772410
+    },
+    {
+      "code": "002380",
+      "name": "KCC",
+      "close_krw": 473500,
+      "trading_value_krw": 9147492750
+    },
+    {
+      "code": "030200",
+      "name": "KT",
+      "close_krw": 54500,
+      "trading_value_krw": 14620865150
+    },
+    {
+      "code": "033780",
+      "name": "KT&G",
+      "close_krw": 176300,
+      "trading_value_krw": 22125120400
+    },
+    {
+      "code": "003550",
+      "name": "LG",
+      "close_krw": 116300,
+      "trading_value_krw": 25654612450
+    },
+    {
+      "code": "034220",
+      "name": "LG디스플레이",
+      "close_krw": 9620,
+      "trading_value_krw": 20332618930
+    },
+    {
+      "code": "051900",
+      "name": "LG생활건강",
+      "close_krw": 318000,
+      "trading_value_krw": 28371838250
+    },
+    {
+      "code": "064400",
+      "name": "LG씨엔에스",
+      "close_krw": 75800,
+      "trading_value_krw": 71831573000
+    },
+    {
+      "code": "373220",
+      "name": "LG에너지솔루션",
+      "close_krw": 370000,
+      "trading_value_krw": 89557476750
+    },
+    {
+      "code": "032640",
+      "name": "LG유플러스",
+      "close_krw": 15020,
+      "trading_value_krw": 10578771765
+    },
+    {
+      "code": "011070",
+      "name": "LG이노텍",
+      "close_krw": 611000,
+      "trading_value_krw": 109570661500
+    },
+    {
+      "code": "066570",
+      "name": "LG전자",
+      "close_krw": 201500,
+      "trading_value_krw": 107364470500
+    },
+    {
+      "code": "051910",
+      "name": "LG화학",
+      "close_krw": 277000,
+      "trading_value_krw": 35216780500
+    },
+    {
+      "code": "079550",
+      "name": "LIG디펜스앤에어로스페이스",
+      "close_krw": 734000,
+      "trading_value_krw": 35334078500
+    },
+    {
+      "code": "006260",
+      "name": "LS",
+      "close_krw": 313000,
+      "trading_value_krw": 35019366250
+    },
+    {
+      "code": "010120",
+      "name": "LS ELECTRIC",
+      "close_krw": 214500,
+      "trading_value_krw": 118311865000
+    },
+    {
+      "code": "035420",
+      "name": "NAVER",
+      "close_krw": 220500,
+      "trading_value_krw": 211389904750
+    },
+    {
+      "code": "036570",
+      "name": "NC",
+      "close_krw": 225000,
+      "trading_value_krw": 7250105750
+    },
+    {
+      "code": "005940",
+      "name": "NH투자증권",
+      "close_krw": 26650,
+      "trading_value_krw": 10016163150
+    },
+    {
+      "code": "456040",
+      "name": "OCI",
+      "close_krw": 82000,
+      "trading_value_krw": 2671313800
+    },
+    {
+      "code": "010060",
+      "name": "OCI홀딩스",
+      "close_krw": 274500,
+      "trading_value_krw": 48503709250
+    },
+    {
+      "code": "005490",
+      "name": "POSCO홀딩스",
+      "close_krw": 337500,
+      "trading_value_krw": 58670899750
+    },
+    {
+      "code": "010950",
+      "name": "S-Oil",
+      "close_krw": 149200,
+      "trading_value_krw": 60318322300
+    },
+    {
+      "code": "034730",
+      "name": "SK",
+      "close_krw": 543000,
+      "trading_value_krw": 67901575500
+    },
+    {
+      "code": "011790",
+      "name": "SKC",
+      "close_krw": 91300,
+      "trading_value_krw": 8572153100
+    },
+    {
+      "code": "302440",
+      "name": "SK바이오사이언스",
+      "close_krw": 38950,
+      "trading_value_krw": 2225262675
+    },
+    {
+      "code": "326030",
+      "name": "SK바이오팜",
+      "close_krw": 88000,
+      "trading_value_krw": 10876241100
+    },
+    {
+      "code": "402340",
+      "name": "SK스퀘어",
+      "close_krw": 1028000,
+      "trading_value_krw": 459757402000
+    },
+    {
+      "code": "361610",
+      "name": "SK아이이테크놀로지",
+      "close_krw": 16680,
+      "trading_value_krw": 18841358520
+    },
+    {
+      "code": "096770",
+      "name": "SK이노베이션",
+      "close_krw": 116900,
+      "trading_value_krw": 146715886950
+    },
+    {
+      "code": "285130",
+      "name": "SK케미칼",
+      "close_krw": 54200,
+      "trading_value_krw": 8015436650
+    },
+    {
+      "code": "017670",
+      "name": "SK텔레콤",
+      "close_krw": 98600,
+      "trading_value_krw": 122110134100
+    },
+    {
+      "code": "000660",
+      "name": "SK하이닉스",
+      "close_krw": 1653000,
+      "trading_value_krw": 5984241623291
+    },
+    {
+      "code": "069260",
+      "name": "TKG휴켐스",
+      "close_krw": 16390,
+      "trading_value_krw": 764006500
+    },
+    {
+      "code": "139130",
+      "name": "iM금융지주",
+      "close_krw": 18120,
+      "trading_value_krw": 5123081890
+    },
+    {
+      "code": "035250",
+      "name": "강원랜드",
+      "close_krw": 14790,
+      "trading_value_krw": 4292837040
+    },
+    {
+      "code": "010130",
+      "name": "고려아연",
+      "close_krw": 1375000,
+      "trading_value_krw": 28787750000
+    },
+    {
+      "code": "011780",
+      "name": "금호석유화학",
+      "close_krw": 125900,
+      "trading_value_krw": 8827248600
+    },
+    {
+      "code": "073240",
+      "name": "금호타이어",
+      "close_krw": 7360,
+      "trading_value_krw": 31391870770
+    },
+    {
+      "code": "000270",
+      "name": "기아",
+      "close_krw": 128000,
+      "trading_value_krw": 104466702700
+    },
+    {
+      "code": "024110",
+      "name": "기업은행",
+      "close_krw": 20850,
+      "trading_value_krw": 17980861000
+    },
+    {
+      "code": "251270",
+      "name": "넷마블",
+      "close_krw": 37450,
+      "trading_value_krw": 4247385850
+    },
+    {
+      "code": "006280",
+      "name": "녹십자",
+      "close_krw": 130500,
+      "trading_value_krw": 2405979050
+    },
+    {
+      "code": "004370",
+      "name": "농심",
+      "close_krw": 450500,
+      "trading_value_krw": 22336412250
+    },
+    {
+      "code": "483650",
+      "name": "달바글로벌",
+      "close_krw": 229000,
+      "trading_value_krw": 32396304750
+    },
+    {
+      "code": "001680",
+      "name": "대상",
+      "close_krw": 18200,
+      "trading_value_krw": 3704738495
+    },
+    {
+      "code": "047040",
+      "name": "대우건설",
+      "close_krw": 19690,
+      "trading_value_krw": 138252885050
+    },
+    {
+      "code": "003090",
+      "name": "대웅",
+      "close_krw": 17990,
+      "trading_value_krw": 930502685
+    },
+    {
+      "code": "069620",
+      "name": "대웅제약",
+      "close_krw": 128800,
+      "trading_value_krw": 2518607000
+    },
+    {
+      "code": "006650",
+      "name": "대한유화",
+      "close_krw": 95800,
+      "trading_value_krw": 7219036650
+    },
+    {
+      "code": "001440",
+      "name": "대한전선",
+      "close_krw": 29700,
+      "trading_value_krw": 42467539600
+    },
+    {
+      "code": "003490",
+      "name": "대한항공",
+      "close_krw": 28700,
+      "trading_value_krw": 78512401725
+    },
+    {
+      "code": "192080",
+      "name": "더블유게임즈",
+      "close_krw": 59200,
+      "trading_value_krw": 2522071850
+    },
+    {
+      "code": "026960",
+      "name": "동서",
+      "close_krw": 26150,
+      "trading_value_krw": 1561181550
+    },
+    {
+      "code": "006040",
+      "name": "동원산업",
+      "close_krw": 38650,
+      "trading_value_krw": 1572050225
+    },
+    {
+      "code": "014820",
+      "name": "동원시스템즈",
+      "close_krw": 22450,
+      "trading_value_krw": 667817725
+    },
+    {
+      "code": "000150",
+      "name": "두산",
+      "close_krw": 1238000,
+      "trading_value_krw": 67788996500
+    },
+    {
+      "code": "454910",
+      "name": "두산로보틱스",
+      "close_krw": 71600,
+      "trading_value_krw": 15445054350
+    },
+    {
+      "code": "241560",
+      "name": "두산밥캣",
+      "close_krw": 63100,
+      "trading_value_krw": 7159682700
+    },
+    {
+      "code": "034020",
+      "name": "두산에너빌리티",
+      "close_krw": 88200,
+      "trading_value_krw": 308574235350
+    },
+    {
+      "code": "023530",
+      "name": "롯데쇼핑",
+      "close_krw": 102100,
+      "trading_value_krw": 11189371500
+    },
+    {
+      "code": "280360",
+      "name": "롯데웰푸드",
+      "close_krw": 146300,
+      "trading_value_krw": 8858900950
+    },
+    {
+      "code": "004000",
+      "name": "롯데정밀화학",
+      "close_krw": 48350,
+      "trading_value_krw": 2118410125
+    },
+    {
+      "code": "004990",
+      "name": "롯데지주",
+      "close_krw": 24150,
+      "trading_value_krw": 1900169175
+    },
+    {
+      "code": "005300",
+      "name": "롯데칠성",
+      "close_krw": 99600,
+      "trading_value_krw": 2617467750
+    },
+    {
+      "code": "011170",
+      "name": "롯데케미칼",
+      "close_krw": 59500,
+      "trading_value_krw": 6534997550
+    },
+    {
+      "code": "138040",
+      "name": "메리츠금융지주",
+      "close_krw": 122000,
+      "trading_value_krw": 15233749100
+    },
+    {
+      "code": "006800",
+      "name": "미래에셋증권",
+      "close_krw": 36150,
+      "trading_value_krw": 24261015975
+    },
+    {
+      "code": "081660",
+      "name": "미스토홀딩스",
+      "close_krw": 41350,
+      "trading_value_krw": 3806210225
+    },
+    {
+      "code": "002840",
+      "name": "미원상사",
+      "close_krw": 138800,
+      "trading_value_krw": 459828000
+    },
+    {
+      "code": "268280",
+      "name": "미원에스씨",
+      "close_krw": 134000,
+      "trading_value_krw": 235776900
+    },
+    {
+      "code": "062040",
+      "name": "산일전기",
+      "close_krw": 202500,
+      "trading_value_krw": 64614324450
+    },
+    {
+      "code": "028050",
+      "name": "삼성E&A",
+      "close_krw": 48750,
+      "trading_value_krw": 67940639875
+    },
+    {
+      "code": "006400",
+      "name": "삼성SDI",
+      "close_krw": 571000,
+      "trading_value_krw": 253002884000
+    },
+    {
+      "code": "028260",
+      "name": "삼성물산",
+      "close_krw": 375000,
+      "trading_value_krw": 87728304500
+    },
+    {
+      "code": "207940",
+      "name": "삼성바이오로직스",
+      "close_krw": 1486000,
+      "trading_value_krw": 166680966129
+    },
+    {
+      "code": "032830",
+      "name": "삼성생명",
+      "close_krw": 310000,
+      "trading_value_krw": 84219064250
+    },
+    {
+      "code": "018260",
+      "name": "삼성에스디에스",
+      "close_krw": 243000,
+      "trading_value_krw": 66194082250
+    },
+    {
+      "code": "0126Z0",
+      "name": "삼성에피스홀딩스",
+      "close_krw": 373500,
+      "trading_value_krw": 24169722000
+    },
+    {
+      "code": "009150",
+      "name": "삼성전기",
+      "close_krw": 1421000,
+      "trading_value_krw": 1145352643080
+    },
+    {
+      "code": "005930",
+      "name": "삼성전자",
+      "close_krw": 257000,
+      "trading_value_krw": 3925852660500
+    },
+    {
+      "code": "010140",
+      "name": "삼성중공업",
+      "close_krw": 21200,
+      "trading_value_krw": 42927550975
+    },
+    {
+      "code": "016360",
+      "name": "삼성증권",
+      "close_krw": 88500,
+      "trading_value_krw": 17618300350
+    },
+    {
+      "code": "029780",
+      "name": "삼성카드",
+      "close_krw": 47300,
+      "trading_value_krw": 4674487800
+    },
+    {
+      "code": "000810",
+      "name": "삼성화재",
+      "close_krw": 687000,
+      "trading_value_krw": 94443282668
+    },
+    {
+      "code": "003230",
+      "name": "삼양식품",
+      "close_krw": 1547000,
+      "trading_value_krw": 66059686000
+    },
+    {
+      "code": "001430",
+      "name": "세아베스틸지주",
+      "close_krw": 42600,
+      "trading_value_krw": 3586435775
+    },
+    {
+      "code": "003030",
+      "name": "세아제강지주",
+      "close_krw": 103400,
+      "trading_value_krw": 1555485500
+    },
+    {
+      "code": "068270",
+      "name": "셀트리온",
+      "close_krw": 190700,
+      "trading_value_krw": 71085062600
+    },
+    {
+      "code": "004170",
+      "name": "신세계",
+      "close_krw": 405500,
+      "trading_value_krw": 40485008250
+    },
+    {
+      "code": "055550",
+      "name": "신한지주",
+      "close_krw": 109700,
+      "trading_value_krw": 79521960950
+    },
+    {
+      "code": "112610",
+      "name": "씨에스윈드",
+      "close_krw": 49400,
+      "trading_value_krw": 12391675550
+    },
+    {
+      "code": "090430",
+      "name": "아모레퍼시픽",
+      "close_krw": 150600,
+      "trading_value_krw": 67114340650
+    },
+    {
+      "code": "002790",
+      "name": "아모레퍼시픽홀딩스",
+      "close_krw": 28000,
+      "trading_value_krw": 4667912125
+    },
+    {
+      "code": "002030",
+      "name": "아세아",
+      "close_krw": 214500,
+      "trading_value_krw": 963485200
+    },
+    {
+      "code": "137310",
+      "name": "에스디바이오센서",
+      "close_krw": 6300,
+      "trading_value_krw": 1759649420
+    },
+    {
+      "code": "005850",
+      "name": "에스엘",
+      "close_krw": 52400,
+      "trading_value_krw": 3382746500
+    },
+    {
+      "code": "012750",
+      "name": "에스원",
+      "close_krw": 83500,
+      "trading_value_krw": 5732769600
+    },
+    {
+      "code": "278470",
+      "name": "에이피알",
+      "close_krw": 461500,
+      "trading_value_krw": 159054588750
+    },
+    {
+      "code": "450080",
+      "name": "에코프로머티",
+      "close_krw": 38450,
+      "trading_value_krw": 8490176750
+    },
+    {
+      "code": "066970",
+      "name": "엘앤에프",
+      "close_krw": 134800,
+      "trading_value_krw": 63147085200
+    },
+    {
+      "code": "111770",
+      "name": "영원무역",
+      "close_krw": 74300,
+      "trading_value_krw": 4712689000
+    },
+    {
+      "code": "009970",
+      "name": "영원무역홀딩스",
+      "close_krw": 171500,
+      "trading_value_krw": 1289193400
+    },
+    {
+      "code": "000670",
+      "name": "영풍",
+      "close_krw": 41200,
+      "trading_value_krw": 1331120800
+    },
+    {
+      "code": "007310",
+      "name": "오뚜기",
+      "close_krw": 339000,
+      "trading_value_krw": 1535792750
+    },
+    {
+      "code": "271560",
+      "name": "오리온",
+      "close_krw": 129500,
+      "trading_value_krw": 8290227350
+    },
+    {
+      "code": "001800",
+      "name": "오리온홀딩스",
+      "close_krw": 26200,
+      "trading_value_krw": 2368516950
+    },
+    {
+      "code": "316140",
+      "name": "우리금융지주",
+      "close_krw": 33900,
+      "trading_value_krw": 43445204725
+    },
+    {
+      "code": "000100",
+      "name": "유한양행",
+      "close_krw": 84900,
+      "trading_value_krw": 15358325000
+    },
+    {
+      "code": "008730",
+      "name": "율촌화학",
+      "close_krw": 16800,
+      "trading_value_krw": 953731475
+    },
+    {
+      "code": "139480",
+      "name": "이마트",
+      "close_krw": 75100,
+      "trading_value_krw": 6337198150
+    },
+    {
+      "code": "457190",
+      "name": "이수스페셜티케미컬",
+      "close_krw": 66100,
+      "trading_value_krw": 5714881900
+    },
+    {
+      "code": "007660",
+      "name": "이수페타시스",
+      "close_krw": 112800,
+      "trading_value_krw": 68437838450
+    },
+    {
+      "code": "030000",
+      "name": "제일기획",
+      "close_krw": 19340,
+      "trading_value_krw": 6273325715
+    },
+    {
+      "code": "185750",
+      "name": "종근당",
+      "close_krw": 68500,
+      "trading_value_krw": 778431550
+    },
+    {
+      "code": "071320",
+      "name": "지역난방공사",
+      "close_krw": 74800,
+      "trading_value_krw": 654591400
+    },
+    {
+      "code": "035720",
+      "name": "카카오",
+      "close_krw": 36850,
+      "trading_value_krw": 54326324900
+    },
+    {
+      "code": "323410",
+      "name": "카카오뱅크",
+      "close_krw": 21850,
+      "trading_value_krw": 13015314075
+    },
+    {
+      "code": "377300",
+      "name": "카카오페이",
+      "close_krw": 47350,
+      "trading_value_krw": 10646906625
+    },
+    {
+      "code": "192820",
+      "name": "코스맥스",
+      "close_krw": 303000,
+      "trading_value_krw": 101649965250
+    },
+    {
+      "code": "005420",
+      "name": "코스모화학",
+      "close_krw": 11280,
+      "trading_value_krw": 1243319730
+    },
+    {
+      "code": "120110",
+      "name": "코오롱인더",
+      "close_krw": 56500,
+      "trading_value_krw": 9006939200
+    },
+    {
+      "code": "021240",
+      "name": "코웨이",
+      "close_krw": 100400,
+      "trading_value_krw": 16507451587
+    },
+    {
+      "code": "259960",
+      "name": "크래프톤",
+      "close_krw": 222500,
+      "trading_value_krw": 15833284750
+    },
+    {
+      "code": "039490",
+      "name": "키움증권",
+      "close_krw": 278500,
+      "trading_value_krw": 15894824250
+    },
+    {
+      "code": "003240",
+      "name": "태광산업",
+      "close_krw": 918000,
+      "trading_value_krw": 1170450000
+    },
+    {
+      "code": "034230",
+      "name": "파라다이스",
+      "close_krw": 10030,
+      "trading_value_krw": 6105898945
+    },
+    {
+      "code": "028670",
+      "name": "팬오션",
+      "close_krw": 5790,
+      "trading_value_krw": 12989007180
+    },
+    {
+      "code": "022100",
+      "name": "포스코DX",
+      "close_krw": 21400,
+      "trading_value_krw": 4606737800
+    },
+    {
+      "code": "047050",
+      "name": "포스코인터내셔널",
+      "close_krw": 52700,
+      "trading_value_krw": 18905933500
+    },
+    {
+      "code": "003670",
+      "name": "포스코퓨처엠",
+      "close_krw": 186300,
+      "trading_value_krw": 59466779300
+    },
+    {
+      "code": "103140",
+      "name": "풍산",
+      "close_krw": 86400,
+      "trading_value_krw": 17271574400
+    },
+    {
+      "code": "086790",
+      "name": "하나금융지주",
+      "close_krw": 136000,
+      "trading_value_krw": 68768821800
+    },
+    {
+      "code": "352820",
+      "name": "하이브",
+      "close_krw": 180000,
+      "trading_value_krw": 19226559800
+    },
+    {
+      "code": "000080",
+      "name": "하이트진로",
+      "close_krw": 15720,
+      "trading_value_krw": 2017912930
+    },
+    {
+      "code": "036460",
+      "name": "한국가스공사",
+      "close_krw": 37100,
+      "trading_value_krw": 3251461150
+    },
+    {
+      "code": "071050",
+      "name": "한국금융지주",
+      "close_krw": 191300,
+      "trading_value_krw": 21683942550
+    },
+    {
+      "code": "000240",
+      "name": "한국앤컴퍼니",
+      "close_krw": 24750,
+      "trading_value_krw": 1157446475
+    },
+    {
+      "code": "015760",
+      "name": "한국전력",
+      "close_krw": 32550,
+      "trading_value_krw": 65217515525
+    },
+    {
+      "code": "017960",
+      "name": "한국카본",
+      "close_krw": 24950,
+      "trading_value_krw": 13190500875
+    },
+    {
+      "code": "161890",
+      "name": "한국콜마",
+      "close_krw": 161700,
+      "trading_value_krw": 78008739600
+    },
+    {
+      "code": "161390",
+      "name": "한국타이어앤테크놀로지",
+      "close_krw": 66400,
+      "trading_value_krw": 14186473300
+    },
+    {
+      "code": "047810",
+      "name": "한국항공우주",
+      "close_krw": 133100,
+      "trading_value_krw": 31786098150
+    },
+    {
+      "code": "042700",
+      "name": "한미반도체",
+      "close_krw": 219500,
+      "trading_value_krw": 120474881500
+    },
+    {
+      "code": "008930",
+      "name": "한미사이언스",
+      "close_krw": 44500,
+      "trading_value_krw": 10142742475
+    },
+    {
+      "code": "128940",
+      "name": "한미약품",
+      "close_krw": 509000,
+      "trading_value_krw": 71944975500
+    },
+    {
+      "code": "009240",
+      "name": "한샘",
+      "close_krw": 39700,
+      "trading_value_krw": 1322138900
+    },
+    {
+      "code": "014680",
+      "name": "한솔케미칼",
+      "close_krw": 203000,
+      "trading_value_krw": 4355329000
+    },
+    {
+      "code": "018880",
+      "name": "한온시스템",
+      "close_krw": 3490,
+      "trading_value_krw": 6884040676
+    },
+    {
+      "code": "009420",
+      "name": "한올바이오파마",
+      "close_krw": 64600,
+      "trading_value_krw": 15853872300
+    },
+    {
+      "code": "300720",
+      "name": "한일시멘트",
+      "close_krw": 16950,
+      "trading_value_krw": 4088856615
+    },
+    {
+      "code": "051600",
+      "name": "한전KPS",
+      "close_krw": 47050,
+      "trading_value_krw": 4050030450
+    },
+    {
+      "code": "052690",
+      "name": "한전기술",
+      "close_krw": 122400,
+      "trading_value_krw": 41290119000
+    },
+    {
+      "code": "180640",
+      "name": "한진칼",
+      "close_krw": 131300,
+      "trading_value_krw": 7526540650
+    },
+    {
+      "code": "000880",
+      "name": "한화",
+      "close_krw": 134900,
+      "trading_value_krw": 30688138862
+    },
+    {
+      "code": "0220W0",
+      "name": "한화머시너리앤서비스홀딩스",
+      "close_krw": 7440,
+      "trading_value_krw": 42382534545
+    },
+    {
+      "code": "088350",
+      "name": "한화생명",
+      "close_krw": 5950,
+      "trading_value_krw": 51809059045
+    },
+    {
+      "code": "009830",
+      "name": "한화솔루션",
+      "close_krw": 33750,
+      "trading_value_krw": 44909355675
+    },
+    {
+      "code": "272210",
+      "name": "한화시스템",
+      "close_krw": 75800,
+      "trading_value_krw": 15735347200
+    },
+    {
+      "code": "012450",
+      "name": "한화에어로스페이스",
+      "close_krw": 1157000,
+      "trading_value_krw": 132345926500
+    },
+    {
+      "code": "082740",
+      "name": "한화엔진",
+      "close_krw": 48250,
+      "trading_value_krw": 41490199500
+    },
+    {
+      "code": "042660",
+      "name": "한화오션",
+      "close_krw": 88500,
+      "trading_value_krw": 46777635850
+    },
+    {
+      "code": "000720",
+      "name": "현대건설",
+      "close_krw": 128900,
+      "trading_value_krw": 71382271050
+    },
+    {
+      "code": "086280",
+      "name": "현대글로비스",
+      "close_krw": 205000,
+      "trading_value_krw": 29422457750
+    },
+    {
+      "code": "064350",
+      "name": "현대로템",
+      "close_krw": 139100,
+      "trading_value_krw": 34821026750
+    },
+    {
+      "code": "012330",
+      "name": "현대모비스",
+      "close_krw": 450500,
+      "trading_value_krw": 147146289000
+    },
+    {
+      "code": "069960",
+      "name": "현대백화점",
+      "close_krw": 93400,
+      "trading_value_krw": 8812383350
+    },
+    {
+      "code": "017800",
+      "name": "현대엘리베이터",
+      "close_krw": 75600,
+      "trading_value_krw": 5297719700
+    },
+    {
+      "code": "307950",
+      "name": "현대오토에버",
+      "close_krw": 416000,
+      "trading_value_krw": 23154567750
+    },
+    {
+      "code": "011210",
+      "name": "현대위아",
+      "close_krw": 59700,
+      "trading_value_krw": 2440803150
+    },
+    {
+      "code": "004020",
+      "name": "현대제철",
+      "close_krw": 31000,
+      "trading_value_krw": 22308479275
+    },
+    {
+      "code": "005380",
+      "name": "현대차",
+      "close_krw": 399500,
+      "trading_value_krw": 175090343250
+    },
+    {
+      "code": "001450",
+      "name": "현대해상",
+      "close_krw": 52400,
+      "trading_value_krw": 30580695400
+    },
+    {
+      "code": "008770",
+      "name": "호텔신라",
+      "close_krw": 43000,
+      "trading_value_krw": 6348606075
+    },
+    {
+      "code": "298040",
+      "name": "효성중공업",
+      "close_krw": 3153000,
+      "trading_value_krw": 198192399500
+    },
+    {
+      "code": "298020",
+      "name": "효성티앤씨",
+      "close_krw": 346000,
+      "trading_value_krw": 6778232250
+    },
+    {
+      "code": "093370",
+      "name": "후성",
+      "close_krw": 12520,
+      "trading_value_krw": 24867578190
+    }
+  ]
+}
