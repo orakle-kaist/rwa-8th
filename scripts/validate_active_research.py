@@ -25,6 +25,8 @@ SOURCE_INDEX = RESEARCH_ROOT / "_work" / "source_index.jsonl"
 POC_GOALS = REPO_ROOT / "POC_GOALS.md"
 POC_TEST_DATA = REPO_ROOT / "POC_TEST_DATA.md"
 PRD = REPO_ROOT / "PRD.md"
+INSTITUTION_WORKFLOWS = REPO_ROOT / "INSTITUTION_WORKFLOWS.md"
+REFERENCE_DATA = REPO_ROOT / "REFERENCE_DATA.md"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
@@ -120,6 +122,8 @@ def markdown_files() -> list[Path]:
         POC_GOALS,
         POC_TEST_DATA,
         PRD,
+        INSTITUTION_WORKFLOWS,
+        REFERENCE_DATA,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -160,6 +164,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         POC_GOALS,
         POC_TEST_DATA,
         PRD,
+        INSTITUTION_WORKFLOWS,
+        REFERENCE_DATA,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -198,6 +204,12 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify final_candidate.md as the approved master")
     if "PRD.md" not in readme or "3단계" not in readme or "3단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme:
         errors.append("README must identify PRD.md as the approved stage-three document")
+    if (
+        "INSTITUTION_WORKFLOWS.md" not in readme
+        or "REFERENCE_DATA.md" not in readme
+        or "4단계 승인: 팀 내부 검토안, 승인 대기" not in readme
+    ):
+        errors.append("README must identify both stage-four drafts and their pending approval")
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
@@ -617,8 +629,239 @@ def validate_prd_contract(errors: list[str]) -> None:
         errors.append(f"PRD.md must record eight approved checklist items: found {len(approval_items)}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_four":
-        errors.append("active project state must be ready for stage four after PRD approval")
+    if state.get("stage") not in {"ready_for_stage_four", "awaiting_stage_four_approval"}:
+        errors.append("active project state must be ready for or reviewing stage four after PRD approval")
+
+
+def validate_stage_four_contract(errors: list[str]) -> None:
+    if not INSTITUTION_WORKFLOWS.is_file() or not REFERENCE_DATA.is_file():
+        return  # validate_workspace_contract reports missing required files
+
+    workflows = INSTITUTION_WORKFLOWS.read_text(encoding="utf-8")
+    reference = REFERENCE_DATA.read_text(encoding="utf-8")
+
+    for path, text in [
+        (INSTITUTION_WORKFLOWS, workflows),
+        (REFERENCE_DATA, reference),
+    ]:
+        if "·" in text:
+            errors.append(
+                f"{path.name}: use commas or natural conjunctions instead of middle-dot list separators"
+            )
+        opaque_terms = [term for term in ["RACI", "REQ-", "INV-", "DEC-"] if term in text]
+        if opaque_terms:
+            errors.append(
+                f"{path.name} uses opaque workflow identifiers: " + ", ".join(opaque_terms)
+            )
+
+        forbidden_technology_choices = [
+            "ERC-20",
+            "ERC-3643",
+            "ERC-4626",
+            "LayerZero",
+            "OFT Burn&Mint",
+            "Avalanche",
+            "Solana",
+            "OpenAPI",
+            "AsyncAPI",
+        ]
+        selected_technologies = [
+            term for term in forbidden_technology_choices if term in text
+        ]
+        if selected_technologies:
+            errors.append(
+                f"{path.name} selects technologies reserved for later stages: "
+                + ", ".join(selected_technologies)
+            )
+
+    workflow_sections = [
+        "1. 이 문서가 정하는 것",
+        "2. 업무 설계 원칙",
+        "3. 참여 주체와 책임 경계",
+        "4. 기준 기록의 관리 주체",
+        "5. 기관별 업무 흐름",
+        "6. 정상적인 수량 차이와 실제 오류",
+        "7. 인계 증거와 정정 원칙",
+        "8. PRD 기능 연결 확인",
+        "9. 4단계 승인 기준",
+    ]
+    found_workflow_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", workflows, flags=re.MULTILINE)
+    ]
+    if found_workflow_sections != workflow_sections:
+        errors.append(
+            "INSTITUTION_WORKFLOWS.md numbered sections do not match stage four: "
+            f"found {found_workflow_sections}"
+        )
+
+    required_workflow_terms = [
+        "팀 내부 검토안, 승인 대기",
+        "투자자",
+        "토큰 플랫폼",
+        "인가 해외 증권사",
+        "국내 주문집행 증권사",
+        "수탁은행과 상임대리인",
+        "KSD 모의 응답 주체",
+        "자금과 환전 사업자",
+        "지정 시장조성자",
+        "준법과 감사 담당",
+        "법적 또는 업무상 기준 기록",
+        "기관이 확인한 사본",
+        "플랫폼이 계산한 결과",
+        "토큰 장부는 고객 권리를 보여주고 이전을 통제하는 실행 기록",
+        "발행인관리계좌부와 고객관리계좌부",
+        "KSD의 자기계좌부와 국내 계좌관리기관의 고객계좌부",
+        "인가 해외 증권사 명의로 기록",
+        "합성 고객확인과 전용 지갑 연결",
+        "상품 등록과 거래 가능 판단",
+        "1차 주문 취합, 체결, 권리기입과 토큰 발행",
+        "T+2 결제와 수탁수량 확인",
+        "지정 시장조성자 기반 24/7 2차거래",
+        "시장조성자 헤지와 다음 세션 재고조정",
+        "1차 환매, 권리종료, 소각과 USD 지급",
+        "현금배당, 의결권과 비현금 기업행동",
+        "월별 최종투자자 보고",
+        "두 축 수량 대사, 장애 격리와 재개",
+        "결제완료 응답만 있고 수탁수량 반영 응답이 없거나 그 반대",
+        "환매대금 결제 후 소각 대기",
+        "신규 발행과 24/7 거래를 중지",
+        "원복",
+        "격리",
+        "보정",
+        "사람 승인",
+        "같은 증거와 승인을 발행, 이전, 소각 또는 지급에 두 번 사용할 수 없어야 한다",
+        "5단계 화면, 상태와 오류 규칙 설계를 시작하지 않는다",
+    ]
+    missing_workflow_terms = [
+        term for term in required_workflow_terms if term not in workflows
+    ]
+    if missing_workflow_terms:
+        errors.append(
+            "INSTITUTION_WORKFLOWS.md is missing approved responsibilities or workflows: "
+            + ", ".join(missing_workflow_terms)
+        )
+
+    handoff_header = (
+        "| 요청 주체 | 실행 주체 | 승인 주체 | 기준 기록 | 전달 결과 | 실패 시 책임자 |"
+    )
+    if workflows.count(handoff_header) != 10:
+        errors.append(
+            "INSTITUTION_WORKFLOWS.md must use the plain-Korean handoff table for all ten workflows: "
+            f"found {workflows.count(handoff_header)}"
+        )
+
+    workflow_approval_items = re.findall(r"^- \[ \] ", workflows, flags=re.MULTILINE)
+    if len(workflow_approval_items) != 8:
+        errors.append(
+            "INSTITUTION_WORKFLOWS.md must have eight pending approval items: "
+            f"found {len(workflow_approval_items)}"
+        )
+
+    reference_sections = [
+        "1. 이 문서가 정하는 것",
+        "2. 세 종류의 정보를 분리한다",
+        "3. 공식 원본과 관리 책임",
+        "4. 종목 기준정보 항목",
+        "5. 상품 활성화는 여러 판단을 모두 통과해야 한다",
+        "6. 독립적으로 관리할 상태 판단축",
+        "7. ISIN 관리 원칙",
+        "8. 변경, 적용기간과 정정",
+        "9. 현재 보존 스냅샷",
+        "10. 자동 검증과 사람 확인",
+        "11. 4단계 승인 기준",
+    ]
+    found_reference_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", reference, flags=re.MULTILINE)
+    ]
+    if found_reference_sections != reference_sections:
+        errors.append(
+            "REFERENCE_DATA.md numbered sections do not match stage four: "
+            f"found {found_reference_sections}"
+        )
+
+    required_reference_terms = [
+        "팀 내부 검토안, 승인 대기",
+        "2026년 8월 28일 KRX KOSPI 200 스냅샷",
+        "서로 다른 종목코드 201개",
+        "KRX 종목코드",
+        "ISIN",
+        "국문명",
+        "기준일",
+        "시장",
+        "거래통화",
+        "최소 거래단위",
+        "KOSPI 200 편입 여부",
+        "적용 시작일과 종료일",
+        "상장상태",
+        "거래정지 상태",
+        "기업행동 상태",
+        "외국인 한도 적용 여부",
+        "수탁 지원 여부",
+        "판매 가능 여부",
+        "1차 발행 가능 여부",
+        "24/7 거래 가능 여부",
+        "환매 가능 여부",
+        "원본기관",
+        "원본 기준시각",
+        "수신시각",
+        "버전",
+        "정정 근거",
+        "KRX 지수 포털",
+        "한국예탁결제원",
+        "KOSPI 200 편입은 PoC 대상 후보를 고르는 첫 조건일 뿐",
+        "공식값이 없거나 두 공식값이 다르면",
+        "12자리",
+        "마지막 1자리는 숫자 검증자리",
+        "추측하지 않는다",
+        "실제 상품 활성화 데이터로 사용하지 않는다",
+        "기존 기록을 덮어쓰지 않는다",
+        "마지막 종가, 거래대금, USD/KRW, USDC/USD",
+        "5단계 화면, 상태와 오류 규칙 설계를 시작하지 않는다",
+    ]
+    missing_reference_terms = [
+        term for term in required_reference_terms if term not in reference
+    ]
+    if missing_reference_terms:
+        errors.append(
+            "REFERENCE_DATA.md is missing approved identifiers or controls: "
+            + ", ".join(missing_reference_terms)
+        )
+
+    expected_representatives = {
+        "005930": "삼성전자",
+        "000660": "SK하이닉스",
+        "017670": "SK텔레콤",
+        "005380": "현대차",
+        "035420": "NAVER",
+        "006800": "미래에셋증권",
+    }
+    for code, name in expected_representatives.items():
+        if code not in reference or name not in reference:
+            errors.append(
+                f"REFERENCE_DATA.md is missing representative security {code} {name}"
+            )
+
+    reference_approval_items = re.findall(r"^- \[ \] ", reference, flags=re.MULTILINE)
+    if len(reference_approval_items) != 8:
+        errors.append(
+            "REFERENCE_DATA.md must have eight pending approval items: "
+            f"found {len(reference_approval_items)}"
+        )
+
+    state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
+    if state.get("stage") != "awaiting_stage_four_approval":
+        errors.append("active project state must await approval of both stage-four drafts")
+    if state.get("iteration") != 21:
+        errors.append("active project iteration must be 21 for the stage-four review draft")
+    expected_next_action = (
+        "Review and approve INSTITUTION_WORKFLOWS.md and REFERENCE_DATA.md together "
+        "before starting stage five."
+    )
+    if state.get("next_action") != expected_next_action:
+        errors.append("active project next action must block stage five until both drafts are approved")
+
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
     master_path = RESEARCH_ROOT / "drafts" / "final_candidate.md"
@@ -768,6 +1011,7 @@ def main() -> int:
     validate_workspace_contract(errors)
     validate_poc_goals_contract(errors)
     validate_prd_contract(errors)
+    validate_stage_four_contract(errors)
     validate_master_regulatory_contract(errors)
 
     if errors:
@@ -777,7 +1021,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC and PRD contracts, "
+        "Active research workspace, links, metadata, master, PoC, PRD and stage-four contracts, "
         "and 16 source checksums passed."
     )
     return 0

@@ -1,6 +1,6 @@
 {
-  "stage": "ready_for_stage_four",
-  "next_action": "Start stage four institution workflow and reference-data design from the approved PRD.md.",
+  "stage": "awaiting_stage_four_approval",
+  "next_action": "Review and approve INSTITUTION_WORKFLOWS.md and REFERENCE_DATA.md together before starting stage five.",
   "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 20
+  "iteration": 21
 }
