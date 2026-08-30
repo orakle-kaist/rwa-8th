@@ -8,9 +8,9 @@
 
 상위 기준 문서:
 
-- [마스터 설계](research/korean-equity-rwa/drafts/final_candidate.md)
-- [PoC 목표와 성공 기준](POC_GOALS.md)
-- [PoC 시험 데이터와 통제값](POC_TEST_DATA.md)
+- [마스터 설계](../01-master/MASTER.md)
+- [PoC 목표와 성공 기준](../02-poc-definition/POC_GOALS.md)
+- [PoC 시험 데이터와 통제값](../02-poc-definition/POC_TEST_DATA.md)
 
 ## 1. 이 문서가 정하는 것
 

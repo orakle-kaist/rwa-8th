@@ -4,7 +4,7 @@
 
 승인일: 2026-08-30
 
-상위 기준 문서: [마스터 설계](research/korean-equity-rwa/drafts/final_candidate.md)
+상위 기준 문서: [마스터 설계](../01-master/MASTER.md)
 
 시험 입력: [PoC 시험 데이터와 통제값](POC_TEST_DATA.md)
 

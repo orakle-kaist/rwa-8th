@@ -4,7 +4,7 @@
 >
 > 작성 기준일: 2026-08-30
 >
-> 상위 문서: [마스터 설계](research/korean-equity-rwa/drafts/final_candidate.md), [PoC 목표와 성공 기준](POC_GOALS.md), [제품 요구사항 문서](PRD.md)
+> 상위 문서: [마스터 설계](../01-master/MASTER.md), [PoC 목표와 성공 기준](../02-poc-definition/POC_GOALS.md), [제품 요구사항 문서](../03-product-requirements/PRD.md)
 >
 > 함께 검토할 문서: [기준정보 설계](REFERENCE_DATA.md)
 

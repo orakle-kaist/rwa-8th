@@ -4,7 +4,7 @@
 >
 > 작성 기준일: 2026-08-30
 >
-> 상위 문서: [제품 요구사항 문서](PRD.md), [기관 업무와 책임 설계](INSTITUTION_WORKFLOWS.md), [종목 기준정보 설계](REFERENCE_DATA.md)
+> 상위 문서: [제품 요구사항 문서](../03-product-requirements/PRD.md), [기관 업무와 책임 설계](../04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보 설계](../04-institution-design/REFERENCE_DATA.md)
 >
 > 함께 검토할 문서: [업무 상태와 전환 규칙](STATE_MODEL.md), [오류와 복구 규칙](ERROR_AND_RECOVERY.md)
 
@@ -17,7 +17,7 @@ PoC는 두 화면군으로 구성한다.
 - `투자자 앱`: 고객확인, 상품조회, 1차 발행, 24/7 2차거래, 보유권리, 환매와 권리업무를 보여준다.
 - `통합 기관 콘솔`: 토큰 플랫폼, 인가 해외 증권사, 국내 주문집행, 수탁은행과 상임대리인, 지정 시장조성자, 준법과 감사 담당의 업무공간을 제공한다.
 
-기관 콘솔의 역할 전환은 시연 편의를 위한 화면 전환이다. 실제 담당자의 실행권한이나 승인권한을 바꾸지 않는다. 실행, 승인과 독립 검토는 [기관 업무와 책임 설계](INSTITUTION_WORKFLOWS.md)에 따라 분리한다.
+기관 콘솔의 역할 전환은 시연 편의를 위한 화면 전환이다. 실제 담당자의 실행권한이나 승인권한을 바꾸지 않는다. 실행, 승인과 독립 검토는 [기관 업무와 책임 설계](../04-institution-design/INSTITUTION_WORKFLOWS.md)에 따라 분리한다.
 
 ## 2. 모든 화면의 공통 원칙
 

@@ -18,18 +18,22 @@ except ImportError as exc:  # pragma: no cover - environment guard
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+DOCS_ROOT = REPO_ROOT / "docs"
 RESEARCH_ROOT = REPO_ROOT / "research" / "korean-equity-rwa"
 ARCHIVE_ROOT = REPO_ROOT / "archive" / "pre-prd-v1"
 SOURCE_ROOT = RESEARCH_ROOT / "sources" / "user"
 SOURCE_INDEX = RESEARCH_ROOT / "_work" / "source_index.jsonl"
-POC_GOALS = REPO_ROOT / "POC_GOALS.md"
-POC_TEST_DATA = REPO_ROOT / "POC_TEST_DATA.md"
-PRD = REPO_ROOT / "PRD.md"
-INSTITUTION_WORKFLOWS = REPO_ROOT / "INSTITUTION_WORKFLOWS.md"
-REFERENCE_DATA = REPO_ROOT / "REFERENCE_DATA.md"
-SCREEN_FLOWS = REPO_ROOT / "SCREEN_FLOWS.md"
-STATE_MODEL = REPO_ROOT / "STATE_MODEL.md"
-ERROR_AND_RECOVERY = REPO_ROOT / "ERROR_AND_RECOVERY.md"
+WORKFLOW = DOCS_ROOT / "00-project" / "WORKFLOW.md"
+DECISIONS = DOCS_ROOT / "00-project" / "DECISIONS.md"
+MASTER = DOCS_ROOT / "01-master" / "MASTER.md"
+POC_GOALS = DOCS_ROOT / "02-poc-definition" / "POC_GOALS.md"
+POC_TEST_DATA = DOCS_ROOT / "02-poc-definition" / "POC_TEST_DATA.md"
+PRD = DOCS_ROOT / "03-product-requirements" / "PRD.md"
+INSTITUTION_WORKFLOWS = DOCS_ROOT / "04-institution-design" / "INSTITUTION_WORKFLOWS.md"
+REFERENCE_DATA = DOCS_ROOT / "04-institution-design" / "REFERENCE_DATA.md"
+SCREEN_FLOWS = DOCS_ROOT / "05-screens-states-recovery" / "SCREEN_FLOWS.md"
+STATE_MODEL = DOCS_ROOT / "05-screens-states-recovery" / "STATE_MODEL.md"
+ERROR_AND_RECOVERY = DOCS_ROOT / "05-screens-states-recovery" / "ERROR_AND_RECOVERY.md"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
@@ -120,8 +124,9 @@ def validate_source_index(errors: list[str]) -> None:
 def markdown_files() -> list[Path]:
     return [
         REPO_ROOT / "README.md",
-        REPO_ROOT / "PROJECT_WORKFLOW.md",
-        REPO_ROOT / "PROJECT_DECISIONS.md",
+        WORKFLOW,
+        DECISIONS,
+        MASTER,
         POC_GOALS,
         POC_TEST_DATA,
         PRD,
@@ -166,7 +171,7 @@ def validate_markdown_links(errors: list[str]) -> None:
 def validate_workspace_contract(errors: list[str]) -> None:
     required_paths = [
         RESEARCH_ROOT / "brief.md",
-        RESEARCH_ROOT / "drafts" / "final_candidate.md",
+        MASTER,
         POC_GOALS,
         POC_TEST_DATA,
         PRD,
@@ -179,7 +184,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
         RESEARCH_ROOT / "_work" / "config.yaml",
-        REPO_ROOT / "PROJECT_DECISIONS.md",
+        WORKFLOW,
+        DECISIONS,
         ARCHIVE_ROOT / "README.md",
         ARCHIVE_ROOT / "design",
         ARCHIVE_ROOT / "specs",
@@ -199,6 +205,17 @@ def validate_workspace_contract(errors: list[str]) -> None:
         REPO_ROOT / "scripts" / "validate-design.sh",
         REPO_ROOT / "scripts" / "validate_design.py",
         RESEARCH_ROOT / "drafts" / "latest.md",
+        RESEARCH_ROOT / "drafts" / "final_candidate.md",
+        REPO_ROOT / "PROJECT_WORKFLOW.md",
+        REPO_ROOT / "PROJECT_DECISIONS.md",
+        REPO_ROOT / "POC_GOALS.md",
+        REPO_ROOT / "POC_TEST_DATA.md",
+        REPO_ROOT / "PRD.md",
+        REPO_ROOT / "INSTITUTION_WORKFLOWS.md",
+        REPO_ROOT / "REFERENCE_DATA.md",
+        REPO_ROOT / "SCREEN_FLOWS.md",
+        REPO_ROOT / "STATE_MODEL.md",
+        REPO_ROOT / "ERROR_AND_RECOVERY.md",
     ]
     for path in retired_active_paths:
         if path.exists():
@@ -206,32 +223,68 @@ def validate_workspace_contract(errors: list[str]) -> None:
 
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     if (
-        "final_candidate.md" not in readme
+        "docs/01-master/MASTER.md" not in readme
         or "승인된" not in readme
         or "마스터" not in readme
     ):
-        errors.append("README must identify final_candidate.md as the approved master")
-    if "PRD.md" not in readme or "3단계" not in readme or "3단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme:
-        errors.append("README must identify PRD.md as the approved stage-three document")
+        errors.append("README must identify docs/01-master/MASTER.md as the approved master")
     if (
-        "INSTITUTION_WORKFLOWS.md" not in readme
-        or "REFERENCE_DATA.md" not in readme
-        or "4단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme
+        "docs/03-product-requirements/PRD.md" not in readme
+        or "1~5단계 팀 내부 승인 완료" not in readme
+    ):
+        errors.append("README must identify PRD.md and stages one through five as approved")
+    if (
+        "docs/04-institution-design/INSTITUTION_WORKFLOWS.md" not in readme
+        or "docs/04-institution-design/REFERENCE_DATA.md" not in readme
     ):
         errors.append("README must identify both stage-four documents as approved")
     if (
-        "SCREEN_FLOWS.md" not in readme
-        or "STATE_MODEL.md" not in readme
-        or "ERROR_AND_RECOVERY.md" not in readme
-        or "5단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme
+        "docs/05-screens-states-recovery/SCREEN_FLOWS.md" not in readme
+        or "docs/05-screens-states-recovery/STATE_MODEL.md" not in readme
+        or "docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md" not in readme
     ):
         errors.append("README must identify all three stage-five documents as approved")
+    if "실제 PoC 코드 구현: **10단계**" not in readme:
+        errors.append("README must distinguish stage-six design from stage-ten implementation")
+
+    root_markdown = {path.name for path in REPO_ROOT.glob("*.md")}
+    if root_markdown != {"README.md"}:
+        errors.append(
+            "repository root must contain only README.md as a markdown entrypoint: "
+            + ", ".join(sorted(root_markdown))
+        )
+
+    canonical_documents = {
+        "WORKFLOW.md": WORKFLOW,
+        "DECISIONS.md": DECISIONS,
+        "MASTER.md": MASTER,
+        "POC_GOALS.md": POC_GOALS,
+        "POC_TEST_DATA.md": POC_TEST_DATA,
+        "PRD.md": PRD,
+        "INSTITUTION_WORKFLOWS.md": INSTITUTION_WORKFLOWS,
+        "REFERENCE_DATA.md": REFERENCE_DATA,
+        "SCREEN_FLOWS.md": SCREEN_FLOWS,
+        "STATE_MODEL.md": STATE_MODEL,
+        "ERROR_AND_RECOVERY.md": ERROR_AND_RECOVERY,
+    }
+    for filename, expected_path in canonical_documents.items():
+        matches = [
+            path
+            for path in REPO_ROOT.rglob(filename)
+            if ".git" not in path.parts and ARCHIVE_ROOT not in path.parents
+        ]
+        if matches != [expected_path]:
+            errors.append(
+                f"{filename} must have one canonical copy at "
+                f"{expected_path.relative_to(REPO_ROOT)}: found "
+                + ", ".join(str(path.relative_to(REPO_ROOT)) for path in matches)
+            )
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
         errors.append("archive README must mark the snapshot as non-normative")
 
-    workflow = (REPO_ROOT / "PROJECT_WORKFLOW.md").read_text(encoding="utf-8")
+    workflow = WORKFLOW.read_text(encoding="utf-8")
     stage_numbers = [
         int(match.group(1))
         for match in re.finditer(r"^\|\s+(\d+)\.\s+", workflow, flags=re.MULTILINE)
@@ -256,7 +309,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
             + ", ".join(missing_workflow_terms)
         )
 
-    decisions = (REPO_ROOT / "PROJECT_DECISIONS.md").read_text(encoding="utf-8")
+    decisions = DECISIONS.read_text(encoding="utf-8")
     decision_terms = [
         "지원 종목 범위",
         "KOSPI 200",
@@ -280,8 +333,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
 
     aligned_documents = [
         REPO_ROOT / "README.md",
-        REPO_ROOT / "PROJECT_WORKFLOW.md",
-        REPO_ROOT / "PROJECT_DECISIONS.md",
+        WORKFLOW,
+        DECISIONS,
         POC_GOALS,
         RESEARCH_ROOT / "brief.md",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -456,9 +509,9 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
     ]
     active_documents = [
         REPO_ROOT / "README.md",
-        REPO_ROOT / "PROJECT_DECISIONS.md",
+        DECISIONS,
         RESEARCH_ROOT / "brief.md",
-        RESEARCH_ROOT / "drafts" / "final_candidate.md",
+        MASTER,
         RESEARCH_ROOT / "review" / "human_review.md",
     ]
     for path in active_documents:
@@ -1248,7 +1301,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
-    master_path = RESEARCH_ROOT / "drafts" / "final_candidate.md"
+    master_path = MASTER
     master = master_path.read_text(encoding="utf-8")
 
     expected_sections = [
@@ -1269,7 +1322,7 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
     ]
     if found_sections != expected_sections:
         errors.append(
-            "final_candidate.md numbered sections do not match the approved structure: "
+            "MASTER.md numbered sections do not match the approved structure: "
             f"found {found_sections}"
         )
 
@@ -1325,14 +1378,14 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
     missing_terms = [term for term in required_terms if term not in master]
     if missing_terms:
         errors.append(
-            "final_candidate.md is missing required Korean securities-ledger concepts: "
+            "MASTER.md is missing required Korean securities-ledger concepts: "
             + ", ".join(missing_terms)
         )
 
     internal_source_ids = sorted(set(re.findall(r"(?<![A-Za-z0-9])S\d{3}(?!\d)", master)))
     if internal_source_ids:
         errors.append(
-            "final_candidate.md exposes internal source IDs: "
+            "MASTER.md exposes internal source IDs: "
             + ", ".join(internal_source_ids)
         )
 
@@ -1343,7 +1396,7 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
     present_removed_terms = [term for term in removed_screen_terms if term in master]
     if present_removed_terms:
         errors.append(
-            "final_candidate.md retains the removed stage-two PoC screen: "
+            "MASTER.md retains the removed stage-two PoC screen: "
             + ", ".join(present_removed_terms)
         )
 
@@ -1355,7 +1408,7 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
     present_stale_role_terms = [term for term in stale_role_terms if term in master]
     if present_stale_role_terms:
         errors.append(
-            "final_candidate.md retains ambiguous or superseded role terms: "
+            "MASTER.md retains ambiguous or superseded role terms: "
             + ", ".join(present_stale_role_terms)
         )
 
@@ -1367,7 +1420,7 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
     for pattern in stale_issuance_patterns:
         if re.search(pattern, master):
             errors.append(
-                "final_candidate.md retains the superseded post-settlement issuance rule: "
+                "MASTER.md retains the superseded post-settlement issuance rule: "
                 + pattern
             )
 
@@ -1382,7 +1435,7 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
     for pattern in superseded_poc_patterns:
         if re.search(pattern, master):
             errors.append(
-                "final_candidate.md retains a superseded operational-efficiency or RFQ PoC rule: "
+                "MASTER.md retains a superseded operational-efficiency or RFQ PoC rule: "
                 + pattern
             )
 

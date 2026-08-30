@@ -12,7 +12,7 @@
 
 ## 1. 기준 종목
 
-[KRX 공식 구성종목 조회](https://index.krx.co.kr/contents/MKD/03/0304/03040101/MKD03040101T3.jsp?upmidCd=0102&idxCd=1028&idxId=1)의 2026년 8월 28일 결과를 기준으로 삼는다. [보존한 최소 기준정보](research/korean-equity-rwa/sources/web/kospi200-2026-08-28.json)에는 서로 다른 종목코드 201개가 있다.
+[KRX 공식 구성종목 조회](https://index.krx.co.kr/contents/MKD/03/0304/03040101/MKD03040101T3.jsp?upmidCd=0102&idxCd=1028&idxId=1)의 2026년 8월 28일 결과를 기준으로 삼는다. [보존한 최소 기준정보](../../research/korean-equity-rwa/sources/web/kospi200-2026-08-28.json)에는 서로 다른 종목코드 201개가 있다.
 
 기준일 목록에는 한화와 회사분할로 신설된 한화머시너리앤서비스홀딩스가 함께 포함돼 있다. KOSPI 200이라는 이름을 보고 종목행 수를 하드코딩하지 않고 기준일과 종목코드로 관리한다. 두 종목은 전체 등록검사에는 포함하지만 대표 시연에는 사용하지 않는다.
 

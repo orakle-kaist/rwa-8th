@@ -4,7 +4,7 @@
 >
 > 작성 기준일: 2026-08-30
 >
-> 상위 문서: [제품 요구사항 문서](PRD.md), [기관 업무와 책임 설계](INSTITUTION_WORKFLOWS.md), [종목 기준정보 설계](REFERENCE_DATA.md)
+> 상위 문서: [제품 요구사항 문서](../03-product-requirements/PRD.md), [기관 업무와 책임 설계](../04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보 설계](../04-institution-design/REFERENCE_DATA.md)
 >
 > 함께 검토할 문서: [역할별 화면 흐름](SCREEN_FLOWS.md), [오류와 복구 규칙](ERROR_AND_RECOVERY.md)
 
