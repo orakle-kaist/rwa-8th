@@ -2,7 +2,7 @@
 
 이 문서는 마스터 제안서 검토부터 PoC 결과 보고까지의 작업 순서를 정합니다. 앞 단계에서 결정하지 않은 내용을 뒤 단계의 작성자나 AI가 임의로 정하지 않게 하는 것이 목적입니다.
 
-1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 승인했다. 이후 단계 간 정합성을 보완해 1~5단계를 같은 날 다시 승인했다. [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md)과 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)는 2026년 8월 31일 승인했다. [공통 데이터](../07-data-api-events/DATA_MODEL.md), [API 계약](../07-data-api-events/API_CONTRACTS.md), [이벤트 계약](../07-data-api-events/EVENT_CONTRACTS.md)과 기계 명세도 2026년 8월 31일 승인했다. [8단계 스마트컨트랙트 구조](../08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [인터페이스](../08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](../08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](../08-smart-contract-design/INVARIANTS.md)과 기계 명세도 같은 날 승인했다. 다음 단계는 **9단계 테스트 준비와 설계 확정**이다.
+1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 승인했다. 이후 단계 간 정합성을 보완해 1~5단계를 같은 날 다시 승인했다. [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md)과 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)는 2026년 8월 31일 승인했다. [공통 데이터](../07-data-api-events/DATA_MODEL.md), [API 계약](../07-data-api-events/API_CONTRACTS.md), [이벤트 계약](../07-data-api-events/EVENT_CONTRACTS.md)과 기계 명세도 2026년 8월 31일 승인했다. [8단계 스마트컨트랙트 구조](../08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [인터페이스](../08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](../08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](../08-smart-contract-design/INVARIANTS.md)과 기계 명세도 같은 날 승인했다. [9단계 테스트 전략](../09-test-design/TEST_STRATEGY.md), [시나리오](../09-test-design/TEST_SCENARIOS.md), [fixture와 증거](../09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](../09-test-design/DEMO_CHECKLIST.md)와 기계 명세는 **팀 내부 검토안**이며 승인 전에는 10단계를 시작하지 않는다.
 
 ## 기본 원칙
 
@@ -77,6 +77,6 @@ PRD에는 확인된 고객만 이전할 수 있어야 한다거나 오래된 시
 
 ## 문서의 우선순위
 
-현재 [마스터](../01-master/MASTER.md)부터 [불변식](../08-smart-contract-design/INVARIANTS.md)까지 1~8단계 문서와 기계 명세는 승인된 기준이다. 9단계는 이 기준을 정상, 경계, 실패 및 복구 테스트와 합격조건으로 옮긴다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
+현재 [마스터](../01-master/MASTER.md)부터 [불변식](../08-smart-contract-design/INVARIANTS.md)까지 1~8단계 문서와 기계 명세는 승인된 기준이다. 9단계는 이 기준을 정상, 경계, 실패 및 복구 테스트와 합격조건으로 옮긴 팀 내부 검토안이다. 9단계 승인 전에는 10단계 구현을 시작하지 않는다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
 
 2단계에서는 PoC의 기준일, 대표 시연 종목, 합성 데이터와 통과조건을 별도 문서로 확정합니다. 이후에는 각 단계에서 승인한 문서가 해당 범위의 기준이 됩니다.

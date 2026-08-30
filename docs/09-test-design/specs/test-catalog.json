@@ -1,0 +1,105 @@
+{
+  "schemaVersion":"1.0.0",
+  "status":"AWAITING_APPROVAL",
+  "defaults":{"required":true,"automaticRetry":false,"skipAllowed":false,"simulation":true},
+  "profiles":{"QUICK":["DOCUMENT","UNIT","CONTRACT_UNIT"],"FULL_LOCAL":["DOCUMENT","UNIT","INTEGRATION","CONTRACT","BROWSER"],"FUJI_DEMO":["FULL_LOCAL_PREREQUISITE","FUJI"]},
+  "groups":[
+    {
+      "groupId":"고객상품지갑","layers":["UNIT","INTEGRATION","BROWSER","CONTRACT"],"preconditions":["합성 고객과 기준종목 fixture 적재"],"evidence":["상태이력","차단사유","수량스냅샷"],
+      "cases":[
+        {"testId":"고객-정상-01","action":"유효 고객과 전용지갑 연결","expectedResults":["신규 주문과 권리 수령 허용"]},
+        {"testId":"고객-차단-01","action":"거절, 만료, 공시누락 각각 제출","expectedResults":["해당 고객만 차단","책임기관 표시"]},
+        {"testId":"지갑-복구-01","action":"두 독립 승인 뒤 지갑 복구","expectedResults":["다섯 수량 상태와 총발행량 보존"]},
+        {"testId":"지갑-복구차단-01","action":"승인누락과 부적격 새 지갑으로 복구","expectedResults":["복구 실패","기존 상태 보존"]},
+        {"testId":"상품-전체-01","action":"KOSPI 200 스냅샷 등록","expectedResults":["서로 다른 201개 코드","대표 6종목 포함"]},
+        {"testId":"상품-배포-01","action":"대표 6종목 계약 생성","expectedResults":["주소, 메타정보, 공급량, 정책 분리"]}
+      ]
+    },
+    {
+      "groupId":"발행결제","layers":["UNIT","INTEGRATION","CONTRACT","BROWSER"],"preconditions":["고객 A, B 적격","삼성전자 상품 활성"],"evidence":["주문과 배분","승인증거","권리원장","토큰이벤트"],
+      "cases":[
+        {"testId":"발행-정상-01","action":"USD 5주와 USDC 3주 주문을 6주 부분체결","expectedResults":["A 4주, B 2주","결제 대기 6주 발행"]},
+        {"testId":"발행-분리-01","action":"종목, 지정가격, 거래일이 다른 주문 제출","expectedResults":["별도 취합주문"]},
+        {"testId":"발행-정수차단-01","action":"시장가, 0주, 0.5주, 음수 제출","expectedResults":["거절","자금과 권리 불변"]},
+        {"testId":"발행-승인차단-01","action":"위험, 권리 승인 또는 완료 하나 누락","expectedResults":["발행 차단","체결 후 미발행 유지"]},
+        {"testId":"발행-재사용차단-01","action":"증거를 다른 업무에 재사용","expectedResults":["추가 권리와 토큰 없음"]},
+        {"testId":"발행-재시작-01","action":"발행 응답 유실 뒤 재시작","expectedResults":["한 번만 확정 또는 격리"]},
+        {"testId":"결제-정상-01","action":"결제와 수탁 확인 모두 전달","expectedResults":["재발행 없이 거래 가능 전환"]},
+        {"testId":"결제-차단-01","action":"결제 또는 수탁 하나만 전달","expectedResults":["거래, 환매, 위험한도 회복 차단"]}
+      ]
+    },
+    {
+      "groupId":"이차정산시장조성","layers":["UNIT","INTEGRATION","CONTRACT","BROWSER"],"preconditions":["결제완료 권리","적격 투자자와 지정 MM"],"evidence":["서명검증","체인영수증","권리, 자금, 재고 스냅샷"],
+      "cases":[
+        {"testId":"정산-USD정상-01","action":"USD 장부 경로 거래","expectedResults":["권리, 토큰, USD 같은 수량 확정"]},
+        {"testId":"정산-USDC정상-01","action":"USDC 온체인 DvP","expectedResults":["두 자산 함께 이전","권리원장 뒤 업무 완료"]},
+        {"testId":"정산-부분-01","action":"8주 주문과 5주 호가 체결","expectedResults":["5주 한 번 체결","3주 취소"]},
+        {"testId":"정산-직접이전차단-01","action":"일반 이전, 승인, 투자자 간 정산","expectedResults":["모두 실패"]},
+        {"testId":"정산-재고차단-01","action":"비가용 상태 또는 부족 재고 사용","expectedResults":["체결 거절","국내 총량 불변"]},
+        {"testId":"정산-서명차단-01","action":"위조, 만료, 취소, 재사용 서명 제출","expectedResults":["정산 실패"]},
+        {"testId":"정산-호가차단-01","action":"만료, 자금부족, 부적격, 비MM 입력","expectedResults":["가장 좁은 범위 차단"]},
+        {"testId":"정산-DvP실패-01","action":"USDC 전송 실패","expectedResults":["USDC와 토큰 모두 원복"]},
+        {"testId":"정산-원장실패-01","action":"체인 성공 뒤 권리원장 실패","expectedResults":["완료 금지","관련 수량 격리"]},
+        {"testId":"정산-RPC유실-01","action":"체인 제출 뒤 RPC 응답 유실","expectedResults":["결과 확인 전 재전송 금지"]},
+        {"testId":"시장조성-경계-01","action":"순포지션 20, 21과 정보 60, 61초 입력","expectedResults":["경계 허용","초과 차단"]},
+        {"testId":"시장조성-손실-01","action":"종목, 전체 손실한도 도달","expectedResults":["신규 호가와 체결 중지"]},
+        {"testId":"시장조성-헤지-01","action":"순매도, 순매수 헤지 생성","expectedResults":["각각 매수, 매도 방향","T+2 뒤 재고 반영"]}
+      ]
+    },
+    {
+      "groupId":"이벤트장애대사","layers":["INTEGRATION","API","BROWSER"],"preconditions":["PostgreSQL 발송함과 모의 어댑터 실행"],"evidence":["eventId와 순번","발송함 기록","격리와 재개 기록"],
+      "cases":[
+        {"testId":"이벤트-중복-01","action":"같은 이벤트 재수신","expectedResults":["기존 결과","추가 변경 없음"]},
+        {"testId":"이벤트-공백-01","action":"기관 순번 공백 주입","expectedResults":["불완전 투영","자산이동 차단"]},
+        {"testId":"이벤트-정정-01","action":"원 이벤트를 참조하는 늦은 정정","expectedResults":["원기록 보존","영향자료 재계산"]},
+        {"testId":"멱등-충돌-01","action":"같은 키의 같은, 다른 본문","expectedResults":["기존 결과 또는 409"]},
+        {"testId":"재시작-발송함-01","action":"발송 전, 후 프로세스 중단","expectedResults":["유실과 중복 없이 재개"]},
+        {"testId":"대사-정상-01","action":"같은 기준시각 두 축 대사","expectedResults":["승인된 수량 공식 통과"]},
+        {"testId":"대사-불일치-01","action":"권리, 토큰, 수탁 차이 주입","expectedResults":["발행과 24/7 중지","독립 환매만 지속"]}
+      ]
+    },
+    {
+      "groupId":"환매권리업무","layers":["UNIT","INTEGRATION","CONTRACT","BROWSER"],"preconditions":["결제완료 권리와 권리업무 fixture"],"evidence":["지급청구","소각이벤트","배당, 의결권, 보고 기록"],
+      "cases":[
+        {"testId":"환매-정상-01","action":"잠금부터 소각과 USD 지급까지 수행","expectedResults":["권리종료, 지급청구, 소각 완료"]},
+        {"testId":"환매-차단-01","action":"비가용 수량 환매","expectedResults":["잠금 거절"]},
+        {"testId":"환매-과도기-01","action":"권리종료 뒤 소각 전 확인","expectedResults":["국내 총량 감소","지급청구와 소각대기 연결"]},
+        {"testId":"환매-부분실패-01","action":"USD 지급 또는 소각 한쪽 실패","expectedResults":["완료 금지","요청 격리"]},
+        {"testId":"배당-정상-01","action":"국내 수령총액 배분","expectedResults":["총액 이내","중복 없음"]},
+        {"testId":"배당-USDC-01","action":"전환 성공, 만료, 실패, 중복","expectedResults":["성공 지급 또는 USD 예약 해제"]},
+        {"testId":"의결권-정상-01","action":"찬반기권과 미응답 집계","expectedResults":["미응답 미행사","기준수량 이내"]},
+        {"testId":"보고-기한-01","action":"10일, 11일 제출과 정정","expectedResults":["정상, 지연 구분","10년 보관 증거"]}
+      ]
+    },
+    {
+      "groupId":"중지거버넌스기업행동","layers":["UNIT","INTEGRATION","CONTRACT","BROWSER"],"preconditions":["정책 registry와 Safe, timelock 구성"],"evidence":["중지, 재개 이벤트","역할 변경","수량 전후"],
+      "cases":[
+        {"testId":"중지-가격-01","action":"가격, 환율, 위험정보 지연","expectedResults":["24/7만 중지"]},
+        {"testId":"중지-USDC-01","action":"USDC 범위 이탈","expectedResults":["USDC 경로만 중지"]},
+        {"testId":"중지-KRX-01","action":"거래정지, 중요사건","expectedResults":["발행, 24/7 중지","환매 매도 사람 판단"]},
+        {"testId":"중지-기업행동-01","action":"비현금 기업행동","expectedResults":["종목 세 업무 중지"]},
+        {"testId":"거버넌스-권한차단-01","action":"무승인 실행과 금지 역할조합","expectedResults":["호출 실패"]},
+        {"testId":"거버넌스-긴급중지-01","action":"긴급키 중지와 재개 시도","expectedResults":["중지 성공","재개 실패"]},
+        {"testId":"거버넌스-지연-01","action":"Safe 재개를 59초와 60초에 실행","expectedResults":["59초 실패","60초 성공"]},
+        {"testId":"기업행동-분할-01","action":"다섯 상태 2대1 분할","expectedResults":["정수 2배","상태와 대사 보존"]},
+        {"testId":"기업행동-소수차단-01","action":"비정수 병합과 배치 실패","expectedResults":["전체 원복","중지 유지"]}
+      ]
+    },
+    {
+      "groupId":"보안감사","layers":["DOCUMENT","INTEGRATION","CONTRACT","BROWSER"],"preconditions":["전체 증거와 역할 구성"],"evidence":["스키마 검사","권한 목록","감사 추적"],
+      "cases":[
+        {"testId":"보안-개인정보-01","action":"API, 이벤트, 로그, 체인, 증거 검사","expectedResults":["금지 정보 없음"]},
+        {"testId":"보안-역할분리-01","action":"승인과 실행 역할 겸임","expectedResults":["구성 거절"]},
+        {"testId":"보안-증거연결-01","action":"업무 증거흐름 재구성","expectedResults":["모든 변경과 사람 승인 추적"]}
+      ]
+    },
+    {
+      "groupId":"Fuji","layers":["FUJI"],"preconditions":["전체 로컬 검증 통과","대표 6종목 공식 ISIN 확인"],"evidence":["배포주소","transaction hash","블록과 이벤트","실행 커밋"],
+      "cases":[
+        {"testId":"Fuji-배포-01","action":"대표 6종목 배포","expectedResults":["서로 다른 주소와 올바른 권한"]},
+        {"testId":"Fuji-직접이전차단-01","action":"삼성전자 일반 이전과 승인","expectedResults":["체인 실패와 잔액 불변"]},
+        {"testId":"Fuji-생애주기-01","action":"삼성전자 발행, 전환, DvP, 환매, 소각","expectedResults":["승인된 이벤트 순서와 수량 공식"]}
+      ]
+    }
+  ]
+}
