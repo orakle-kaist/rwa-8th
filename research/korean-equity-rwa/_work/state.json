@@ -1,6 +1,6 @@
 {
-  "stage": "awaiting_stage_eight_approval",
-  "next_action": "Review and approve the stage-eight smart-contract design before starting stage-nine test design.",
+  "stage": "ready_for_stage_nine",
+  "next_action": "Start stage-nine test design from the approved stage-one-to-eight documents and contract manifest.",
   "updated_at": "2026-08-31T00:00:00+09:00",
-  "iteration": 31
+  "iteration": 32
 }

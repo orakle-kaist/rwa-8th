@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "stage": 8,
-  "status": "AWAITING_APPROVAL",
+  "status": "APPROVED",
   "network": {
     "name": "Avalanche Fuji C-Chain",
     "chainId": 43113,

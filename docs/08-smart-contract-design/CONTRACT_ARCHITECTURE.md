@@ -1,6 +1,6 @@
 # 8단계 스마트컨트랙트 구조
 
-상태: **8단계 팀 내부 검토안, 승인 대기**
+상태: **8단계 팀 내부 승인 완료**
 
 이 문서는 승인된 [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md), [공통 데이터](../07-data-api-events/DATA_MODEL.md)와 [이벤트 계약](../07-data-api-events/EVENT_CONTRACTS.md)을 Avalanche Fuji의 계약 경계로 옮긴다. Solidity 구현과 배포는 10단계에서 한다.
 
@@ -136,4 +136,4 @@ LayerZero V2 OFT Burn&Mint는 후속 원칙으로만 남긴다. 단일체인 Fuj
 - nonce, 업무 ID와 증거 해시 재사용 차단
 - 사건별 중지범위와 60초 지연 재개
 
-8단계 전체가 승인되기 전에는 테스트 명세를 확정하거나 Solidity 구현을 시작하지 않는다.
+이 문서와 나머지 8단계 산출물은 2026년 8월 31일 팀 내부 기준으로 함께 승인했다. 9단계에서는 여기서 정한 반례와 불변식을 테스트 명세로 옮긴다.

@@ -307,9 +307,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "8단계 스마트컨트랙트 설계 검토 대기" not in readme
+        or "8단계 승인 완료, 9단계 테스트 설계 착수 가능" not in readme
     ):
-        errors.append("README must identify PRD.md and the stage-eight review status")
+        errors.append("README must identify PRD.md and the approved stage-eight status")
     if (
         "docs/04-institution-design/INSTITUTION_WORKFLOWS.md" not in readme
         or "docs/04-institution-design/REFERENCE_DATA.md" not in readme
@@ -343,7 +343,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/08-smart-contract-design/INVARIANTS.md" not in readme
         or "9단계" not in readme
     ):
-        errors.append("README must identify all stage-eight review artifacts and block stage nine")
+        errors.append("README must identify all approved stage-eight artifacts and stage nine")
     if "실제 PoC 코드 구현: **10단계**" not in readme:
         errors.append("README must distinguish stage-six design from stage-ten implementation")
 
@@ -825,6 +825,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "awaiting_stage_seven_approval",
         "ready_for_stage_eight",
         "awaiting_stage_eight_approval",
+        "ready_for_stage_nine",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1058,6 +1059,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "awaiting_stage_seven_approval",
         "ready_for_stage_eight",
         "awaiting_stage_eight_approval",
+        "ready_for_stage_nine",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1422,6 +1424,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "awaiting_stage_seven_approval",
         "ready_for_stage_eight",
         "awaiting_stage_eight_approval",
+        "ready_for_stage_nine",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1659,7 +1662,7 @@ def validate_stage_six_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") not in {
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
-        "awaiting_stage_eight_approval"
+        "awaiting_stage_eight_approval", "ready_for_stage_nine"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -1958,7 +1961,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
             errors.append(f"DECISIONS.md is missing stage-seven draft decision: {term}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") not in {"ready_for_stage_eight", "awaiting_stage_eight_approval"}:
+    if state.get("stage") not in {"ready_for_stage_eight", "awaiting_stage_eight_approval", "ready_for_stage_nine"}:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
         errors.append("active project iteration must preserve stage-seven approval history")
@@ -1976,8 +1979,8 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
 
     documents = {path.name: path.read_text(encoding="utf-8") for path in stage_eight_paths}
     for path, content in [(path, documents[path.name]) for path in stage_eight_paths]:
-        if "상태: **8단계 팀 내부 검토안, 승인 대기**" not in content:
-            errors.append(f"{path.name} must be marked as awaiting stage-eight approval")
+        if "상태: **8단계 팀 내부 승인 완료**" not in content:
+            errors.append(f"{path.name} must be marked as approved at stage eight")
         opaque_terms = [term for term in ["REQ-", "INV-", "DEC-"] if term in content]
         if opaque_terms:
             errors.append(f"{path.name} uses opaque identifiers: " + ", ".join(opaque_terms))
@@ -2020,8 +2023,8 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         errors.append(f"stage-eight contract manifest parse failed: {exc}")
         return
 
-    if manifest.get("stage") != 8 or manifest.get("status") != "AWAITING_APPROVAL":
-        errors.append("contract manifest must be stage 8 and awaiting approval")
+    if manifest.get("stage") != 8 or manifest.get("status") != "APPROVED":
+        errors.append("contract manifest must be stage 8 and approved")
     network = manifest.get("network", {})
     if network.get("chainId") != 43113 or network.get("productionApproval") is not False:
         errors.append("contract manifest must use Fuji chain 43113 without production approval")
@@ -2127,26 +2130,26 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         errors.append("stage-eight design revives retired assumptions: " + ", ".join(found_forbidden))
 
     decisions = DECISIONS.read_text(encoding="utf-8")
-    for term in ["계약 기능 분리", "토큰 수량 상태", "정산 서명 검증", "계약 변경관리", "팀 검토 대기"]:
+    for term in ["계약 기능 분리", "토큰 수량 상태", "정산 서명 검증", "계약 변경관리", "팀 결정 완료"]:
         if term not in decisions:
             errors.append(f"DECISIONS.md is missing stage-eight draft decision: {term}")
 
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     workflow = WORKFLOW.read_text(encoding="utf-8")
     for label, content in [("README", readme), ("WORKFLOW", workflow)]:
-        if "8단계" not in content or "검토" not in content or "9단계" not in content or "승인 전" not in content:
-            errors.append(f"{label} must record stage-eight review and block stage nine")
+        if "8단계" not in content or "승인" not in content or "9단계" not in content:
+            errors.append(f"{label} must record stage-eight approval and stage-nine readiness")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "awaiting_stage_eight_approval":
-        errors.append("active project state must await stage-eight approval")
-    if state.get("iteration") != 31:
-        errors.append("active project iteration must be 31 for stage-eight review")
+    if state.get("stage") != "ready_for_stage_nine":
+        errors.append("active project state must be ready for stage nine after stage-eight approval")
+    if state.get("iteration") != 32:
+        errors.append("active project iteration must be 32 after stage-eight approval")
     expected_next_action = (
-        "Review and approve the stage-eight smart-contract design before starting stage-nine test design."
+        "Start stage-nine test design from the approved stage-one-to-eight documents and contract manifest."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must review stage eight before stage nine")
+        errors.append("active project next action must start stage-nine test design")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
