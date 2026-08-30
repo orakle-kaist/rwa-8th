@@ -61,6 +61,12 @@ ASYNCAPI = STAGE_SEVEN_SPECS / "asyncapi.yaml"
 LIFECYCLE_EXAMPLES = STAGE_SEVEN_SPECS / "examples" / "lifecycle-events.jsonl"
 FAILURE_EXAMPLES = STAGE_SEVEN_SPECS / "examples" / "failure-cases.json"
 SIGNED_INTENT_EXAMPLES = STAGE_SEVEN_SPECS / "examples" / "signed-intents.json"
+STAGE_EIGHT_ROOT = DOCS_ROOT / "08-smart-contract-design"
+CONTRACT_ARCHITECTURE = STAGE_EIGHT_ROOT / "CONTRACT_ARCHITECTURE.md"
+CONTRACT_INTERFACES = STAGE_EIGHT_ROOT / "CONTRACT_INTERFACES.md"
+ROLES_AND_GOVERNANCE = STAGE_EIGHT_ROOT / "ROLES_AND_GOVERNANCE.md"
+INVARIANTS = STAGE_EIGHT_ROOT / "INVARIANTS.md"
+CONTRACT_MANIFEST = STAGE_EIGHT_ROOT / "specs" / "contract-manifest.json"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|tmp)/")
@@ -168,6 +174,10 @@ def markdown_files() -> list[Path]:
         DATA_MODEL,
         API_CONTRACTS,
         EVENT_CONTRACTS,
+        CONTRACT_ARCHITECTURE,
+        CONTRACT_INTERFACES,
+        ROLES_AND_GOVERNANCE,
+        INVARIANTS,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -232,6 +242,11 @@ def validate_workspace_contract(errors: list[str]) -> None:
         LIFECYCLE_EXAMPLES,
         FAILURE_EXAMPLES,
         SIGNED_INTENT_EXAMPLES,
+        CONTRACT_ARCHITECTURE,
+        CONTRACT_INTERFACES,
+        ROLES_AND_GOVERNANCE,
+        INVARIANTS,
+        CONTRACT_MANIFEST,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -274,6 +289,10 @@ def validate_workspace_contract(errors: list[str]) -> None:
         REPO_ROOT / "DATA_MODEL.md",
         REPO_ROOT / "API_CONTRACTS.md",
         REPO_ROOT / "EVENT_CONTRACTS.md",
+        REPO_ROOT / "CONTRACT_ARCHITECTURE.md",
+        REPO_ROOT / "CONTRACT_INTERFACES.md",
+        REPO_ROOT / "ROLES_AND_GOVERNANCE.md",
+        REPO_ROOT / "INVARIANTS.md",
     ]
     for path in retired_active_paths:
         if path.exists():
@@ -288,9 +307,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "7단계 승인 완료, 8단계 스마트컨트랙트 설계 착수 가능" not in readme
+        or "8단계 스마트컨트랙트 설계 검토 대기" not in readme
     ):
-        errors.append("README must identify PRD.md and the approved stage-seven status")
+        errors.append("README must identify PRD.md and the stage-eight review status")
     if (
         "docs/04-institution-design/INSTITUTION_WORKFLOWS.md" not in readme
         or "docs/04-institution-design/REFERENCE_DATA.md" not in readme
@@ -317,6 +336,14 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "8단계" not in readme
     ):
         errors.append("README must identify approved stage-seven documents and stage-eight readiness")
+    if (
+        "docs/08-smart-contract-design/CONTRACT_ARCHITECTURE.md" not in readme
+        or "docs/08-smart-contract-design/CONTRACT_INTERFACES.md" not in readme
+        or "docs/08-smart-contract-design/ROLES_AND_GOVERNANCE.md" not in readme
+        or "docs/08-smart-contract-design/INVARIANTS.md" not in readme
+        or "9단계" not in readme
+    ):
+        errors.append("README must identify all stage-eight review artifacts and block stage nine")
     if "실제 PoC 코드 구현: **10단계**" not in readme:
         errors.append("README must distinguish stage-six design from stage-ten implementation")
 
@@ -345,6 +372,10 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "DATA_MODEL.md": DATA_MODEL,
         "API_CONTRACTS.md": API_CONTRACTS,
         "EVENT_CONTRACTS.md": EVENT_CONTRACTS,
+        "CONTRACT_ARCHITECTURE.md": CONTRACT_ARCHITECTURE,
+        "CONTRACT_INTERFACES.md": CONTRACT_INTERFACES,
+        "ROLES_AND_GOVERNANCE.md": ROLES_AND_GOVERNANCE,
+        "INVARIANTS.md": INVARIANTS,
     }
     for filename, expected_path in canonical_documents.items():
         matches = [
@@ -793,6 +824,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_seven",
         "awaiting_stage_seven_approval",
         "ready_for_stage_eight",
+        "awaiting_stage_eight_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1025,6 +1057,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "ready_for_stage_seven",
         "awaiting_stage_seven_approval",
         "ready_for_stage_eight",
+        "awaiting_stage_eight_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1388,6 +1421,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "ready_for_stage_seven",
         "awaiting_stage_seven_approval",
         "ready_for_stage_eight",
+        "awaiting_stage_eight_approval",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1624,7 +1658,8 @@ def validate_stage_six_contract(errors: list[str]) -> None:
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") not in {
-        "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight"
+        "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
+        "awaiting_stage_eight_approval"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -1923,16 +1958,195 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
             errors.append(f"DECISIONS.md is missing stage-seven draft decision: {term}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_eight":
-        errors.append("active project state must be ready for stage eight after stage-seven approval")
-    if state.get("iteration") != 30:
-        errors.append("active project iteration must be 30 after stage-seven approval")
+    if state.get("stage") not in {"ready_for_stage_eight", "awaiting_stage_eight_approval"}:
+        errors.append("active project state must preserve stage-seven approval while stage eight advances")
+    if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
+        errors.append("active project iteration must preserve stage-seven approval history")
+
+
+def validate_stage_eight_contract(errors: list[str]) -> None:
+    stage_eight_paths = [
+        CONTRACT_ARCHITECTURE,
+        CONTRACT_INTERFACES,
+        ROLES_AND_GOVERNANCE,
+        INVARIANTS,
+    ]
+    if not all(path.is_file() for path in stage_eight_paths) or not CONTRACT_MANIFEST.is_file():
+        return  # validate_workspace_contract reports missing required files
+
+    documents = {path.name: path.read_text(encoding="utf-8") for path in stage_eight_paths}
+    for path, content in [(path, documents[path.name]) for path in stage_eight_paths]:
+        if "상태: **8단계 팀 내부 검토안, 승인 대기**" not in content:
+            errors.append(f"{path.name} must be marked as awaiting stage-eight approval")
+        opaque_terms = [term for term in ["REQ-", "INV-", "DEC-"] if term in content]
+        if opaque_terms:
+            errors.append(f"{path.name} uses opaque identifiers: " + ", ".join(opaque_terms))
+
+    required_terms = {
+        "CONTRACT_ARCHITECTURE.md": [
+            "고객별 수탁권리 원장", "RestrictedEquityToken", "EligibilityRegistry",
+            "SecurityTokenFactory", "IntentVerifier", "IssuanceController",
+            "SecondarySettlementController", "RedemptionController", "RecoveryController",
+            "CorporateActionController", "MarketPolicyRegistry", "다섯 수량 상태",
+            "국내 결제 대기", "환매대금 결제 후 소각 대기", "대표 6종목",
+            "LayerZero V2 OFT Burn&Mint", "프록시",
+        ],
+        "CONTRACT_INTERFACES.md": [
+            "balanceOf", "totalSupply", "allowance", "Transfer", "transferFrom", "approve",
+            "mintPending", "releasePending", "controlledTransfer",
+            "lockForRedemption", "markBurnPending", "burnPending", "recoverAllBuckets",
+            "applySplitBatch", "EIP-712", "ERC-1271", "settleUsdLedger", "settleUsdc",
+            "부분체결", "EvidenceAlreadyUsed", "NonIntegralCorporateAction",
+        ],
+        "ROLES_AND_GOVERNANCE.md": [
+            "Safe 2-of-3", "60초", "DEFAULT_ADMIN_ROLE", "RISK_APPROVER_ROLE",
+            "RIGHTS_APPROVER_ROLE", "SETTLEMENT_CONFIRMER_ROLE", "CUSTODY_CONFIRMER_ROLE",
+            "EMERGENCY_PAUSER_ROLE", "두 단계 승인", "배포자", "재개",
+        ],
+        "INVARIANTS.md": [
+            "전체\\ 발행량", "고객\\ 수탁권리\\ 합계", "다섯 수량 상태",
+            "지갑 복구", "국내 통합계좌 총보유량", "USDC", "nonce", "소각 대기",
+            "9단계 필수 반례",
+        ],
+    }
+    for name, terms in required_terms.items():
+        missing = [term for term in terms if term not in documents[name]]
+        if missing:
+            errors.append(f"{name} is missing stage-eight design terms: " + ", ".join(missing))
+
+    try:
+        manifest = json.loads(CONTRACT_MANIFEST.read_text(encoding="utf-8"))
+    except Exception as exc:
+        errors.append(f"stage-eight contract manifest parse failed: {exc}")
+        return
+
+    if manifest.get("stage") != 8 or manifest.get("status") != "AWAITING_APPROVAL":
+        errors.append("contract manifest must be stage 8 and awaiting approval")
+    network = manifest.get("network", {})
+    if network.get("chainId") != 43113 or network.get("productionApproval") is not False:
+        errors.append("contract manifest must use Fuji chain 43113 without production approval")
+
+    token_model = manifest.get("tokenModel", {})
+    expected_buckets = {
+        "AVAILABLE", "PENDING_DOMESTIC_SETTLEMENT", "REDEMPTION_LOCKED",
+        "BURN_PENDING", "ADMINISTRATIVE_FROZEN",
+    }
+    if token_model.get("standard") != "RESTRICTED_ERC20_INTERFACE":
+        errors.append("contract manifest must use the restricted ERC-20 interface model")
+    if token_model.get("decimals") != 0 or set(token_model.get("buckets", [])) != expected_buckets:
+        errors.append("contract manifest must define zero decimals and the five approved buckets")
+    required_true_flags = [
+        "oneShareOneRightOneToken", "directTransferDisabled", "transferFromDisabled",
+        "arbitraryApprovalDisabled",
+    ]
+    if any(token_model.get(flag) is not True for flag in required_true_flags):
+        errors.append("contract manifest must block direct transfer and arbitrary approval")
+    if (
+        token_model.get("erc3643") != "COMPARISON_ONLY"
+        or token_model.get("erc4626") != "EXCLUDED"
+        or token_model.get("proxyUpgradeability") is not False
+    ):
+        errors.append("contract manifest revives an excluded token or upgrade model")
+
+    governance = manifest.get("governance", {})
+    if (
+        governance.get("safeThreshold") != 2
+        or governance.get("safeOwners") != 3
+        or governance.get("timelockSeconds") != 60
+        or governance.get("emergencyPauseCanResume") is not False
+        or governance.get("deployerRenouncesAdmin") is not True
+    ):
+        errors.append("contract manifest governance does not match the approved 2-of-3 and 60-second design")
+
+    expected_contracts = {
+        "RestrictedEquityToken", "EligibilityRegistry", "SecurityTokenFactory", "IntentVerifier",
+        "IssuanceController", "SecondarySettlementController", "RedemptionController",
+        "RecoveryController", "CorporateActionController", "MarketPolicyRegistry",
+    }
+    contracts = manifest.get("contracts", [])
+    contract_names = [contract.get("name") for contract in contracts]
+    if set(contract_names) != expected_contracts or len(contract_names) != len(set(contract_names)):
+        errors.append("contract manifest must contain each approved contract exactly once")
+    function_keys: list[tuple[str, str]] = []
+    event_keys: list[tuple[str, str]] = []
+    for contract in contracts:
+        name = contract.get("name", "")
+        functions = contract.get("functions", [])
+        events = contract.get("events", [])
+        if not functions or not events or len(functions) != len(set(functions)) or len(events) != len(set(events)):
+            errors.append(f"contract manifest has missing or duplicate functions/events for {name}")
+        function_keys.extend((name, item) for item in functions)
+        event_keys.extend((name, item) for item in events)
+    if len(function_keys) != len(set(function_keys)) or len(event_keys) != len(set(event_keys)):
+        errors.append("contract manifest has duplicate contract-scoped functions or events")
+
+    expected_typed_data = {
+        "PRIMARY_LIMIT_ORDER_INTENT", "SECONDARY_INVESTOR_ORDER", "REDEMPTION_INTENT",
+        "MARKET_MAKER_QUOTE", "BROKER_SETTLEMENT_APPROVAL",
+    }
+    typed_data = manifest.get("typedData", {})
+    if (
+        typed_data.get("verifyingContract") != "IntentVerifier"
+        or set(typed_data.get("types", [])) != expected_typed_data
+        or typed_data.get("supportsErc1271") is not True
+    ):
+        errors.append("contract manifest must preserve all five signatures under IntentVerifier")
+
+    required_roles = {
+        "DEFAULT_ADMIN_ROLE", "RISK_APPROVER_ROLE", "RIGHTS_APPROVER_ROLE",
+        "SETTLEMENT_CONFIRMER_ROLE", "CUSTODY_CONFIRMER_ROLE", "ISSUANCE_EXECUTOR_ROLE",
+        "SETTLEMENT_EXECUTOR_ROLE", "REDEMPTION_RIGHTS_APPROVER_ROLE", "PAYMENT_APPROVER_ROLE",
+        "REDEMPTION_EXECUTOR_ROLE", "RECOVERY_RIGHTS_APPROVER_ROLE",
+        "RECOVERY_COMPLIANCE_APPROVER_ROLE", "RECOVERY_EXECUTOR_ROLE",
+        "CORPORATE_ACTION_RIGHTS_APPROVER_ROLE", "CORPORATE_ACTION_AUDIT_APPROVER_ROLE",
+        "CORPORATE_ACTION_EXECUTOR_ROLE", "EMERGENCY_PAUSER_ROLE",
+    }
+    roles = manifest.get("roles", [])
+    if not required_roles.issubset(set(roles)) or len(roles) != len(set(roles)):
+        errors.append("contract manifest is missing separated approval and execution roles")
+
+    deployment = manifest.get("deploymentScope", {})
+    securities = deployment.get("securities", [])
+    expected_codes = {"005930", "000660", "017670", "005380", "035420", "006800"}
+    actual_codes = {security.get("krxCode") for security in securities}
+    if (
+        deployment.get("actualFujiDeploymentCount") != 6
+        or deployment.get("requiresOfficialIsin") is not True
+        or actual_codes != expected_codes
+        or any(security.get("isinStatus") != "OFFICIAL_CONFIRMATION_REQUIRED" for security in securities)
+    ):
+        errors.append("contract manifest must limit Fuji deployment to six securities pending official ISIN checks")
+
+    combined = "\n".join(documents.values())
+    forbidden_assumptions = [
+        "ERC-3643 기반 토큰", "ERC-4626 금고", "고객 간 자유이전",
+        "토큰이 고객 권리의 기준 기록이다", "업그레이드 가능한 프록시",
+    ]
+    found_forbidden = [term for term in forbidden_assumptions if term in combined]
+    if found_forbidden:
+        errors.append("stage-eight design revives retired assumptions: " + ", ".join(found_forbidden))
+
+    decisions = DECISIONS.read_text(encoding="utf-8")
+    for term in ["계약 기능 분리", "토큰 수량 상태", "정산 서명 검증", "계약 변경관리", "팀 검토 대기"]:
+        if term not in decisions:
+            errors.append(f"DECISIONS.md is missing stage-eight draft decision: {term}")
+
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    for label, content in [("README", readme), ("WORKFLOW", workflow)]:
+        if "8단계" not in content or "검토" not in content or "9단계" not in content or "승인 전" not in content:
+            errors.append(f"{label} must record stage-eight review and block stage nine")
+
+    state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
+    if state.get("stage") != "awaiting_stage_eight_approval":
+        errors.append("active project state must await stage-eight approval")
+    if state.get("iteration") != 31:
+        errors.append("active project iteration must be 31 for stage-eight review")
     expected_next_action = (
-        "Start stage eight smart-contract design from the approved stage-one-to-seven documents "
-        "and machine-readable contracts."
+        "Review and approve the stage-eight smart-contract design before starting stage-nine test design."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must start stage-eight smart-contract design")
+        errors.append("active project next action must review stage eight before stage nine")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -2196,6 +2410,7 @@ def main() -> int:
     validate_stage_five_contract(errors)
     validate_stage_six_contract(errors)
     validate_stage_seven_contract(errors)
+    validate_stage_eight_contract(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -2206,7 +2421,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-seven contracts, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-eight contracts, "
         "and 16 source checksums passed."
     )
     return 0
