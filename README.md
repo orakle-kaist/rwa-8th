@@ -2,9 +2,9 @@
 
 이 프로젝트는 비거주 일반 개인투자자가 해외 금융기관을 통해 한국 상장주식에 접근할 수 있도록 `한국형 규제 수탁 권리의 24/7 2차시장 통제`를 설계하고 검증하는 PoC다. Dinari의 수탁형 토큰화 주식을 참고하되 한국의 외국인 통합계좌, KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
 
-> 현재 상태: **1~5단계 정합성 보완 검토 대기, 6단계 착수 보류**
+> 현재 상태: **1~5단계 정합성 보완 승인 완료, 6단계 시스템 구조와 보안 설계 착수 가능**
 >
-> 다음 행동: 환매 과도기, 권리기입 순서, 사건별 중지범위와 보완 요구사항이 1~5단계 문서에서 같은 의미인지 검토하고 승인한다.
+> 다음 행동: 승인된 1~5단계 문서를 기준으로 토큰 표준, 발행 체인, 시스템 경계, 권한, 키와 개인정보 보호 및 외부 정보 전달 구조를 비교하고 결정한다.
 >
 > 실제 PoC 코드 구현: **10단계**에서 시작한다.
 
@@ -24,12 +24,12 @@
 | 단계 | 상태 | 산출물 | 언제 읽는가 |
 |---|---|---|---|
 | 0. 프로젝트 관리 | 계속 갱신 | [작업 순서](docs/00-project/WORKFLOW.md), [결정 기록](docs/00-project/DECISIONS.md) | 현재 단계와 확정된 결정 및 남은 쟁점을 확인할 때 |
-| 1. 마스터 확정 | 정합성 보완 검토 대기 | [마스터 설계](docs/01-master/MASTER.md) | 프로젝트 목적, 권리 구조, 기관 역할과 범위를 이해할 때 |
-| 2. PoC 정의 | 정합성 보완 검토 대기 | [목표와 성공 기준](docs/02-poc-definition/POC_GOALS.md), [시험 데이터](docs/02-poc-definition/POC_TEST_DATA.md) | 구현 범위, 불변식, 대표 종목과 합성 통제값을 확인할 때 |
-| 3. 제품 요구사항 | 정합성 보완 검토 대기 | [제품 요구사항](docs/03-product-requirements/PRD.md) | 사용자와 기관에 필요한 기능 및 완료 조건을 확인할 때 |
-| 4. 기관 업무 설계 | 정합성 보완 검토 대기 | [기관 업무와 책임](docs/04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보](docs/04-institution-design/REFERENCE_DATA.md) | 업무 인계, 기준 장부, 승인 책임과 데이터 원본을 확인할 때 |
-| 5. 제품 동작 설계 | 정합성 보완 검토 대기 | [화면 흐름](docs/05-screens-states-recovery/SCREEN_FLOWS.md), [상태와 전환](docs/05-screens-states-recovery/STATE_MODEL.md), [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md) | 화면, 업무 상태, 차단, 격리와 재개 규칙을 확인할 때 |
-| 6. 시스템 구조와 보안 | 착수 보류 | `docs/06-architecture-security/` 예정 | 1~5단계 재승인 뒤 기술 구성과 보안 방식을 선택할 때 |
+| 1. 마스터 확정 | 승인 완료 | [마스터 설계](docs/01-master/MASTER.md) | 프로젝트 목적, 권리 구조, 기관 역할과 범위를 이해할 때 |
+| 2. PoC 정의 | 승인 완료 | [목표와 성공 기준](docs/02-poc-definition/POC_GOALS.md), [시험 데이터](docs/02-poc-definition/POC_TEST_DATA.md) | 구현 범위, 불변식, 대표 종목과 합성 통제값을 확인할 때 |
+| 3. 제품 요구사항 | 승인 완료 | [제품 요구사항](docs/03-product-requirements/PRD.md) | 사용자와 기관에 필요한 기능 및 완료 조건을 확인할 때 |
+| 4. 기관 업무 설계 | 승인 완료 | [기관 업무와 책임](docs/04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보](docs/04-institution-design/REFERENCE_DATA.md) | 업무 인계, 기준 장부, 승인 책임과 데이터 원본을 확인할 때 |
+| 5. 제품 동작 설계 | 승인 완료 | [화면 흐름](docs/05-screens-states-recovery/SCREEN_FLOWS.md), [상태와 전환](docs/05-screens-states-recovery/STATE_MODEL.md), [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md) | 화면, 업무 상태, 차단, 격리와 재개 규칙을 확인할 때 |
+| 6. 시스템 구조와 보안 | 착수 가능 | `docs/06-architecture-security/` 예정 | 승인된 1~5단계를 기준으로 기술 구성과 보안 방식을 선택할 때 |
 | 7. 데이터와 연계 | 시작 전 | `docs/07-data-api-events/` 예정 | 공통 데이터, API와 이벤트를 설계할 때 |
 | 8. 스마트컨트랙트 | 시작 전 | `docs/08-smart-contract-design/` 예정 | 발행, 소각, 이전 제한과 권한을 설계할 때 |
 | 9. 테스트 설계 | 시작 전 | `docs/09-test-design/` 예정 | 구현 전 인수 및 실패 시험을 확정할 때 |
@@ -65,7 +65,7 @@ archive/pre-prd-v1/               폐기된 옛 설계, 구현 기준 아님
 scripts/                          문서, 링크와 원자료 검증
 ```
 
-- `docs/`는 단계별 기준 문서의 유일한 위치다. 현재 1~5단계 문서는 정합성 보완 검토안이며 재승인 전까지 구현 기준으로 확정하지 않는다.
+- `docs/`는 단계별 기준 문서의 유일한 위치다. 1~5단계 문서는 정합성 보완까지 승인된 6단계 설계의 입력이다.
 - `research/`는 설계의 근거와 조사과정을 보존하지만 승인 문서를 대신하지 않는다.
 - `research/korean-equity-rwa/_work/`는 검증과 이력용이므로 일반 독자가 먼저 읽을 필요가 없다.
 - `archive/pre-prd-v1/`은 과거 아이디어를 보존한 자료이며 현재 요구사항이나 구현 기준으로 사용하지 않는다.
