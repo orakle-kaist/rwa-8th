@@ -1,6 +1,6 @@
 {
-  "stage": "ready_for_prd",
-  "next_action": "Start stage three and draft the PRD from the approved master, POC_GOALS.md and POC_TEST_DATA.md without choosing implementation technologies.",
+  "stage": "awaiting_prd_approval",
+  "next_action": "Review and approve PRD.md before starting stage four institution workflow and reference-data design.",
   "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 18
+  "iteration": 19
 }

@@ -24,6 +24,7 @@ SOURCE_ROOT = RESEARCH_ROOT / "sources" / "user"
 SOURCE_INDEX = RESEARCH_ROOT / "_work" / "source_index.jsonl"
 POC_GOALS = REPO_ROOT / "POC_GOALS.md"
 POC_TEST_DATA = REPO_ROOT / "POC_TEST_DATA.md"
+PRD = REPO_ROOT / "PRD.md"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
@@ -118,6 +119,7 @@ def markdown_files() -> list[Path]:
         REPO_ROOT / "PROJECT_DECISIONS.md",
         POC_GOALS,
         POC_TEST_DATA,
+        PRD,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -157,6 +159,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         RESEARCH_ROOT / "drafts" / "final_candidate.md",
         POC_GOALS,
         POC_TEST_DATA,
+        PRD,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -193,6 +196,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "마스터" not in readme
     ):
         errors.append("README must identify final_candidate.md as the approved master")
+    if "PRD.md" not in readme or "3단계" not in readme or "승인 대기" not in readme:
+        errors.append("README must identify PRD.md as the stage-three review draft")
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
@@ -228,6 +233,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "지원 종목 범위",
         "KOSPI 200",
         "대표 시연 종목",
+        "권리업무 PoC 범위",
+        "고객확인 PoC 깊이",
         "토큰 표준과 배포 방식",
         "발행 블록체인",
         "외부 정보 전달",
@@ -435,6 +442,151 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
                 + ", ".join(stale)
             )
 
+
+def validate_prd_contract(errors: list[str]) -> None:
+    if not PRD.is_file():
+        return  # validate_workspace_contract reports the missing required file
+
+    prd = PRD.read_text(encoding="utf-8")
+
+    if "·" in prd:
+        errors.append("PRD.md: use commas or natural conjunctions instead of middle-dot list separators")
+
+    required_sections = [
+        "1. 이 문서가 정하는 것",
+        "2. 제품 목표와 성공 기준",
+        "3. 사용자와 책임",
+        "4. 구현 범위",
+        "5. 핵심 사용자 흐름",
+        "6. 제품 요구사항",
+        "7. 기관 간 업무 인계",
+        "8. 품질 요구사항",
+        "9. 인수 시나리오와 추적",
+        "10. 후속 결정과 담당",
+        "11. 3단계 승인 기준",
+    ]
+    found_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", prd, flags=re.MULTILINE)
+    ]
+    if found_sections != required_sections:
+        errors.append(
+            "PRD.md numbered sections do not match the stage-three structure: "
+            f"found {found_sections}"
+        )
+
+    required_terms = [
+        "팀 내부 검토안, 승인 대기",
+        "마스터 설계",
+        "PoC 목표와 성공 기준",
+        "PoC 시험 데이터와 통제값",
+        "합성 고객확인",
+        "1차 발행",
+        "T+2 전환",
+        "24/7 2차거래",
+        "시장조성자 헤지",
+        "1차 환매",
+        "투자자",
+        "토큰 플랫폼 운영자",
+        "인가 해외 증권사",
+        "국내 주문집행 증권사",
+        "수탁은행과 상임대리인",
+        "지정 시장조성자",
+        "현금배당",
+        "의결권",
+        "월별 보고",
+        "수량 불변식",
+        "중복 방지",
+        "장애 복구",
+        "팀 내부 검토안, 승인 대기",
+        "상태 이름 전체 목록",
+        "데이터 형식",
+        "토큰 표준",
+        "발행할 블록체인",
+        "스마트컨트랙트 동작",
+        "모든 항목이 승인되기 전에는 4단계",
+    ]
+    missing_terms = [term for term in required_terms if term not in prd]
+    if missing_terms:
+        errors.append(
+            "PRD.md is missing required product boundaries or lifecycle terms: "
+            + ", ".join(missing_terms)
+        )
+
+    requirement_families = {
+        "고객확인": 4,
+        "상품목록": 3,
+        "1차발행": 5,
+        "국내결제": 4,
+        "24시간거래": 6,
+        "시장조성": 5,
+        "환매": 5,
+        "권리관리": 4,
+        "안전통제": 5,
+        "감사기록": 3,
+    }
+    expected_ids = {
+        f"{family}-{number:02d}"
+        for family, count in requirement_families.items()
+        for number in range(1, count + 1)
+    }
+    defined_ids = re.findall(
+        r"^\|\s*((?:고객확인|상품목록|1차발행|국내결제|24시간거래|시장조성|환매|권리관리|안전통제|감사기록)-\d{2})\s*\|",
+        prd,
+        flags=re.MULTILINE,
+    )
+    duplicate_ids = sorted({item for item in defined_ids if defined_ids.count(item) > 1})
+    if duplicate_ids:
+        errors.append("PRD.md has duplicate requirement definitions: " + ", ".join(duplicate_ids))
+    missing_ids = sorted(expected_ids - set(defined_ids))
+    unexpected_ids = sorted(set(defined_ids) - expected_ids)
+    if missing_ids:
+        errors.append("PRD.md is missing requirement definitions: " + ", ".join(missing_ids))
+    if unexpected_ids:
+        errors.append("PRD.md has unexpected requirement definitions: " + ", ".join(unexpected_ids))
+
+    all_id_mentions = re.findall(
+        r"(?:고객확인|상품목록|1차발행|국내결제|24시간거래|시장조성|환매|권리관리|안전통제|감사기록)-\d{2}",
+        prd,
+    )
+    repeated_mentions = sorted(
+        {item for item in all_id_mentions if all_id_mentions.count(item) != 1}
+    )
+    if repeated_mentions:
+        errors.append(
+            "PRD.md requirement identifiers must appear only in their number cells: "
+            + ", ".join(repeated_mentions)
+        )
+
+    if "REQ-" in prd or re.search(r"(?<![A-Za-z])[A-Z]{3}-\d{2}(?!\d)", prd):
+        errors.append("PRD.md must use readable Korean requirement identifiers, not opaque English codes")
+
+    forbidden_technology_choices = [
+        "ERC-20",
+        "ERC-3643",
+        "ERC-4626",
+        "LayerZero",
+        "OFT Burn&Mint",
+        "Avalanche",
+        "Solana",
+        "OpenAPI",
+        "AsyncAPI",
+    ]
+    selected_technologies = [term for term in forbidden_technology_choices if term in prd]
+    if selected_technologies:
+        errors.append(
+            "PRD.md selects technologies reserved for later stages: "
+            + ", ".join(selected_technologies)
+        )
+
+    approval_items = re.findall(r"^- \[ \] ", prd, flags=re.MULTILINE)
+    if len(approval_items) != 8:
+        errors.append(f"PRD.md must retain eight unchecked approval items: found {len(approval_items)}")
+
+    state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
+    if state.get("stage") != "awaiting_prd_approval":
+        errors.append("active project state must await PRD approval before stage four")
+
 def validate_master_regulatory_contract(errors: list[str]) -> None:
     master_path = RESEARCH_ROOT / "drafts" / "final_candidate.md"
     master = master_path.read_text(encoding="utf-8")
@@ -582,6 +734,7 @@ def main() -> int:
     validate_markdown_links(errors)
     validate_workspace_contract(errors)
     validate_poc_goals_contract(errors)
+    validate_prd_contract(errors)
     validate_master_regulatory_contract(errors)
 
     if errors:
@@ -590,7 +743,10 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print("Active research workspace, links, metadata, master contract, and 16 source checksums passed.")
+    print(
+        "Active research workspace, links, metadata, master, PoC and PRD contracts, "
+        "and 16 source checksums passed."
+    )
     return 0
 
 
