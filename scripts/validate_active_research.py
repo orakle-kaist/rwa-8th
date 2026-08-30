@@ -224,15 +224,15 @@ def validate_workspace_contract(errors: list[str]) -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     if (
         "docs/01-master/MASTER.md" not in readme
-        or "승인된" not in readme
+        or "정합성 보완 검토 대기" not in readme
         or "마스터" not in readme
     ):
-        errors.append("README must identify docs/01-master/MASTER.md as the approved master")
+        errors.append("README must identify the master and the current alignment review")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "1~5단계 팀 내부 승인 완료" not in readme
+        or "6단계 착수 보류" not in readme
     ):
-        errors.append("README must identify PRD.md and stages one through five as approved")
+        errors.append("README must identify PRD.md and block stage six during alignment review")
     if (
         "docs/04-institution-design/INSTITUTION_WORKFLOWS.md" not in readme
         or "docs/04-institution-design/REFERENCE_DATA.md" not in readme
@@ -406,7 +406,7 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
             )
 
     required_goal_terms = [
-        "팀 내부 승인 완료",
+        "1~5단계 정합성 보완 검토 대기",
         "POC_TEST_DATA.md",
         "1차 발행",
         "24/7 토큰 2차거래",
@@ -422,14 +422,14 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
         "KSD",
         "지정 마켓메이커",
         "모의 자금·환전 사업자",
-        "종목별로 취합",
+        "종목, KRW 지정가격과 거래일이 같은",
         "비례해 배분",
         "주문 접수시각",
         "T+2 결제차이 위험",
         "국내 결제 대기",
         "결제완료·거래 가능",
-        "권리종료",
-        "토큰 플랫폼이 같은 수량을 소각",
+        "환매대금 지급청구",
+        "토큰 플랫폼이 소각",
         "고객 USD 현금계좌",
         "USDC 재전환",
         "수량과 처리 원칙",
@@ -437,6 +437,10 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
         "같은 요청번호",
         "시스템 재시작",
         "한 번만 최종 반영",
+        "권리기입 완료",
+        "1주 = 고객 수탁권리 1단위 = 토큰 1단위",
+        "다음 달 10일",
+        "USDC 전환",
     ]
     missing_goal_terms = [term for term in required_goal_terms if term not in poc_goals]
     if missing_goal_terms:
@@ -446,7 +450,7 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
         )
 
     required_test_terms = [
-        "2단계 승인 시험자료",
+        "1~5단계 정합성 보완 검토 대기",
         "201개",
         "삼성전자",
         "SK하이닉스",
@@ -544,7 +548,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "8. 품질 요구사항",
         "9. 인수 시나리오와 추적",
         "10. 후속 결정과 담당",
-        "11. 3단계 승인 기준",
+        "11. 정합성 보완 재검토 기준",
     ]
     found_sections = [
         match.group(1)
@@ -557,7 +561,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         )
 
     required_terms = [
-        "팀 내부 승인 완료",
+        "1~5단계 정합성 보완 검토 대기",
         "마스터 설계",
         "PoC 목표와 성공 기준",
         "PoC 시험 데이터와 통제값",
@@ -579,13 +583,12 @@ def validate_prd_contract(errors: list[str]) -> None:
         "수량 불변식",
         "중복 방지",
         "장애 복구",
-        "승인일: 2026-08-30",
         "상태 이름 전체 목록",
         "데이터 형식",
         "토큰 표준",
         "발행할 블록체인",
         "스마트컨트랙트 동작",
-        "4단계 기관 업무와 기준 정보 설계를 시작할 수 있다",
+        "6단계에 착수하지 않는다",
     ]
     missing_terms = [term for term in required_terms if term not in prd]
     if missing_terms:
@@ -598,11 +601,10 @@ def validate_prd_contract(errors: list[str]) -> None:
         "체결 후 미발행",
         "국내 결제완료 응답과 수탁수량 반영 응답",
         "위험한도 회복",
-        "권리와 토큰 축",
-        "국내 수탁 축",
-        "체결, 권리, 위험 승인과 토큰 실행",
-        "동일한 기관 증거 또는 승인 재사용",
-        "환매대금 결제 후 소각 대기",
+        "권리기입 완료",
+        "T+2 위험 승인",
+        "환매대금 지급청구",
+        "환매 소각 대기",
         "배당락 기준",
         "원자적 처리",
     ]
@@ -624,6 +626,10 @@ def validate_prd_contract(errors: list[str]) -> None:
         "권리관리": 4,
         "안전통제": 5,
         "감사기록": 3,
+        "투자자보호": 2,
+        "민원처리": 1,
+        "배당전환": 1,
+        "수량단위": 1,
     }
     expected_ids = {
         f"{family}-{number:02d}"
@@ -631,7 +637,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         for number in range(1, count + 1)
     }
     defined_ids = re.findall(
-        r"^\|\s*((?:고객확인|상품목록|1차발행|국내결제|24시간거래|시장조성|환매|권리관리|안전통제|감사기록)-\d{2})\s*\|",
+        r"^\|\s*((?:고객확인|투자자보호|민원처리|상품목록|1차발행|국내결제|24시간거래|시장조성|환매|권리관리|배당전환|수량단위|안전통제|감사기록)-\d{2})\s*\|",
         prd,
         flags=re.MULTILINE,
     )
@@ -646,7 +652,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         errors.append("PRD.md has unexpected requirement definitions: " + ", ".join(unexpected_ids))
 
     all_id_mentions = re.findall(
-        r"(?:고객확인|상품목록|1차발행|국내결제|24시간거래|시장조성|환매|권리관리|안전통제|감사기록)-\d{2}",
+        r"(?:고객확인|투자자보호|민원처리|상품목록|1차발행|국내결제|24시간거래|시장조성|환매|권리관리|배당전환|수량단위|안전통제|감사기록)-\d{2}",
         prd,
     )
     repeated_mentions = sorted(
@@ -693,9 +699,9 @@ def validate_prd_contract(errors: list[str]) -> None:
             + ", ".join(selected_technologies)
         )
 
-    approval_items = re.findall(r"^- \[x\] ", prd, flags=re.MULTILINE)
-    if len(approval_items) != 8:
-        errors.append(f"PRD.md must record eight approved checklist items: found {len(approval_items)}")
+    review_items = re.findall(r"^- \[ \] ", prd, flags=re.MULTILINE)
+    if len(review_items) < 5:
+        errors.append(f"PRD.md must record the alignment review checklist: found {len(review_items)}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") not in {
@@ -704,6 +710,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_five",
         "awaiting_stage_five_approval",
         "ready_for_stage_six",
+        "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
 
@@ -758,7 +765,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "6. 정상적인 수량 차이와 실제 오류",
         "7. 인계 증거와 정정 원칙",
         "8. PRD 기능 연결 확인",
-        "9. 4단계 승인 기준",
+        "9. 정합성 보완 재검토 기준",
     ]
     found_workflow_sections = [
         match.group(1)
@@ -771,7 +778,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         )
 
     required_workflow_terms = [
-        "팀 내부 승인 완료",
+        "1~5단계 정합성 보완 검토 대기",
         "투자자",
         "토큰 플랫폼",
         "인가 해외 증권사",
@@ -799,15 +806,14 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "월별 최종투자자 보고",
         "두 축 수량 대사, 장애 격리와 재개",
         "결제완료 응답만 있고 수탁수량 반영 응답이 없거나 그 반대",
-        "환매대금 결제 후 소각 대기",
+        "환매대금 지급청구",
         "신규 발행과 24/7 거래를 중지",
         "원복",
         "격리",
         "보정",
         "사람 승인",
-        "같은 증거와 승인을 발행, 이전, 소각 또는 지급에 두 번 사용할 수 없어야 한다",
-        "5단계 화면, 상태와 오류 규칙 설계를 시작할 수 있다",
-        "승인일은 2026년 8월 30일",
+        "같은 체결, 위험 승인, 권리기입 승인",
+        "6단계에 착수하지 않는다",
     ]
     missing_workflow_terms = [
         term for term in required_workflow_terms if term not in workflows
@@ -827,11 +833,11 @@ def validate_stage_four_contract(errors: list[str]) -> None:
             f"found {workflows.count(handoff_header)}"
         )
 
-    workflow_approval_items = re.findall(r"^- \[x\] ", workflows, flags=re.MULTILINE)
-    if len(workflow_approval_items) != 8:
+    workflow_review_items = re.findall(r"^- \[ \] ", workflows, flags=re.MULTILINE)
+    if len(workflow_review_items) < 5:
         errors.append(
-            "INSTITUTION_WORKFLOWS.md must have eight approved checklist items: "
-            f"found {len(workflow_approval_items)}"
+            "INSTITUTION_WORKFLOWS.md must have an alignment review checklist: "
+            f"found {len(workflow_review_items)}"
         )
 
     reference_sections = [
@@ -845,7 +851,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "8. 변경, 적용기간과 정정",
         "9. 현재 보존 스냅샷",
         "10. 자동 검증과 사람 확인",
-        "11. 4단계 승인 기준",
+        "11. 정합성 보완 재검토 기준",
     ]
     found_reference_sections = [
         match.group(1)
@@ -858,7 +864,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         )
 
     required_reference_terms = [
-        "팀 내부 승인 완료",
+        "1~5단계 정합성 보완 검토 대기",
         "2026년 8월 28일 KRX KOSPI 200 스냅샷",
         "서로 다른 종목코드 201개",
         "KRX 종목코드",
@@ -894,8 +900,8 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "실제 상품 활성화 데이터로 사용하지 않는다",
         "기존 기록을 덮어쓰지 않는다",
         "마지막 종가, 거래대금, USD/KRW, USDC/USD",
-        "5단계 화면, 상태와 오류 규칙 설계를 시작할 수 있다",
-        "승인일은 2026년 8월 30일",
+        "1주 = 고객 수탁권리 1단위 = 토큰 1단위",
+        "6단계에 착수하지 않는다",
     ]
     missing_reference_terms = [
         term for term in required_reference_terms if term not in reference
@@ -920,11 +926,11 @@ def validate_stage_four_contract(errors: list[str]) -> None:
                 f"REFERENCE_DATA.md is missing representative security {code} {name}"
             )
 
-    reference_approval_items = re.findall(r"^- \[x\] ", reference, flags=re.MULTILINE)
-    if len(reference_approval_items) != 8:
+    reference_review_items = re.findall(r"^- \[ \] ", reference, flags=re.MULTILINE)
+    if len(reference_review_items) < 2:
         errors.append(
-            "REFERENCE_DATA.md must have eight approved checklist items: "
-            f"found {len(reference_approval_items)}"
+            "REFERENCE_DATA.md must have an alignment review checklist: "
+            f"found {len(reference_review_items)}"
         )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
@@ -932,6 +938,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "ready_for_stage_five",
         "awaiting_stage_five_approval",
         "ready_for_stage_six",
+        "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
 
@@ -1000,7 +1007,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "6. 통합 기관 콘솔의 역할별 업무공간",
         "7. 화면 사이의 공통 생애주기",
         "8. 인수 시나리오와 화면 연결",
-        "9. 5단계 승인 기준",
+        "9. 정합성 보완 재검토 기준",
     ]
     found_screen_sections = [
         match.group(1)
@@ -1013,12 +1020,12 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         )
 
     required_screen_terms = [
-        "팀 내부 승인 완료",
+        "1~5단계 정합성 보완 검토 대기",
         "투자자 앱",
         "통합 기관 콘솔",
         "역할 전환은 시연 편의를 위한 화면 전환",
         "실제 담당자의 실행권한이나 승인권한을 바꾸지 않는다",
-        "고객확인 결과와 전용 지갑",
+        "고객확인, 투자자 보호와 전용 지갑",
         "KOSPI 200 상품목록",
         "종목 상세와 주문 경로 선택",
         "1차 발행 주문과 자금 확인",
@@ -1041,9 +1048,9 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "금지된 행동",
         "차단 사유",
         "감사 증거",
-        "KSD와 자금 및 환전기관은 별도 화면이 아닌 모의 외부 응답",
-        "모든 상태를 하나 이상의 화면에서 확인할 수 있다",
-        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작할 수 있다",
+        "KSD와 자금 및 환전기관의 결과는 별도 사용자 화면을 만들지 않고",
+        "모든 상태는 하나 이상의 화면에서 확인할 수 있어야 한다",
+        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작하지 않는다",
     ]
     missing_screen_terms = [term for term in required_screen_terms if term not in screens]
     if missing_screen_terms:
@@ -1068,11 +1075,11 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             "SCREEN_FLOWS.md must define the overview and six role workspaces: "
             f"found {len(institution_workspace_headings)}"
         )
-    screen_approval_items = re.findall(r"^- \[x\] ", screens, flags=re.MULTILINE)
-    if len(screen_approval_items) != 8:
+    screen_review_items = re.findall(r"^- \[ \] ", screens, flags=re.MULTILINE)
+    if len(screen_review_items) < 5:
         errors.append(
-            "SCREEN_FLOWS.md must have eight approved checklist items: "
-            f"found {len(screen_approval_items)}"
+            "SCREEN_FLOWS.md must have an alignment review checklist: "
+            f"found {len(screen_review_items)}"
         )
 
     expected_state_sections = [
@@ -1088,7 +1095,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "10. 두 축 대사, 중지, 격리와 재개",
         "11. 절대 허용하지 않는 전환과 수량 규칙",
         "12. 상태와 화면 연결",
-        "13. 5단계 승인 기준",
+        "13. 정합성 보완 재검토 기준",
     ]
     found_state_sections = [
         match.group(1)
@@ -1101,7 +1108,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         )
 
     required_state_terms = [
-        "팀 내부 승인 완료",
+        "1~5단계 정합성 보완 검토 대기",
         "하나의 상태값으로 고객, 주문, 권리, 토큰, 자금, 결제와 수탁을 모두 표현하지 않는다",
         "고객 적격성",
         "계좌와 전용 지갑",
@@ -1124,12 +1131,12 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "결제만 확인",
         "수탁만 확인",
         "거래 가능",
-        "소각 대기",
+        "환매 소각 대기",
         "24/7 USDC 이전의 기술 방식은 이 단계에서 정하지 않는다",
         "위험한도 위반을 줄이는 요청",
         "절대 허용하지 않는 전환과 수량 규칙",
         "상태와 화면 연결",
-        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작할 수 있다",
+        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작하지 않는다",
     ]
     missing_state_terms = [term for term in required_state_terms if term not in states]
     if missing_state_terms:
@@ -1156,11 +1163,11 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             "STATE_MODEL.md must map every detailed state row to a visible screen: "
             f"found {len(state_rows_with_screen)} rows"
         )
-    state_approval_items = re.findall(r"^- \[x\] ", states, flags=re.MULTILINE)
-    if len(state_approval_items) != 8:
+    state_review_items = re.findall(r"^- \[ \] ", states, flags=re.MULTILINE)
+    if len(state_review_items) < 5:
         errors.append(
-            "STATE_MODEL.md must have eight approved checklist items: "
-            f"found {len(state_approval_items)}"
+            "STATE_MODEL.md must have an alignment review checklist: "
+            f"found {len(state_review_items)}"
         )
 
     expected_recovery_sections = [
@@ -1177,7 +1184,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "11. 두 축 대사 불일치와 복구 순서",
         "12. 재개 승인 규칙",
         "13. 인수 시나리오와 오류 규칙 연결",
-        "14. 5단계 승인 기준",
+        "14. 정합성 보완 재검토 기준",
     ]
     found_recovery_sections = [
         match.group(1)
@@ -1190,7 +1197,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         )
 
     required_recovery_terms = [
-        "팀 내부 승인 완료",
+        "1~5단계 정합성 보완 검토 대기",
         "가능한 가장 좁은 범위만 차단",
         "고객 요청 하나",
         "고객 하나",
@@ -1216,7 +1223,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "비현금 기업행동과 기준정보 정정",
         "두 축 대사 불일치와 복구 순서",
         "독립된 준법 또는 감사 담당",
-        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작할 수 있다",
+        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작하지 않는다",
     ]
     missing_recovery_terms = [
         term for term in required_recovery_terms if term not in recovery
@@ -1245,11 +1252,11 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             "ERROR_AND_RECOVERY.md must give scope, action, owner, evidence and resume conditions for each error: "
             f"found {len(full_error_rows)} complete rows"
         )
-    recovery_approval_items = re.findall(r"^- \[x\] ", recovery, flags=re.MULTILINE)
-    if len(recovery_approval_items) != 8:
+    recovery_review_items = re.findall(r"^- \[ \] ", recovery, flags=re.MULTILINE)
+    if len(recovery_review_items) < 5:
         errors.append(
-            "ERROR_AND_RECOVERY.md must have eight approved checklist items: "
-            f"found {len(recovery_approval_items)}"
+            "ERROR_AND_RECOVERY.md must have an alignment review checklist: "
+            f"found {len(recovery_review_items)}"
         )
 
     lifecycle_terms = [
@@ -1288,16 +1295,15 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_six":
-        errors.append("active project state must be ready for stage six after stage-five approval")
-    if state.get("iteration") != 24:
-        errors.append("active project iteration must be 24 after stage-five approval")
+    if state.get("stage") != "stages_one_to_five_alignment_review":
+        errors.append("active project state must block stage six during alignment review")
+    if state.get("iteration") != 25:
+        errors.append("active project iteration must be 25 during alignment review")
     expected_next_action = (
-        "Start stage six system architecture, technology selection, and security "
-        "design from the approved stage-five documents."
+        "Review and approve the aligned stages one through five before starting stage six."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must start stage-six design from approved inputs")
+        errors.append("active project next action must require alignment approval before stage six")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -1440,6 +1446,115 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
             )
 
 
+def validate_alignment_review_contract(errors: list[str]) -> None:
+    documents = {
+        "MASTER.md": MASTER.read_text(encoding="utf-8"),
+        "POC_GOALS.md": POC_GOALS.read_text(encoding="utf-8"),
+        "POC_TEST_DATA.md": POC_TEST_DATA.read_text(encoding="utf-8"),
+        "PRD.md": PRD.read_text(encoding="utf-8"),
+        "INSTITUTION_WORKFLOWS.md": INSTITUTION_WORKFLOWS.read_text(encoding="utf-8"),
+        "REFERENCE_DATA.md": REFERENCE_DATA.read_text(encoding="utf-8"),
+        "SCREEN_FLOWS.md": SCREEN_FLOWS.read_text(encoding="utf-8"),
+        "STATE_MODEL.md": STATE_MODEL.read_text(encoding="utf-8"),
+        "ERROR_AND_RECOVERY.md": ERROR_AND_RECOVERY.read_text(encoding="utf-8"),
+    }
+
+    for name, text in documents.items():
+        if "1~5단계 정합성 보완 검토 대기" not in text:
+            errors.append(f"{name} must be marked as pending alignment review")
+
+    required_by_document = {
+        "MASTER.md": [
+            "환매대금 지급청구",
+            "수탁권리 원장 기입 완료",
+            "KRW 지정가격",
+            "고객 수탁권리 1단위",
+            "다음 달 10일",
+            "USDC 전환",
+        ],
+        "POC_GOALS.md": [
+            "환매대금 지급청구",
+            "권리기입 완료",
+            "KRW 지정가격",
+            "고객 수탁권리 1단위",
+            "다음 달 10일",
+            "USDC 전환",
+        ],
+        "POC_TEST_DATA.md": [
+            "환매 소각 대기",
+            "권리기입",
+            "당일 유효 지정가",
+            "0.5주",
+            "다음 달 10일",
+            "USDC 전환",
+        ],
+        "PRD.md": [
+            "투자자보호-01",
+            "민원처리-01",
+            "배당전환-01",
+            "수량단위-01",
+            "USD 지급청구",
+            "권리기입 완료",
+            "KRW 지정가격",
+            "다음 달 10일",
+        ],
+        "INSTITUTION_WORKFLOWS.md": [
+            "환매대금 지급청구",
+            "권리기입 완료",
+            "KRW 지정가격",
+            "다음 달 10일",
+            "USDC 전환",
+        ],
+        "REFERENCE_DATA.md": [
+            "고객 수탁권리 1단위",
+            "소수 수량",
+            "KRX 거래정지 또는 중요사건",
+            "비현금 기업행동",
+        ],
+        "SCREEN_FLOWS.md": [
+            "환매대금 지급청구",
+            "권리기입 승인과 실제 원장 기입 완료",
+            "KRW 지정가격",
+            "민원 처리",
+            "다음 달 10일",
+            "USDC 전환",
+        ],
+        "STATE_MODEL.md": [
+            "USD 지급청구",
+            "권리기입 완료",
+            "KRW 지정가격",
+            "보호판정",
+            "다음 달 10일",
+            "USDC 전환",
+        ],
+        "ERROR_AND_RECOVERY.md": [
+            "환매대금 지급청구",
+            "권리기입 완료",
+            "KRW 지정가격",
+            "위험공시 동의",
+            "다음 달 10일",
+            "USDC 전환",
+        ],
+    }
+    for name, required_terms in required_by_document.items():
+        missing = [term for term in required_terms if term not in documents[name]]
+        if missing:
+            errors.append(f"{name} is missing alignment terms: " + ", ".join(missing))
+
+    all_text = "\n".join(documents.values())
+    forbidden_phrases = [
+        "시장가 또는 지정가",
+        "환매대금 결제 후에도 고객의 주식 수탁권리를 유지",
+        "권리기입은 승인됐으나 T+2 위험 승인 전",
+    ]
+    found_forbidden = [phrase for phrase in forbidden_phrases if phrase in all_text]
+    if found_forbidden:
+        errors.append(
+            "aligned documents retain superseded lifecycle language: "
+            + ", ".join(found_forbidden)
+        )
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -1451,6 +1566,7 @@ def main() -> int:
     validate_stage_four_contract(errors)
     validate_stage_five_contract(errors)
     validate_master_regulatory_contract(errors)
+    validate_alignment_review_contract(errors)
 
     if errors:
         print("Active research validation failed:", file=sys.stderr)

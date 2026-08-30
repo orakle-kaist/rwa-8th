@@ -2,9 +2,9 @@
 
 이 프로젝트는 비거주 일반 개인투자자가 해외 금융기관을 통해 한국 상장주식에 접근할 수 있도록 `한국형 규제 수탁 권리의 24/7 2차시장 통제`를 설계하고 검증하는 PoC다. Dinari의 수탁형 토큰화 주식을 참고하되 한국의 외국인 통합계좌, KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
 
-> 현재 상태: **1~5단계 팀 내부 승인 완료, 6단계 시스템 구조와 보안 설계 착수 가능**
+> 현재 상태: **1~5단계 정합성 보완 검토 대기, 6단계 착수 보류**
 >
-> 다음 행동: 토큰 표준, 발행 체인, 시스템 경계, 권한, 키와 개인정보 보호, 외부 정보 전달 구조를 비교하고 결정한다.
+> 다음 행동: 환매 과도기, 권리기입 순서, 사건별 중지범위와 보완 요구사항이 1~5단계 문서에서 같은 의미인지 검토하고 승인한다.
 >
 > 실제 PoC 코드 구현: **10단계**에서 시작한다.
 
@@ -19,17 +19,17 @@
 3. [제품 요구사항](docs/03-product-requirements/PRD.md): 제품이 반드시 제공해야 할 기능을 정한다.
 4. [전체 작업 순서](docs/00-project/WORKFLOW.md): 설계부터 구현과 결과 정리까지 11단계를 안내한다.
 
-## 단계별 승인 문서
+## 단계별 기준 문서
 
 | 단계 | 상태 | 산출물 | 언제 읽는가 |
 |---|---|---|---|
 | 0. 프로젝트 관리 | 계속 갱신 | [작업 순서](docs/00-project/WORKFLOW.md), [결정 기록](docs/00-project/DECISIONS.md) | 현재 단계와 확정된 결정 및 남은 쟁점을 확인할 때 |
-| 1. 마스터 확정 | 승인 완료 | [마스터 설계](docs/01-master/MASTER.md) | 프로젝트 목적, 권리 구조, 기관 역할과 범위를 이해할 때 |
-| 2. PoC 정의 | 승인 완료 | [목표와 성공 기준](docs/02-poc-definition/POC_GOALS.md), [시험 데이터](docs/02-poc-definition/POC_TEST_DATA.md) | 구현 범위, 불변식, 대표 종목과 합성 통제값을 확인할 때 |
-| 3. 제품 요구사항 | 승인 완료 | [제품 요구사항](docs/03-product-requirements/PRD.md) | 사용자와 기관에 필요한 기능 및 완료 조건을 확인할 때 |
-| 4. 기관 업무 설계 | 승인 완료 | [기관 업무와 책임](docs/04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보](docs/04-institution-design/REFERENCE_DATA.md) | 업무 인계, 기준 장부, 승인 책임과 데이터 원본을 확인할 때 |
-| 5. 제품 동작 설계 | 승인 완료 | [화면 흐름](docs/05-screens-states-recovery/SCREEN_FLOWS.md), [상태와 전환](docs/05-screens-states-recovery/STATE_MODEL.md), [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md) | 화면, 업무 상태, 차단, 격리와 재개 규칙을 확인할 때 |
-| 6. 시스템 구조와 보안 | 착수 가능 | `docs/06-architecture-security/` 예정 | 기술 구성과 보안 방식을 선택할 때 |
+| 1. 마스터 확정 | 정합성 보완 검토 대기 | [마스터 설계](docs/01-master/MASTER.md) | 프로젝트 목적, 권리 구조, 기관 역할과 범위를 이해할 때 |
+| 2. PoC 정의 | 정합성 보완 검토 대기 | [목표와 성공 기준](docs/02-poc-definition/POC_GOALS.md), [시험 데이터](docs/02-poc-definition/POC_TEST_DATA.md) | 구현 범위, 불변식, 대표 종목과 합성 통제값을 확인할 때 |
+| 3. 제품 요구사항 | 정합성 보완 검토 대기 | [제품 요구사항](docs/03-product-requirements/PRD.md) | 사용자와 기관에 필요한 기능 및 완료 조건을 확인할 때 |
+| 4. 기관 업무 설계 | 정합성 보완 검토 대기 | [기관 업무와 책임](docs/04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보](docs/04-institution-design/REFERENCE_DATA.md) | 업무 인계, 기준 장부, 승인 책임과 데이터 원본을 확인할 때 |
+| 5. 제품 동작 설계 | 정합성 보완 검토 대기 | [화면 흐름](docs/05-screens-states-recovery/SCREEN_FLOWS.md), [상태와 전환](docs/05-screens-states-recovery/STATE_MODEL.md), [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md) | 화면, 업무 상태, 차단, 격리와 재개 규칙을 확인할 때 |
+| 6. 시스템 구조와 보안 | 착수 보류 | `docs/06-architecture-security/` 예정 | 1~5단계 재승인 뒤 기술 구성과 보안 방식을 선택할 때 |
 | 7. 데이터와 연계 | 시작 전 | `docs/07-data-api-events/` 예정 | 공통 데이터, API와 이벤트를 설계할 때 |
 | 8. 스마트컨트랙트 | 시작 전 | `docs/08-smart-contract-design/` 예정 | 발행, 소각, 이전 제한과 권한을 설계할 때 |
 | 9. 테스트 설계 | 시작 전 | `docs/09-test-design/` 예정 | 구현 전 인수 및 실패 시험을 확정할 때 |
@@ -42,14 +42,14 @@
 
 - 기관 업무 검토자: [마스터](docs/01-master/MASTER.md) → [기관 업무](docs/04-institution-design/INSTITUTION_WORKFLOWS.md) → [기준정보](docs/04-institution-design/REFERENCE_DATA.md) → [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md)
 - 화면 및 개발 담당자: [제품 요구사항](docs/03-product-requirements/PRD.md) → [화면](docs/05-screens-states-recovery/SCREEN_FLOWS.md) → [상태](docs/05-screens-states-recovery/STATE_MODEL.md) → [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md)
-- 기술 설계 담당자: [결정 기록](docs/00-project/DECISIONS.md) → 1~5단계 승인 문서 → 6단계 산출물
+- 기술 설계 담당자: [결정 기록](docs/00-project/DECISIONS.md) → 재승인된 1~5단계 문서 → 6단계 산출물
 - 근거 확인 담당자: [마스터](docs/01-master/MASTER.md) → [리서치 브리프](research/korean-equity-rwa/brief.md) → [공식 출처](research/korean-equity-rwa/sources/web/official-sources.md) → [내부 검토](research/korean-equity-rwa/review/human_review.md)
 
 ## 저장소에서 자료를 구분하는 법
 
 ```text
 README.md                         처음 읽는 안내
-docs/                             승인된 설계와 프로젝트 결정
+docs/                             단계별 설계와 프로젝트 결정
   00-project/                     전체 작업 순서와 결정 기록
   01-master/                      1단계
   02-poc-definition/              2단계
@@ -65,14 +65,14 @@ archive/pre-prd-v1/               폐기된 옛 설계, 구현 기준 아님
 scripts/                          문서, 링크와 원자료 검증
 ```
 
-- `docs/`의 승인 문서만 현재 구현 기준으로 사용한다.
+- `docs/`는 단계별 기준 문서의 유일한 위치다. 현재 1~5단계 문서는 정합성 보완 검토안이며 재승인 전까지 구현 기준으로 확정하지 않는다.
 - `research/`는 설계의 근거와 조사과정을 보존하지만 승인 문서를 대신하지 않는다.
 - `research/korean-equity-rwa/_work/`는 검증과 이력용이므로 일반 독자가 먼저 읽을 필요가 없다.
 - `archive/pre-prd-v1/`은 과거 아이디어를 보존한 자료이며 현재 요구사항이나 구현 기준으로 사용하지 않는다.
 
 ## 핵심 PoC 경계
 
-PoC는 `1차 발행 → T+2 결제완료 전환 → 24/7 2차거래 → 시장조성자 헤지 → 1차 환매 → 권리종료와 토큰 소각 → USD 지급`의 닫힌 흐름을 모의 기관 응답과 합성 데이터로 시연한다. 24/7 2차거래에서는 결제 완료 재고만 적격 투자자와 지정 마켓메이커 사이의 지정가 거래에 사용한다.
+PoC는 `1차 지정가 발행 → T+2 결제완료 전환 → 24/7 2차거래 → 시장조성자 헤지 → 1차 환매 → 주식 권리의 환매대금 지급청구 전환 → 토큰 소각과 USD 지급`의 닫힌 흐름을 모의 기관 응답과 합성 데이터로 시연한다. 24/7 2차거래에서는 결제 완료 재고만 적격 투자자와 지정 마켓메이커 사이의 지정가 거래에 사용한다.
 
 24/7 완결 대상은 국내 결제가 끝난 수탁 권리의 제한된 2차거래다. 실제 시장 유동성, 가격 공정성, 시장조성자의 사업성, 일반 개인 판매 가능성이나 규제 허용을 증명하지 않는다.
 
