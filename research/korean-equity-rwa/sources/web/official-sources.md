@@ -75,6 +75,9 @@
 | S069 | A | [LayerZero, V2 OFT Quickstart](https://docs.layerzero.network/v2/developers/evm/oft/quickstart) | OFT는 체인 간 통합 공급량을 유지하도록 원천 체인에서 수량을 차감하고 목적 체인에서 같은 수량을 늘린다. 기본 OFT 구현은 원천 체인 소각과 목적 체인 발행을 사용하며 기존 토큰용 OFT Adapter는 잠금과 해제를 사용 | 새 권리토큰에는 OFT Burn&Mint를 채택하고 Lock&Mint 방식과 구분. 메시지 검증, 속도 제한과 실패복구는 후속 컨트랙트 설계사항으로 유지 |
 | S070 | A | [한국은행 ECOS, 2026년 8월 28일 원/미국달러 매매기준율](https://ecos.bok.or.kr/api/StatisticSearch/sample/json/kr/1/10/731Y001/D/20260828/20260828/0000001) | 통계코드 731Y001의 2026년 8월 28일 원/미국달러 매매기준율이 1,380.3원임을 확인 | KRX 원화 종가를 USD 기준가격으로 환산하는 2단계 재현 기준값 |
 | S071 | A | [한국거래소, 2026년 8월 28일 KOSPI 200 구성종목 조회](https://index.krx.co.kr/contents/MKD/03/0304/03040101/MKD03040101T3.jsp?upmidCd=0102&idxCd=1028&idxId=1) | 기준일 조회에서 서로 다른 종목코드 201개와 한화 및 한화머시너리앤서비스홀딩스의 동시 포함을 확인 | 지수명을 숫자로 하드코딩하지 않고 기준일 공식 목록 전체를 등록하는 근거 |
+| S072 | A | [Dinari DShare 공개 계약](https://github.com/dinaricrypto/sbt-contracts/blob/main/src/DShare.sol), [TransferRestrictor](https://github.com/dinaricrypto/sbt-contracts/blob/main/src/TransferRestrictor.sol) | DShare는 ERC-20 잔액에 발행, 소각, 주식분할 조정과 블랙리스트 기반 이전 제한을 붙인 공개 구현 | Dinari가 ERC-3643을 사용한다고 가정하지 않고 제한형 ERC-20을 한국형 통제의 출발점으로 삼는 근거 |
+| S073 | A | [Dinari Wrapping dShares](https://docs.dinari.com/docs/wrapping), [WrappedDShare 공개 계약](https://github.com/dinaricrypto/sbt-contracts/blob/main/src/WrappedDShare.sol) | ERC-4626은 HyperCore와 HyperEVM 사이에서 dShare를 잠그고 wrapped dShare를 발행하는 별도 래핑 계층에 사용 | 개별 주식 권리토큰 자체에 ERC-4626을 적용하지 않는 근거 |
+| S074 | A | [ERC-3643 공식 규격](https://eips.ethereum.org/EIPS/eip-3643) | ONCHAINID, 적격성 클레임, 조건부 ERC-20 이전, 동결, 복구와 관리 기능을 정의 | 실제 기관형 비교 표준으로 사용하되 이번 해외 증권사 기준 적격성 구조의 필수 구현으로 채택하지 않음 |
 
 ## 소스별 해석 제한
 
@@ -121,3 +124,5 @@
 - S067은 Dinari의 회사 사례 소개다. 24/7 대상과 주문 연결 방식을 설명하는 근거로 사용하되 실제 거래량, 체결품질, 가격결정 공식이나 미국 고객용 완전공개 계좌 상품의 가동 근거로 확대하지 않는다.
 - S068~S069는 기술적 Burn&Mint 원리를 확인한다. LayerZero를 사용한다고 고객 수탁권리가 자동 이전되거나 규제상 이전 승인이 충족되는 것은 아니며, 한국형 권리 원장 승인과 공급량 대사를 별도 통제로 설계한다.
 - S070은 2단계의 기준일 환산값일 뿐 실제 주말 체결환율, 고객 적용환율이나 외환 수수료가 아니다. S071의 201개 종목행은 기준일 스냅샷이며 KOSPI 200이 항상 201개라는 뜻이 아니다. 두 값은 기준일을 바꾸면 다시 조회해야 한다.
+- S072~S073은 Dinari의 공개 코드와 제품 문서다. 현재 배포주소별 바이트코드, 비공개 운영권한과 모든 미국 및 국제 상품이 같은 버전을 사용한다는 사실까지 입증하지 않는다. ERC-4626 래핑을 dShare 자체의 법적 권리구조나 1차 발행 표준으로 확대하지 않는다.
+- S074는 통제기능 비교에만 사용한다. ERC-3643 사용이 증권법 준수, 한국형 수탁권리의 법적 효력이나 인가 해외 증권사의 적격성 판정을 자동으로 보장한다는 뜻이 아니다.

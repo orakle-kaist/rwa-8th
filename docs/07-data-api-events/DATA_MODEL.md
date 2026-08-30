@@ -143,7 +143,7 @@ JSON Schema는 정의하지 않은 필드를 거절하고 예시와 자동검증
 - `name`: `Korean Equity RWA PoC`
 - `version`: `1`
 - `chainId`: `43113`
-- `verifyingContract`: 배포된 Fuji 정산 통제 계약주소
+- `verifyingContract`: 다섯 서명형에 공통으로 사용하는 배포된 Fuji `IntentVerifier` 주소
 
 서명형은 `PrimaryOrderIntent`, `SecondaryOrderIntent`, `RedemptionIntent`, `MarketMakerQuote`, `BrokerSettlementApproval` 다섯 개다. 정확한 필드와 Solidity 자료형은 [서명 스키마](specs/schemas/signatures.schema.json)가 정한다.
 [정상 서명 예시](specs/examples/signed-intents.json)는 다섯 형식과 `primaryType` 및 본문의 일치를 함께 검증한다.
@@ -153,6 +153,7 @@ JSON Schema는 정의하지 않은 필드를 거절하고 예시와 자동검증
 - 시장조성자 호가 방향은 `MM_BUYS` 또는 `MM_SELLS`로 표현해 투자자 방향과 혼동하지 않는다.
 - USD는 영주소를 지급자산으로 쓰지 않고 `paymentMode=USD_LEDGER`, USDC는 `paymentMode=USDC_ONCHAIN`과 실제 시험토큰 주소를 사용한다.
 - 같은 signer와 서명형에서 nonce를 한 번만 사용할 수 있다.
+- `IntentVerifier`는 서명 도메인, 만료와 nonce를 공통으로 검증하며 실제 발행, 2차 정산과 환매 실행은 기능별 통제 계약이 담당한다.
 - 컨트랙트 함수와 역할 상수는 8단계에서 정한다.
 
 ## 11. 버전 규칙

@@ -1507,8 +1507,9 @@ def validate_stage_six_contract(errors: list[str]) -> None:
         "Avalanche Fuji C-Chain",
         "Hyperledger Besu 프라이빗 체인",
         "Base Sepolia",
-        "ERC-3643 기반 제한형 토큰",
-        "일반 `transfer`나 `transferFrom`",
+        "ERC-20 인터페이스 기반 제한형 권리토큰",
+        "ERC-3643 전체 구성",
+        "일반 `transfer`, `transferFrom`이나 임의 `approve`",
         "EIP-712",
         "소수점 0",
         "KOSPI 200 기준 스냅샷 201개",
@@ -1610,11 +1611,13 @@ def validate_stage_six_contract(errors: list[str]) -> None:
             errors.append(f"{label} must record stage-six approval and stage-seven readiness")
     for term in [
         "애플리케이션 구조",
-        "ERC-3643 기반 제한형 토큰",
+        "ERC-20의 잔액, 공급량과 이벤트를 사용하는 제한형 권리토큰",
+        "대표 6종목으로 한정",
         "Avalanche Fuji C-Chain",
         "24/7 정산",
         "탈중앙화 가격 오라클",
         "2-of-3",
+        "60초 PoC 지연",
     ]:
         if term not in decisions:
             errors.append(f"DECISIONS.md is missing stage-six decision: {term}")
