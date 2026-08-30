@@ -196,8 +196,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "마스터" not in readme
     ):
         errors.append("README must identify final_candidate.md as the approved master")
-    if "PRD.md" not in readme or "3단계" not in readme or "승인 대기" not in readme:
-        errors.append("README must identify PRD.md as the stage-three review draft")
+    if "PRD.md" not in readme or "3단계" not in readme or "3단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme:
+        errors.append("README must identify PRD.md as the approved stage-three document")
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
@@ -476,7 +476,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         )
 
     required_terms = [
-        "팀 내부 검토안, 승인 대기",
+        "팀 내부 승인 완료",
         "마스터 설계",
         "PoC 목표와 성공 기준",
         "PoC 시험 데이터와 통제값",
@@ -498,13 +498,13 @@ def validate_prd_contract(errors: list[str]) -> None:
         "수량 불변식",
         "중복 방지",
         "장애 복구",
-        "팀 내부 검토안, 승인 대기",
+        "승인일: 2026-08-30",
         "상태 이름 전체 목록",
         "데이터 형식",
         "토큰 표준",
         "발행할 블록체인",
         "스마트컨트랙트 동작",
-        "모든 항목이 승인되기 전에는 4단계",
+        "4단계 기관 업무와 기준 정보 설계를 시작할 수 있다",
     ]
     missing_terms = [term for term in required_terms if term not in prd]
     if missing_terms:
@@ -612,13 +612,13 @@ def validate_prd_contract(errors: list[str]) -> None:
             + ", ".join(selected_technologies)
         )
 
-    approval_items = re.findall(r"^- \[ \] ", prd, flags=re.MULTILINE)
+    approval_items = re.findall(r"^- \[x\] ", prd, flags=re.MULTILINE)
     if len(approval_items) != 8:
-        errors.append(f"PRD.md must retain eight unchecked approval items: found {len(approval_items)}")
+        errors.append(f"PRD.md must record eight approved checklist items: found {len(approval_items)}")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "awaiting_prd_approval":
-        errors.append("active project state must await PRD approval before stage four")
+    if state.get("stage") != "ready_for_stage_four":
+        errors.append("active project state must be ready for stage four after PRD approval")
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
     master_path = RESEARCH_ROOT / "drafts" / "final_candidate.md"
