@@ -2,7 +2,7 @@
 
 이 문서는 마스터 제안서 검토부터 PoC 결과 보고까지의 작업 순서를 정합니다. 앞 단계에서 결정하지 않은 내용을 뒤 단계의 작성자나 AI가 임의로 정하지 않게 하는 것이 목적입니다.
 
-1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 한 차례 승인했다. 이후 단계 간 차이를 발견해 [PoC 목표와 성공 기준](../02-poc-definition/POC_GOALS.md), [시험 데이터](../02-poc-definition/POC_TEST_DATA.md), [제품 요구사항 문서](../03-product-requirements/PRD.md), [기관 업무와 책임 설계](../04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보 설계](../04-institution-design/REFERENCE_DATA.md), [역할별 화면 흐름](../05-screens-states-recovery/SCREEN_FLOWS.md), [업무 상태와 전환 규칙](../05-screens-states-recovery/STATE_MODEL.md)과 [오류와 복구 규칙](../05-screens-states-recovery/ERROR_AND_RECOVERY.md)을 함께 보완하고 2026년 8월 30일 다시 승인했다. 다음 단계는 **6단계 시스템 구조, 기술 선택과 보안 설계**다.
+1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 한 차례 승인했다. 이후 단계 간 차이를 발견해 [PoC 목표와 성공 기준](../02-poc-definition/POC_GOALS.md), [시험 데이터](../02-poc-definition/POC_TEST_DATA.md), [제품 요구사항 문서](../03-product-requirements/PRD.md), [기관 업무와 책임 설계](../04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보 설계](../04-institution-design/REFERENCE_DATA.md), [역할별 화면 흐름](../05-screens-states-recovery/SCREEN_FLOWS.md), [업무 상태와 전환 규칙](../05-screens-states-recovery/STATE_MODEL.md)과 [오류와 복구 규칙](../05-screens-states-recovery/ERROR_AND_RECOVERY.md)을 함께 보완하고 2026년 8월 30일 다시 승인했다. 현재 [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md)과 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)를 작성해 **6단계 검토 대기** 상태다. 세 문서를 함께 승인하기 전에는 7단계를 시작하지 않는다.
 
 ## 기본 원칙
 
@@ -45,7 +45,7 @@
 
 PRD에는 확인된 고객만 이전할 수 있어야 한다거나 오래된 시세에서는 주문을 막아야 한다는 식으로 필요한 동작을 적습니다. 특정 표준, 체인이나 사업자 이름은 제품 요구사항 자체가 아닌 한 넣지 않습니다.
 
-6단계의 기술 구조 결정서에서 토큰 표준, 발행 체인과 외부 정보 전달 방식을 선택합니다. 여기서 외부 정보는 KRX 가격과 시장 상태, 환율, 기업행동, 국내 체결과 결제 및 수탁 확인으로 나눕니다. 다중체인 후속 단계의 제품 원칙은 LayerZero V2 OFT Burn&Mint로 이미 정했지만 지원 체인, 메시지 검증, 속도 제한, 실패복구와 관리자 권한은 6단계와 8단계에서 구체화합니다. 브리지 실행은 단일체인 1단계 PoC 범위에서 제외합니다.
+6단계의 기술 구조 결정서에서 ERC-3643 기반 제한형 토큰, Avalanche Fuji C-Chain 단일 발행, 종목별 계약과 오프체인 권위정보 전달 방식을 선택했습니다. 외부 정보 전달 대상은 KRX 가격과 시장 상태, 환율, 기업행동, 국내 체결과 결제 및 수탁 확인으로 나눕니다. 다중체인 후속 단계의 제품 원칙은 LayerZero V2 OFT Burn&Mint로 유지하지만 브리지 실행은 단일체인 1단계 PoC 범위에서 제외합니다. 세부 메시지와 컨트랙트 동작은 7단계와 8단계에서 정합니다.
 
 기술을 바꿔도 투자자 권리와 기관 책임이 그대로라면 마스터를 수정하지 않습니다. 기술 선택으로 상품의 권리, 이전 범위, 책임기관이나 대상 고객이 바뀌면 먼저 마스터와 결정 기록을 다시 승인합니다.
 
@@ -77,6 +77,6 @@ PRD에는 확인된 고객만 이전할 수 있어야 한다거나 오래된 시
 
 ## 문서의 우선순위
 
-현재 [마스터](../01-master/MASTER.md)부터 [오류와 복구 규칙](../05-screens-states-recovery/ERROR_AND_RECOVERY.md)까지 1~5단계 문서는 정합성 보완까지 승인된 제품 원칙, 시연 범위, 통과조건, 제품 동작, 기관 책임, 기준정보, 화면, 상태와 복구 원칙의 기준 문서다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
+현재 [마스터](../01-master/MASTER.md)부터 [오류와 복구 규칙](../05-screens-states-recovery/ERROR_AND_RECOVERY.md)까지 1~5단계 문서는 정합성 보완까지 승인된 기준 문서다. 6단계 세 문서는 이 기준을 기술 구조와 보안 통제로 옮긴 검토안이며 아직 승인 문서가 아니다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
 
 2단계에서는 PoC의 기준일, 대표 시연 종목, 합성 데이터와 통과조건을 별도 문서로 확정합니다. 이후에는 각 단계에서 승인한 문서가 해당 범위의 기준이 됩니다.

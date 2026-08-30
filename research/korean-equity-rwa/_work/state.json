@@ -1,6 +1,6 @@
 {
-  "stage": "ready_for_stage_six",
-  "next_action": "Start stage six system architecture, technology selection, and security design from the aligned and approved stage-one-to-five documents.",
+  "stage": "awaiting_stage_six_approval",
+  "next_action": "Review and approve the stage-six architecture, technology decisions, and security and privacy design before starting stage seven.",
   "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 26
+  "iteration": 27
 }

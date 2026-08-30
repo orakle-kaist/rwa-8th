@@ -34,6 +34,9 @@ REFERENCE_DATA = DOCS_ROOT / "04-institution-design" / "REFERENCE_DATA.md"
 SCREEN_FLOWS = DOCS_ROOT / "05-screens-states-recovery" / "SCREEN_FLOWS.md"
 STATE_MODEL = DOCS_ROOT / "05-screens-states-recovery" / "STATE_MODEL.md"
 ERROR_AND_RECOVERY = DOCS_ROOT / "05-screens-states-recovery" / "ERROR_AND_RECOVERY.md"
+ARCHITECTURE = DOCS_ROOT / "06-architecture-security" / "ARCHITECTURE.md"
+TECHNOLOGY_DECISIONS = DOCS_ROOT / "06-architecture-security" / "TECHNOLOGY_DECISIONS.md"
+SECURITY_AND_PRIVACY = DOCS_ROOT / "06-architecture-security" / "SECURITY_AND_PRIVACY.md"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|specs|tmp)/")
@@ -135,6 +138,9 @@ def markdown_files() -> list[Path]:
         SCREEN_FLOWS,
         STATE_MODEL,
         ERROR_AND_RECOVERY,
+        ARCHITECTURE,
+        TECHNOLOGY_DECISIONS,
+        SECURITY_AND_PRIVACY,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -180,6 +186,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         SCREEN_FLOWS,
         STATE_MODEL,
         ERROR_AND_RECOVERY,
+        ARCHITECTURE,
+        TECHNOLOGY_DECISIONS,
+        SECURITY_AND_PRIVACY,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -216,6 +225,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         REPO_ROOT / "SCREEN_FLOWS.md",
         REPO_ROOT / "STATE_MODEL.md",
         REPO_ROOT / "ERROR_AND_RECOVERY.md",
+        REPO_ROOT / "ARCHITECTURE.md",
+        REPO_ROOT / "TECHNOLOGY_DECISIONS.md",
+        REPO_ROOT / "SECURITY_AND_PRIVACY.md",
     ]
     for path in retired_active_paths:
         if path.exists():
@@ -224,15 +236,15 @@ def validate_workspace_contract(errors: list[str]) -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     if (
         "docs/01-master/MASTER.md" not in readme
-        or "정합성 보완 승인 완료" not in readme
+        or "정합성 보완까지 승인된" not in readme
         or "마스터" not in readme
     ):
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "6단계 시스템 구조와 보안 설계 착수 가능" not in readme
+        or "6단계 검토 대기: 시스템 구조, 기술 선택과 보안 설계" not in readme
     ):
-        errors.append("README must identify PRD.md and allow stage six after alignment approval")
+        errors.append("README must identify PRD.md and the current stage-six review")
     if (
         "docs/04-institution-design/INSTITUTION_WORKFLOWS.md" not in readme
         or "docs/04-institution-design/REFERENCE_DATA.md" not in readme
@@ -244,6 +256,13 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md" not in readme
     ):
         errors.append("README must identify all three stage-five documents as approved")
+    if (
+        "docs/06-architecture-security/ARCHITECTURE.md" not in readme
+        or "docs/06-architecture-security/TECHNOLOGY_DECISIONS.md" not in readme
+        or "docs/06-architecture-security/SECURITY_AND_PRIVACY.md" not in readme
+        or "7단계를 시작하지 않는다" not in readme
+    ):
+        errors.append("README must identify all three stage-six documents and block stage seven")
     if "실제 PoC 코드 구현: **10단계**" not in readme:
         errors.append("README must distinguish stage-six design from stage-ten implementation")
 
@@ -266,6 +285,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "SCREEN_FLOWS.md": SCREEN_FLOWS,
         "STATE_MODEL.md": STATE_MODEL,
         "ERROR_AND_RECOVERY.md": ERROR_AND_RECOVERY,
+        "ARCHITECTURE.md": ARCHITECTURE,
+        "TECHNOLOGY_DECISIONS.md": TECHNOLOGY_DECISIONS,
+        "SECURITY_AND_PRIVACY.md": SECURITY_AND_PRIVACY,
     }
     for filename, expected_path in canonical_documents.items():
         matches = [
@@ -710,6 +732,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_five",
         "awaiting_stage_five_approval",
         "ready_for_stage_six",
+        "awaiting_stage_six_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -938,6 +961,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "ready_for_stage_five",
         "awaiting_stage_five_approval",
         "ready_for_stage_six",
+        "awaiting_stage_six_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1295,15 +1319,250 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_six":
-        errors.append("active project state must allow stage six after alignment approval")
-    if state.get("iteration") != 26:
-        errors.append("active project iteration must be 26 after alignment approval")
+    if state.get("stage") not in {"ready_for_stage_six", "awaiting_stage_six_approval"}:
+        errors.append("active project state must be at or beyond stage-six preparation")
+
+
+def validate_stage_six_contract(errors: list[str]) -> None:
+    stage_six_paths = [ARCHITECTURE, TECHNOLOGY_DECISIONS, SECURITY_AND_PRIVACY]
+    if not all(path.is_file() for path in stage_six_paths):
+        return  # validate_workspace_contract reports missing required files
+
+    architecture = ARCHITECTURE.read_text(encoding="utf-8")
+    technology = TECHNOLOGY_DECISIONS.read_text(encoding="utf-8")
+    security = SECURITY_AND_PRIVACY.read_text(encoding="utf-8")
+
+    for path, content in [
+        (ARCHITECTURE, architecture),
+        (TECHNOLOGY_DECISIONS, technology),
+        (SECURITY_AND_PRIVACY, security),
+    ]:
+        if "상태: **6단계 검토 대기**" not in content:
+            errors.append(f"{path.name} must be marked as pending stage-six approval")
+        if "·" in content:
+            errors.append(
+                f"{path.name}: use commas or natural conjunctions instead of middle-dot list separators"
+            )
+        opaque_terms = [term for term in ["REQ-", "INV-", "DEC-"] if term in content]
+        if opaque_terms:
+            errors.append(f"{path.name} uses opaque identifiers: " + ", ".join(opaque_terms))
+
+    expected_architecture_sections = [
+        "1. 구조가 지켜야 하는 기준",
+        "2. 전체 구조",
+        "3. 구성요소와 책임",
+        "4. 외부기관 경계",
+        "5. 정보가 놓이는 위치",
+        "6. 공통 처리 구조",
+        "7. 1차 발행과 T+2",
+        "8. 24/7 USD 거래",
+        "9. 24/7 USDC 거래",
+        "10. 시장조성자 헤지와 재고조정",
+        "11. 1차 환매",
+        "12. 배당, 의결권과 기업행동",
+        "13. 대사와 복구",
+        "14. 배포 구조",
+        "15. 요구사항 연결",
+        "16. 범위 밖",
+        "17. 승인 기준",
+    ]
+    found_architecture_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", architecture, flags=re.MULTILINE)
+    ]
+    if found_architecture_sections != expected_architecture_sections:
+        errors.append(
+            "ARCHITECTURE.md numbered sections do not match stage six: "
+            f"found {found_architecture_sections}"
+        )
+
+    required_architecture_terms = [
+        "고객별 수탁권리 원장이 최종투자자 권리의 기준 기록",
+        "업무별 단일 백엔드",
+        "PostgreSQL",
+        "트랜잭션 발송함",
+        "투자자 앱",
+        "통합 기관 콘솔",
+        "업무 조정기",
+        "기관 모의 어댑터",
+        "Avalanche Fuji",
+        "실제 기관, 데이터베이스와 블록체인을 하나의 원자적 거래로 묶을 수 있다고 가정하지 않는다",
+        "1차 발행과 T+2",
+        "24/7 USD 거래",
+        "24/7 USDC 거래",
+        "시장조성자 헤지와 재고조정",
+        "환매대금 지급청구",
+        "배당, 의결권과 기업행동",
+        "전체 발행토큰 - 환매 소각 대기 토큰",
+        "7단계 공통 데이터, API와 이벤트 설계를 시작하지 않는다",
+    ]
+    missing_architecture_terms = [
+        term for term in required_architecture_terms if term not in architecture
+    ]
+    if missing_architecture_terms:
+        errors.append(
+            "ARCHITECTURE.md is missing approved boundaries or lifecycle paths: "
+            + ", ".join(missing_architecture_terms)
+        )
+
+    expected_technology_sections = [
+        "1. 선택 원칙",
+        "2. 애플리케이션 기술",
+        "3. 발행 블록체인",
+        "4. 토큰 표준",
+        "5. 종목별 배포 구조",
+        "6. 온체인 적격성",
+        "7. USD와 USDC 정산 기술",
+        "8. 외부 정보와 오라클",
+        "9. 다중체인",
+        "10. 확정하지 않는 세부사항",
+        "11. 승인 기준",
+    ]
+    found_technology_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", technology, flags=re.MULTILINE)
+    ]
+    if found_technology_sections != expected_technology_sections:
+        errors.append(
+            "TECHNOLOGY_DECISIONS.md numbered sections do not match stage six: "
+            f"found {found_technology_sections}"
+        )
+
+    required_technology_terms = [
+        "TypeScript 모노레포",
+        "Next.js",
+        "PostgreSQL",
+        "viem",
+        "Solidity와 Foundry",
+        "Docker Compose",
+        "Avalanche Fuji C-Chain",
+        "Hyperledger Besu 프라이빗 체인",
+        "Base Sepolia",
+        "ERC-3643 기반 제한형 토큰",
+        "일반 `transfer`나 `transferFrom`",
+        "EIP-712",
+        "소수점 0",
+        "KOSPI 200 기준 스냅샷 201개",
+        "대표 6종목",
+        "6자리 소수점",
+        "탈중앙화 가격 오라클을 필수 구성요소로 사용하지 않는다",
+        "LayerZero V2 OFT Burn&Mint",
+        "상용 메인넷을 Avalanche로 확정한다는 뜻이 아니다",
+    ]
+    missing_technology_terms = [term for term in required_technology_terms if term not in technology]
+    if missing_technology_terms:
+        errors.append(
+            "TECHNOLOGY_DECISIONS.md is missing selected technologies or rejected alternatives: "
+            + ", ".join(missing_technology_terms)
+        )
+
+    expected_security_sections = [
+        "1. 보호 대상",
+        "2. 신뢰 경계",
+        "3. 역할과 권한 분리",
+        "4. 관리자와 운영키",
+        "5. 고객 지갑과 복구",
+        "6. 개인정보 최소화",
+        "7. 주요 위협과 통제",
+        "8. 사건별 중지와 재개",
+        "9. 감사와 변경 이력",
+        "10. 안전한 개발 기준",
+        "11. 보안 인수 시나리오",
+        "12. 남는 한계",
+        "13. 승인 기준",
+    ]
+    found_security_sections = [
+        match.group(1)
+        for match in re.finditer(r"^## ([0-9]+\..+)$", security, flags=re.MULTILINE)
+    ]
+    if found_security_sections != expected_security_sections:
+        errors.append(
+            "SECURITY_AND_PRIVACY.md numbered sections do not match stage six: "
+            f"found {found_security_sections}"
+        )
+
+    required_security_terms = [
+        "고객 자기보관 지갑",
+        "2-of-3",
+        "발행, 정산, 소각, 적격성, 복구와 긴급중지는 서로 다른 키",
+        "긴급중지 키는 즉시 중지할 수 있지만 재개할 수 없다",
+        "여권번호나 고유식별정보의 해시",
+        "공개 체인의 내용은 누구나 볼 수 있다고 전제",
+        "무승인 발행",
+        "고객 직접이전",
+        "발행 승인 재사용",
+        "USD 장부와 체인 일부 완료",
+        "USDC DvP 뒤 권리 원장 실패",
+        "운영키 탈취",
+        "관리자 권한 남용",
+        "NIST SSDF 1.1",
+        "OWASP ASVS",
+        "7단계를 시작하지 않는다",
+    ]
+    missing_security_terms = [term for term in required_security_terms if term not in security]
+    if missing_security_terms:
+        errors.append(
+            "SECURITY_AND_PRIVACY.md is missing required assets, threats, controls or boundaries: "
+            + ", ".join(missing_security_terms)
+        )
+
+    for path, content, minimum in [
+        (ARCHITECTURE, architecture, 5),
+        (TECHNOLOGY_DECISIONS, technology, 6),
+        (SECURITY_AND_PRIVACY, security, 6),
+    ]:
+        pending_items = re.findall(r"^- \[ \] ", content, flags=re.MULTILINE)
+        if len(pending_items) < minimum:
+            errors.append(
+                f"{path.name} must retain its stage-six approval checklist: "
+                f"found {len(pending_items)}"
+            )
+
+    combined = "\n".join([architecture, technology, security])
+    forbidden_claims = [
+        "토큰이 고객 권리의 기준 기록이다",
+        "외부기관과 블록체인이 원자적으로 완료된다",
+        "실제 개인정보를 사용한다",
+        "고객 간 자유이전을 허용한다",
+        "상용 메인넷으로 확정",
+    ]
+    found_forbidden_claims = [claim for claim in forbidden_claims if claim in combined]
+    if found_forbidden_claims:
+        errors.append(
+            "stage-six documents overstate token rights, atomicity, privacy or production scope: "
+            + ", ".join(found_forbidden_claims)
+        )
+
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    decisions = DECISIONS.read_text(encoding="utf-8")
+    for label, content in [("README", readme), ("WORKFLOW", workflow)]:
+        if "6단계 검토 대기" not in content or "7단계를 시작하지 않는다" not in content:
+            errors.append(f"{label} must record stage-six review and block stage seven")
+    for term in [
+        "애플리케이션 구조",
+        "ERC-3643 기반 제한형 토큰",
+        "Avalanche Fuji C-Chain",
+        "24/7 정산",
+        "탈중앙화 가격 오라클",
+        "2-of-3",
+    ]:
+        if term not in decisions:
+            errors.append(f"DECISIONS.md is missing stage-six decision: {term}")
+
+    if (DOCS_ROOT / "07-data-api-events").exists():
+        errors.append("stage-seven directory must not exist before stage-six approval")
+
+    state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
+    if state.get("stage") != "awaiting_stage_six_approval":
+        errors.append("active project state must await stage-six approval")
+    if state.get("iteration") != 27:
+        errors.append("active project iteration must be 27 during stage-six review")
     expected_next_action = (
-        "Start stage six system architecture, technology selection, and security design from the aligned and approved stage-one-to-five documents."
+        "Review and approve the stage-six architecture, technology decisions, and security and privacy design before starting stage seven."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must start stage six after alignment approval")
+        errors.append("active project next action must require stage-six approval before stage seven")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -1565,6 +1824,7 @@ def main() -> int:
     validate_prd_contract(errors)
     validate_stage_four_contract(errors)
     validate_stage_five_contract(errors)
+    validate_stage_six_contract(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -1575,7 +1835,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four and stage-five contracts, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-six contracts, "
         "and 16 source checksums passed."
     )
     return 0
