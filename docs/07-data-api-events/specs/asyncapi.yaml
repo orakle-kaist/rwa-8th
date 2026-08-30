@@ -1,0 +1,134 @@
+asyncapi: 3.1.0
+info:
+  title: Korean Equity RWA PoC Logical Events
+  version: 1.0.0
+  description: PostgreSQL 발송함과 프로세스 내부 소비자가 사용하는 논리 이벤트 계약이다. 별도 메시지 브로커를 전제하지 않는다.
+servers:
+  localOutbox:
+    host: postgresql-outbox
+    protocol: postgresql-outbox
+    description: 실제 네트워크 브로커가 아닌 PostgreSQL 발송함의 논리 서버다.
+channels:
+  workflowEvents:
+    address: workflow.events.v1
+    messages:
+      workflowEvent:
+        $ref: '#/components/messages/WorkflowEvent'
+  institutionEvents:
+    address: institution.events.v1
+    messages:
+      institutionEvent:
+        $ref: '#/components/messages/InstitutionEvent'
+  chainEvents:
+    address: chain.events.v1
+    messages:
+      chainEvent:
+        $ref: '#/components/messages/ChainEvent'
+  reconciliationEvents:
+    address: reconciliation.events.v1
+    messages:
+      reconciliationEvent:
+        $ref: '#/components/messages/ReconciliationEvent'
+  auditEvents:
+    address: audit.events.v1
+    messages:
+      auditEvent:
+        $ref: '#/components/messages/AuditEvent'
+  quarantineEvents:
+    address: quarantine.events.v1
+    messages:
+      quarantineEvent:
+        $ref: '#/components/messages/QuarantineEvent'
+operations:
+  publishWorkflowEvent:
+    action: send
+    channel:
+      $ref: '#/channels/workflowEvents'
+    messages:
+      - $ref: '#/channels/workflowEvents/messages/workflowEvent'
+  consumeWorkflowEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/workflowEvents'
+    messages:
+      - $ref: '#/channels/workflowEvents/messages/workflowEvent'
+  publishInstitutionEvent:
+    action: send
+    channel:
+      $ref: '#/channels/institutionEvents'
+    messages:
+      - $ref: '#/channels/institutionEvents/messages/institutionEvent'
+  consumeInstitutionEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/institutionEvents'
+    messages:
+      - $ref: '#/channels/institutionEvents/messages/institutionEvent'
+  publishChainEvent:
+    action: send
+    channel:
+      $ref: '#/channels/chainEvents'
+    messages:
+      - $ref: '#/channels/chainEvents/messages/chainEvent'
+  consumeChainEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/chainEvents'
+    messages:
+      - $ref: '#/channels/chainEvents/messages/chainEvent'
+  publishReconciliationEvent:
+    action: send
+    channel:
+      $ref: '#/channels/reconciliationEvents'
+    messages:
+      - $ref: '#/channels/reconciliationEvents/messages/reconciliationEvent'
+  publishAuditEvent:
+    action: send
+    channel:
+      $ref: '#/channels/auditEvents'
+    messages:
+      - $ref: '#/channels/auditEvents/messages/auditEvent'
+  publishQuarantineEvent:
+    action: send
+    channel:
+      $ref: '#/channels/quarantineEvents'
+    messages:
+      - $ref: '#/channels/quarantineEvents/messages/quarantineEvent'
+components:
+  messages:
+    WorkflowEvent:
+      name: WorkflowEvent
+      title: 업무 명령과 상태변경
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'
+    InstitutionEvent:
+      name: InstitutionEvent
+      title: 서명된 모의 기관 사실과 정정
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'
+    ChainEvent:
+      name: ChainEvent
+      title: Fuji 제출, 확정과 실패 결과
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'
+    ReconciliationEvent:
+      name: ReconciliationEvent
+      title: 대사 통과, 불일치와 보정 결과
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'
+    AuditEvent:
+      name: AuditEvent
+      title: 제한 업무와 사람 승인 감사기록
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'
+    QuarantineEvent:
+      name: QuarantineEvent
+      title: 순번공백, 서명실패와 영구 처리실패
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'

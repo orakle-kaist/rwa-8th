@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/signatures.schema.json",
+  "title": "Korean Equity RWA PoC EIP-712 Signatures",
+  "type": "object",
+  "$defs": {
+    "Eip712Domain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "chainId", "verifyingContract"],
+      "properties": {
+        "name": { "const": "Korean Equity RWA PoC" },
+        "version": { "const": "1" },
+        "chainId": { "const": 43113 },
+        "verifyingContract": { "$ref": "common.schema.json#/$defs/EvmAddress" }
+      }
+    },
+    "CommonIntentFields": {
+      "type": "object",
+      "required": ["nonce", "expiresAt", "policyVersion"],
+      "properties": {
+        "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+        "policyVersion": { "type": "string", "minLength": 1, "maxLength": 64, "x-solidity-type": "string" }
+      }
+    },
+    "PrimaryOrderIntent": {
+      "allOf": [
+        { "$ref": "#/$defs/CommonIntentFields" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "orderId",
+            "investor",
+            "securityId",
+            "shareQuantity",
+            "krwLimitPrice",
+            "targetTradingDate",
+            "fundingMode",
+            "fundingAmountMinor",
+            "nonce",
+            "expiresAt",
+            "policyVersion"
+          ],
+          "properties": {
+            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "securityId": { "$ref": "common.schema.json#/$defs/SecurityId", "x-solidity-type": "string" },
+            "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "krwLimitPrice": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "targetTradingDate": { "$ref": "common.schema.json#/$defs/KoreaBusinessDate", "x-solidity-type": "string" },
+            "fundingMode": { "type": "string", "enum": ["USD_LEDGER", "USDC_CONVERSION"], "x-solidity-type": "string" },
+            "fundingAmountMinor": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
+            "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
+            "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+          }
+        }
+      ]
+    },
+    "SecondaryOrderIntent": {
+      "allOf": [
+        { "$ref": "#/$defs/CommonIntentFields" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "orderId",
+            "quoteId",
+            "investor",
+            "token",
+            "investorSide",
+            "paymentMode",
+            "paymentAssetId",
+            "shareQuantity",
+            "paymentAmountMinor",
+            "nonce",
+            "expiresAt",
+            "policyVersion"
+          ],
+          "properties": {
+            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "quoteId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "investorSide": { "type": "string", "enum": ["INVESTOR_BUYS", "INVESTOR_SELLS"], "x-solidity-type": "string" },
+            "paymentMode": { "type": "string", "enum": ["USD_LEDGER", "USDC_ONCHAIN"], "x-solidity-type": "string" },
+            "paymentAssetId": { "type": "string", "minLength": 1, "maxLength": 64, "x-solidity-type": "string" },
+            "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "paymentAmountMinor": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
+            "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+          }
+        }
+      ]
+    },
+    "RedemptionIntent": {
+      "allOf": [
+        { "$ref": "#/$defs/CommonIntentFields" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["redemptionId", "investor", "token", "shareQuantity", "krwLimitPrice", "targetTradingDate", "nonce", "expiresAt", "policyVersion"],
+          "properties": {
+            "redemptionId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "krwLimitPrice": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "targetTradingDate": { "$ref": "common.schema.json#/$defs/KoreaBusinessDate", "x-solidity-type": "string" },
+            "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
+            "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+          }
+        }
+      ]
+    },
+    "MarketMakerQuote": {
+      "allOf": [
+        { "$ref": "#/$defs/CommonIntentFields" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["quoteId", "marketMaker", "token", "marketMakerSide", "paymentMode", "paymentAssetId", "shareQuantity", "unitPriceMinor", "nonce", "expiresAt", "policyVersion"],
+          "properties": {
+            "quoteId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "marketMaker": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "marketMakerSide": { "type": "string", "enum": ["MM_BUYS", "MM_SELLS"], "x-solidity-type": "string" },
+            "paymentMode": { "type": "string", "enum": ["USD_LEDGER", "USDC_ONCHAIN"], "x-solidity-type": "string" },
+            "paymentAssetId": { "type": "string", "x-solidity-type": "string" },
+            "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "unitPriceMinor": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
+            "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+          }
+        }
+      ]
+    },
+    "BrokerSettlementApproval": {
+      "allOf": [
+        { "$ref": "#/$defs/CommonIntentFields" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approvalId", "orderId", "investor", "marketMaker", "token", "paymentMode", "paymentAssetId", "shareQuantity", "paymentAmountMinor", "rightsEvidenceHash", "fundsEvidenceHash", "nonce", "expiresAt", "policyVersion"],
+          "properties": {
+            "approvalId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "marketMaker": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
+            "paymentMode": { "type": "string", "enum": ["USD_LEDGER", "USDC_ONCHAIN"], "x-solidity-type": "string" },
+            "paymentAssetId": { "type": "string", "x-solidity-type": "string" },
+            "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "paymentAmountMinor": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "rightsEvidenceHash": { "$ref": "common.schema.json#/$defs/EvidenceHash", "x-solidity-type": "bytes32" },
+            "fundsEvidenceHash": { "$ref": "common.schema.json#/$defs/EvidenceHash", "x-solidity-type": "bytes32" },
+            "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
+            "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
+            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+          }
+        }
+      ]
+    },
+    "SignedTypedData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "primaryType", "message", "signer", "signature"],
+      "properties": {
+        "domain": { "$ref": "#/$defs/Eip712Domain" },
+        "primaryType": {
+          "type": "string",
+          "enum": ["PrimaryOrderIntent", "SecondaryOrderIntent", "RedemptionIntent", "MarketMakerQuote", "BrokerSettlementApproval"]
+        },
+        "message": {
+          "oneOf": [
+            { "$ref": "#/$defs/PrimaryOrderIntent" },
+            { "$ref": "#/$defs/SecondaryOrderIntent" },
+            { "$ref": "#/$defs/RedemptionIntent" },
+            { "$ref": "#/$defs/MarketMakerQuote" },
+            { "$ref": "#/$defs/BrokerSettlementApproval" }
+          ]
+        },
+        "signer": { "$ref": "common.schema.json#/$defs/EvmAddress" },
+        "signature": { "type": "string", "pattern": "^0x[0-9a-fA-F]{130}$" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "primaryType": { "const": "PrimaryOrderIntent" } } },
+          "then": { "properties": { "message": { "$ref": "#/$defs/PrimaryOrderIntent" } } }
+        },
+        {
+          "if": { "properties": { "primaryType": { "const": "SecondaryOrderIntent" } } },
+          "then": { "properties": { "message": { "$ref": "#/$defs/SecondaryOrderIntent" } } }
+        },
+        {
+          "if": { "properties": { "primaryType": { "const": "RedemptionIntent" } } },
+          "then": { "properties": { "message": { "$ref": "#/$defs/RedemptionIntent" } } }
+        },
+        {
+          "if": { "properties": { "primaryType": { "const": "MarketMakerQuote" } } },
+          "then": { "properties": { "message": { "$ref": "#/$defs/MarketMakerQuote" } } }
+        },
+        {
+          "if": { "properties": { "primaryType": { "const": "BrokerSettlementApproval" } } },
+          "then": { "properties": { "message": { "$ref": "#/$defs/BrokerSettlementApproval" } } }
+        }
+      ]
+    }
+  }
+}

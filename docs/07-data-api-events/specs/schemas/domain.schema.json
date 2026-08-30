@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/domain.schema.json",
+  "title": "Korean Equity RWA PoC Domain Types",
+  "type": "object",
+  "$defs": {
+    "FundingMode": {
+      "type": "string",
+      "enum": ["USD_LEDGER", "USDC_CONVERSION", "USDC_ONCHAIN"]
+    },
+    "PrimaryFundingMode": {
+      "type": "string",
+      "enum": ["USD_LEDGER", "USDC_CONVERSION"]
+    },
+    "InvestorSide": {
+      "type": "string",
+      "enum": ["INVESTOR_BUYS", "INVESTOR_SELLS"]
+    },
+    "MarketMakerSide": {
+      "type": "string",
+      "enum": ["MM_BUYS", "MM_SELLS"]
+    },
+    "PrimaryOrderRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "securityId",
+        "shareQuantity",
+        "krwLimitPrice",
+        "targetTradingDate",
+        "fundingMode",
+        "signedIntent"
+      ],
+      "properties": {
+        "securityId": { "$ref": "common.schema.json#/$defs/SecurityId" },
+        "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString" },
+        "krwLimitPrice": { "$ref": "common.schema.json#/$defs/PositiveIntegerString" },
+        "targetTradingDate": { "$ref": "common.schema.json#/$defs/KoreaBusinessDate" },
+        "fundingMode": { "$ref": "#/$defs/PrimaryFundingMode" },
+        "fundingAmount": { "$ref": "common.schema.json#/$defs/Money" },
+        "signedIntent": {
+          "allOf": [
+            { "$ref": "signatures.schema.json#/$defs/SignedTypedData" },
+            {
+              "type": "object",
+              "properties": { "primaryType": { "const": "PrimaryOrderIntent" } }
+            }
+          ]
+        }
+      }
+    },
+    "SecondaryOrderRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quoteId", "shareQuantity", "investorSide", "fundingMode", "signedIntent"],
+      "properties": {
+        "quoteId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString" },
+        "investorSide": { "$ref": "#/$defs/InvestorSide" },
+        "fundingMode": {
+          "type": "string",
+          "enum": ["USD_LEDGER", "USDC_ONCHAIN"]
+        },
+        "signedIntent": {
+          "allOf": [
+            { "$ref": "signatures.schema.json#/$defs/SignedTypedData" },
+            {
+              "type": "object",
+              "properties": { "primaryType": { "const": "SecondaryOrderIntent" } }
+            }
+          ]
+        }
+      }
+    },
+    "RedemptionRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["securityId", "shareQuantity", "krwLimitPrice", "targetTradingDate", "signedIntent"],
+      "properties": {
+        "securityId": { "$ref": "common.schema.json#/$defs/SecurityId" },
+        "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString" },
+        "krwLimitPrice": { "$ref": "common.schema.json#/$defs/PositiveIntegerString" },
+        "targetTradingDate": { "$ref": "common.schema.json#/$defs/KoreaBusinessDate" },
+        "signedIntent": {
+          "allOf": [
+            { "$ref": "signatures.schema.json#/$defs/SignedTypedData" },
+            {
+              "type": "object",
+              "properties": { "primaryType": { "const": "RedemptionIntent" } }
+            }
+          ]
+        }
+      }
+    },
+    "MarketMakerQuoteRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "securityId",
+        "marketMakerSide",
+        "fundingMode",
+        "shareQuantity",
+        "unitPrice",
+        "expiresAt",
+        "signedQuote"
+      ],
+      "properties": {
+        "securityId": { "$ref": "common.schema.json#/$defs/SecurityId" },
+        "marketMakerSide": { "$ref": "#/$defs/MarketMakerSide" },
+        "fundingMode": {
+          "type": "string",
+          "enum": ["USD_LEDGER", "USDC_ONCHAIN"]
+        },
+        "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString" },
+        "unitPrice": { "$ref": "common.schema.json#/$defs/Money" },
+        "expiresAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "signedQuote": {
+          "allOf": [
+            { "$ref": "signatures.schema.json#/$defs/SignedTypedData" },
+            {
+              "type": "object",
+              "properties": { "primaryType": { "const": "MarketMakerQuote" } }
+            }
+          ]
+        }
+      }
+    },
+    "InstitutionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "reasonKo", "expectedAggregateVersion"],
+      "properties": {
+        "decision": { "type": "string", "enum": ["APPROVE", "REJECT", "REQUEST_CORRECTION"] },
+        "reasonKo": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "expectedAggregateVersion": { "type": "integer", "minimum": 0 },
+        "evidenceId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "signedSettlementApproval": {
+          "allOf": [
+            { "$ref": "signatures.schema.json#/$defs/SignedTypedData" },
+            {
+              "type": "object",
+              "properties": { "primaryType": { "const": "BrokerSettlementApproval" } }
+            }
+          ]
+        }
+      }
+    },
+    "AdapterEventInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventId",
+        "eventType",
+        "sourceInstitutionId",
+        "sourceSequence",
+        "sentAt",
+        "keyId",
+        "signature",
+        "sourceMetadata",
+        "data"
+      ],
+      "properties": {
+        "eventId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "eventType": { "type": "string", "pattern": "^[a-z][a-z0-9.-]+\\.v1$" },
+        "sourceInstitutionId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "sourceSequence": { "type": "integer", "minimum": 1 },
+        "sentAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "keyId": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "signature": { "type": "string", "pattern": "^[A-Za-z0-9_-]{86}$" },
+        "sourceMetadata": { "$ref": "common.schema.json#/$defs/SourceMetadata" },
+        "data": { "$ref": "events.schema.json#/properties/data" }
+      }
+    },
+    "StateCatalogEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["axis", "code", "labelKo"],
+      "properties": {
+        "axis": {
+          "type": "string",
+          "enum": [
+            "CUSTOMER_ELIGIBILITY",
+            "INVESTOR_PROTECTION",
+            "WALLET_LINKAGE",
+            "PRODUCT_COMMON",
+            "PRIMARY_AVAILABILITY",
+            "SECONDARY_AVAILABILITY",
+            "REDEMPTION_AVAILABILITY",
+            "PRIMARY_ORDER",
+            "RIGHTS_ENTRY",
+            "TOKEN_LIFECYCLE",
+            "DOMESTIC_SETTLEMENT",
+            "CUSTODY_CONFIRMATION",
+            "FUNDING",
+            "MARKET_MAKER_QUOTE",
+            "SECONDARY_TRADE",
+            "MARKET_MAKER_HEDGE",
+            "REDEMPTION",
+            "DIVIDEND",
+            "VOTING",
+            "CORPORATE_ACTION",
+            "REGULATORY_REPORT",
+            "RECONCILIATION"
+          ]
+        },
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "labelKo": { "type": "string", "minLength": 1 }
+      }
+    },
+    "WorkflowView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflowId", "workflowType", "states", "projection"],
+      "properties": {
+        "workflowId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "workflowType": {
+          "type": "string",
+          "enum": [
+            "WALLET_LINKAGE",
+            "PRIMARY_ISSUANCE",
+            "SECONDARY_TRADE",
+            "MARKET_MAKER_HEDGE",
+            "REDEMPTION",
+            "DIVIDEND_CONVERSION",
+            "VOTING",
+            "CORPORATE_ACTION",
+            "REGULATORY_REPORT",
+            "RECONCILIATION"
+          ]
+        },
+        "states": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/StateCatalogEntry" }
+        },
+        "projection": { "$ref": "common.schema.json#/$defs/ProjectionMetadata" }
+      }
+    }
+  }
+}

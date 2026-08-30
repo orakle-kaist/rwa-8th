@@ -1,6 +1,6 @@
 {
-  "stage": "ready_for_stage_seven",
-  "next_action": "Start stage seven common data, API, and event design from the approved stage-one-to-six documents.",
+  "stage": "awaiting_stage_seven_approval",
+  "next_action": "Review and approve the stage-seven common data, API, event, and machine-readable contracts before starting stage eight.",
   "updated_at": "2026-08-31T00:00:00+09:00",
-  "iteration": 28
+  "iteration": 29
 }
