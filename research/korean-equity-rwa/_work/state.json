@@ -1,6 +1,6 @@
 {
-  "stage": "awaiting_stage_five_approval",
-  "next_action": "Review and approve SCREEN_FLOWS.md, STATE_MODEL.md, and ERROR_AND_RECOVERY.md together before starting stage six.",
+  "stage": "ready_for_stage_six",
+  "next_action": "Start stage six system architecture, technology selection, and security design from the approved stage-five documents.",
   "updated_at": "2026-08-30T00:00:00+09:00",
-  "iteration": 23
+  "iteration": 24
 }

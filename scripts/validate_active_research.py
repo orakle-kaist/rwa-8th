@@ -223,9 +223,9 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "SCREEN_FLOWS.md" not in readme
         or "STATE_MODEL.md" not in readme
         or "ERROR_AND_RECOVERY.md" not in readme
-        or "5단계 승인: 팀 내부 검토안, 승인 대기" not in readme
+        or "5단계 승인: 2026-08-30 팀 내부 승인 완료" not in readme
     ):
-        errors.append("README must identify all three stage-five drafts and their pending approval")
+        errors.append("README must identify all three stage-five documents as approved")
 
     archive_readme = (ARCHIVE_ROOT / "README.md").read_text(encoding="utf-8")
     if "비규범적" not in archive_readme or "구현 요구사항으로 사용해서는 안" not in archive_readme:
@@ -650,6 +650,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "awaiting_stage_four_approval",
         "ready_for_stage_five",
         "awaiting_stage_five_approval",
+        "ready_for_stage_six",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
 
@@ -874,7 +875,11 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") not in {"ready_for_stage_five", "awaiting_stage_five_approval"}:
+    if state.get("stage") not in {
+        "ready_for_stage_five",
+        "awaiting_stage_five_approval",
+        "ready_for_stage_six",
+    }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
 
 
@@ -955,7 +960,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         )
 
     required_screen_terms = [
-        "팀 내부 검토안, 승인 대기",
+        "팀 내부 승인 완료",
         "투자자 앱",
         "통합 기관 콘솔",
         "역할 전환은 시연 편의를 위한 화면 전환",
@@ -985,7 +990,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "감사 증거",
         "KSD와 자금 및 환전기관은 별도 화면이 아닌 모의 외부 응답",
         "모든 상태를 하나 이상의 화면에서 확인할 수 있다",
-        "세 문서를 함께 승인하기 전에는 6단계",
+        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작할 수 있다",
     ]
     missing_screen_terms = [term for term in required_screen_terms if term not in screens]
     if missing_screen_terms:
@@ -1010,10 +1015,10 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             "SCREEN_FLOWS.md must define the overview and six role workspaces: "
             f"found {len(institution_workspace_headings)}"
         )
-    screen_approval_items = re.findall(r"^- \[ \] ", screens, flags=re.MULTILINE)
+    screen_approval_items = re.findall(r"^- \[x\] ", screens, flags=re.MULTILINE)
     if len(screen_approval_items) != 8:
         errors.append(
-            "SCREEN_FLOWS.md must have eight pending approval items: "
+            "SCREEN_FLOWS.md must have eight approved checklist items: "
             f"found {len(screen_approval_items)}"
         )
 
@@ -1043,7 +1048,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         )
 
     required_state_terms = [
-        "팀 내부 검토안, 승인 대기",
+        "팀 내부 승인 완료",
         "하나의 상태값으로 고객, 주문, 권리, 토큰, 자금, 결제와 수탁을 모두 표현하지 않는다",
         "고객 적격성",
         "계좌와 전용 지갑",
@@ -1071,7 +1076,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "위험한도 위반을 줄이는 요청",
         "절대 허용하지 않는 전환과 수량 규칙",
         "상태와 화면 연결",
-        "세 문서를 함께 승인하기 전에는 6단계",
+        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작할 수 있다",
     ]
     missing_state_terms = [term for term in required_state_terms if term not in states]
     if missing_state_terms:
@@ -1098,10 +1103,10 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             "STATE_MODEL.md must map every detailed state row to a visible screen: "
             f"found {len(state_rows_with_screen)} rows"
         )
-    state_approval_items = re.findall(r"^- \[ \] ", states, flags=re.MULTILINE)
+    state_approval_items = re.findall(r"^- \[x\] ", states, flags=re.MULTILINE)
     if len(state_approval_items) != 8:
         errors.append(
-            "STATE_MODEL.md must have eight pending approval items: "
+            "STATE_MODEL.md must have eight approved checklist items: "
             f"found {len(state_approval_items)}"
         )
 
@@ -1132,7 +1137,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         )
 
     required_recovery_terms = [
-        "팀 내부 검토안, 승인 대기",
+        "팀 내부 승인 완료",
         "가능한 가장 좁은 범위만 차단",
         "고객 요청 하나",
         "고객 하나",
@@ -1158,7 +1163,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "비현금 기업행동과 기준정보 정정",
         "두 축 대사 불일치와 복구 순서",
         "독립된 준법 또는 감사 담당",
-        "세 문서를 함께 승인하기 전에는 6단계",
+        "6단계 시스템 구조, 기술 선택과 보안 설계를 시작할 수 있다",
     ]
     missing_recovery_terms = [
         term for term in required_recovery_terms if term not in recovery
@@ -1187,10 +1192,10 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             "ERROR_AND_RECOVERY.md must give scope, action, owner, evidence and resume conditions for each error: "
             f"found {len(full_error_rows)} complete rows"
         )
-    recovery_approval_items = re.findall(r"^- \[ \] ", recovery, flags=re.MULTILINE)
+    recovery_approval_items = re.findall(r"^- \[x\] ", recovery, flags=re.MULTILINE)
     if len(recovery_approval_items) != 8:
         errors.append(
-            "ERROR_AND_RECOVERY.md must have eight pending approval items: "
+            "ERROR_AND_RECOVERY.md must have eight approved checklist items: "
             f"found {len(recovery_approval_items)}"
         )
 
@@ -1230,16 +1235,16 @@ def validate_stage_five_contract(errors: list[str]) -> None:
             )
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "awaiting_stage_five_approval":
-        errors.append("active project state must await approval of all three stage-five drafts")
-    if state.get("iteration") != 23:
-        errors.append("active project iteration must be 23 for the stage-five review draft")
+    if state.get("stage") != "ready_for_stage_six":
+        errors.append("active project state must be ready for stage six after stage-five approval")
+    if state.get("iteration") != 24:
+        errors.append("active project iteration must be 24 after stage-five approval")
     expected_next_action = (
-        "Review and approve SCREEN_FLOWS.md, STATE_MODEL.md, and "
-        "ERROR_AND_RECOVERY.md together before starting stage six."
+        "Start stage six system architecture, technology selection, and security "
+        "design from the approved stage-five documents."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must block stage six until all three drafts are approved")
+        errors.append("active project next action must start stage-six design from approved inputs")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
