@@ -33,6 +33,8 @@ paths:
                   institutionId: { type: string, format: uuid }
                   customerReadiness:
                     $ref: './schemas/domain.schema.json#/$defs/CustomerReadiness'
+                  localPrimaryScenario:
+                    $ref: '#/components/schemas/LocalPrimaryScenario'
                   simulation: { const: true }
                   projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
         '401': { $ref: '#/components/responses/Error' }
@@ -277,7 +279,7 @@ paths:
       operationId: listPrimaryOrders
       summary: 1차 발행 주문 목록 조회
       responses:
-        '200': { $ref: '#/components/responses/WorkflowList' }
+        '200': { $ref: '#/components/responses/PrimaryOrderList' }
     post:
       tags: [InvestorCommands]
       operationId: createPrimaryOrder
@@ -760,6 +762,19 @@ components:
       required: true
       schema: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
   responses:
+    PrimaryOrderList:
+      description: 로컬 합성 1차 주문과 독립 상태축
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [items, projection]
+            properties:
+              items:
+                type: array
+                items: { $ref: '#/components/schemas/PrimaryOrderView' }
+              projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     Accepted:
       description: 비동기 업무 접수
       content:
@@ -784,6 +799,60 @@ components:
                 items: { $ref: './schemas/domain.schema.json#/$defs/WorkflowView' }
               projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
   schemas:
+    LocalPrimaryScenario:
+      type: object
+      additionalProperties: false
+      required: [securityId, displayName, tokenSymbol, referenceLimitKrw, usdKrwRate, primaryEnabled, officialProduct, notices, intentDomain, policyVersion, simulation, projection]
+      properties:
+        securityId: { const: '990001' }
+        displayName: { type: string, minLength: 1 }
+        tokenSymbol: { const: SIM990001 }
+        referenceLimitKrw: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        usdKrwRate: { const: '1380.3' }
+        primaryEnabled: { const: true }
+        officialProduct: { const: false }
+        notices: { type: array, items: { type: string, minLength: 1 } }
+        cash:
+          type: object
+          additionalProperties: false
+          required: [usdAvailableMinor, usdReservedMinor, usdcAvailableMinor]
+          properties:
+            usdAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdcAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        intentDomain:
+          type: object
+          additionalProperties: false
+          required: [name, version, chainId, verifyingContract]
+          properties:
+            name: { const: Korean Equity RWA Intent }
+            version: { const: '1' }
+            chainId: { enum: [31337, 43113] }
+            verifyingContract: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        policyVersion: { const: PRIMARY-SIM-1 }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    PrimaryOrderView:
+      type: object
+      additionalProperties: true
+      required: [orderId, securityId, shareQuantity, krwLimitPrice, fundingMode, status, filledQuantity, allocatedQuantity, rightsStatus, tokenStatus, settlementStatus, simulation, projection]
+      properties:
+        orderId: { type: string, format: uuid }
+        securityId: { const: '990001' }
+        shareQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        krwLimitPrice: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        fundingMode: { $ref: './schemas/domain.schema.json#/$defs/PrimaryFundingMode' }
+        status: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        filledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        allocatedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        rightsStatus: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        tokenStatus: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        settlementStatus: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        defaultResolution: { type: string, enum: [REPLACEMENT_SHARES, CASH_COMPENSATION] }
+        cashCompensationUsdMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        quarantineReason: { type: string, minLength: 1 }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     Product:
       type: object
       additionalProperties: false

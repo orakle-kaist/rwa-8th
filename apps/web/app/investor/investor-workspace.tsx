@@ -2,6 +2,7 @@
 
 import { walletOwnershipMessage } from "@rwa/domain/protection";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { keccak256, toHex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
 import {
@@ -12,37 +13,51 @@ import {
   type Consent,
   type Disclosure,
   type Product,
+  type PrimaryOrder,
   type Session,
 } from "../lib/platform-api";
 
-const profileLabels = { valid: "허용 고객", denied: "거절 고객", expired: "만료 고객" };
+const profileLabels = {
+  investorA: "허용 고객 A (USD)",
+  investorB: "허용 고객 B (USDC)",
+  denied: "거절 고객",
+  expired: "만료 고객",
+};
 
 export function InvestorWorkspace() {
-  const [profile, setProfile] = useState<keyof typeof demoTokens>("valid");
+  const [profile, setProfile] = useState<keyof typeof demoTokens>("investorA");
   const [session, setSession] = useState<Session>();
   const [disclosure, setDisclosure] = useState<Disclosure>();
   const [consent, setConsent] = useState<Consent>();
   const [products, setProducts] = useState<Product[]>([]);
   const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [primaryOrders, setPrimaryOrders] = useState<PrimaryOrder[]>([]);
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("데이터를 불러오는 중이다.");
   const token = demoTokens[profile];
+  const demoOrderAccount = useMemo(() => {
+    if (profile === "investorA") return privateKeyToAccount(keccak256(toHex("PRIMARY-DEMO-A")));
+    if (profile === "investorB") return privateKeyToAccount(keccak256(toHex("PRIMARY-DEMO-B")));
+    return undefined;
+  }, [profile]);
 
   const refresh = useCallback(async () => {
     try {
-      const [nextSession, nextDisclosure, nextConsent, productItems, complaintPage] =
+      const [nextSession, nextDisclosure, nextConsent, productItems, complaintPage, orderPage] =
         await Promise.all([
           platformFetch<Session>("/session", { token }),
           platformFetch<Disclosure>("/disclosures/current"),
           platformFetch<Consent>("/disclosure-consents/current", { token }),
           allProducts(),
           platformFetch<{ items: Complaint[] }>("/complaints", { token }),
+          platformFetch<{ items: PrimaryOrder[] }>("/primary-orders", { token }),
         ]);
       setSession(nextSession);
       setDisclosure(nextDisclosure);
       setConsent(nextConsent);
       setProducts(productItems);
       setComplaints(complaintPage.items);
+      setPrimaryOrders(orderPage.items);
       setMessage("모의 기준정보와 고객 상태를 확인했다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
@@ -85,7 +100,9 @@ export function InvestorWorkspace() {
   async function connectWallet() {
     if (!session) return;
     try {
-      const account = privateKeyToAccount(generatePrivateKey());
+      const account = readiness?.activeWallet
+        ? privateKeyToAccount(generatePrivateKey())
+        : (demoOrderAccount ?? privateKeyToAccount(generatePrivateKey()));
       const signature = await account.signMessage({
         message: walletOwnershipMessage(session.actorId, account.address, "LINK"),
       });
@@ -99,6 +116,85 @@ export function InvestorWorkspace() {
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "지갑 연결에 실패했다.");
+    }
+  }
+
+  async function submitPrimaryOrder(formData: FormData) {
+    if (!session?.localPrimaryScenario || !demoOrderAccount) return;
+    try {
+      const quantity = String(formData.get("quantity"));
+      const fundingMode = String(formData.get("fundingMode"));
+      const limit = session.localPrimaryScenario.referenceLimitKrw;
+      const orderId = crypto.randomUUID();
+      const fundingAmountMinor = (
+        (BigInt(quantity) * BigInt(limit) * 1000n + 13802n) /
+        13803n
+      ).toString();
+      const expiresAt = String(Math.floor(Date.now() / 1000) + 3600);
+      const policyVersion = keccak256(toHex(session.localPrimaryScenario.policyVersion));
+      const message = {
+        orderId,
+        investor: demoOrderAccount.address,
+        securityId: session.localPrimaryScenario.securityId,
+        shareQuantity: quantity,
+        krwLimitPrice: limit,
+        targetTradingDate: "2026-08-31",
+        fundingMode,
+        fundingAmountMinor,
+        nonce: String(Date.now()),
+        expiresAt,
+        policyVersion,
+      };
+      const signature = await demoOrderAccount.signTypedData({
+        domain: session.localPrimaryScenario.intentDomain,
+        types: {
+          PrimaryOrderIntent: [
+            { name: "orderId", type: "bytes16" },
+            { name: "investor", type: "address" },
+            { name: "securityId", type: "string" },
+            { name: "shareQuantity", type: "uint256" },
+            { name: "krwLimitPrice", type: "uint256" },
+            { name: "targetTradingDate", type: "string" },
+            { name: "fundingMode", type: "string" },
+            { name: "fundingAmountMinor", type: "uint256" },
+            { name: "nonce", type: "uint256" },
+            { name: "expiresAt", type: "uint256" },
+            { name: "policyVersion", type: "bytes32" },
+          ],
+        },
+        primaryType: "PrimaryOrderIntent",
+        message: {
+          ...message,
+          orderId: `0x${orderId.replaceAll("-", "")}` as `0x${string}`,
+          shareQuantity: BigInt(quantity),
+          krwLimitPrice: BigInt(limit),
+          fundingAmountMinor: BigInt(fundingAmountMinor),
+          nonce: BigInt(message.nonce),
+          expiresAt: BigInt(expiresAt),
+        },
+      });
+      await platformFetch("/primary-orders", {
+        token,
+        method: "POST",
+        body: {
+          securityId: message.securityId,
+          shareQuantity: quantity,
+          krwLimitPrice: limit,
+          targetTradingDate: message.targetTradingDate,
+          fundingMode,
+          signedIntent: {
+            domain: session.localPrimaryScenario.intentDomain,
+            primaryType: "PrimaryOrderIntent",
+            message,
+            signer: demoOrderAccount.address,
+            signature,
+          },
+        },
+      });
+      setMessage("로컬 1차 지정가 주문을 접수했다. 취합과 모의 KRX 체결을 기다린다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "1차 주문 접수에 실패했다.");
     }
   }
 
@@ -234,6 +330,70 @@ export function InvestorWorkspace() {
             ))}
           </ul>
         </article>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">LOCAL PRIMARY LIFECYCLE</p>
+            <h2>로컬 생애주기 시험</h2>
+          </div>
+          <span className="statePill">실제 거래 불가</span>
+        </div>
+        <p className="panelCopy">
+          {session?.localPrimaryScenario?.displayName} · KOSPI 200 공식 후보 201개와 분리된 합성
+          상품이다.
+        </p>
+        <form action={(formData) => void submitPrimaryOrder(formData)} className="stackForm">
+          <label>
+            정수 수량
+            <input
+              name="quantity"
+              type="number"
+              min="1"
+              step="1"
+              defaultValue={profile === "investorB" ? "3" : "5"}
+            />
+          </label>
+          <label>
+            자금 경로
+            <select
+              name="fundingMode"
+              defaultValue={profile === "investorB" ? "USDC_CONVERSION" : "USD_LEDGER"}
+            >
+              <option value="USD_LEDGER">USD 고객장부</option>
+              <option value="USDC_CONVERSION">USDC 수취 후 USD 귀속</option>
+            </select>
+          </label>
+          <p>
+            KRW 지정가 257,000원 · USD/KRW 1,380.3 · 2026-08-31 당일 유효 · T+2 확인 전 이전 잠금
+          </p>
+          <button type="submit" disabled={!readiness?.canPlaceNewOrder || !demoOrderAccount}>
+            서명하고 1차 주문 접수
+          </button>
+        </form>
+        <div className="timelineList">
+          {primaryOrders.length === 0 ? (
+            <p className="emptyState">접수한 로컬 1차 주문이 없다.</p>
+          ) : (
+            primaryOrders.map((order) => (
+              <div key={order.orderId}>
+                <strong>
+                  {order.shareQuantity}주 · {order.fundingMode}
+                </strong>
+                <span>{order.status}</span>
+                <small>
+                  체결 {order.filledQuantity} · 배분 {order.allocatedQuantity} · {order.tokenStatus}
+                </small>
+              </div>
+            ))
+          )}
+        </div>
+        {session?.localPrimaryScenario?.notices.map((notice) => (
+          <small key={notice} className="panelCopy">
+            {notice}
+          </small>
+        ))}
       </section>
 
       <section className="panel widePanel">

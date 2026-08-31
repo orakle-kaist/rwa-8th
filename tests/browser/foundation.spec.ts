@@ -78,3 +78,64 @@ test("위험공시, 전용 지갑과 민원을 비동기로 접수하고 종결�
   await page.getByRole("button", { name: "새로고침" }).click();
   await expect(page.getByText(title).locator("..")).toContainText("CLOSED");
 });
+
+test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 거래 가능으로 전환한다", async ({
+  page,
+}) => {
+  await page.goto("/investor");
+  await expect(page.getByRole("heading", { name: "로컬 생애주기 시험" })).toBeVisible();
+  await page.getByLabel("정수 수량").fill("5");
+  await page.getByLabel("자금 경로").selectOption("USD_LEDGER");
+  await page.getByRole("button", { name: "서명하고 1차 주문 접수" }).click();
+  await expect(page.getByRole("status")).toContainText("1차 지정가 주문을 접수했다");
+
+  await page.getByLabel("합성 고객").selectOption("investorB");
+  await page.getByLabel("정수 수량").fill("3");
+  await page.getByLabel("자금 경로").selectOption("USDC_CONVERSION");
+  await page.getByRole("button", { name: "서명하고 1차 주문 접수" }).click();
+  await expect(page.getByRole("status")).toContainText("1차 지정가 주문을 접수했다");
+
+  await page.goto("/institution");
+  const batchRow = page.getByRole("row").filter({ hasText: "PRIMARY_BATCH" });
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return batchRow.count();
+    })
+    .toBe(1);
+  await batchRow.getByRole("button", { name: "승인 접수" }).click();
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return page.getByText("체결 4 · 배분 4").count();
+    })
+    .toBe(1);
+  await expect(page.getByText("체결 2 · 배분 2")).toBeVisible();
+
+  for (const state of [
+    "T2_RISK_APPROVAL_PENDING",
+    "RIGHTS_ENTRY_APPROVAL_PENDING",
+    "RIGHTS_RECORDING_PENDING",
+  ]) {
+    for (let processed = 0; processed < 2; processed += 1) {
+      const row = page.getByRole("row").filter({ hasText: state }).first();
+      await expect(row).toBeVisible();
+      await row.getByRole("button", { name: "승인 접수" }).click();
+      await expect
+        .poll(async () => {
+          await page.getByRole("button", { name: "새로고침" }).last().click();
+          return page.getByRole("row").filter({ hasText: state }).count();
+        })
+        .toBe(1 - processed);
+    }
+  }
+
+  for (let confirmation = 0; confirmation < 4; confirmation += 1) {
+    const row = page.getByRole("row").filter({ hasText: "SETTLEMENT_AND_CUSTODY_PENDING" }).first();
+    await expect(row).toBeVisible();
+    await row.getByRole("button", { name: "승인 접수" }).click();
+    await page.waitForTimeout(80);
+    await page.getByRole("button", { name: "새로고침" }).last().click();
+  }
+  await expect(page.getByText("TRADABLE", { exact: true })).toHaveCount(2);
+});

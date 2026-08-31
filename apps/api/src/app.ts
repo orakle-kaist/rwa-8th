@@ -3,9 +3,10 @@ import { authenticateDemoBearer, type Clock } from "@rwa/domain";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 
-import { getCustomerReadiness } from "@rwa/database";
+import { getCustomerReadiness, getLocalPrimaryScenario } from "@rwa/database";
 
 import { registerProtectionRoutes } from "./protection-routes.js";
+import { registerPrimaryRoutes } from "./primary-routes.js";
 
 export interface BuildAppOptions {
   clock: Clock;
@@ -45,6 +46,15 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       role: principal.role,
       simulation: true,
       ...(readiness ? { customerReadiness: readiness } : {}),
+      ...(options.pool
+        ? {
+            localPrimaryScenario: await getLocalPrimaryScenario(
+              options.pool,
+              principal.principalId,
+              options.clock.now(),
+            ),
+          }
+        : {}),
       projection: {
         projectionAsOf: options.clock.now().toISOString(),
         lastEventSequence: 0,
@@ -53,7 +63,10 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     };
   });
 
-  if (options.pool) await registerProtectionRoutes(app, options.pool, options.clock);
+  if (options.pool) {
+    await registerProtectionRoutes(app, options.pool, options.clock);
+    await registerPrimaryRoutes(app, options.pool, options.clock);
+  }
 
   return app;
 }

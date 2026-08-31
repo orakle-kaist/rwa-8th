@@ -3526,6 +3526,14 @@
     },
     {
       "contract": "RestrictedEquityToken",
+      "function": "cancelPendingMint",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
       "function": "controlledTransfer",
       "tests": [
         "정산-USD정상-01",
@@ -3753,6 +3761,30 @@
       ]
     },
     {
+      "contract": "IssuanceController",
+      "function": "approvePendingCorrection",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "confirmPendingRightsCorrection",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "executePendingCorrection",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
       "contract": "SecondarySettlementController",
       "function": "settleUsdLedger",
       "tests": [
@@ -3955,6 +3987,11 @@
       "tests": ["상품-배포-01"]
     },
     {
+      "contract": "SecurityTokenFactory",
+      "function": "getTokenSecurityId",
+      "tests": ["상품-배포-01", "발행-증거불일치-01"]
+    },
+    {
       "contract": "MarketPolicyRegistry",
       "function": "isScopePaused",
       "tests": ["중지-가격-01", "중지-USDC-01", "중지-KRX-01"]
@@ -3995,6 +4032,14 @@
       "tests": [
         "발행-정상-01",
         "발행-재사용차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "PendingMintCancelled",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
       ]
     },
     {
@@ -4151,6 +4196,22 @@
       "event": "CustodyQuantityConfirmed",
       "tests": [
         "발행-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "PendingMintCorrectionApproved",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "PendingRightsCorrectionConfirmed",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
       ]
     },
     {
@@ -4405,6 +4466,13 @@
       "error": "AllocationExceeded",
       "tests": [
         "발행-체결배분차단-01"
+      ]
+    },
+    {
+      "error": "InsufficientPendingBalance",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
       ]
     },
     {

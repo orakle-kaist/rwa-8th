@@ -1,7 +1,8 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:4000/api/v1";
 
 export const demoTokens = {
-  valid: "demo:investor-a",
+  investorA: "demo:investor-a",
+  investorB: "demo:investor-b",
   denied: "demo:investor-denied",
   expired: "demo:investor-expired",
 } as const;
@@ -70,7 +71,45 @@ export interface Session {
   actorId: string;
   role: string;
   customerReadiness?: Readiness;
+  localPrimaryScenario?: LocalPrimaryScenario;
   simulation: true;
+}
+
+export interface LocalPrimaryScenario {
+  securityId: string;
+  displayName: string;
+  tokenSymbol: string;
+  referenceLimitKrw: string;
+  usdKrwRate: string;
+  policyVersion: string;
+  intentDomain: {
+    name: string;
+    version: string;
+    chainId: number;
+    verifyingContract: `0x${string}`;
+  };
+  cash?: { usdAvailableMinor: string; usdReservedMinor: string; usdcAvailableMinor: string };
+  notices: string[];
+  simulation: true;
+}
+
+export interface PrimaryOrder {
+  orderId: string;
+  securityId: string;
+  shareQuantity: string;
+  krwLimitPrice: string;
+  fundingMode: string;
+  requestedUsdMinor: string;
+  convertedUsdcMinor: string;
+  filledQuantity: string;
+  allocatedQuantity: string;
+  status: string;
+  rightsStatus: string;
+  tokenStatus: string;
+  settlementStatus: string;
+  quarantineReason?: string;
+  defaultResolution?: "REPLACEMENT_SHARES" | "CASH_COMPENSATION";
+  cashCompensationUsdMinor?: string;
 }
 
 export interface Disclosure {

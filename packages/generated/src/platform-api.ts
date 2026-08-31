@@ -658,6 +658,64 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        LocalPrimaryScenario: {
+            /** @constant */
+            securityId: "990001";
+            displayName: string;
+            /** @constant */
+            tokenSymbol: "SIM990001";
+            referenceLimitKrw: components["schemas"]["PositiveIntegerString"];
+            /** @constant */
+            usdKrwRate: "1380.3";
+            /** @constant */
+            primaryEnabled: true;
+            /** @constant */
+            officialProduct: false;
+            notices: string[];
+            cash?: {
+                usdAvailableMinor: components["schemas"]["NonNegativeIntegerString"];
+                usdReservedMinor: components["schemas"]["NonNegativeIntegerString"];
+                usdcAvailableMinor: components["schemas"]["NonNegativeIntegerString"];
+            };
+            intentDomain: {
+                /** @constant */
+                name: "Korean Equity RWA Intent";
+                /** @constant */
+                version: "1";
+                /** @enum {unknown} */
+                chainId: 31337 | 43113;
+                verifyingContract: components["schemas"]["EvmAddress"];
+            };
+            /** @constant */
+            policyVersion: "PRIMARY-SIM-1";
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
+        };
+        PrimaryOrderView: {
+            /** Format: uuid */
+            orderId: string;
+            /** @constant */
+            securityId: "990001";
+            shareQuantity: components["schemas"]["PositiveIntegerString"];
+            krwLimitPrice: components["schemas"]["PositiveIntegerString"];
+            fundingMode: components["schemas"]["PrimaryFundingMode"];
+            status: string;
+            filledQuantity: components["schemas"]["NonNegativeIntegerString"];
+            allocatedQuantity: components["schemas"]["NonNegativeIntegerString"];
+            rightsStatus: string;
+            tokenStatus: string;
+            settlementStatus: string;
+            /** @enum {string} */
+            defaultResolution?: "REPLACEMENT_SHARES" | "CASH_COMPENSATION";
+            cashCompensationUsdMinor?: components["schemas"]["PositiveIntegerString"];
+            quarantineReason?: string;
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
+        } & {
+            [key: string]: unknown;
+        };
         Product: {
             securityId: components["schemas"]["SecurityId"];
             isin?: components["schemas"]["Isin"];
@@ -770,6 +828,8 @@ export interface components {
                 nextActionKo: string;
             }[];
         };
+        PositiveIntegerString: string;
+        NonNegativeIntegerString: string;
         ProjectionMetadata: {
             projectionAsOf: components["schemas"]["UtcTimestamp"];
             lastEventSequence: number;
@@ -791,7 +851,6 @@ export interface components {
         };
         SecurityId: string;
         Isin: string;
-        NonNegativeIntegerString: string;
         /** @enum {string} */
         Currency: "KRW" | "USD" | "USDC";
         Money: {
@@ -881,11 +940,10 @@ export interface components {
             relatedOrderId?: components["schemas"]["Uuid"];
             disclosureVersion: string;
         };
-        PositiveIntegerString: string;
-        /** Format: date */
-        KoreaBusinessDate: string;
         /** @enum {string} */
         PrimaryFundingMode: "USD_LEDGER" | "USDC_CONVERSION";
+        /** Format: date */
+        KoreaBusinessDate: string;
         CommonIntentFields: {
             nonce: components["schemas"]["NonNegativeIntegerString"];
             expiresAt: components["schemas"]["PositiveIntegerString"];
@@ -974,7 +1032,7 @@ export interface components {
         };
         Eip712Domain: {
             /** @constant */
-            name: "Korean Equity RWA PoC";
+            name: "Korean Equity RWA Intent";
             /** @constant */
             version: "1";
             /** @constant */
@@ -1139,6 +1197,18 @@ export interface components {
         };
     };
     responses: {
+        /** @description 로컬 합성 1차 주문과 독립 상태축 */
+        PrimaryOrderList: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    items: components["schemas"]["PrimaryOrderView"][];
+                    projection: components["schemas"]["ProjectionMetadata"];
+                };
+            };
+        };
         /** @description 비동기 업무 접수 */
         Accepted: {
             headers: {
@@ -1209,6 +1279,7 @@ export interface operations {
                         /** Format: uuid */
                         institutionId?: string;
                         customerReadiness?: components["schemas"]["CustomerReadiness"];
+                        localPrimaryScenario?: components["schemas"]["LocalPrimaryScenario"];
                         /** @constant */
                         simulation: true;
                         projection: components["schemas"]["ProjectionMetadata"];
@@ -1552,7 +1623,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: components["responses"]["WorkflowList"];
+            200: components["responses"]["PrimaryOrderList"];
         };
     };
     createPrimaryOrder: {

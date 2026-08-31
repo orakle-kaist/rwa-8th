@@ -10,6 +10,7 @@ import {
     DirectTransferDisabled,
     IneligibleWallet,
     InsufficientAvailableBalance,
+    InsufficientPendingBalance,
     MarketMakerRequired,
     NonIntegralCorporateAction,
     ScopePaused
@@ -37,6 +38,7 @@ contract RestrictedEquityToken is AccessControl, EvidenceGuard {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event PendingMinted(bytes16 indexed workflowId, address indexed account, uint256 quantity, bytes32 evidenceHash);
     event PendingReleased(bytes16 indexed workflowId, address indexed account, uint256 quantity);
+    event PendingMintCancelled(bytes16 indexed workflowId, address indexed account, uint256 quantity);
     event ControlledTransfer(bytes16 indexed workflowId, address indexed from, address indexed to, uint256 quantity);
     event RedemptionLocked(bytes16 indexed workflowId, address indexed account, uint256 quantity);
     event BurnPendingMarked(bytes16 indexed workflowId, address indexed account, uint256 quantity);
@@ -160,6 +162,22 @@ contract RestrictedEquityToken is AccessControl, EvidenceGuard {
         _subtract(_pendingSettlement, account, quantity, "insufficient pending quantity");
         _available[account] += quantity;
         emit PendingReleased(workflowId, account, quantity);
+    }
+
+    function cancelPendingMint(bytes16 workflowId, address account, uint256 quantity, bytes32 evidenceHash)
+        external
+        onlyRole(RoleIds.ISSUANCE_EXECUTOR_ROLE)
+    {
+        _requireScopeOpen(PolicyScopes.ISSUANCE);
+        _validateMutation(workflowId, quantity, evidenceHash);
+        uint256 pending = _pendingSettlement[account];
+        if (pending < quantity) revert InsufficientPendingBalance(account, pending, quantity);
+        unchecked {
+            _pendingSettlement[account] = pending - quantity;
+        }
+        _totalSupply -= quantity;
+        emit Transfer(account, address(0), quantity);
+        emit PendingMintCancelled(workflowId, account, quantity);
     }
 
     function controlledTransfer(bytes16 workflowId, address from, address to, uint256 quantity, bytes32 evidenceHash)

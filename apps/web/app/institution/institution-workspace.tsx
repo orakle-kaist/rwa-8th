@@ -7,6 +7,7 @@ import {
   platformFetch,
   type Complaint,
   type Product,
+  type PrimaryOrder,
   type Workflow,
 } from "../lib/platform-api";
 
@@ -18,18 +19,21 @@ export function InstitutionWorkspace() {
   const [products, setProducts] = useState<Product[]>([]);
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [tasks, setTasks] = useState<Workflow[]>([]);
+  const [primaryOrders, setPrimaryOrders] = useState<PrimaryOrder[]>([]);
   const [message, setMessage] = useState("기관 대기열을 불러오는 중이다.");
 
   const refresh = useCallback(async () => {
     try {
-      const [productItems, complaintPage, taskPage] = await Promise.all([
+      const [productItems, complaintPage, taskPage, orderPage] = await Promise.all([
         allProducts(),
         platformFetch<{ items: Complaint[] }>("/complaints", { token: brokerToken }),
         platformFetch<{ items: Workflow[] }>("/institution/tasks", { token: brokerToken }),
+        platformFetch<{ items: PrimaryOrder[] }>("/primary-orders", { token: brokerToken }),
       ]);
       setProducts(productItems);
       setComplaints(complaintPage.items);
       setTasks(taskPage.items);
+      setPrimaryOrders(orderPage.items);
       setMessage("최신 모의 투영을 확인했다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
@@ -79,8 +83,22 @@ export function InstitutionWorkspace() {
 
   async function decideTask(task: Workflow, decision: "APPROVE" | "REJECT") {
     try {
+      const state = task.states[0]?.code;
+      const tokenByState: Record<string, string> = {
+        AWAITING_KRX_EXECUTION: "demo:execution-confirmer",
+        T2_RISK_APPROVAL_PENDING: "demo:risk-approver",
+        RIGHTS_ENTRY_APPROVAL_PENDING: "demo:rights-approver",
+        RIGHTS_RECORDING_PENDING: "demo:rights-recorder",
+        SETTLEMENT_AND_CUSTODY_PENDING: "demo:settlement-confirmer",
+      };
+      const primaryOrder = primaryOrders.find((order) => order.orderId === task.workflowId);
+      if (
+        state === "SETTLEMENT_AND_CUSTODY_PENDING" &&
+        primaryOrder?.settlementStatus === "DOMESTIC_SETTLEMENT_CONFIRMED"
+      )
+        tokenByState[state] = "demo:custody-confirmer";
       await platformFetch(`/institution/tasks/${task.workflowId}/decisions`, {
-        token: brokerToken,
+        token: tokenByState[state ?? ""] ?? brokerToken,
         method: "POST",
         body: {
           decision,
@@ -89,13 +107,55 @@ export function InstitutionWorkspace() {
               ? "합성 계좌와 고객 판정을 확인했다."
               : "필수 확인자료가 부족하다.",
           expectedAggregateVersion: 1,
+          ...(state === "AWAITING_KRX_EXECUTION" ? { filledQuantity: "6" } : {}),
         },
       });
       setMessage(
-        `지갑 업무 ${task.workflowId.slice(0, 8)}의 ${decision === "APPROVE" ? "승인" : "거절"}을 접수했다.`,
+        `기관 업무 ${task.workflowId.slice(0, 8)}의 ${decision === "APPROVE" ? "승인" : "거절"}을 접수했다.`,
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "기관 결정 접수에 실패했다.");
+    }
+  }
+
+  async function resolveSettlementDefault(
+    order: PrimaryOrder,
+    action: "QUARANTINE_DEFAULT" | "APPROVE_REPLACEMENT_SHARES" | "APPROVE_CASH_COMPENSATION",
+  ) {
+    try {
+      const institutionApprovedAmount =
+        action === "APPROVE_CASH_COMPENSATION"
+          ? window.prompt("인가 해외 증권사가 승인한 현금보상액을 USD 센트 정수로 입력한다.")
+          : undefined;
+      if (
+        action === "APPROVE_CASH_COMPENSATION" &&
+        !/^[1-9][0-9]*$/.test(institutionApprovedAmount ?? "")
+      ) {
+        setMessage("기관 승인 현금보상액 입력을 취소했거나 값이 올바르지 않다.");
+        return;
+      }
+      await platformFetch(`/institution/tasks/${order.orderId}/decisions`, {
+        token: brokerToken,
+        method: "POST",
+        body: {
+          decision: "APPROVE",
+          action,
+          reasonKo:
+            action === "QUARANTINE_DEFAULT"
+              ? "모의 국내 결제불이행을 격리하고 기관 처리안을 요청한다."
+              : action === "APPROVE_REPLACEMENT_SHARES"
+                ? "인가 해외 증권사가 대체주식 조달을 승인했다."
+                : "인가 해외 증권사가 약관상 현금보상액을 직접 승인했다.",
+          ...(action === "APPROVE_CASH_COMPENSATION"
+            ? { cashCompensationUsdMinor: institutionApprovedAmount }
+            : {}),
+        },
+      });
+      setMessage(
+        "결제불이행 처리 결정을 접수했다. 금액은 플랫폼 계산값이 아닌 모의 기관 승인값이다.",
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "결제불이행 처리에 실패했다.");
     }
   }
 
@@ -139,7 +199,7 @@ export function InstitutionWorkspace() {
         <div className="panelHeading">
           <div>
             <p className="eyebrow">INSTITUTION TASKS</p>
-            <h2>지갑 승인과 예외 대기열</h2>
+            <h2>1차 발행 승인과 예외 대기열</h2>
           </div>
           <span className="statePill">권한 분리</span>
         </div>
@@ -154,8 +214,13 @@ export function InstitutionWorkspace() {
                   <strong>{task.workflowId.slice(0, 13)}…</strong>
                 </div>
                 <span>{task.states[0]?.code}</span>
-                <small>기관 승인 뒤 체인 반영 필요</small>
-                {task.states[0]?.code === "PENDING_APPROVAL" ? (
+                <small>
+                  {task.workflowType.startsWith("PRIMARY_")
+                    ? "각 단계의 독립 증거와 역할을 확인"
+                    : "기관 승인 뒤 체인 반영 필요"}
+                </small>
+                {task.states[0]?.code === "PENDING_APPROVAL" ||
+                task.workflowType.startsWith("PRIMARY_") ? (
                   <div className="buttonGroup">
                     <button type="button" onClick={() => void decideTask(task, "APPROVE")}>
                       승인 접수
@@ -175,6 +240,73 @@ export function InstitutionWorkspace() {
             ))
           )}
         </div>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">PRIMARY ISSUANCE</p>
+            <h2>로컬 1차 발행 진행</h2>
+          </div>
+          <span className="statePill">모의 KRX · KSD · 수탁</span>
+        </div>
+        <div className="complaintTable">
+          {primaryOrders.length === 0 ? (
+            <p className="emptyState">접수된 로컬 주문이 없다.</p>
+          ) : (
+            primaryOrders.map((order) => (
+              <div className="complaintRow" key={order.orderId}>
+                <div>
+                  <small>
+                    {order.securityId} · {order.fundingMode}
+                  </small>
+                  <strong>{order.shareQuantity}주 주문</strong>
+                </div>
+                <span>{order.status}</span>
+                <small>
+                  체결 {order.filledQuantity} · 배분 {order.allocatedQuantity}
+                </small>
+                <div>
+                  <em>{order.tokenStatus}</em>
+                  {order.status === "SETTLEMENT_AND_CUSTODY_PENDING" ? (
+                    <button
+                      className="subtleButton"
+                      type="button"
+                      onClick={() => void resolveSettlementDefault(order, "QUARANTINE_DEFAULT")}
+                    >
+                      결제불이행 격리
+                    </button>
+                  ) : null}
+                  {order.status === "QUARANTINED" ? (
+                    <div className="buttonGroup">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void resolveSettlementDefault(order, "APPROVE_REPLACEMENT_SHARES")
+                        }
+                      >
+                        대체주식 승인
+                      </button>
+                      <button
+                        className="subtleButton"
+                        type="button"
+                        onClick={() =>
+                          void resolveSettlementDefault(order, "APPROVE_CASH_COMPENSATION")
+                        }
+                      >
+                        기관 현금보상 승인
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <p className="panelCopy">
+          결제와 수탁은 별도 담당자가 각각 확인해야 한다. 첫 확인 뒤에도 같은 단계가 남으며, 다음
+          새로고침에서 수탁 담당 확인을 선택할 수 있다.
+        </p>
       </section>
 
       <section className="panelGrid">

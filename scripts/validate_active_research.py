@@ -2207,7 +2207,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         "MarketMakerRequired", "InsufficientAvailableBalance", "ScopePaused", "SignatureExpired",
         "NonceAlreadyUsed", "PolicyVersionMismatch", "EvidenceAlreadyUsed",
         "MissingIndependentApproval", "IssuanceEvidenceMismatch", "AllocationExceeded",
-        "PaymentMismatch", "NonIntegralCorporateAction",
+        "InsufficientPendingBalance", "PaymentMismatch", "NonIntegralCorporateAction",
     }
     abi_errors = [entry.get("name") for entry in abi_spec.get("errors", [])]
     if set(abi_errors) != expected_abi_errors or len(abi_errors) != len(set(abi_errors)):
@@ -2225,9 +2225,9 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         errors.append("governance ABI must be approved and reference the business ABI")
     if set(governance_abi.get("accessControlContracts", [])) != {
         "RestrictedEquityToken", "EligibilityRegistry", "SecurityTokenFactory",
-        "IntentVerifier", "MarketPolicyRegistry",
+        "IntentVerifier", "MarketPolicyRegistry", "IssuanceController",
     }:
-        errors.append("governance ABI must cover all five foundation contracts")
+        errors.append("governance ABI must cover all six access-controlled foundation contracts")
     allowed_abi_types = {
         "address", "address[]", "bool", "bytes", "bytes16", "bytes32", "string",
         "uint8", "uint256", "PrimaryOrderIntent", "SecondaryOrderIntent",
@@ -3122,6 +3122,36 @@ def validate_stage_ten_protection(errors: list[str]) -> None:
         errors.append(f"protection implementation must preserve 47 OpenAPI operations, found {operation_count}")
 
 
+def validate_stage_ten_primary_issuance(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0003_primary_issuance.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "primary.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "primary-issuance.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "primary-routes.ts",
+        REPO_ROOT / "apps" / "mock-institutions" / "src" / "server.ts",
+        REPO_ROOT / "contracts" / "src" / "IssuanceController.sol",
+        REPO_ROOT / "contracts" / "test" / "IssuanceController.t.sol",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "PRIMARY_ISSUANCE_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten primary issuance implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "primary-issuance.ts").read_text(encoding="utf-8")
+    for term in ["990001", "SIM990001", "TEST00000001", "257_000n", "20n", "Asia/Seoul"]:
+        if term not in domain:
+            errors.append(f"primary issuance domain is missing approved synthetic boundary: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "PRIMARY_ISSUANCE_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "공식 KOSPI 200 후보 201개와 분리", "A 4주, B 2주", "결제 대기",
+        "국내 결제와 수탁수량", "대체주식 조달", "기관 입력 현금보상액",
+    ]:
+        if term not in evidence:
+            errors.append(f"primary issuance evidence is missing: {term}")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3138,6 +3168,7 @@ def main() -> int:
     validate_stage_nine_contract(errors)
     validate_stage_ten_foundation(errors)
     validate_stage_ten_protection(errors)
+    validate_stage_ten_primary_issuance(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3148,7 +3179,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, "
         "and 16 source checksums passed."
     )
     return 0

@@ -2,7 +2,7 @@
 
 상태: **8단계 팀 내부 승인 완료**
 
-이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 고객·기관 업무에 쓰는 함수와 이벤트는 [업무 ABI](specs/contract-abi.json)를 기준으로 한다. 정책 조회, 상품주소 조회, 해외 증권사 서명자 변경과 표준 역할관리는 [관리 ABI](specs/governance-abi.json)를 별도 기준으로 삼는다. 기존 64개 업무 함수, 38개 업무 이벤트와 16개 업무 오류의 의미와 개수는 관리 기능 추가로 바뀌지 않는다.
+이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 고객·기관 업무에 쓰는 함수와 이벤트는 [업무 ABI](specs/contract-abi.json)를 기준으로 한다. 정책 조회, 상품주소 조회, 해외 증권사 서명자 변경과 표준 역할관리는 [관리 ABI](specs/governance-abi.json)를 별도 기준으로 삼는다. 1차 발행 정정 기능을 반영한 기준은 68개 업무 함수, 41개 업무 이벤트와 17개 업무 오류다.
 
 ## 1. 공통 입력과 실행 규칙
 
@@ -168,6 +168,7 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 | `IneligibleWallet` | 만료, 철회 또는 미등록 지갑 |
 | `MarketMakerRequired` | 지정 시장조성자 조건 불충족 |
 | `InsufficientAvailableBalance` | 거래 가능 수량 부족 |
+| `InsufficientPendingBalance` | 감소 정정 또는 결제불이행 취소에 사용할 결제 대기 수량 부족 |
 | `ScopePaused` | 업무범위 중지 |
 | `SignatureExpired` | 서명 만료 |
 | `NonceAlreadyUsed` | nonce 재사용 |
@@ -184,3 +185,9 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 ## 12. 관리 인터페이스 경계
 
 관리 ABI는 고객 주문이나 기관 업무를 새로 만들지 않는다. `SecurityTokenFactory.getSecurityToken`은 종목·ISIN·설계버전의 등록주소를 확인하고, `MarketPolicyRegistry.isScopePaused`와 `policyVersion`은 현재 통제상태를 조회한다. `IntentVerifier`의 해외 증권사 정산 서명자 조회·변경과 OpenZeppelin 역할 조회·부여·회수는 Safe와 지연 실행의 관리대상이다. 컴파일 결과에는 업무 ABI와 승인된 관리 ABI에 없는 공개 함수, 이벤트와 오류가 존재할 수 없다.
+
+## 13. 선발행 수량 정정
+
+체결 정정이나 결제불이행으로 결제 대기 수량을 줄여야 할 때 `approvePendingCorrection`, `confirmPendingRightsCorrection`, `executePendingCorrection` 순서로 처리한다. 권리 담당의 정정 승인과 실제 고객별 수탁권리 원장 정정 완료는 독립된 증거다. 발행 실행자는 두 증거와 남은 결제 대기 수량을 확인한 뒤 `cancelPendingMint`로 감소분만 소각한다.
+
+증가 정정은 원발행을 덮어쓰지 않고 별도의 보충 발행 업무로 만든다. `PendingMintCorrectionApproved`, `PendingRightsCorrectionConfirmed`, `PendingMintCancelled` 이벤트는 원발행 증거와 다른 업무 ID 및 증거를 사용하며, 같은 정정이나 증거의 재실행은 실패한다.

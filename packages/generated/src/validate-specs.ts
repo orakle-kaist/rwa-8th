@@ -70,15 +70,15 @@ const contracts = manifest.contracts as Array<{
 }>;
 const functionCount = contracts.reduce((total, contract) => total + contract.functions.length, 0);
 const eventCount = contracts.reduce((total, contract) => total + contract.events.length, 0);
-if (contracts.length !== 10 || functionCount !== 64 || eventCount !== 38) {
-  fail("계약 수, 함수 수 또는 이벤트 수가 승인된 10·64·38과 다르다.");
+if (contracts.length !== 10 || functionCount !== 68 || eventCount !== 41) {
+  fail("계약 수, 함수 수 또는 이벤트 수가 승인된 10·68·41과 다르다.");
 }
 
 const errors = contractAbi.errors as unknown[];
 const roles = manifest.roles as unknown[];
 const invariants = manifest.requiredInvariants as unknown[];
-if (errors.length !== 16 || roles.length !== 20 || invariants.length !== 9) {
-  fail("오류, 역할 또는 불변식 수가 승인된 16·20·9와 다르다.");
+if (errors.length !== 17 || roles.length !== 20 || invariants.length !== 9) {
+  fail("오류, 역할 또는 불변식 수가 승인된 17·20·9와 다르다.");
 }
 
 const accessControl = governanceAbi.standardAccessControl as {
@@ -97,11 +97,11 @@ const extensionFunctionCount = governanceExtensions.reduce(
 );
 if (
   governanceAbi.status !== "APPROVED" ||
-  (governanceAbi.accessControlContracts as unknown[]).length !== 5 ||
+  (governanceAbi.accessControlContracts as unknown[]).length !== 6 ||
   accessControl.functions.length !== 7 ||
   accessControl.events.length !== 3 ||
   accessControl.errors.length !== 2 ||
-  extensionFunctionCount !== 6
+  extensionFunctionCount !== 7
 ) {
   fail("관리 ABI가 승인된 역할관리 및 기반 계약 조회 범위와 다르다.");
 }
@@ -121,7 +121,7 @@ if (
 }
 
 if (
-  (traceability.administrativeContractFunctions as unknown[]).length !== 13 ||
+  (traceability.administrativeContractFunctions as unknown[]).length !== 14 ||
   (traceability.administrativeContractEvents as unknown[]).length !== 5 ||
   (traceability.administrativeContractErrors as unknown[]).length !== 4
 ) {

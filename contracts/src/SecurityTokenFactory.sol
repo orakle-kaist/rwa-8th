@@ -21,6 +21,7 @@ contract SecurityTokenFactory is AccessControl, EvidenceGuard {
     IEligibilityRegistry private immutable _eligibilityRegistry;
     IMarketPolicyRegistry private immutable _policyRegistry;
     mapping(bytes32 securityKey => address token) private _securityTokens;
+    mapping(address token => string krxCode) private _tokenSecurityIds;
 
     event SecurityTokenRegistered(
         bytes16 indexed workflowId,
@@ -69,7 +70,12 @@ contract SecurityTokenFactory is AccessControl, EvidenceGuard {
         require(_securityTokens[securityKey] == address(0), "security token already exists");
         token = _deploy(details, securityKey);
         _securityTokens[securityKey] = token;
+        _tokenSecurityIds[token] = krxCode;
         _emitRegistration(workflowId, token, securityKey, details);
+    }
+
+    function getTokenSecurityId(address token) external view returns (string memory) {
+        return _tokenSecurityIds[token];
     }
 
     function getSecurityToken(string calldata krxCode, string calldata isin, bytes32 designVersionHash)

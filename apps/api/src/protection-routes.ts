@@ -10,6 +10,7 @@ import {
   listInstitutionTasks,
   listComplaints,
   listProducts,
+  isPrimaryWorkflow,
 } from "@rwa/database";
 import {
   authenticateDemoBearer,
@@ -61,6 +62,12 @@ const institutionComplaintRoles = new Set([
   "PLATFORM_OPERATOR",
   "OVERSEAS_BROKER_OPERATOR",
   "COMPLIANCE_AUDITOR",
+  "EXECUTION_ALLOCATION_CONFIRMER",
+  "T2_RISK_APPROVER",
+  "RIGHTS_ENTRY_APPROVER",
+  "RIGHTS_RECORDING_CONFIRMER",
+  "DOMESTIC_SETTLEMENT_CONFIRMER",
+  "CUSTODY_QUANTITY_CONFIRMER",
 ]);
 
 function requireInvestor(request: FastifyRequest, reply: FastifyReply) {
@@ -380,12 +387,15 @@ export async function registerProtectionRoutes(
   app.post("/api/v1/institution/tasks/:taskId/decisions", async (request, reply) => {
     const actor = requireInstitutionReviewer(request, reply);
     if (!actor) return;
+    const taskId = (request.params as { taskId: string }).taskId;
     return submitCommand(request, reply, {
       workflowType: "INSTITUTION_DECISION",
-      commandType: "INSTITUTION_DECISION_REQUESTED",
+      commandType: (await isPrimaryWorkflow(pool, taskId))
+        ? "PRIMARY_DECISION_REQUESTED"
+        : "INSTITUTION_DECISION_REQUESTED",
       payload: {
         ...(request.body as object),
-        taskId: (request.params as { taskId: string }).taskId,
+        taskId,
       },
     });
   });

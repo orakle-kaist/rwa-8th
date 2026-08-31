@@ -8,7 +8,8 @@
     "EligibilityRegistry",
     "SecurityTokenFactory",
     "IntentVerifier",
-    "MarketPolicyRegistry"
+    "MarketPolicyRegistry",
+    "IssuanceController"
   ],
   "standardAccessControl": {
     "functions": [
@@ -35,6 +36,7 @@
       "contract": "SecurityTokenFactory",
       "functions": [
         { "name": "getSecurityToken", "stateMutability": "view", "inputs": [{ "name": "krxCode", "type": "string" }, { "name": "isin", "type": "string" }, { "name": "designVersionHash", "type": "bytes32" }], "outputs": [{ "name": "", "type": "address" }] }
+        ,{ "name": "getTokenSecurityId", "stateMutability": "view", "inputs": [{ "name": "token", "type": "address" }], "outputs": [{ "name": "", "type": "string" }] }
       ],
       "events": [],
       "errors": []

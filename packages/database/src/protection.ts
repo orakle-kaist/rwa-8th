@@ -644,7 +644,11 @@ export async function listInstitutionTasks(pool: Pool, now: Date) {
   const result = await pool.query<Record<string, unknown>>(
     `SELECT workflow_id, workflow_type, status, principal_id, request_payload, created_at
      FROM workflows
-     WHERE status IN ('PENDING_APPROVAL','PENDING_CHAIN_SYNC','AWAITING_TOKEN_RECOVERY','QUARANTINED')
+     WHERE status IN (
+       'PENDING_APPROVAL','PENDING_CHAIN_SYNC','AWAITING_TOKEN_RECOVERY','QUARANTINED',
+       'AWAITING_KRX_EXECUTION','T2_RISK_APPROVAL_PENDING','RIGHTS_ENTRY_APPROVAL_PENDING',
+       'RIGHTS_RECORDING_PENDING','SETTLEMENT_AND_CUSTODY_PENDING'
+     )
      ORDER BY created_at, workflow_id`,
   );
   return {
@@ -653,7 +657,11 @@ export async function listInstitutionTasks(pool: Pool, now: Date) {
       workflowType: row.workflow_type,
       states: [
         {
-          axis: row.workflow_type === "COMPLAINT" ? "COMPLAINT" : "WALLET_LINKAGE",
+          axis: String(row.workflow_type).startsWith("PRIMARY_")
+            ? "PRIMARY_ISSUANCE"
+            : row.workflow_type === "COMPLAINT"
+              ? "COMPLAINT"
+              : "WALLET_LINKAGE",
           code: row.status,
           labelKo: String(row.status),
         },

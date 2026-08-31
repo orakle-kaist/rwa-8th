@@ -4,10 +4,12 @@ import { setWalletEligibility } from "@rwa/contracts-client";
 import {
   claimOutbox,
   completeEligibilityChainSync,
+  expirePrimaryOrders,
   processProtectionMessage,
+  processPrimaryOutbox,
   recordEligibilityChainSyncFailure,
 } from "@rwa/database";
-import { createClock } from "@rwa/domain";
+import { createClock, seoulCalendarDate } from "@rwa/domain";
 import { Pool } from "pg";
 
 import { loadApiConfig } from "./config.js";
@@ -16,6 +18,7 @@ const config = loadApiConfig(process.env);
 const clock = createClock(process.env);
 const pool = new Pool({ connectionString: config.databaseUrl });
 let stopping = false;
+let lastExpiryDate: string | undefined;
 
 async function processChainSync(message: Awaited<ReturnType<typeof claimOutbox>>[number]) {
   const payload = message.payload as Record<string, string>;
@@ -61,6 +64,11 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
 }
 
 while (!stopping) {
+  const currentDate = seoulCalendarDate(clock.now());
+  if (lastExpiryDate !== currentDate) {
+    await expirePrimaryOrders(pool, currentDate, clock.now());
+    lastExpiryDate = currentDate;
+  }
   const messages = await claimOutbox(pool, 20, clock.now());
   if (messages.length === 0) {
     await new Promise((resolve) => setTimeout(resolve, 250));
@@ -70,7 +78,7 @@ while (!stopping) {
     try {
       if (message.eventType === "ELIGIBILITY_CHAIN_SYNC_REQUESTED") {
         await processChainSync(message);
-      } else {
+      } else if (!(await processPrimaryOutbox(pool, message, clock.now()))) {
         await processProtectionMessage(pool, message, clock.now());
       }
       process.stdout.write(

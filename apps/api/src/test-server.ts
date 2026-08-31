@@ -1,5 +1,10 @@
-import { claimOutbox, processProtectionMessage } from "@rwa/database";
-import { createClock } from "@rwa/domain";
+import {
+  claimOutbox,
+  expirePrimaryOrders,
+  processPrimaryOutbox,
+  processProtectionMessage,
+} from "@rwa/database";
+import { createClock, seoulCalendarDate } from "@rwa/domain";
 import { Pool } from "pg";
 
 import { buildApp } from "./app.js";
@@ -10,17 +15,25 @@ const clock = createClock(process.env);
 const pool = new Pool({ connectionString: config.databaseUrl });
 const app = await buildApp({ clock, pool });
 let processing = false;
+let lastExpiryDate: string | undefined;
 
 const timer = setInterval(() => {
   if (processing) return;
   processing = true;
   void (async () => {
+    const currentDate = seoulCalendarDate(clock.now());
+    if (lastExpiryDate !== currentDate) {
+      await expirePrimaryOrders(pool, currentDate, clock.now());
+      lastExpiryDate = currentDate;
+    }
     const messages = await claimOutbox(pool, 20, clock.now());
     for (const message of messages) {
       if (message.eventType === "ELIGIBILITY_CHAIN_SYNC_REQUESTED") {
         throw new Error("브라우저 시험 서버에서는 체인 적격성 반영을 실행하지 않는다.");
       }
-      await processProtectionMessage(pool, message, clock.now());
+      if (!(await processPrimaryOutbox(pool, message, clock.now()))) {
+        await processProtectionMessage(pool, message, clock.now());
+      }
     }
   })()
     .catch((error) => {
