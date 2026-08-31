@@ -692,6 +692,58 @@ export interface components {
             simulation: true;
             projection: components["schemas"]["ProjectionMetadata"];
         };
+        LocalSecondaryScenario: {
+            /** @constant */
+            securityId: "990002";
+            /** @constant */
+            displayName: "모의 SK하이닉스 24/7 시나리오";
+            /** @constant */
+            tokenSymbol: "SIM990002";
+            tokenAddress: components["schemas"]["EvmAddress"];
+            mockUsdcAddress: components["schemas"]["EvmAddress"];
+            /** @constant */
+            referenceSecurityId: "000660";
+            referenceUsdMinor: components["schemas"]["PositiveIntegerString"];
+            normalAskUsdMinor: components["schemas"]["PositiveIntegerString"];
+            informationEffectiveAt: components["schemas"]["UtcTimestamp"];
+            usdcUsd: string;
+            halfSpreadBps: number;
+            secondaryEnabled: boolean;
+            /** @constant */
+            officialProduct: false;
+            balances: {
+                settledRights: components["schemas"]["NonNegativeIntegerString"];
+                pendingRights: components["schemas"]["NonNegativeIntegerString"];
+                reservedRights: components["schemas"]["NonNegativeIntegerString"];
+                usdAvailableMinor: components["schemas"]["NonNegativeIntegerString"];
+                usdReservedMinor: components["schemas"]["NonNegativeIntegerString"];
+                usdcAvailableMinor: components["schemas"]["NonNegativeIntegerString"];
+                usdcReservedMinor: components["schemas"]["NonNegativeIntegerString"];
+            };
+            risk: {
+                positionLimit: components["schemas"]["PositiveIntegerString"];
+                securityLossBps: number;
+                portfolioLossBps: number;
+                secondaryPaused: boolean;
+                usdcPaused: boolean;
+                pauseReasonKo?: string;
+            };
+            intentDomain: {
+                /** @constant */
+                name: "Korean Equity RWA Intent";
+                /** @constant */
+                version: "1";
+                /** @enum {unknown} */
+                chainId: 31337 | 43113;
+                verifyingContract: components["schemas"]["EvmAddress"];
+            };
+            /** @constant */
+            policyVersion: "SECONDARY-SIM-1";
+            notices: string[];
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
+        };
         PrimaryOrderView: {
             /** Format: uuid */
             orderId: string;
@@ -788,21 +840,86 @@ export interface components {
             /** Format: uuid */
             quoteId: string;
             securityId: components["schemas"]["SecurityId"];
+            designatedMarketMaker: string;
             marketMakerSide: components["schemas"]["MarketMakerSide"];
+            investorSide: components["schemas"]["InvestorSide"];
             /** @enum {string} */
             fundingMode: "USD_LEDGER" | "USDC_ONCHAIN";
-            availableQuantity: components["schemas"]["PositiveIntegerString"];
+            paymentAssetId: string;
+            tokenAddress: components["schemas"]["EvmAddress"];
+            shareQuantity: components["schemas"]["PositiveIntegerString"];
+            remainingQuantity: components["schemas"]["PositiveIntegerString"];
             unitPrice: components["schemas"]["Money"];
+            halfSpreadBps: number;
+            /** @enum {string} */
+            status: "ACTIVE" | "PARTIALLY_CONSUMED";
+            publishedAt: components["schemas"]["UtcTimestamp"];
             expiresAt: components["schemas"]["UtcTimestamp"];
             signedQuote: components["schemas"]["SignedTypedData"] & {
                 /** @constant */
                 primaryType?: "MarketMakerQuote";
             };
+            /** @constant */
+            simulation: true;
             projection: components["schemas"]["ProjectionMetadata"];
         };
         PagedQuotes: {
             items: components["schemas"]["Quote"][];
             projection: components["schemas"]["ProjectionMetadata"];
+        };
+        SecondaryOrderView: {
+            /** Format: uuid */
+            orderId: string;
+            /** Format: uuid */
+            quoteId: string;
+            /** @constant */
+            securityId: "990002";
+            investorSide: components["schemas"]["InvestorSide"];
+            /** @enum {string} */
+            fundingMode: "USD_LEDGER" | "USDC_ONCHAIN";
+            paymentAssetId?: string;
+            tokenAddress?: components["schemas"]["EvmAddress"];
+            requestedQuantity: components["schemas"]["PositiveIntegerString"];
+            fillQuantity: components["schemas"]["PositiveIntegerString"];
+            cancelledQuantity: components["schemas"]["NonNegativeIntegerString"];
+            unitPriceMinor: components["schemas"]["PositiveIntegerString"];
+            paymentAmountMinor: components["schemas"]["PositiveIntegerString"];
+            rightsReservedQuantity: components["schemas"]["NonNegativeIntegerString"];
+            rightsReservationReleasedQuantity: components["schemas"]["NonNegativeIntegerString"];
+            fundsReservedMinor: components["schemas"]["NonNegativeIntegerString"];
+            fundsReservationReleasedMinor: components["schemas"]["NonNegativeIntegerString"];
+            rightsFinalized: boolean;
+            fundsFinalized: boolean;
+            chainFinalized: boolean;
+            status: string;
+            chainTransactionHash?: string;
+            quarantineReason?: string;
+            acceptedAt: components["schemas"]["UtcTimestamp"];
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
+        } & {
+            [key: string]: unknown;
+        };
+        MarketMakerPositionView: {
+            /** @constant */
+            securityId: "990002";
+            settledInventory: components["schemas"]["NonNegativeIntegerString"];
+            pendingInventory: components["schemas"]["NonNegativeIntegerString"];
+            reservedInventory: components["schemas"]["NonNegativeIntegerString"];
+            netPosition: string;
+            positionLimit: components["schemas"]["PositiveIntegerString"];
+            usdAvailableMinor: components["schemas"]["NonNegativeIntegerString"];
+            usdReservedMinor: components["schemas"]["NonNegativeIntegerString"];
+            usdcAvailableMinor: components["schemas"]["NonNegativeIntegerString"];
+            usdcReservedMinor: components["schemas"]["NonNegativeIntegerString"];
+            securityLossBps: number;
+            portfolioLossBps: number;
+            secondaryPaused: boolean;
+            usdcPaused: boolean;
+            pauseReasonKo?: string;
+            /** @constant */
+            simulation: true;
         };
         EvmAddress: string;
         /** Format: date-time */
@@ -1239,6 +1356,30 @@ export interface components {
                 };
             };
         };
+        /** @description 로컬 합성 24시간 주문과 권리·토큰·자금 반영 상태 */
+        SecondaryOrderList: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    items: components["schemas"]["SecondaryOrderView"][];
+                    projection: components["schemas"]["ProjectionMetadata"];
+                };
+            };
+        };
+        /** @description 지정 시장조성자의 결제완료·결제대기 재고와 위험 사용량 */
+        MarketMakerPositionList: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    items: components["schemas"]["MarketMakerPositionView"][];
+                    projection: components["schemas"]["ProjectionMetadata"];
+                };
+            };
+        };
     };
     parameters: {
         IdempotencyKey: string;
@@ -1280,6 +1421,7 @@ export interface operations {
                         institutionId?: string;
                         customerReadiness?: components["schemas"]["CustomerReadiness"];
                         localPrimaryScenario?: components["schemas"]["LocalPrimaryScenario"];
+                        localSecondaryScenario?: components["schemas"]["LocalSecondaryScenario"];
                         /** @constant */
                         simulation: true;
                         projection: components["schemas"]["ProjectionMetadata"];
@@ -1704,7 +1846,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: components["responses"]["WorkflowList"];
+            200: components["responses"]["SecondaryOrderList"];
         };
     };
     createSecondaryOrder: {
@@ -1880,7 +2022,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: components["responses"]["WorkflowList"];
+            200: components["responses"]["MarketMakerPositionList"];
         };
     };
     listMarketMakerHedges: {

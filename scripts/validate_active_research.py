@@ -2226,8 +2226,9 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     if set(governance_abi.get("accessControlContracts", [])) != {
         "RestrictedEquityToken", "EligibilityRegistry", "SecurityTokenFactory",
         "IntentVerifier", "MarketPolicyRegistry", "IssuanceController",
+        "SecondarySettlementController",
     }:
-        errors.append("governance ABI must cover all six access-controlled foundation contracts")
+        errors.append("governance ABI must cover all seven implemented access-controlled contracts")
     allowed_abi_types = {
         "address", "address[]", "bool", "bytes", "bytes16", "bytes32", "string",
         "uint8", "uint256", "PrimaryOrderIntent", "SecondaryOrderIntent",
@@ -3152,6 +3153,35 @@ def validate_stage_ten_primary_issuance(errors: list[str]) -> None:
             errors.append(f"primary issuance evidence is missing: {term}")
 
 
+def validate_stage_ten_secondary_trading(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0004_secondary_trading.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "secondary.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "secondary-trading.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "secondary-routes.ts",
+        REPO_ROOT / "contracts" / "src" / "SecondarySettlementController.sol",
+        REPO_ROOT / "contracts" / "test" / "SecondarySettlementController.t.sol",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "SECONDARY_TRADING_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten secondary trading implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "secondary-trading.ts").read_text(encoding="utf-8")
+    for term in ["990002", "SIM990002", "TEST00000002", "120_355n", "100n", "20n", "30", "60"]:
+        if term not in domain:
+            errors.append(f"secondary trading domain is missing approved synthetic boundary: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "SECONDARY_TRADING_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "공식 KOSPI 200 후보 201개와 분리", "8주", "5주", "결제 대기 20주",
+        "순포지션", "원자적 DvP", "권리 원장", "RPC 응답 유실",
+    ]:
+        if term not in evidence:
+            errors.append(f"secondary trading evidence is missing: {term}")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3169,6 +3199,7 @@ def main() -> int:
     validate_stage_ten_foundation(errors)
     validate_stage_ten_protection(errors)
     validate_stage_ten_primary_issuance(errors)
+    validate_stage_ten_secondary_trading(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3179,7 +3210,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, "
         "and 16 source checksums passed."
     )
     return 0

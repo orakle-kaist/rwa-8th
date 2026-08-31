@@ -27,6 +27,7 @@ const implementedContracts = [
   "IntentVerifier",
   "MarketPolicyRegistry",
   "IssuanceController",
+  "SecondarySettlementController",
 ] as const;
 
 async function readJson(relativePath: string): Promise<Record<string, unknown>> {

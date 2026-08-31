@@ -50,7 +50,8 @@ export async function seedPrimaryData(pool: Pool, now = new Date("2026-08-31T12:
     );
     for (const [principalId, usd, usdc] of [
       [investorA, "200000", "0"],
-      [investorB, "0", "10000000000"],
+      // 두 독립 시나리오를 연속 시연해도 24시간 주문 최대금액을 사전 확인할 수 있는 합성 잔액이다.
+      [investorB, "0", "20000000000"],
     ]) {
       await client.query(
         `INSERT INTO customer_cash_accounts

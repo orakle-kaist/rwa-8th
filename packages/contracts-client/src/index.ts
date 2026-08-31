@@ -3,6 +3,7 @@ import { createPublicClient, defineChain, http, type PublicClient } from "viem";
 export { readRestrictedTokenFoundation, restrictedEquityTokenReadAbi } from "./foundation.js";
 export { eligibilityRegistryWriteAbi, setWalletEligibility, uuidToBytes16 } from "./eligibility.js";
 export { issuanceControllerWriteAbi, writeIssuanceController } from "./issuance.js";
+export { secondarySettlementControllerWriteAbi, writeSecondarySettlement } from "./secondary.js";
 
 export const anvilChain = defineChain({
   id: 31_337,

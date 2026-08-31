@@ -72,6 +72,7 @@ export interface Session {
   role: string;
   customerReadiness?: Readiness;
   localPrimaryScenario?: LocalPrimaryScenario;
+  localSecondaryScenario?: LocalSecondaryScenario;
   simulation: true;
 }
 
@@ -110,6 +111,99 @@ export interface PrimaryOrder {
   quarantineReason?: string;
   defaultResolution?: "REPLACEMENT_SHARES" | "CASH_COMPENSATION";
   cashCompensationUsdMinor?: string;
+}
+
+export interface LocalSecondaryScenario {
+  securityId: string;
+  displayName: string;
+  tokenSymbol: string;
+  tokenAddress: `0x${string}`;
+  mockUsdcAddress: `0x${string}`;
+  referenceSecurityId: string;
+  referenceUsdMinor: string;
+  normalAskUsdMinor: string;
+  informationEffectiveAt: string;
+  usdcUsd: string;
+  halfSpreadBps: number;
+  secondaryEnabled: boolean;
+  policyVersion: string;
+  intentDomain: LocalPrimaryScenario["intentDomain"];
+  balances: {
+    settledRights: string;
+    pendingRights: string;
+    reservedRights: string;
+    usdAvailableMinor: string;
+    usdReservedMinor: string;
+    usdcAvailableMinor: string;
+    usdcReservedMinor: string;
+  };
+  notices: string[];
+  simulation: true;
+}
+
+export interface SecondaryQuote {
+  quoteId: string;
+  securityId: string;
+  designatedMarketMaker: string;
+  marketMakerSide: "BUY" | "SELL";
+  investorSide: "BUY" | "SELL";
+  fundingMode: "USD_LEDGER" | "USDC_ONCHAIN";
+  paymentAssetId: `0x${string}`;
+  tokenAddress: `0x${string}`;
+  remainingQuantity: string;
+  unitPrice: { currency: "USD" | "USDC"; amountMinor: string; decimals: 2 | 6 };
+  halfSpreadBps: number;
+  status: string;
+  expiresAt: string;
+  simulation: true;
+}
+
+export interface SecondaryOrder {
+  orderId: string;
+  quoteId: string;
+  securityId: string;
+  investorSide: "BUY" | "SELL";
+  fundingMode: "USD_LEDGER" | "USDC_ONCHAIN";
+  investorWallet: `0x${string}`;
+  marketMakerWallet: `0x${string}`;
+  tokenAddress: `0x${string}`;
+  paymentAssetId: `0x${string}`;
+  requestedQuantity: string;
+  fillQuantity: string;
+  cancelledQuantity: string;
+  unitPriceMinor: string;
+  paymentAmountMinor: string;
+  rightsReservedQuantity: string;
+  rightsReservationReleasedQuantity: string;
+  fundsReservedMinor: string;
+  fundsReservationReleasedMinor: string;
+  rightsFinalized: boolean;
+  fundsFinalized: boolean;
+  chainFinalized: boolean;
+  status: string;
+  investorIntentMessage?: Record<string, string>;
+  marketMakerQuoteMessage?: Record<string, string>;
+  chainTransactionHash?: string;
+  quarantineReason?: string;
+  simulation: true;
+}
+
+export interface MarketMakerPosition {
+  securityId: string;
+  settledInventory: string;
+  pendingInventory: string;
+  reservedInventory: string;
+  netPosition: string;
+  positionLimit: string;
+  usdAvailableMinor: string;
+  usdReservedMinor: string;
+  usdcAvailableMinor: string;
+  usdcReservedMinor: string;
+  securityLossBps: number;
+  portfolioLossBps: number;
+  secondaryPaused: boolean;
+  usdcPaused: boolean;
+  simulation: true;
 }
 
 export interface Disclosure {

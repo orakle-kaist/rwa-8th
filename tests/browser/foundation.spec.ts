@@ -139,3 +139,42 @@ test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 �
   }
   await expect(page.getByText("TRADABLE", { exact: true })).toHaveCount(2);
 });
+
+test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하고 3주를 해제한다", async ({ page }) => {
+  await page.goto("/institution");
+  await expect(page.getByRole("heading", { name: "24/7 지정가 호가" })).toBeVisible();
+  const quoteResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/v1/market-maker/quotes") &&
+      response.request().method() === "POST",
+  );
+  await page.getByRole("button", { name: "시장조성자 지갑으로 서명·게시" }).click();
+  expect((await quoteResponse).status()).toBe(202);
+  await expect(page.getByText("결제 대기 20 · 예약 5")).toBeVisible();
+
+  await page.goto("/investor");
+  await page.getByLabel("합성 고객").selectOption("investorB");
+  await expect(page.getByRole("heading", { name: "로컬 24/7 제한 거래 시험" })).toBeVisible();
+  await expect
+    .poll(() => page.getByLabel("지정 시장조성자 호가").locator("option").count())
+    .toBeGreaterThan(1);
+  await page.getByLabel("지정 시장조성자 호가").selectOption({ index: 1 });
+  await page.getByLabel("정수 주문수량").fill("8");
+  await page.getByRole("button", { name: "서명하고 24시간 주문 접수" }).click();
+  await expect(page.getByRole("status")).toContainText("24시간 제한 거래 주문을 접수했다");
+  await expect(page.getByText(/체결 5 · 취소 및 예약해제 3/)).toBeVisible();
+
+  await page.goto("/institution");
+  const task = page.getByRole("row").filter({ hasText: "SECONDARY_TRADE" });
+  await expect(task).toBeVisible();
+  await task.getByRole("button", { name: "승인 접수" }).click();
+  await expect(page.getByRole("status")).toContainText("24시간 정산 결정을 접수했다");
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return page.getByText("COMPLETED", { exact: true }).count();
+    })
+    .toBeGreaterThan(0);
+  await expect(page.getByText("재고 95주 · 순포지션 -5주")).toBeVisible();
+  await expect(page.getByText("미체결 3주 주문·예약 해제")).toBeVisible();
+});

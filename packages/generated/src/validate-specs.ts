@@ -97,7 +97,7 @@ const extensionFunctionCount = governanceExtensions.reduce(
 );
 if (
   governanceAbi.status !== "APPROVED" ||
-  (governanceAbi.accessControlContracts as unknown[]).length !== 6 ||
+  (governanceAbi.accessControlContracts as unknown[]).length !== 7 ||
   accessControl.functions.length !== 7 ||
   accessControl.events.length !== 3 ||
   accessControl.errors.length !== 2 ||
@@ -123,7 +123,7 @@ if (
 if (
   (traceability.administrativeContractFunctions as unknown[]).length !== 14 ||
   (traceability.administrativeContractEvents as unknown[]).length !== 5 ||
-  (traceability.administrativeContractErrors as unknown[]).length !== 4
+  (traceability.administrativeContractErrors as unknown[]).length !== 5
 ) {
   fail("관리 ABI의 함수, 이벤트와 오류 추적표가 완전하지 않다.");
 }

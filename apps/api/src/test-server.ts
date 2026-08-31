@@ -2,6 +2,7 @@ import {
   claimOutbox,
   expirePrimaryOrders,
   processPrimaryOutbox,
+  processSecondaryOutbox,
   processProtectionMessage,
 } from "@rwa/database";
 import { createClock, seoulCalendarDate } from "@rwa/domain";
@@ -31,7 +32,15 @@ const timer = setInterval(() => {
       if (message.eventType === "ELIGIBILITY_CHAIN_SYNC_REQUESTED") {
         throw new Error("브라우저 시험 서버에서는 체인 적격성 반영을 실행하지 않는다.");
       }
-      if (!(await processPrimaryOutbox(pool, message, clock.now()))) {
+      if (
+        !(await processPrimaryOutbox(pool, message, clock.now())) &&
+        !(await processSecondaryOutbox(
+          pool,
+          message,
+          clock.now(),
+          async () => `0x${message.workflowId.replaceAll("-", "").padEnd(64, "0")}`,
+        ))
+      ) {
         await processProtectionMessage(pool, message, clock.now());
       }
     }

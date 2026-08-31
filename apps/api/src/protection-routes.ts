@@ -11,6 +11,8 @@ import {
   listComplaints,
   listProducts,
   isPrimaryWorkflow,
+  isSecondaryWorkflow,
+  decideSecondarySettlement,
 } from "@rwa/database";
 import {
   authenticateDemoBearer,
@@ -21,6 +23,7 @@ import {
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { Pool } from "pg";
 import { getAddress, verifyMessage } from "viem";
+import { validateSecondaryBrokerApproval } from "./secondary-routes.js";
 
 function errorReply(
   reply: FastifyReply,
@@ -388,6 +391,51 @@ export async function registerProtectionRoutes(
     const actor = requireInstitutionReviewer(request, reply);
     if (!actor) return;
     const taskId = (request.params as { taskId: string }).taskId;
+    if (await isSecondaryWorkflow(pool, taskId)) {
+      const body = request.body as {
+        decision?: "APPROVE" | "REJECT" | "REQUEST_CORRECTION";
+        signedSettlementApproval?: unknown;
+      };
+      if (!body.decision)
+        return errorReply(reply, {
+          status: 422,
+          code: "INPUT_VALIDATION_FAILED",
+          messageKo: "정산 승인 또는 거절 결정이 필요하다.",
+          nextActionKo: "기관 결정값을 확인한다.",
+        });
+      try {
+        const signedApproval =
+          body.decision === "APPROVE" && body.signedSettlementApproval
+            ? await validateSecondaryBrokerApproval(
+                pool,
+                taskId,
+                body.signedSettlementApproval,
+                clock.now(),
+              )
+            : undefined;
+        await decideSecondarySettlement(pool, {
+          orderId: taskId,
+          actorId: actor.principalId,
+          actorRole: actor.role,
+          decision: body.decision,
+          ...(signedApproval ? { signedApproval } : {}),
+          now: clock.now(),
+        });
+        return reply.status(202).send({
+          requestId: taskId,
+          workflowId: taskId,
+          status: "ACCEPTED",
+          statusUrl: `/api/v1/workflows/${taskId}`,
+        });
+      } catch (error) {
+        return errorReply(reply, {
+          status: 409,
+          code: "SECONDARY_SETTLEMENT_DECISION_REJECTED",
+          messageKo: error instanceof Error ? error.message : "정산 결정을 처리할 수 없다.",
+          nextActionKo: "주문 상태와 해외 증권사 서명을 확인한다.",
+        });
+      }
+    }
     return submitCommand(request, reply, {
       workflowType: "INSTITUTION_DECISION",
       commandType: (await isPrimaryWorkflow(pool, taskId))

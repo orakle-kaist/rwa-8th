@@ -4504,6 +4504,10 @@
     {
       "error": "StringTooLong",
       "tests": ["정산-서명차단-01"]
+    },
+    {
+      "error": "SafeERC20FailedOperation",
+      "tests": ["정산-DvP실패-01"]
     }
   ],
   "roles": [

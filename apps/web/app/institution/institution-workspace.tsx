@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { keccak256, padHex, toHex } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
 
 import {
   allProducts,
@@ -8,6 +10,9 @@ import {
   type Complaint,
   type Product,
   type PrimaryOrder,
+  type MarketMakerPosition,
+  type SecondaryOrder,
+  type Session,
   type Workflow,
 } from "../lib/platform-api";
 
@@ -20,20 +25,47 @@ export function InstitutionWorkspace() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [tasks, setTasks] = useState<Workflow[]>([]);
   const [primaryOrders, setPrimaryOrders] = useState<PrimaryOrder[]>([]);
+  const [secondaryOrders, setSecondaryOrders] = useState<SecondaryOrder[]>([]);
+  const [positions, setPositions] = useState<MarketMakerPosition[]>([]);
+  const [session, setSession] = useState<Session>();
   const [message, setMessage] = useState("기관 대기열을 불러오는 중이다.");
+  const marketMakerAccount = useMemo(
+    () => privateKeyToAccount(keccak256(toHex("SECONDARY-DEMO-MM"))),
+    [],
+  );
+  const brokerAccount = useMemo(
+    () => privateKeyToAccount(keccak256(toHex("SECONDARY-BROKER"))),
+    [],
+  );
 
   const refresh = useCallback(async () => {
     try {
-      const [productItems, complaintPage, taskPage, orderPage] = await Promise.all([
+      const [
+        productItems,
+        complaintPage,
+        taskPage,
+        orderPage,
+        secondaryPage,
+        positionPage,
+        nextSession,
+      ] = await Promise.all([
         allProducts(),
         platformFetch<{ items: Complaint[] }>("/complaints", { token: brokerToken }),
         platformFetch<{ items: Workflow[] }>("/institution/tasks", { token: brokerToken }),
         platformFetch<{ items: PrimaryOrder[] }>("/primary-orders", { token: brokerToken }),
+        platformFetch<{ items: SecondaryOrder[] }>("/secondary-orders", { token: brokerToken }),
+        platformFetch<{ items: MarketMakerPosition[] }>("/market-maker/positions", {
+          token: brokerToken,
+        }),
+        platformFetch<Session>("/session", { token: brokerToken }),
       ]);
       setProducts(productItems);
       setComplaints(complaintPage.items);
       setTasks(taskPage.items);
       setPrimaryOrders(orderPage.items);
+      setSecondaryOrders(secondaryPage.items);
+      setPositions(positionPage.items);
+      setSession(nextSession);
       setMessage("최신 모의 투영을 확인했다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
@@ -84,6 +116,85 @@ export function InstitutionWorkspace() {
   async function decideTask(task: Workflow, decision: "APPROVE" | "REJECT") {
     try {
       const state = task.states[0]?.code;
+      if (task.workflowType === "SECONDARY_TRADE") {
+        const order = secondaryOrders.find((item) => item.orderId === task.workflowId);
+        if (!order) throw new Error("정산할 24시간 주문을 찾을 수 없다.");
+        let signedSettlementApproval: unknown;
+        if (decision === "APPROVE") {
+          if (!session?.localSecondaryScenario) throw new Error("24시간 거래 서명정보가 없다.");
+          const approvalId = crypto.randomUUID();
+          const expiresAt = String(Math.floor(Date.now() / 1000) + 3600);
+          const approval = {
+            approvalId,
+            orderId: order.orderId,
+            investor: order.investorWallet,
+            marketMaker: order.marketMakerWallet,
+            token: order.tokenAddress,
+            paymentMode: order.fundingMode,
+            paymentAssetId: order.paymentAssetId,
+            shareQuantity: order.fillQuantity,
+            paymentAmountMinor: order.paymentAmountMinor,
+            rightsEvidenceHash: keccak256(toHex(`rights:${order.orderId}`)),
+            fundsEvidenceHash: keccak256(toHex(`funds:${order.orderId}`)),
+            nonce: String(Date.now()),
+            expiresAt,
+            policyVersion: keccak256(toHex(session.localSecondaryScenario.policyVersion)),
+          };
+          const signature = await brokerAccount.signTypedData({
+            domain: session.localSecondaryScenario.intentDomain,
+            types: {
+              BrokerSettlementApproval: [
+                { name: "approvalId", type: "bytes16" },
+                { name: "orderId", type: "bytes16" },
+                { name: "investor", type: "address" },
+                { name: "marketMaker", type: "address" },
+                { name: "token", type: "address" },
+                { name: "paymentMode", type: "string" },
+                { name: "paymentAssetId", type: "bytes32" },
+                { name: "shareQuantity", type: "uint256" },
+                { name: "paymentAmountMinor", type: "uint256" },
+                { name: "rightsEvidenceHash", type: "bytes32" },
+                { name: "fundsEvidenceHash", type: "bytes32" },
+                { name: "nonce", type: "uint256" },
+                { name: "expiresAt", type: "uint256" },
+                { name: "policyVersion", type: "bytes32" },
+              ],
+            },
+            primaryType: "BrokerSettlementApproval",
+            message: {
+              ...approval,
+              approvalId: `0x${approvalId.replaceAll("-", "")}` as `0x${string}`,
+              orderId: `0x${order.orderId.replaceAll("-", "")}` as `0x${string}`,
+              shareQuantity: BigInt(order.fillQuantity),
+              paymentAmountMinor: BigInt(order.paymentAmountMinor),
+              nonce: BigInt(approval.nonce),
+              expiresAt: BigInt(expiresAt),
+            },
+          });
+          signedSettlementApproval = {
+            domain: session.localSecondaryScenario.intentDomain,
+            primaryType: "BrokerSettlementApproval",
+            message: approval,
+            signer: brokerAccount.address,
+            signature,
+          };
+        }
+        await platformFetch(`/institution/tasks/${task.workflowId}/decisions`, {
+          token: brokerToken,
+          method: "POST",
+          body: {
+            decision,
+            reasonKo:
+              decision === "APPROVE"
+                ? "예약된 권리와 자금 증거를 확인했다."
+                : "정산 증거가 부족하다.",
+            expectedAggregateVersion: 1,
+            ...(signedSettlementApproval ? { signedSettlementApproval } : {}),
+          },
+        });
+        setMessage("해외 증권사의 24시간 정산 결정을 접수했다.");
+        return;
+      }
       const tokenByState: Record<string, string> = {
         AWAITING_KRX_EXECUTION: "demo:execution-confirmer",
         T2_RISK_APPROVAL_PENDING: "demo:risk-approver",
@@ -115,6 +226,90 @@ export function InstitutionWorkspace() {
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "기관 결정 접수에 실패했다.");
+    }
+  }
+
+  async function publishSecondaryQuote(formData: FormData) {
+    if (!session?.localSecondaryScenario) return;
+    try {
+      const side = String(formData.get("side")) as "BUY" | "SELL";
+      const fundingMode = String(formData.get("fundingMode")) as "USD_LEDGER" | "USDC_ONCHAIN";
+      const quantity = String(formData.get("quantity"));
+      const unitPriceMinor = String(formData.get("unitPriceMinor"));
+      const quoteId = crypto.randomUUID();
+      const expiresAtDate = new Date(Date.now() + 30_000);
+      const expiresAt = String(Math.floor(expiresAtDate.getTime() / 1000));
+      const paymentAssetId =
+        fundingMode === "USD_LEDGER"
+          ? keccak256(toHex("USD_LEDGER"))
+          : padHex(session.localSecondaryScenario.mockUsdcAddress, { size: 32 });
+      const quote = {
+        quoteId,
+        marketMaker: marketMakerAccount.address,
+        token: session.localSecondaryScenario.tokenAddress,
+        marketMakerSide: side,
+        paymentMode: fundingMode,
+        paymentAssetId,
+        shareQuantity: quantity,
+        unitPriceMinor,
+        nonce: String(Date.now()),
+        expiresAt,
+        policyVersion: keccak256(toHex(session.localSecondaryScenario.policyVersion)),
+      };
+      const signature = await marketMakerAccount.signTypedData({
+        domain: session.localSecondaryScenario.intentDomain,
+        types: {
+          MarketMakerQuote: [
+            { name: "quoteId", type: "bytes16" },
+            { name: "marketMaker", type: "address" },
+            { name: "token", type: "address" },
+            { name: "marketMakerSide", type: "string" },
+            { name: "paymentMode", type: "string" },
+            { name: "paymentAssetId", type: "bytes32" },
+            { name: "shareQuantity", type: "uint256" },
+            { name: "unitPriceMinor", type: "uint256" },
+            { name: "nonce", type: "uint256" },
+            { name: "expiresAt", type: "uint256" },
+            { name: "policyVersion", type: "bytes32" },
+          ],
+        },
+        primaryType: "MarketMakerQuote",
+        message: {
+          ...quote,
+          quoteId: `0x${quoteId.replaceAll("-", "")}` as `0x${string}`,
+          shareQuantity: BigInt(quantity),
+          unitPriceMinor: BigInt(unitPriceMinor),
+          nonce: BigInt(quote.nonce),
+          expiresAt: BigInt(expiresAt),
+        },
+      });
+      await platformFetch("/market-maker/quotes", {
+        token: "demo:market-maker",
+        method: "POST",
+        body: {
+          securityId: session.localSecondaryScenario.securityId,
+          marketMakerSide: side,
+          fundingMode,
+          shareQuantity: quantity,
+          unitPrice: {
+            currency: fundingMode === "USD_LEDGER" ? "USD" : "USDC",
+            amountMinor: unitPriceMinor,
+            decimals: fundingMode === "USD_LEDGER" ? 2 : 6,
+          },
+          expiresAt: expiresAtDate.toISOString(),
+          signedQuote: {
+            domain: session.localSecondaryScenario.intentDomain,
+            primaryType: "MarketMakerQuote",
+            message: quote,
+            signer: marketMakerAccount.address,
+            signature,
+          },
+        },
+      });
+      setMessage("지정 시장조성자 호가를 게시했다. 30초 안에만 체결할 수 있다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "호가 게시에 실패했다.");
     }
   }
 
@@ -195,6 +390,104 @@ export function InstitutionWorkspace() {
         </article>
       </section>
 
+      <section className="panelGrid">
+        <article className="panel">
+          <div className="panelHeading">
+            <div>
+              <p className="eyebrow">MARKET MAKER QUOTE</p>
+              <h2>24/7 지정가 호가</h2>
+            </div>
+            <span className="statePill">30초 유효</span>
+          </div>
+          <form action={(formData) => void publishSecondaryQuote(formData)} className="stackForm">
+            <label>
+              MM 방향
+              <select name="side" defaultValue="SELL">
+                <option value="SELL">투자자에게 매도</option>
+                <option value="BUY">투자자로부터 매수</option>
+              </select>
+            </label>
+            <label>
+              자금 경로
+              <select name="fundingMode" defaultValue="USDC_ONCHAIN">
+                <option value="USDC_ONCHAIN">시험 USDC DvP</option>
+                <option value="USD_LEDGER">USD 고객장부</option>
+              </select>
+            </label>
+            <label>
+              정수 수량
+              <input name="quantity" type="number" min="1" step="1" defaultValue="5" />
+            </label>
+            <label>
+              가격 최소단위
+              <input name="unitPriceMinor" inputMode="numeric" defaultValue="1203550000" />
+            </label>
+            <button type="submit">시장조성자 지갑으로 서명·게시</button>
+          </form>
+          <p className="panelCopy">
+            USDC는 6자리, USD는 2자리 최소단위다. 정상 매도호가는 각각 1,203,550,000과 120,355다.
+          </p>
+        </article>
+        <article className="panel">
+          <div className="panelHeading">
+            <div>
+              <p className="eyebrow">POSITION CONTROL</p>
+              <h2>재고와 순포지션</h2>
+            </div>
+            <span className="statePill">결제완료만 사용</span>
+          </div>
+          <div className="timelineList">
+            {positions.map((position) => (
+              <div key={position.securityId}>
+                <strong>
+                  재고 {position.settledInventory}주 · 순포지션 {position.netPosition}주
+                </strong>
+                <span>한도 ±{position.positionLimit}</span>
+                <small>
+                  결제 대기 {position.pendingInventory} · 예약 {position.reservedInventory} · 손실{" "}
+                  {position.securityLossBps}bp
+                </small>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">SECONDARY SETTLEMENT</p>
+            <h2>24/7 정산 결과</h2>
+          </div>
+          <span className="statePill">권리 · 토큰 · 자금</span>
+        </div>
+        <div className="complaintTable">
+          {secondaryOrders.length === 0 ? (
+            <p className="emptyState">접수된 24시간 주문이 없다.</p>
+          ) : (
+            secondaryOrders.map((order) => (
+              <div className="complaintRow" key={order.orderId}>
+                <div>
+                  <small>{order.fundingMode}</small>
+                  <strong>
+                    {order.requestedQuantity}주 중 {order.fillQuantity}주
+                  </strong>
+                </div>
+                <span>{order.status}</span>
+                <small>
+                  체인 {order.chainFinalized ? "확정" : "대기"} · 권리{" "}
+                  {order.rightsFinalized ? "확정" : "대기"} · 자금{" "}
+                  {order.fundsFinalized ? "확정" : "대기"}
+                </small>
+                <em>
+                  {order.quarantineReason ?? `미체결 ${order.cancelledQuantity}주 주문·예약 해제`}
+                </em>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
       <section className="panel widePanel">
         <div className="panelHeading">
           <div>
@@ -220,7 +513,8 @@ export function InstitutionWorkspace() {
                     : "기관 승인 뒤 체인 반영 필요"}
                 </small>
                 {task.states[0]?.code === "PENDING_APPROVAL" ||
-                task.workflowType.startsWith("PRIMARY_") ? (
+                task.workflowType.startsWith("PRIMARY_") ||
+                task.workflowType === "SECONDARY_TRADE" ? (
                   <div className="buttonGroup">
                     <button type="button" onClick={() => void decideTask(task, "APPROVE")}>
                       승인 접수

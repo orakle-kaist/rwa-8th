@@ -38,6 +38,7 @@ services:
     environment: &application-environment
       DATABASE_URL: postgresql://rwa_poc:rwa_poc_local_only@postgres:5432/rwa_poc
       ANVIL_RPC_URL: http://anvil:8545
+      SECONDARY_SIMULATION_CHAIN: "true"
       TEST_CLOCK_MODE: system
     depends_on:
       postgres:

@@ -14,6 +14,8 @@ import {
   type Disclosure,
   type Product,
   type PrimaryOrder,
+  type SecondaryOrder,
+  type SecondaryQuote,
   type Session,
 } from "../lib/platform-api";
 
@@ -32,6 +34,8 @@ export function InvestorWorkspace() {
   const [products, setProducts] = useState<Product[]>([]);
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [primaryOrders, setPrimaryOrders] = useState<PrimaryOrder[]>([]);
+  const [secondaryOrders, setSecondaryOrders] = useState<SecondaryOrder[]>([]);
+  const [secondaryQuotes, setSecondaryQuotes] = useState<SecondaryQuote[]>([]);
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("데이터를 불러오는 중이다.");
   const token = demoTokens[profile];
@@ -43,21 +47,40 @@ export function InvestorWorkspace() {
 
   const refresh = useCallback(async () => {
     try {
-      const [nextSession, nextDisclosure, nextConsent, productItems, complaintPage, orderPage] =
-        await Promise.all([
-          platformFetch<Session>("/session", { token }),
-          platformFetch<Disclosure>("/disclosures/current"),
-          platformFetch<Consent>("/disclosure-consents/current", { token }),
-          allProducts(),
-          platformFetch<{ items: Complaint[] }>("/complaints", { token }),
-          platformFetch<{ items: PrimaryOrder[] }>("/primary-orders", { token }),
-        ]);
+      const [
+        nextSession,
+        nextDisclosure,
+        nextConsent,
+        productItems,
+        complaintPage,
+        orderPage,
+        secondaryPage,
+      ] = await Promise.all([
+        platformFetch<Session>("/session", { token }),
+        platformFetch<Disclosure>("/disclosures/current"),
+        platformFetch<Consent>("/disclosure-consents/current", { token }),
+        allProducts(),
+        platformFetch<{ items: Complaint[] }>("/complaints", { token }),
+        platformFetch<{ items: PrimaryOrder[] }>("/primary-orders", { token }),
+        platformFetch<{ items: SecondaryOrder[] }>("/secondary-orders", { token }),
+      ]);
+      const quotePages = await Promise.all(
+        (["USD_LEDGER", "USDC_ONCHAIN"] as const).flatMap((fundingMode) =>
+          (["BUY", "SELL"] as const).map((investorSide) =>
+            platformFetch<{ items: SecondaryQuote[] }>(
+              `/quotes?securityId=990002&investorSide=${investorSide}&fundingMode=${fundingMode}`,
+            ),
+          ),
+        ),
+      );
       setSession(nextSession);
       setDisclosure(nextDisclosure);
       setConsent(nextConsent);
       setProducts(productItems);
       setComplaints(complaintPage.items);
       setPrimaryOrders(orderPage.items);
+      setSecondaryOrders(secondaryPage.items);
+      setSecondaryQuotes(quotePages.flatMap((page) => page.items));
       setMessage("모의 기준정보와 고객 상태를 확인했다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
@@ -223,6 +246,86 @@ export function InvestorWorkspace() {
     }
   }
 
+  async function submitSecondaryOrder(formData: FormData) {
+    if (!session?.localSecondaryScenario || !demoOrderAccount) return;
+    try {
+      const quote = secondaryQuotes.find(
+        (item) => item.quoteId === String(formData.get("quoteId")),
+      );
+      if (!quote) throw new Error("유효한 지정 시장조성자 호가를 선택한다.");
+      const quantity = String(formData.get("quantity"));
+      const orderId = crypto.randomUUID();
+      const paymentAmountMinor = (
+        BigInt(quote.unitPrice.amountMinor) * BigInt(quantity)
+      ).toString();
+      const expiresAt = String(Math.floor(new Date(quote.expiresAt).getTime() / 1000));
+      const message = {
+        orderId,
+        quoteId: quote.quoteId,
+        investor: demoOrderAccount.address,
+        token: quote.tokenAddress,
+        investorSide: quote.investorSide,
+        paymentMode: quote.fundingMode,
+        paymentAssetId: quote.paymentAssetId,
+        shareQuantity: quantity,
+        paymentAmountMinor,
+        nonce: String(Date.now()),
+        expiresAt,
+        policyVersion: keccak256(toHex(session.localSecondaryScenario.policyVersion)),
+      };
+      const signature = await demoOrderAccount.signTypedData({
+        domain: session.localSecondaryScenario.intentDomain,
+        types: {
+          SecondaryOrderIntent: [
+            { name: "orderId", type: "bytes16" },
+            { name: "quoteId", type: "bytes16" },
+            { name: "investor", type: "address" },
+            { name: "token", type: "address" },
+            { name: "investorSide", type: "string" },
+            { name: "paymentMode", type: "string" },
+            { name: "paymentAssetId", type: "bytes32" },
+            { name: "shareQuantity", type: "uint256" },
+            { name: "paymentAmountMinor", type: "uint256" },
+            { name: "nonce", type: "uint256" },
+            { name: "expiresAt", type: "uint256" },
+            { name: "policyVersion", type: "bytes32" },
+          ],
+        },
+        primaryType: "SecondaryOrderIntent",
+        message: {
+          ...message,
+          orderId: `0x${orderId.replaceAll("-", "")}` as `0x${string}`,
+          quoteId: `0x${quote.quoteId.replaceAll("-", "")}` as `0x${string}`,
+          shareQuantity: BigInt(quantity),
+          paymentAmountMinor: BigInt(paymentAmountMinor),
+          nonce: BigInt(message.nonce),
+          expiresAt: BigInt(expiresAt),
+        },
+      });
+      await platformFetch("/secondary-orders", {
+        token,
+        method: "POST",
+        body: {
+          quoteId: quote.quoteId,
+          shareQuantity: quantity,
+          investorSide: quote.investorSide,
+          fundingMode: quote.fundingMode,
+          signedIntent: {
+            domain: session.localSecondaryScenario.intentDomain,
+            primaryType: "SecondaryOrderIntent",
+            message,
+            signer: demoOrderAccount.address,
+            signature,
+          },
+        },
+      });
+      setMessage("24시간 제한 거래 주문을 접수했다. 해외 증권사의 정산 승인을 기다린다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "24시간 주문에 실패했다.");
+    }
+  }
+
   async function submitComplaint(formData: FormData) {
     try {
       await platformFetch("/complaints", {
@@ -330,6 +433,88 @@ export function InvestorWorkspace() {
             ))}
           </ul>
         </article>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">CONTROLLED 24/7 SECONDARY</p>
+            <h2>로컬 24/7 제한 거래 시험</h2>
+          </div>
+          <span className="statePill">투자자 ↔ 지정 MM</span>
+        </div>
+        <p className="panelCopy">
+          {session?.localSecondaryScenario?.displayName} · 결제완료 권리만 거래하며 공식 SK하이닉스
+          상품이 아니다.
+        </p>
+        <section className="metricGrid compactMetrics">
+          <StatusCard
+            label="결제완료 권리"
+            value={`${session?.localSecondaryScenario?.balances.settledRights ?? "0"}주`}
+          />
+          <StatusCard
+            label="결제 대기"
+            value={`${session?.localSecondaryScenario?.balances.pendingRights ?? "0"}주`}
+          />
+          <StatusCard label="USDC/USD" value={session?.localSecondaryScenario?.usdcUsd ?? "-"} />
+          <StatusCard
+            label="정보 기준시각"
+            value={session?.localSecondaryScenario?.informationEffectiveAt.slice(11, 19) ?? "-"}
+          />
+        </section>
+        <form action={(formData) => void submitSecondaryOrder(formData)} className="stackForm">
+          <label>
+            지정 시장조성자 호가
+            <select name="quoteId" required defaultValue="">
+              <option value="" disabled>
+                유효한 호가 선택
+              </option>
+              {secondaryQuotes.map((quote) => (
+                <option key={quote.quoteId} value={quote.quoteId}>
+                  {quote.investorSide} · {quote.fundingMode} · {quote.remainingQuantity}주 ·{" "}
+                  {quote.unitPrice.amountMinor} 최소단위
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            정수 주문수량
+            <input name="quantity" type="number" min="1" step="1" defaultValue="8" />
+          </label>
+          <p>호가 만료 30초 · 부분체결은 한 번만 실행 · 미체결 잔량은 자동 해제</p>
+          <button
+            type="submit"
+            disabled={!readiness?.canPlaceNewOrder || secondaryQuotes.length === 0}
+          >
+            서명하고 24시간 주문 접수
+          </button>
+        </form>
+        <div className="timelineList">
+          {secondaryOrders.length === 0 ? (
+            <p className="emptyState">접수한 24시간 거래 주문이 없다.</p>
+          ) : (
+            secondaryOrders.map((order) => (
+              <div key={order.orderId}>
+                <strong>
+                  {order.investorSide} {order.requestedQuantity}주 · {order.fundingMode}
+                </strong>
+                <span>{order.status}</span>
+                <small>
+                  체결 {order.fillQuantity} · 취소 및 예약해제 {order.cancelledQuantity} ·
+                  권리/토큰/자금{" "}
+                  {order.rightsFinalized && order.chainFinalized && order.fundsFinalized
+                    ? "일치"
+                    : "확인 중"}
+                </small>
+              </div>
+            ))
+          )}
+        </div>
+        {session?.localSecondaryScenario?.notices.map((notice) => (
+          <small key={notice} className="panelCopy">
+            {notice}
+          </small>
+        ))}
       </section>
 
       <section className="panel widePanel">

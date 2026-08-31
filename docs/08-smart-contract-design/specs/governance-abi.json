@@ -9,7 +9,8 @@
     "SecurityTokenFactory",
     "IntentVerifier",
     "MarketPolicyRegistry",
-    "IssuanceController"
+    "IssuanceController",
+    "SecondarySettlementController"
   ],
   "standardAccessControl": {
     "functions": [
@@ -64,6 +65,22 @@
       "errors": [
         { "name": "InvalidShortString", "inputs": [] },
         { "name": "StringTooLong", "inputs": [{ "name": "str", "type": "string" }] }
+      ]
+    },
+    {
+      "contract": "SecondarySettlementController",
+      "functions": [],
+      "events": [],
+      "errors": [
+        {
+          "name": "SafeERC20FailedOperation",
+          "inputs": [
+            {
+              "name": "token",
+              "type": "address"
+            }
+          ]
+        }
       ]
     }
   ]

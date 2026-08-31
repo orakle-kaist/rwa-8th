@@ -18,12 +18,15 @@ try {
     "0001_foundation.sql",
     "0002_customer_product_protection.sql",
     "0003_primary_issuance.sql",
+    "0004_secondary_trading.sql",
   ]) {
     const migrationUrl = new URL(`../migrations/${name}`, import.meta.url);
     await pool.query(await readFile(fileURLToPath(migrationUrl), "utf8"));
   }
   await seedProtectionData(pool);
   await seedPrimaryData(pool);
+  const { seedSecondaryData } = await import("./seed-secondary.js");
+  await seedSecondaryData(pool, new Date());
   process.stdout.write("database migrations and approved synthetic reference data applied\n");
 } finally {
   await pool.end();
