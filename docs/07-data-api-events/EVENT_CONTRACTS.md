@@ -79,7 +79,9 @@ HTTP 명령
 - `primary.execution.recorded.v1`
 - `primary.execution.corrected.v1`
 - `primary.allocation.completed.v1`
+- `primary.execution-allocation.confirmed.v1`
 - `primary.risk.approved.v1`
+- `rights.entry.approved.v1`
 - `rights.entry.completed.v1`
 - `token.mint.confirmed.v1`
 - `domestic.settlement.confirmed.v1`

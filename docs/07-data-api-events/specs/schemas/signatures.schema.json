@@ -21,7 +21,7 @@
       "properties": {
         "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
         "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
-        "policyVersion": { "type": "string", "minLength": 1, "maxLength": 64, "x-solidity-type": "string" }
+        "policyVersion": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" }
       }
     },
     "PrimaryOrderIntent": {
@@ -44,7 +44,7 @@
             "policyVersion"
           ],
           "properties": {
-            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "bytes16" },
             "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "securityId": { "$ref": "common.schema.json#/$defs/SecurityId", "x-solidity-type": "string" },
             "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
@@ -54,7 +54,7 @@
             "fundingAmountMinor": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
             "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
             "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
-            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+            "policyVersion": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" }
           }
         }
       ]
@@ -80,18 +80,18 @@
             "policyVersion"
           ],
           "properties": {
-            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
-            "quoteId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "bytes16" },
+            "quoteId": { "type": "string", "format": "uuid", "x-solidity-type": "bytes16" },
             "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "investorSide": { "type": "string", "enum": ["INVESTOR_BUYS", "INVESTOR_SELLS"], "x-solidity-type": "string" },
             "paymentMode": { "type": "string", "enum": ["USD_LEDGER", "USDC_ONCHAIN"], "x-solidity-type": "string" },
-            "paymentAssetId": { "type": "string", "minLength": 1, "maxLength": 64, "x-solidity-type": "string" },
+            "paymentAssetId": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" },
             "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
             "paymentAmountMinor": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
             "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
             "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
-            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+            "policyVersion": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" }
           }
         }
       ]
@@ -104,7 +104,7 @@
           "additionalProperties": false,
           "required": ["redemptionId", "investor", "token", "shareQuantity", "krwLimitPrice", "targetTradingDate", "nonce", "expiresAt", "policyVersion"],
           "properties": {
-            "redemptionId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "redemptionId": { "type": "string", "format": "uuid", "x-solidity-type": "bytes16" },
             "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
@@ -112,7 +112,7 @@
             "targetTradingDate": { "$ref": "common.schema.json#/$defs/KoreaBusinessDate", "x-solidity-type": "string" },
             "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
             "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
-            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+            "policyVersion": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" }
           }
         }
       ]
@@ -125,17 +125,17 @@
           "additionalProperties": false,
           "required": ["quoteId", "marketMaker", "token", "marketMakerSide", "paymentMode", "paymentAssetId", "shareQuantity", "unitPriceMinor", "nonce", "expiresAt", "policyVersion"],
           "properties": {
-            "quoteId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "quoteId": { "type": "string", "format": "uuid", "x-solidity-type": "bytes16" },
             "marketMaker": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "marketMakerSide": { "type": "string", "enum": ["MM_BUYS", "MM_SELLS"], "x-solidity-type": "string" },
             "paymentMode": { "type": "string", "enum": ["USD_LEDGER", "USDC_ONCHAIN"], "x-solidity-type": "string" },
-            "paymentAssetId": { "type": "string", "x-solidity-type": "string" },
+            "paymentAssetId": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" },
             "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
             "unitPriceMinor": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
             "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
             "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
-            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+            "policyVersion": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" }
           }
         }
       ]
@@ -148,20 +148,20 @@
           "additionalProperties": false,
           "required": ["approvalId", "orderId", "investor", "marketMaker", "token", "paymentMode", "paymentAssetId", "shareQuantity", "paymentAmountMinor", "rightsEvidenceHash", "fundsEvidenceHash", "nonce", "expiresAt", "policyVersion"],
           "properties": {
-            "approvalId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
-            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "string" },
+            "approvalId": { "type": "string", "format": "uuid", "x-solidity-type": "bytes16" },
+            "orderId": { "type": "string", "format": "uuid", "x-solidity-type": "bytes16" },
             "investor": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "marketMaker": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "token": { "$ref": "common.schema.json#/$defs/EvmAddress", "x-solidity-type": "address" },
             "paymentMode": { "type": "string", "enum": ["USD_LEDGER", "USDC_ONCHAIN"], "x-solidity-type": "string" },
-            "paymentAssetId": { "type": "string", "x-solidity-type": "string" },
+            "paymentAssetId": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" },
             "shareQuantity": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
             "paymentAmountMinor": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
             "rightsEvidenceHash": { "$ref": "common.schema.json#/$defs/EvidenceHash", "x-solidity-type": "bytes32" },
             "fundsEvidenceHash": { "$ref": "common.schema.json#/$defs/EvidenceHash", "x-solidity-type": "bytes32" },
             "nonce": { "$ref": "common.schema.json#/$defs/NonNegativeIntegerString", "x-solidity-type": "uint256" },
             "expiresAt": { "$ref": "common.schema.json#/$defs/PositiveIntegerString", "x-solidity-type": "uint256" },
-            "policyVersion": { "type": "string", "x-solidity-type": "string" }
+            "policyVersion": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$", "x-solidity-type": "bytes32" }
           }
         }
       ]

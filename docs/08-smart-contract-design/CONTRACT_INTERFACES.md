@@ -2,7 +2,7 @@
 
 상태: **8단계 팀 내부 승인 완료**
 
-이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 함수 이름은 9단계 시험과 10단계 구현의 공통 기준이지만 매개변수의 Solidity 자료형과 ABI는 구현 전 검토에서 확정한다.
+이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 함수, 구조체, 반환값, 이벤트와 오류의 정확한 Solidity 자료형과 `indexed` 항목은 [기계 판독 ABI](specs/contract-abi.json)를 기준으로 한다.
 
 ## 1. 공통 입력과 실행 규칙
 
@@ -93,14 +93,18 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 
 | 함수 | 독립 책임 | 실행 결과 |
 |---|---|---|
+| `confirmExecutionAllocation` | 국내 주문집행 담당 | 체결수량과 고객별 정수 배분 및 발행 상한 확인 |
 | `approveT2Risk` | 해외 증권사 위험 담당 | 체결, 배분 수량의 선발행 한도 승인 |
-| `confirmRightsRecorded` | 해외 증권사 권리 담당 | 고객별 수탁권리 원장 기입 완료 확인 |
-| `executePendingMint` | 발행 실행 역할 | 두 승인과 1차 주문 의사를 검증하고 결제 대기 발행 |
+| `approveRightsEntry` | 해외 증권사 권리기입 승인 담당 | 고객별 수탁권리 원장 기입 승인 |
+| `confirmRightsRecorded` | 해외 증권사 원장 확인 담당 | 승인된 고객별 수탁권리가 실제 원장에 반영됐음을 확인 |
+| `executePendingMint` | 발행 실행 역할 | 네 독립 증거와 1차 주문 의사를 검증하고 결제 대기 발행 |
 | `confirmDomesticSettlement` | 국내 결제 확인 역할 | 국내 결제 완료 증거 연결 |
 | `confirmCustodyQuantity` | 수탁수량 확인 역할 | 수탁수량 반영 증거 연결 |
 | `executeRelease` | 발행 실행 역할 | 두 확인을 검증해 결제 대기를 거래 가능으로 전환 |
 
-위험 승인과 권리기입 완료 확인은 같은 주체가 대신할 수 없다. 권리기입 완료 전에는 발행할 수 없고, 결제 또는 수탁 중 하나만 확인되면 거래 가능 전환을 할 수 없다.
+체결과 배분 확인, 위험 승인, 권리기입 승인, 원장 반영 확인과 발행 실행은 서로 다른 역할이다. 네 사실은 같은 업무 ID, 투자자, 종목과 수량을 가리켜야 한다. 체결과 배분 확인수량을 초과할 수 없고 원장 반영 완료 전에는 발행할 수 없다. 결제 또는 수탁 중 하나만 확인되면 거래 가능 전환을 할 수 없다.
+
+주요 이벤트는 `ExecutionAllocationConfirmed`, `T2RiskApproved`, `RightsEntryApproved`, `RightsRecordingConfirmed`, `DomesticSettlementConfirmed`, `CustodyQuantityConfirmed`다. 권리기입 승인만 끝났거나 원장 반영 확인 뒤 발행이 실패한 상태를 이벤트 조합으로 구분할 수 있어야 한다.
 
 ## 7. `SecondarySettlementController`
 
@@ -170,7 +174,9 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 | `PolicyVersionMismatch` | 승인 정책버전 불일치 |
 | `EvidenceAlreadyUsed` | 증거 재사용 |
 | `MissingIndependentApproval` | 독립 승인이 하나 이상 누락 |
+| `IssuanceEvidenceMismatch` | 발행의 업무, 투자자, 종목 또는 수량이 네 증거 사이에서 불일치 |
+| `AllocationExceeded` | 발행수량이 확인된 고객별 배분 또는 체결수량 상한을 초과 |
 | `PaymentMismatch` | 지급자산, 금액 또는 지정가 한도 불일치 |
 | `NonIntegralCorporateAction` | 기업행동 결과가 정수로 계산되지 않음 |
 
-상세 오류 인자와 선택자 충돌 검사는 9단계에서 확정한다.
+오류 인자와 선택자 충돌도 [기계 판독 ABI](specs/contract-abi.json)를 기준으로 9단계에서 검사한다. API의 UUID 문자열은 정규 UUID 16바이트를 순서대로 담은 `bytes16`, 증거 해시는 `bytes32`, 지갑과 계약은 `address`, 수량, 최소단위 금액과 nonce는 `uint256`, 만료시각은 Unix seconds `uint256`으로 손실 없이 변환한다.

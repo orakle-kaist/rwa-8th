@@ -73,8 +73,8 @@
     {
       "name": "IssuanceController",
       "kind": "SHARED",
-      "functions": ["approveT2Risk", "confirmRightsRecorded", "executePendingMint", "confirmDomesticSettlement", "confirmCustodyQuantity", "executeRelease"],
-      "events": ["T2RiskApproved", "RightsRecordingConfirmed", "DomesticSettlementConfirmed", "CustodyQuantityConfirmed"]
+      "functions": ["confirmExecutionAllocation", "approveT2Risk", "approveRightsEntry", "confirmRightsRecorded", "executePendingMint", "confirmDomesticSettlement", "confirmCustodyQuantity", "executeRelease"],
+      "events": ["ExecutionAllocationConfirmed", "T2RiskApproved", "RightsEntryApproved", "RightsRecordingConfirmed", "DomesticSettlementConfirmed", "CustodyQuantityConfirmed"]
     },
     {
       "name": "SecondarySettlementController",
@@ -110,8 +110,10 @@
   "roles": [
     "DEFAULT_ADMIN_ROLE",
     "ELIGIBILITY_OPERATOR_ROLE",
+    "EXECUTION_ALLOCATION_CONFIRMER_ROLE",
     "RISK_APPROVER_ROLE",
-    "RIGHTS_APPROVER_ROLE",
+    "RIGHTS_ENTRY_APPROVER_ROLE",
+    "RIGHTS_RECORDING_CONFIRMER_ROLE",
     "SETTLEMENT_CONFIRMER_ROLE",
     "CUSTODY_CONFIRMER_ROLE",
     "ISSUANCE_EXECUTOR_ROLE",

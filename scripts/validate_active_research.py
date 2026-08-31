@@ -67,6 +67,7 @@ CONTRACT_INTERFACES = STAGE_EIGHT_ROOT / "CONTRACT_INTERFACES.md"
 ROLES_AND_GOVERNANCE = STAGE_EIGHT_ROOT / "ROLES_AND_GOVERNANCE.md"
 INVARIANTS = STAGE_EIGHT_ROOT / "INVARIANTS.md"
 CONTRACT_MANIFEST = STAGE_EIGHT_ROOT / "specs" / "contract-manifest.json"
+CONTRACT_ABI = STAGE_EIGHT_ROOT / "specs" / "contract-abi.json"
 STAGE_NINE_ROOT = DOCS_ROOT / "09-test-design"
 TEST_STRATEGY = STAGE_NINE_ROOT / "TEST_STRATEGY.md"
 TEST_SCENARIOS = STAGE_NINE_ROOT / "TEST_SCENARIOS.md"
@@ -2016,7 +2017,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         ROLES_AND_GOVERNANCE,
         INVARIANTS,
     ]
-    if not all(path.is_file() for path in stage_eight_paths) or not CONTRACT_MANIFEST.is_file():
+    if not all(path.is_file() for path in stage_eight_paths) or not CONTRACT_MANIFEST.is_file() or not CONTRACT_ABI.is_file():
         return  # validate_workspace_contract reports missing required files
 
     documents = {path.name: path.read_text(encoding="utf-8") for path in stage_eight_paths}
@@ -2041,12 +2042,15 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
             "mintPending", "releasePending", "controlledTransfer",
             "lockForRedemption", "markBurnPending", "burnPending", "recoverAllBuckets",
             "applySplitBatch", "EIP-712", "ERC-1271", "settleUsdLedger", "settleUsdc",
-            "부분체결", "EvidenceAlreadyUsed", "NonIntegralCorporateAction",
+            "부분체결", "EvidenceAlreadyUsed", "IssuanceEvidenceMismatch",
+            "AllocationExceeded", "NonIntegralCorporateAction", "기계 판독 ABI",
         ],
         "ROLES_AND_GOVERNANCE.md": [
-            "Safe 2-of-3", "60초", "DEFAULT_ADMIN_ROLE", "RISK_APPROVER_ROLE",
-            "RIGHTS_APPROVER_ROLE", "SETTLEMENT_CONFIRMER_ROLE", "CUSTODY_CONFIRMER_ROLE",
-            "EMERGENCY_PAUSER_ROLE", "두 단계 승인", "배포자", "재개",
+            "Safe 2-of-3", "60초", "DEFAULT_ADMIN_ROLE",
+            "EXECUTION_ALLOCATION_CONFIRMER_ROLE", "RISK_APPROVER_ROLE",
+            "RIGHTS_ENTRY_APPROVER_ROLE", "RIGHTS_RECORDING_CONFIRMER_ROLE",
+            "SETTLEMENT_CONFIRMER_ROLE", "CUSTODY_CONFIRMER_ROLE",
+            "EMERGENCY_PAUSER_ROLE", "독립 사실과 실행", "배포자", "재개",
         ],
         "INVARIANTS.md": [
             "전체\\ 발행량", "고객\\ 수탁권리\\ 합계", "다섯 수량 상태",
@@ -2138,7 +2142,8 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         errors.append("contract manifest must preserve all five signatures under IntentVerifier")
 
     required_roles = {
-        "DEFAULT_ADMIN_ROLE", "RISK_APPROVER_ROLE", "RIGHTS_APPROVER_ROLE",
+        "DEFAULT_ADMIN_ROLE", "EXECUTION_ALLOCATION_CONFIRMER_ROLE", "RISK_APPROVER_ROLE",
+        "RIGHTS_ENTRY_APPROVER_ROLE", "RIGHTS_RECORDING_CONFIRMER_ROLE",
         "SETTLEMENT_CONFIRMER_ROLE", "CUSTODY_CONFIRMER_ROLE", "ISSUANCE_EXECUTOR_ROLE",
         "SETTLEMENT_EXECUTOR_ROLE", "REDEMPTION_RIGHTS_APPROVER_ROLE", "PAYMENT_APPROVER_ROLE",
         "REDEMPTION_EXECUTOR_ROLE", "RECOVERY_RIGHTS_APPROVER_ROLE",
@@ -2149,6 +2154,60 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     roles = manifest.get("roles", [])
     if not required_roles.issubset(set(roles)) or len(roles) != len(set(roles)):
         errors.append("contract manifest is missing separated approval and execution roles")
+
+    try:
+        abi_spec = json.loads(CONTRACT_ABI.read_text(encoding="utf-8"))
+    except Exception as exc:
+        errors.append(f"stage-eight contract ABI parse failed: {exc}")
+        abi_spec = {}
+    if abi_spec.get("status") != "APPROVED" or abi_spec.get("networkChainId") != 43113:
+        errors.append("contract ABI must be approved for the Fuji PoC chain")
+    abi_contracts = {entry.get("name"): entry for entry in abi_spec.get("contracts", [])}
+    if set(abi_contracts) != expected_contracts:
+        errors.append("contract ABI must define every manifest contract exactly once")
+    for contract in contracts:
+        name = contract.get("name")
+        abi_contract = abi_contracts.get(name, {})
+        abi_functions = [entry.get("name") for entry in abi_contract.get("functions", [])]
+        abi_events = [entry.get("name") for entry in abi_contract.get("events", [])]
+        if abi_functions != contract.get("functions", []):
+            errors.append(f"contract ABI functions do not match manifest order for {name}")
+        if abi_events != contract.get("events", []):
+            errors.append(f"contract ABI events do not match manifest order for {name}")
+        for entry in abi_contract.get("functions", []):
+            if "stateMutability" not in entry or "inputs" not in entry or "outputs" not in entry:
+                errors.append(f"contract ABI function is incomplete: {name}.{entry.get('name')}")
+        for entry in abi_contract.get("events", []):
+            if any("indexed" not in item for item in entry.get("inputs", [])):
+                errors.append(f"contract ABI event lacks indexed flags: {name}.{entry.get('name')}")
+    expected_abi_errors = {
+        "DirectTransferDisabled", "ApprovalDisabled", "UnauthorizedController", "IneligibleWallet",
+        "MarketMakerRequired", "InsufficientAvailableBalance", "ScopePaused", "SignatureExpired",
+        "NonceAlreadyUsed", "PolicyVersionMismatch", "EvidenceAlreadyUsed",
+        "MissingIndependentApproval", "IssuanceEvidenceMismatch", "AllocationExceeded",
+        "PaymentMismatch", "NonIntegralCorporateAction",
+    }
+    abi_errors = [entry.get("name") for entry in abi_spec.get("errors", [])]
+    if set(abi_errors) != expected_abi_errors or len(abi_errors) != len(set(abi_errors)):
+        errors.append("contract ABI must define every approved custom error exactly once")
+    allowed_abi_types = {
+        "address", "address[]", "bool", "bytes", "bytes16", "bytes32", "string",
+        "uint8", "uint256", "PrimaryOrderIntent", "SecondaryOrderIntent",
+        "RedemptionIntent", "MarketMakerQuote", "BrokerSettlementApproval",
+    }
+    abi_items = list(abi_spec.get("structs", []))
+    for contract in abi_spec.get("contracts", []):
+        abi_items.extend(contract.get("functions", []))
+        abi_items.extend(contract.get("events", []))
+    abi_items.extend(abi_spec.get("errors", []))
+    for item in abi_items:
+        arguments = item.get("fields", []) or item.get("inputs", [])
+        for argument in arguments:
+            if argument.get("type") not in allowed_abi_types:
+                errors.append(f"contract ABI uses an unsupported type: {argument.get('type')}")
+        for output in item.get("outputs", []):
+            if output.get("type") not in allowed_abi_types:
+                errors.append(f"contract ABI uses an unsupported output type: {output.get('type')}")
 
     deployment = manifest.get("deploymentScope", {})
     securities = deployment.get("securities", [])
