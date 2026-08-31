@@ -74,8 +74,10 @@ TEST_SCENARIOS = STAGE_NINE_ROOT / "TEST_SCENARIOS.md"
 FIXTURES_AND_EVIDENCE = STAGE_NINE_ROOT / "FIXTURES_AND_EVIDENCE.md"
 DEMO_CHECKLIST = STAGE_NINE_ROOT / "DEMO_CHECKLIST.md"
 TEST_CATALOG = STAGE_NINE_ROOT / "specs" / "test-catalog.json"
+TEST_CATALOG_SCHEMA = STAGE_NINE_ROOT / "specs" / "test-catalog.schema.json"
 TEST_FIXTURES = STAGE_NINE_ROOT / "specs" / "test-fixtures.json"
 TEST_TRACEABILITY = STAGE_NINE_ROOT / "specs" / "traceability.json"
+TEST_TRACEABILITY_SCHEMA = STAGE_NINE_ROOT / "specs" / "traceability.schema.json"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|tmp)/")
@@ -260,13 +262,16 @@ def validate_workspace_contract(errors: list[str]) -> None:
         ROLES_AND_GOVERNANCE,
         INVARIANTS,
         CONTRACT_MANIFEST,
+        CONTRACT_ABI,
         TEST_STRATEGY,
         TEST_SCENARIOS,
         FIXTURES_AND_EVIDENCE,
         DEMO_CHECKLIST,
         TEST_CATALOG,
+        TEST_CATALOG_SCHEMA,
         TEST_FIXTURES,
         TEST_TRACEABILITY,
+        TEST_TRACEABILITY_SCHEMA,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -331,7 +336,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "9단계 테스트 설계 검토 대기" not in readme
+        or "7~9단계 정합성 보완 검토 대기" not in readme
     ):
         errors.append("README must identify PRD.md and the stage-nine review status")
     if (
@@ -373,7 +378,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/09-test-design/TEST_SCENARIOS.md" not in readme
         or "docs/09-test-design/FIXTURES_AND_EVIDENCE.md" not in readme
         or "docs/09-test-design/DEMO_CHECKLIST.md" not in readme
-        or "9단계 테스트 설계 검토 대기" not in readme
+        or "7~9단계 정합성 보완 검토 대기" not in readme
         or "승인 전에는 10단계 구현을 시작하지 않는다" not in readme
     ):
         errors.append("README must identify stage-nine review artifacts and block stage ten")
@@ -2210,6 +2215,28 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         for output in item.get("outputs", []):
             if output.get("type") not in allowed_abi_types:
                 errors.append(f"contract ABI uses an unsupported output type: {output.get('type')}")
+    try:
+        signature_schema = json.loads(SIGNATURES_SCHEMA.read_text(encoding="utf-8"))
+    except Exception as exc:
+        errors.append(f"signature schema parse failed during ABI comparison: {exc}")
+        signature_schema = {}
+    abi_structs = {entry.get("name"): entry for entry in abi_spec.get("structs", [])}
+    for struct_name in [
+        "PrimaryOrderIntent", "SecondaryOrderIntent", "RedemptionIntent",
+        "MarketMakerQuote", "BrokerSettlementApproval",
+    ]:
+        schema_def = signature_schema.get("$defs", {}).get(struct_name, {})
+        schema_properties = schema_def.get("allOf", [{}, {}])[-1].get("properties", {})
+        schema_fields = [
+            (field_name, field_schema.get("x-solidity-type"))
+            for field_name, field_schema in schema_properties.items()
+        ]
+        abi_fields = [
+            (field.get("name"), field.get("type"))
+            for field in abi_structs.get(struct_name, {}).get("fields", [])
+        ]
+        if schema_fields != abi_fields:
+            errors.append(f"EIP-712 schema fields do not match contract ABI struct: {struct_name}")
 
     deployment = manifest.get("deploymentScope", {})
     securities = deployment.get("securities", [])
@@ -2254,7 +2281,10 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     stage_nine_paths = [TEST_STRATEGY, TEST_SCENARIOS, FIXTURES_AND_EVIDENCE, DEMO_CHECKLIST]
     if not all(path.is_file() for path in stage_nine_paths):
         return  # validate_workspace_contract reports missing required files
-    if not all(path.is_file() for path in [TEST_CATALOG, TEST_FIXTURES, TEST_TRACEABILITY]):
+    if not all(path.is_file() for path in [
+        TEST_CATALOG, TEST_CATALOG_SCHEMA, TEST_FIXTURES,
+        TEST_TRACEABILITY, TEST_TRACEABILITY_SCHEMA,
+    ]):
         return
 
     documents = {path.name: path.read_text(encoding="utf-8") for path in stage_nine_paths}
@@ -2275,6 +2305,12 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             "발행-정상-01", "결제-차단-01", "정산-DvP실패-01", "정산-원장실패-01",
             "시장조성-경계-01", "재시작-발송함-01", "환매-과도기-01",
             "거버넌스-지연-01", "기업행동-소수차단-01", "Fuji-생애주기-01",
+            "공시-동의-01", "민원-정정종결-01", "주문-휴장만료-01",
+            "발행-USDC전환-01", "발행-체결배분차단-01", "발행-권리승인차단-01",
+            "발행-원장반영차단-01", "발행-증거불일치-01", "결제불이행-예외-01",
+            "체결-정정취소-01", "배당-배당락-01", "의결권-승인실패-01",
+            "보고-증거누락-01", "모의정보-표시-01", "호가-경계-01",
+            "정보-경계-01", "USDC-경계-01", "손실-경계-01",
         ],
         "FIXTURES_AND_EVIDENCE.md": [
             "투자자 A", "투자자 B", "지정 시장조성자", "1,380.3원", "201개",
@@ -2292,19 +2328,36 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             errors.append(f"{name} is missing stage-nine test terms: " + ", ".join(missing))
 
     parsed: dict[Path, object] = {}
-    for path in [TEST_CATALOG, TEST_FIXTURES, TEST_TRACEABILITY, CONTRACT_MANIFEST, STATE_CATALOG]:
+    for path in [
+        TEST_CATALOG, TEST_CATALOG_SCHEMA, TEST_FIXTURES, TEST_TRACEABILITY,
+        TEST_TRACEABILITY_SCHEMA, CONTRACT_MANIFEST, CONTRACT_ABI, STATE_CATALOG,
+        PLATFORM_OPENAPI, ADAPTER_OPENAPI, ASYNCAPI,
+    ]:
         try:
-            parsed[path] = json.loads(path.read_text(encoding="utf-8"))
+            if path.suffix in {".yaml", ".yml"}:
+                parsed[path] = yaml.safe_load(path.read_text(encoding="utf-8"))
+            else:
+                parsed[path] = json.loads(path.read_text(encoding="utf-8"))
         except Exception as exc:
             errors.append(f"stage-nine structured data parse failed: {path.name}: {exc}")
-    if len(parsed) != 5:
+    if len(parsed) != 11:
         return
 
     catalog = parsed[TEST_CATALOG]
     fixtures = parsed[TEST_FIXTURES]
     traceability = parsed[TEST_TRACEABILITY]
     manifest = parsed[CONTRACT_MANIFEST]
+    contract_abi = parsed[CONTRACT_ABI]
     state_catalog = parsed[STATE_CATALOG]
+
+    for schema_path, document_path in [
+        (TEST_CATALOG_SCHEMA, TEST_CATALOG),
+        (TEST_TRACEABILITY_SCHEMA, TEST_TRACEABILITY),
+    ]:
+        validator = Draft202012Validator(parsed[schema_path])
+        for issue in sorted(validator.iter_errors(parsed[document_path]), key=lambda item: list(item.path)):
+            location = "/".join(str(part) for part in issue.path) or "<root>"
+            errors.append(f"{document_path.name} schema violation at {location}: {issue.message}")
 
     for name, document in [
         ("test catalog", catalog), ("test fixtures", fixtures), ("test traceability", traceability)
@@ -2323,8 +2376,12 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
         if not group.get("preconditions") or not group.get("evidence") or not group.get("layers"):
             errors.append(f"test group lacks inherited execution fields: {group.get('groupId')}")
         for case in group.get("cases", []):
-            if not case.get("action") or not case.get("expectedResults"):
-                errors.append(f"test case lacks action or expected result: {case.get('testId')}")
+            if not case.get("inputs") or not case.get("steps") or not case.get("expectedQuantities"):
+                errors.append(f"test case lacks concrete input, steps or expected quantities: {case.get('testId')}")
+            if not case.get("expectedStates") or not case.get("startStates"):
+                errors.append(f"test case lacks start or expected states: {case.get('testId')}")
+            if not case.get("evidence") or not case.get("recoveryOrQuarantine") or not case.get("resumeConditions"):
+                errors.append(f"test case lacks evidence or recovery rules: {case.get('testId')}")
 
     scenario_ids = set(
         re.findall(r"^\|\s*([^|]+-[0-9]{2})\s*\|", documents["TEST_SCENARIOS.md"], flags=re.MULTILINE)
@@ -2359,41 +2416,100 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
         if not positive:
             errors.append(f"PRD requirement lacks a positive test: {entry.get('requirementId')}")
         check_test_refs(f"requirement {entry.get('requirementId')}", positive + negative)
-
-    state_axes = {entry.get("axis") for entry in state_catalog.get("entries", [])}
-    state_entries = traceability.get("stateCoverage", [])
-    traced_axes = [entry.get("axis") for entry in state_entries]
-    if set(traced_axes) != state_axes or len(traced_axes) != len(set(traced_axes)):
-        errors.append("stage-nine traceability must cover every state catalog axis exactly once")
-    for entry in state_entries:
-        if entry.get("coverageMode") != "ALL_CODES_AND_APPROVED_TRANSITIONS":
-            errors.append(f"state axis lacks full state and transition coverage: {entry.get('axis')}")
-        check_test_refs(f"state axis {entry.get('axis')}", entry.get("tests", []))
-
-    if traceability.get("apiCoverage", {}).get("coverageMode") != "ALL_OPENAPI_OPERATIONS_AND_ASYNCAPI_MESSAGES":
-        errors.append("stage-nine traceability must cover every OpenAPI operation and AsyncAPI message")
-    check_test_refs("API coverage", traceability.get("apiCoverage", {}).get("tests", []))
-
-    contract_names = {contract.get("name") for contract in manifest.get("contracts", [])}
-    contract_entries = traceability.get("contractCoverage", [])
-    traced_contracts = [entry.get("contract") for entry in contract_entries]
-    if set(traced_contracts) != contract_names or len(traced_contracts) != len(set(traced_contracts)):
-        errors.append("stage-nine traceability must cover every manifest contract exactly once")
-    for entry in contract_entries:
-        if (
-            entry.get("functionCoverage") != "ALL_MANIFEST_FUNCTIONS"
-            or entry.get("eventCoverage") != "ALL_MANIFEST_EVENTS"
-        ):
-            errors.append(f"contract lacks full function/event coverage: {entry.get('contract')}")
-        check_test_refs(f"contract {entry.get('contract')}", entry.get("tests", []))
-
-    expected_contract_errors = {
-        "DirectTransferDisabled", "ApprovalDisabled", "UnauthorizedController", "IneligibleWallet",
-        "MarketMakerRequired", "InsufficientAvailableBalance", "ScopePaused", "SignatureExpired",
-        "NonceAlreadyUsed", "PolicyVersionMismatch", "EvidenceAlreadyUsed",
-        "MissingIndependentApproval", "PaymentMismatch", "NonIntegralCorporateAction",
+        for test_id in positive + negative:
+            case = next((item for item in test_cases if item.get("testId") == test_id), {})
+            if entry.get("requirementId") not in case.get("requirementIds", []):
+                errors.append(
+                    f"requirement mapping is not bidirectional: {entry.get('requirementId')} -> {test_id}"
+                )
+    requirement_test_pairs = {
+        (entry.get("requirementId"), test_id)
+        for entry in requirement_entries
+        for test_id in entry.get("positiveTests", []) + entry.get("negativeTests", [])
     }
-    contract_error_entries = traceability.get("contractErrorCoverage", [])
+    for case in test_cases:
+        for requirement_id in case.get("requirementIds", []):
+            if (requirement_id, case.get("testId")) not in requirement_test_pairs:
+                errors.append(
+                    f"test requirement mapping is not bidirectional: {case.get('testId')} -> {requirement_id}"
+                )
+
+    catalog_state_keys = {
+        (entry.get("axis"), entry.get("code")) for entry in state_catalog.get("entries", [])
+    }
+    state_entries = traceability.get("states", [])
+    traced_state_keys = [(entry.get("axis"), entry.get("stateCode")) for entry in state_entries]
+    if set(traced_state_keys) != catalog_state_keys or len(traced_state_keys) != len(set(traced_state_keys)):
+        errors.append("stage-nine traceability must map every state code exactly once")
+    cases_by_id = {case.get("testId"): case for case in test_cases}
+    for entry in state_entries:
+        refs = entry.get("tests", []) + entry.get("allowedTransitionTests", []) + entry.get("forbiddenTransitionTests", [])
+        check_test_refs(f"state {entry.get('stateCode')}", refs)
+        for transition_field in ["allowedTransitionTests", "forbiddenTransitionTests"]:
+            for test_id in entry.get(transition_field, []):
+                if entry.get("stateCode") not in cases_by_id.get(test_id, {}).get("coveredStateCodes", []):
+                    errors.append(
+                        f"state transition test does not declare covered state: {entry.get('stateCode')} -> {test_id}"
+                    )
+
+    def operation_ids(document: dict) -> set[str]:
+        return {
+            operation.get("operationId")
+            for path_item in document.get("paths", {}).values()
+            for method, operation in path_item.items()
+            if method.lower() in {"get", "post", "put", "patch", "delete"}
+            and isinstance(operation, dict)
+        }
+
+    expected_operations = operation_ids(parsed[PLATFORM_OPENAPI]) | operation_ids(parsed[ADAPTER_OPENAPI])
+    operation_entries = traceability.get("openApiOperations", [])
+    traced_operations = [entry.get("operationId") for entry in operation_entries]
+    if set(traced_operations) != expected_operations or len(traced_operations) != len(set(traced_operations)):
+        errors.append("stage-nine traceability must map every OpenAPI operation exactly once")
+    for entry in operation_entries:
+        check_test_refs(f"OpenAPI operation {entry.get('operationId')}", entry.get("tests", []))
+
+    expected_messages = {
+        message.get("name")
+        for message in parsed[ASYNCAPI].get("components", {}).get("messages", {}).values()
+    }
+    message_entries = traceability.get("asyncApiMessages", [])
+    traced_messages = [entry.get("messageName") for entry in message_entries]
+    if set(traced_messages) != expected_messages or len(traced_messages) != len(set(traced_messages)):
+        errors.append("stage-nine traceability must map every AsyncAPI message exactly once")
+    for entry in message_entries:
+        check_test_refs(f"AsyncAPI message {entry.get('messageName')}", entry.get("tests", []))
+
+    expected_function_keys = {
+        (contract.get("name"), function)
+        for contract in manifest.get("contracts", [])
+        for function in contract.get("functions", [])
+    }
+    function_entries = traceability.get("contractFunctions", [])
+    traced_function_keys = [(entry.get("contract"), entry.get("function")) for entry in function_entries]
+    if set(traced_function_keys) != expected_function_keys or len(traced_function_keys) != len(set(traced_function_keys)):
+        errors.append("stage-nine traceability must map every contract function exactly once")
+    for entry in function_entries:
+        check_test_refs(
+            f"contract function {entry.get('contract')}.{entry.get('function')}", entry.get("tests", [])
+        )
+
+    expected_event_keys = {
+        (contract.get("name"), event)
+        for contract in manifest.get("contracts", [])
+        for event in contract.get("events", [])
+    }
+    event_entries = traceability.get("contractEvents", [])
+    traced_event_keys = [(entry.get("contract"), entry.get("event")) for entry in event_entries]
+    if set(traced_event_keys) != expected_event_keys or len(traced_event_keys) != len(set(traced_event_keys)):
+        errors.append("stage-nine traceability must map every contract event exactly once")
+    for entry in event_entries:
+        check_test_refs(
+            f"contract event {entry.get('contract')}.{entry.get('event')}", entry.get("tests", [])
+        )
+
+    expected_contract_errors = {entry.get("name") for entry in contract_abi.get("errors", [])}
+    contract_error_entries = traceability.get("contractErrors", [])
     traced_contract_errors = [entry.get("error") for entry in contract_error_entries]
     if (
         set(traced_contract_errors) != expected_contract_errors
@@ -2403,11 +2519,8 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     for entry in contract_error_entries:
         check_test_refs(f"contract error {entry.get('error')}", entry.get("tests", []))
 
-    if traceability.get("roleCoverageMode") != "ALL_MANIFEST_ROLES":
-        errors.append("stage-nine traceability must cover every manifest role")
-    check_test_refs("role coverage", traceability.get("roleTests", []))
     manifest_roles = set(manifest.get("roles", []))
-    role_entries = traceability.get("roleCoverage", [])
+    role_entries = traceability.get("roles", [])
     traced_roles = [entry.get("role") for entry in role_entries]
     if set(traced_roles) != manifest_roles or len(traced_roles) != len(set(traced_roles)):
         errors.append("stage-nine traceability must map every manifest role exactly once")
@@ -2415,16 +2528,22 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
         check_test_refs(f"role {entry.get('role')}", entry.get("tests", []))
 
     manifest_invariants = set(manifest.get("requiredInvariants", []))
-    invariant_entries = traceability.get("invariantCoverage", [])
+    invariant_entries = traceability.get("invariants", [])
     traced_invariants = [entry.get("invariant") for entry in invariant_entries]
     if set(traced_invariants) != manifest_invariants or len(traced_invariants) != len(set(traced_invariants)):
         errors.append("stage-nine traceability must cover every manifest invariant exactly once")
     for entry in invariant_entries:
         check_test_refs(f"invariant {entry.get('invariant')}", entry.get("tests", []))
-    for entry in traceability.get("errorCoverage", []):
+    for entry in traceability.get("errorCategories", []):
         if not entry.get("category") or not entry.get("tests"):
             errors.append("every stage-nine error category must have tests")
         check_test_refs(f"error category {entry.get('category')}", entry.get("tests", []))
+
+    if re.search(
+        r'"(?:coverageMode|functionCoverage|eventCoverage|roleCoverageMode)"\s*:\s*"ALL_',
+        TEST_TRACEABILITY.read_text(encoding="utf-8"),
+    ):
+        errors.append("stage-nine traceability must not use declarative ALL_* coverage markers")
 
     if fixtures.get("simulation") is not True or fixtures.get("baselineDate") != "2026-08-28":
         errors.append("stage-nine fixtures must remain simulated and use the approved baseline date")
@@ -2468,6 +2587,24 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     }
     if any(mm.get(key) != value for key, value in expected_mm.items()):
         errors.append("stage-nine market-maker fixtures differ from approved values")
+    if (
+        mm.get("quoteAllowedAgeSeconds") != 29
+        or mm.get("perSecurityLossBeforeLimitBps") != 199
+        or mm.get("perSecurityLossAtLimitBps") != 200
+        or mm.get("portfolioLossBeforeLimitBps") != 149
+        or mm.get("portfolioLossAtLimitBps") != 150
+        or market_inputs.get("usdcUsdBelowMinimum") != "0.9949"
+        or market_inputs.get("usdcUsdAboveMaximum") != "1.0051"
+    ):
+        errors.append("stage-nine boundary fixtures must include values immediately before, at and outside each limit")
+    expected_issuance_roles = {
+        "EXECUTION_ALLOCATION_CONFIRMER_ROLE", "RISK_APPROVER_ROLE",
+        "RIGHTS_ENTRY_APPROVER_ROLE", "RIGHTS_RECORDING_CONFIRMER_ROLE",
+        "ISSUANCE_EXECUTOR_ROLE",
+    }
+    actual_issuance_roles = {entry.get("role") for entry in fixtures.get("issuanceRoles", [])}
+    if actual_issuance_roles != expected_issuance_roles:
+        errors.append("stage-nine fixtures must separate the five issuance fact and execution roles")
     governance = fixtures.get("governance", {})
     if governance != {"safeOwners": 3, "safeThreshold": 2, "timelockSeconds": 60}:
         errors.append("stage-nine governance fixture differs from approved design")
@@ -2500,10 +2637,10 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") != "awaiting_stage_nine_approval":
         errors.append("active project state must await stage-nine approval")
-    if state.get("iteration") != 33:
-        errors.append("active project iteration must be 33 for stage-nine review")
+    if state.get("iteration") != 34:
+        errors.append("active project iteration must be 34 for the stage-seven through stage-nine alignment review")
     expected_next_action = (
-        "Review and approve the stage-nine test design before starting stage-ten implementation."
+        "Review and approve the stage-seven through stage-nine alignment before starting stage-ten implementation."
     )
     if state.get("next_action") != expected_next_action:
         errors.append("active project next action must review stage nine before stage ten")

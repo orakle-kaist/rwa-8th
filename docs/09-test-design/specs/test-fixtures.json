@@ -23,6 +23,8 @@
     "usdcUsdNormal": {"value":"1.0000","classification":"SYNTHETIC"},
     "usdcUsdMinimum": "0.9950",
     "usdcUsdMaximum": "1.0050",
+    "usdcUsdBelowMinimum": "0.9949",
+    "usdcUsdAboveMaximum": "1.0051",
     "normalHalfSpreadBps": 50,
     "stressHalfSpreadBps": 150
   },
@@ -34,8 +36,13 @@
     "perSecurityLossLimitBps":200,
     "portfolioLossLimitBps":150,
     "quoteValidSeconds":30,
+    "quoteAllowedAgeSeconds":29,
     "informationAgeAllowedSeconds":60,
     "informationAgeBlockedSeconds":61,
+    "perSecurityLossBeforeLimitBps":199,
+    "perSecurityLossAtLimitBps":200,
+    "portfolioLossBeforeLimitBps":149,
+    "portfolioLossAtLimitBps":150,
     "usdAvailableMinor":"25000000",
     "usdcAvailableMinor":"250000000000"
   },
@@ -46,6 +53,13 @@
     {"fixtureId":"고객-거절","role":"INVESTOR","eligibility":"INELIGIBLE","protection":"FAILED","disclosure":"MISSING","usdAvailableMinor":"0","usdcAvailableMinor":"0"},
     {"fixtureId":"고객-만료","role":"INVESTOR","eligibility":"EXPIRED","protection":"EXPIRED","disclosure":"EXPIRED","usdAvailableMinor":"0","usdcAvailableMinor":"0"},
     {"fixtureId":"시장조성자","role":"MARKET_MAKER","eligibility":"ELIGIBLE","protection":"NOT_APPLICABLE","disclosure":"VALID","usdAvailableMinor":"25000000","usdcAvailableMinor":"250000000000"}
+  ],
+  "issuanceRoles": [
+    {"fixtureId":"국내-체결배분확인","role":"EXECUTION_ALLOCATION_CONFIRMER_ROLE"},
+    {"fixtureId":"해외-위험승인","role":"RISK_APPROVER_ROLE"},
+    {"fixtureId":"해외-권리기입승인","role":"RIGHTS_ENTRY_APPROVER_ROLE"},
+    {"fixtureId":"해외-원장반영확인","role":"RIGHTS_RECORDING_CONFIRMER_ROLE"},
+    {"fixtureId":"토큰-발행실행","role":"ISSUANCE_EXECUTOR_ROLE"}
   ],
   "primaryScenario": {
     "securityFixtureId":"종목-삼성전자",

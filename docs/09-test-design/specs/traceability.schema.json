@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/test-traceability.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema", "schemaVersion", "status", "requirements", "states", "openApiOperations",
+    "asyncApiMessages", "contractFunctions", "contractEvents", "contractErrors", "roles",
+    "invariants", "errorCategories"
+  ],
+  "properties": {
+    "$schema": { "const": "./traceability.schema.json" },
+    "schemaVersion": { "const": "2.0.0" },
+    "status": { "const": "AWAITING_APPROVAL" },
+    "requirements": { "type": "array", "items": { "$ref": "#/$defs/RequirementCoverage" } },
+    "states": { "type": "array", "items": { "$ref": "#/$defs/StateCoverage" } },
+    "openApiOperations": { "type": "array", "items": { "$ref": "#/$defs/NamedCoverage" } },
+    "asyncApiMessages": { "type": "array", "items": { "$ref": "#/$defs/MessageCoverage" } },
+    "contractFunctions": { "type": "array", "items": { "$ref": "#/$defs/ContractFunctionCoverage" } },
+    "contractEvents": { "type": "array", "items": { "$ref": "#/$defs/ContractEventCoverage" } },
+    "contractErrors": { "type": "array", "items": { "$ref": "#/$defs/ErrorCoverage" } },
+    "roles": { "type": "array", "items": { "$ref": "#/$defs/RoleCoverage" } },
+    "invariants": { "type": "array", "items": { "$ref": "#/$defs/InvariantCoverage" } },
+    "errorCategories": { "type": "array", "items": { "$ref": "#/$defs/CategoryCoverage" } }
+  },
+  "$defs": {
+    "Tests": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "RequirementCoverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requirementId", "positiveTests", "negativeTests"],
+      "properties": { "requirementId": { "type": "string" }, "positiveTests": { "$ref": "#/$defs/Tests" }, "negativeTests": { "type": "array", "uniqueItems": true, "items": { "type": "string" } } }
+    },
+    "StateCoverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["axis", "stateCode", "tests", "allowedTransitionTests", "forbiddenTransitionTests"],
+      "properties": { "axis": { "type": "string" }, "stateCode": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" }, "allowedTransitionTests": { "$ref": "#/$defs/Tests" }, "forbiddenTransitionTests": { "$ref": "#/$defs/Tests" } }
+    },
+    "NamedCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["operationId", "tests"],
+      "properties": { "operationId": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    },
+    "MessageCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["messageName", "tests"],
+      "properties": { "messageName": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    },
+    "ContractFunctionCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["contract", "function", "tests"],
+      "properties": { "contract": { "type": "string" }, "function": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    },
+    "ContractEventCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["contract", "event", "tests"],
+      "properties": { "contract": { "type": "string" }, "event": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    },
+    "ErrorCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["error", "tests"],
+      "properties": { "error": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    },
+    "RoleCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["role", "tests"],
+      "properties": { "role": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    },
+    "InvariantCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["invariant", "tests"],
+      "properties": { "invariant": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    },
+    "CategoryCoverage": {
+      "type": "object", "additionalProperties": false, "required": ["category", "tests"],
+      "properties": { "category": { "type": "string" }, "tests": { "$ref": "#/$defs/Tests" } }
+    }
+  }
+}

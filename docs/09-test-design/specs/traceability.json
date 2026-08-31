@@ -1,150 +1,4591 @@
 {
-  "schemaVersion":"1.0.0",
-  "status":"AWAITING_APPROVAL",
-  "requirements":[
-    {"requirementId":"고객확인-01","positiveTests":["고객-정상-01"],"negativeTests":["고객-차단-01"]},
-    {"requirementId":"고객확인-02","positiveTests":["고객-정상-01"],"negativeTests":["고객-차단-01"]},
-    {"requirementId":"고객확인-03","positiveTests":["고객-정상-01","지갑-복구-01"],"negativeTests":["지갑-복구차단-01"]},
-    {"requirementId":"고객확인-04","positiveTests":["보고-기한-01"],"negativeTests":["보안-개인정보-01"]},
-    {"requirementId":"투자자보호-01","positiveTests":["고객-정상-01"],"negativeTests":["고객-차단-01"]},
-    {"requirementId":"투자자보호-02","positiveTests":["고객-정상-01"],"negativeTests":["고객-차단-01"]},
-    {"requirementId":"민원처리-01","positiveTests":["고객-정상-01"],"negativeTests":["고객-차단-01"]},
-    {"requirementId":"상품목록-01","positiveTests":["상품-전체-01"],"negativeTests":[]},
-    {"requirementId":"상품목록-02","positiveTests":["상품-전체-01","상품-배포-01"],"negativeTests":[]},
-    {"requirementId":"상품목록-03","positiveTests":["상품-배포-01"],"negativeTests":["중지-KRX-01","중지-기업행동-01"]},
-    {"requirementId":"수량단위-01","positiveTests":["발행-정상-01"],"negativeTests":["발행-정수차단-01","기업행동-소수차단-01"]},
-    {"requirementId":"1차발행-01","positiveTests":["발행-정상-01"],"negativeTests":["발행-정수차단-01"]},
-    {"requirementId":"1차발행-02","positiveTests":["발행-분리-01"],"negativeTests":[]},
-    {"requirementId":"1차발행-03","positiveTests":["발행-정상-01"],"negativeTests":["발행-승인차단-01"]},
-    {"requirementId":"1차발행-04","positiveTests":["발행-정상-01"],"negativeTests":["발행-재사용차단-01"]},
-    {"requirementId":"1차발행-05","positiveTests":["발행-재시작-01"],"negativeTests":["발행-승인차단-01"]},
-    {"requirementId":"국내결제-01","positiveTests":["결제-정상-01"],"negativeTests":["결제-차단-01"]},
-    {"requirementId":"국내결제-02","positiveTests":["결제-정상-01"],"negativeTests":["결제-차단-01"]},
-    {"requirementId":"국내결제-03","positiveTests":["결제-정상-01"],"negativeTests":["정산-재고차단-01"]},
-    {"requirementId":"국내결제-04","positiveTests":["발행-재시작-01"],"negativeTests":["대사-불일치-01"]},
-    {"requirementId":"24시간거래-01","positiveTests":["정산-USD정상-01","정산-USDC정상-01"],"negativeTests":["정산-직접이전차단-01"]},
-    {"requirementId":"24시간거래-02","positiveTests":["정산-부분-01"],"negativeTests":["정산-호가차단-01"]},
-    {"requirementId":"24시간거래-03","positiveTests":["정산-USD정상-01"],"negativeTests":["정산-원장실패-01"]},
-    {"requirementId":"24시간거래-04","positiveTests":["정산-USDC정상-01"],"negativeTests":["정산-DvP실패-01"]},
-    {"requirementId":"24시간거래-05","positiveTests":["정산-부분-01"],"negativeTests":["정산-재고차단-01"]},
-    {"requirementId":"24시간거래-06","positiveTests":["정산-USD정상-01"],"negativeTests":["정산-서명차단-01"]},
-    {"requirementId":"시장조성-01","positiveTests":["정산-부분-01"],"negativeTests":["정산-호가차단-01"]},
-    {"requirementId":"시장조성-02","positiveTests":["시장조성-경계-01"],"negativeTests":["시장조성-손실-01"]},
-    {"requirementId":"시장조성-03","positiveTests":["시장조성-헤지-01"],"negativeTests":["중지-KRX-01"]},
-    {"requirementId":"시장조성-04","positiveTests":["시장조성-헤지-01"],"negativeTests":["시장조성-경계-01"]},
-    {"requirementId":"시장조성-05","positiveTests":["시장조성-헤지-01"],"negativeTests":["중지-KRX-01"]},
-    {"requirementId":"환매-01","positiveTests":["환매-정상-01"],"negativeTests":["환매-차단-01"]},
-    {"requirementId":"환매-02","positiveTests":["환매-정상-01"],"negativeTests":["환매-차단-01"]},
-    {"requirementId":"환매-03","positiveTests":["환매-과도기-01"],"negativeTests":["환매-부분실패-01"]},
-    {"requirementId":"환매-04","positiveTests":["환매-정상-01"],"negativeTests":["환매-부분실패-01"]},
-    {"requirementId":"환매-05","positiveTests":["환매-과도기-01"],"negativeTests":["환매-부분실패-01"]},
-    {"requirementId":"권리관리-01","positiveTests":["배당-정상-01"],"negativeTests":["배당-USDC-01"]},
-    {"requirementId":"권리관리-02","positiveTests":["의결권-정상-01"],"negativeTests":[]},
-    {"requirementId":"권리관리-03","positiveTests":["기업행동-분할-01"],"negativeTests":["기업행동-소수차단-01"]},
-    {"requirementId":"권리관리-04","positiveTests":["보고-기한-01"],"negativeTests":["보안-개인정보-01"]},
-    {"requirementId":"배당전환-01","positiveTests":["배당-USDC-01"],"negativeTests":["중지-USDC-01"]},
-    {"requirementId":"안전통제-01","positiveTests":["대사-정상-01"],"negativeTests":["대사-불일치-01"]},
-    {"requirementId":"안전통제-02","positiveTests":["멱등-충돌-01"],"negativeTests":["이벤트-중복-01"]},
-    {"requirementId":"안전통제-03","positiveTests":["재시작-발송함-01"],"negativeTests":["정산-원장실패-01"]},
-    {"requirementId":"안전통제-04","positiveTests":["중지-가격-01","중지-USDC-01","중지-KRX-01"],"negativeTests":["중지-기업행동-01"]},
-    {"requirementId":"안전통제-05","positiveTests":["보안-역할분리-01"],"negativeTests":["거버넌스-권한차단-01"]},
-    {"requirementId":"감사기록-01","positiveTests":["보안-증거연결-01"],"negativeTests":[]},
-    {"requirementId":"감사기록-02","positiveTests":["이벤트-정정-01"],"negativeTests":["이벤트-공백-01"]},
-    {"requirementId":"감사기록-03","positiveTests":["보안-개인정보-01"],"negativeTests":[]}
+  "$schema": "./traceability.schema.json",
+  "schemaVersion": "2.0.0",
+  "status": "AWAITING_APPROVAL",
+  "requirements": [
+    {
+      "requirementId": "1차발행-01",
+      "positiveTests": [
+        "발행-USDC전환-01",
+        "발행-정상-01"
+      ],
+      "negativeTests": [
+        "발행-정수차단-01",
+        "주문-휴장만료-01"
+      ]
+    },
+    {
+      "requirementId": "1차발행-02",
+      "positiveTests": [
+        "발행-USDC전환-01",
+        "발행-분리-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "1차발행-03",
+      "positiveTests": [
+        "발행-정상-01"
+      ],
+      "negativeTests": [
+        "발행-승인차단-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ]
+    },
+    {
+      "requirementId": "1차발행-04",
+      "positiveTests": [
+        "발행-정상-01"
+      ],
+      "negativeTests": [
+        "발행-재사용차단-01",
+        "발행-체결배분차단-01"
+      ]
+    },
+    {
+      "requirementId": "1차발행-05",
+      "positiveTests": [
+        "Fuji-생애주기-01",
+        "발행-재시작-01"
+      ],
+      "negativeTests": [
+        "발행-권리승인차단-01",
+        "발행-승인차단-01",
+        "발행-원장반영차단-01",
+        "발행-증거불일치-01",
+        "발행-체결배분차단-01"
+      ]
+    },
+    {
+      "requirementId": "24시간거래-01",
+      "positiveTests": [
+        "정산-USDC정상-01",
+        "정산-USD정상-01"
+      ],
+      "negativeTests": [
+        "Fuji-직접이전차단-01",
+        "정산-직접이전차단-01"
+      ]
+    },
+    {
+      "requirementId": "24시간거래-02",
+      "positiveTests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "negativeTests": [
+        "정산-호가차단-01"
+      ]
+    },
+    {
+      "requirementId": "24시간거래-03",
+      "positiveTests": [
+        "정산-USD정상-01"
+      ],
+      "negativeTests": [
+        "정산-원장실패-01"
+      ]
+    },
+    {
+      "requirementId": "24시간거래-04",
+      "positiveTests": [
+        "정산-USDC정상-01"
+      ],
+      "negativeTests": [
+        "정산-DvP실패-01"
+      ]
+    },
+    {
+      "requirementId": "24시간거래-05",
+      "positiveTests": [
+        "Fuji-생애주기-01",
+        "정산-부분-01"
+      ],
+      "negativeTests": [
+        "정산-재고차단-01"
+      ]
+    },
+    {
+      "requirementId": "24시간거래-06",
+      "positiveTests": [
+        "정산-USD정상-01"
+      ],
+      "negativeTests": [
+        "정산-서명차단-01"
+      ]
+    },
+    {
+      "requirementId": "감사기록-01",
+      "positiveTests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "감사기록-02",
+      "positiveTests": [
+        "이벤트-정정-01"
+      ],
+      "negativeTests": [
+        "이벤트-공백-01"
+      ]
+    },
+    {
+      "requirementId": "감사기록-03",
+      "positiveTests": [
+        "모의정보-표시-01",
+        "보안-개인정보-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "고객확인-01",
+      "positiveTests": [
+        "고객-정상-01"
+      ],
+      "negativeTests": [
+        "고객-차단-01"
+      ]
+    },
+    {
+      "requirementId": "고객확인-02",
+      "positiveTests": [
+        "고객-정상-01",
+        "모의정보-표시-01"
+      ],
+      "negativeTests": [
+        "고객-차단-01"
+      ]
+    },
+    {
+      "requirementId": "고객확인-03",
+      "positiveTests": [
+        "고객-정상-01",
+        "지갑-복구-01"
+      ],
+      "negativeTests": [
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "requirementId": "고객확인-04",
+      "positiveTests": [
+        "공시-동의-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "국내결제-01",
+      "positiveTests": [
+        "결제-정상-01"
+      ],
+      "negativeTests": [
+        "결제-차단-01"
+      ]
+    },
+    {
+      "requirementId": "국내결제-02",
+      "positiveTests": [
+        "Fuji-생애주기-01",
+        "결제-정상-01"
+      ],
+      "negativeTests": [
+        "결제-차단-01"
+      ]
+    },
+    {
+      "requirementId": "국내결제-03",
+      "positiveTests": [
+        "결제-정상-01",
+        "결제불이행-예외-01"
+      ],
+      "negativeTests": [
+        "정산-재고차단-01"
+      ]
+    },
+    {
+      "requirementId": "국내결제-04",
+      "positiveTests": [
+        "발행-재시작-01"
+      ],
+      "negativeTests": [
+        "대사-불일치-01",
+        "체결-정정취소-01"
+      ]
+    },
+    {
+      "requirementId": "권리관리-01",
+      "positiveTests": [
+        "배당-배당락-01",
+        "배당-정상-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "권리관리-02",
+      "positiveTests": [
+        "의결권-정상-01"
+      ],
+      "negativeTests": [
+        "의결권-승인실패-01"
+      ]
+    },
+    {
+      "requirementId": "권리관리-03",
+      "positiveTests": [
+        "기업행동-분할-01"
+      ],
+      "negativeTests": [
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "requirementId": "권리관리-04",
+      "positiveTests": [
+        "보고-기한-01",
+        "보안-개인정보-01"
+      ],
+      "negativeTests": [
+        "보고-증거누락-01"
+      ]
+    },
+    {
+      "requirementId": "민원처리-01",
+      "positiveTests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "배당전환-01",
+      "positiveTests": [
+        "배당-USDC-01",
+        "중지-USDC-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "상품목록-01",
+      "positiveTests": [
+        "상품-전체-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "상품목록-02",
+      "positiveTests": [
+        "Fuji-배포-01",
+        "상품-배포-01",
+        "상품-전체-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "상품목록-03",
+      "positiveTests": [
+        "상품-배포-01",
+        "중지-KRX-01",
+        "중지-기업행동-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "수량단위-01",
+      "positiveTests": [
+        "발행-정상-01"
+      ],
+      "negativeTests": [
+        "기업행동-소수차단-01",
+        "발행-정수차단-01"
+      ]
+    },
+    {
+      "requirementId": "시장조성-01",
+      "positiveTests": [
+        "정산-부분-01"
+      ],
+      "negativeTests": [
+        "정산-호가차단-01"
+      ]
+    },
+    {
+      "requirementId": "시장조성-02",
+      "positiveTests": [
+        "USDC-경계-01",
+        "손실-경계-01",
+        "시장조성-경계-01",
+        "시장조성-손실-01",
+        "정보-경계-01",
+        "호가-경계-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "시장조성-03",
+      "positiveTests": [
+        "시장조성-헤지-01",
+        "중지-KRX-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "시장조성-04",
+      "positiveTests": [
+        "시장조성-경계-01",
+        "시장조성-헤지-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "시장조성-05",
+      "positiveTests": [
+        "시장조성-헤지-01",
+        "중지-KRX-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "안전통제-01",
+      "positiveTests": [
+        "대사-정상-01"
+      ],
+      "negativeTests": [
+        "대사-불일치-01"
+      ]
+    },
+    {
+      "requirementId": "안전통제-02",
+      "positiveTests": [
+        "상태-금지전환전체-01",
+        "이벤트-중복-01"
+      ],
+      "negativeTests": [
+        "멱등-충돌-01"
+      ]
+    },
+    {
+      "requirementId": "안전통제-03",
+      "positiveTests": [
+        "재시작-발송함-01",
+        "정산-RPC유실-01"
+      ],
+      "negativeTests": [
+        "정산-원장실패-01"
+      ]
+    },
+    {
+      "requirementId": "안전통제-04",
+      "positiveTests": [
+        "USDC-경계-01",
+        "거버넌스-긴급중지-01",
+        "정보-경계-01",
+        "중지-KRX-01",
+        "중지-USDC-01",
+        "중지-가격-01",
+        "중지-기업행동-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "안전통제-05",
+      "positiveTests": [
+        "거버넌스-긴급중지-01",
+        "거버넌스-지연-01",
+        "보안-역할분리-01"
+      ],
+      "negativeTests": [
+        "Fuji-직접이전차단-01",
+        "거버넌스-권한차단-01"
+      ]
+    },
+    {
+      "requirementId": "투자자보호-01",
+      "positiveTests": [
+        "고객-정상-01"
+      ],
+      "negativeTests": [
+        "고객-차단-01"
+      ]
+    },
+    {
+      "requirementId": "투자자보호-02",
+      "positiveTests": [
+        "공시-동의-01"
+      ],
+      "negativeTests": []
+    },
+    {
+      "requirementId": "환매-01",
+      "positiveTests": [
+        "환매-정상-01"
+      ],
+      "negativeTests": [
+        "환매-차단-01"
+      ]
+    },
+    {
+      "requirementId": "환매-02",
+      "positiveTests": [
+        "환매-정상-01"
+      ],
+      "negativeTests": [
+        "환매-차단-01"
+      ]
+    },
+    {
+      "requirementId": "환매-03",
+      "positiveTests": [
+        "환매-과도기-01"
+      ],
+      "negativeTests": [
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "requirementId": "환매-04",
+      "positiveTests": [
+        "환매-정상-01"
+      ],
+      "negativeTests": [
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "requirementId": "환매-05",
+      "positiveTests": [
+        "Fuji-생애주기-01",
+        "환매-과도기-01"
+      ],
+      "negativeTests": [
+        "환매-부분실패-01"
+      ]
+    }
   ],
-  "stateCoverage":[
-    {"axis":"CUSTOMER_ELIGIBILITY","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["고객-정상-01","고객-차단-01"]},
-    {"axis":"INVESTOR_PROTECTION","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["고객-정상-01","고객-차단-01"]},
-    {"axis":"WALLET_LINKAGE","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["고객-정상-01","지갑-복구-01","지갑-복구차단-01"]},
-    {"axis":"PRODUCT_COMMON","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["상품-전체-01","중지-KRX-01"]},
-    {"axis":"PRIMARY_AVAILABILITY","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["발행-정상-01","중지-KRX-01"]},
-    {"axis":"SECONDARY_AVAILABILITY","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["정산-USD정상-01","중지-가격-01"]},
-    {"axis":"REDEMPTION_AVAILABILITY","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["환매-정상-01","중지-기업행동-01"]},
-    {"axis":"PRIMARY_ORDER","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["발행-정상-01","발행-분리-01","발행-정수차단-01"]},
-    {"axis":"RIGHTS_ENTRY","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["발행-승인차단-01","발행-재시작-01"]},
-    {"axis":"TOKEN_LIFECYCLE","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["발행-정상-01","결제-정상-01","환매-정상-01","지갑-복구-01"]},
-    {"axis":"DOMESTIC_SETTLEMENT","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["결제-정상-01","결제-차단-01"]},
-    {"axis":"CUSTODY_CONFIRMATION","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["결제-정상-01","결제-차단-01","대사-불일치-01"]},
-    {"axis":"FUNDING","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["발행-정상-01","정산-USD정상-01","배당-USDC-01","환매-부분실패-01"]},
-    {"axis":"MARKET_MAKER_QUOTE","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["정산-부분-01","정산-호가차단-01","시장조성-손실-01"]},
-    {"axis":"SECONDARY_TRADE","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["정산-USD정상-01","정산-USDC정상-01","정산-원장실패-01"]},
-    {"axis":"MARKET_MAKER_HEDGE","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["시장조성-헤지-01","시장조성-경계-01","중지-KRX-01"]},
-    {"axis":"REDEMPTION","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["환매-정상-01","환매-과도기-01","환매-부분실패-01"]},
-    {"axis":"DIVIDEND","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["배당-정상-01","배당-USDC-01"]},
-    {"axis":"VOTING","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["의결권-정상-01"]},
-    {"axis":"CORPORATE_ACTION","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["기업행동-분할-01","기업행동-소수차단-01"]},
-    {"axis":"REGULATORY_REPORT","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["보고-기한-01","이벤트-정정-01"]},
-    {"axis":"RECONCILIATION","coverageMode":"ALL_CODES_AND_APPROVED_TRANSITIONS","tests":["대사-정상-01","대사-불일치-01"]}
+  "states": [
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBILITY_PENDING",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBLE",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "INELIGIBLE",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBILITY_EXPIRED",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBILITY_SUSPENDED",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_REVIEW_PENDING",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_PASSED",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_FAILED",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_EXPIRED",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_PENDING",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_VALID",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_MISSING",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_EXPIRED",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_SUBMITTED",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_ASSIGNED",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_IN_PROGRESS",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_RESPONSE_RECORDED",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_CORRECTION_REVIEW",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_CLOSED",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_UNLINKED",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_LINK_APPROVAL_PENDING",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_LINKED",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_REPLACEMENT_REVIEW",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_FROZEN",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "PRODUCT_CANDIDATE",
+      "tests": [
+        "상품-전체-01",
+        "중지-KRX-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "PRODUCT_REVIEWED",
+      "tests": [
+        "상품-전체-01",
+        "중지-KRX-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "PRODUCT_INFORMATION_UNCONFIRMED",
+      "tests": [
+        "상품-전체-01",
+        "중지-KRX-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "MATERIAL_EVENT_REVIEW",
+      "tests": [
+        "상품-전체-01",
+        "중지-KRX-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_AVAILABILITY",
+      "stateCode": "PRIMARY_ENABLED",
+      "tests": [
+        "발행-정상-01",
+        "중지-KRX-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_AVAILABILITY",
+      "stateCode": "PRIMARY_DISABLED",
+      "tests": [
+        "발행-정상-01",
+        "중지-KRX-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_AVAILABILITY",
+      "stateCode": "SECONDARY_ENABLED",
+      "tests": [
+        "정산-USD정상-01",
+        "중지-가격-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_AVAILABILITY",
+      "stateCode": "SECONDARY_DISABLED",
+      "tests": [
+        "정산-USD정상-01",
+        "중지-가격-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION_AVAILABILITY",
+      "stateCode": "REDEMPTION_ENABLED",
+      "tests": [
+        "환매-정상-01",
+        "중지-기업행동-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION_AVAILABILITY",
+      "stateCode": "REDEMPTION_RESTRICTED",
+      "tests": [
+        "환매-정상-01",
+        "중지-기업행동-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_DRAFT",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_FUNDS_CHECK",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_FUNDS_CHECK_FAILED",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_AGGREGATION_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_KRX_OPEN_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_SUBMITTED_DOMESTICALLY",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_UNFILLED",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_PARTIALLY_FILLED",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_FULLY_FILLED",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_ALLOCATION_COMPLETED",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_CORRECTION_REVIEW",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_CANCELLED",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "EXECUTED_NOT_ISSUED",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "T2_RISK_APPROVAL_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_APPROVAL_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_ENTRY_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_ENTRY_COMPLETED",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "TOKEN_MINT_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_ENTRY_QUARANTINED",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_UNMINTED",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_SETTLEMENT_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_TRADABLE",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_RESERVED",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_REDEMPTION_LOCKED",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_BURN_PENDING",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_BURNED",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_QUARANTINED",
+      "tests": [
+        "발행-정상-01",
+        "결제-정상-01",
+        "환매-정상-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_AND_CUSTODY_PENDING",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "결제불이행-예외-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_ONLY_CONFIRMED",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "결제불이행-예외-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "CUSTODY_ONLY_CONFIRMED",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "결제불이행-예외-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_AND_CUSTODY_CONFIRMED",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "결제불이행-예외-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_EXCEPTION_REVIEW",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "결제불이행-예외-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "stateCode": "CUSTODY_CONFIRMATION_PENDING",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "stateCode": "CUSTODY_CONFIRMED",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "stateCode": "CUSTODY_MISMATCH",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_AVAILABLE",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_RECEIPT_CONFIRMED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "USD_CONVERSION_PENDING",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "USD_ATTRIBUTED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_RESERVED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_USED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "RESERVATION_RELEASED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_RETURN_PENDING",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "WALLET_BALANCE_CONFIRMED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "TRANSFER_CONFIRMED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "PAYMENT_PENDING",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "PAYMENT_COMPLETED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "CONVERSION_QUOTED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "CUSTOMER_CONVERSION_CONFIRMED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "USDC_PAYMENT_CONFIRMED",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "RESERVATION_RELEASED_AFTER_FAILURE",
+      "tests": [
+        "발행-USDC전환-01",
+        "정산-USD정상-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_DRAFT",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_REVIEW",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_ACTIVE",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_PARTIALLY_FILLED",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_FULLY_FILLED",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_EXPIRED",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_WITHDRAWN",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_BLOCKED",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_ORDER_RECEIVED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_PRECHECK",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_RESERVED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_PARTIALLY_CONFIRMED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_FULLY_CONFIRMED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_AUTO_REVERSED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_QUARANTINED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_COMPLETED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_REJECTED",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "MM_NORMAL",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "MM_RISK_REDUCING_ONLY",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "MM_QUOTING_HALTED",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_CREATED",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_RISK_REVIEW",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_KRX_OPEN_PENDING",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_SUBMITTED_DOMESTICALLY",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_PARTIALLY_FILLED",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_FULLY_FILLED",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_T2_PENDING",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_INVENTORY_ADJUSTED",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_ON_HOLD",
+      "tests": [
+        "시장조성-헤지-01",
+        "시장조성-경계-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_REQUESTED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "RIGHTS_AND_TOKEN_LOCKED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "DOMESTIC_SALE_PENDING",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_SUBMITTED_DOMESTICALLY",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_UNFILLED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_PARTIALLY_FILLED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_FULLY_FILLED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "SALE_PROCEEDS_SETTLEMENT_PENDING",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "RIGHTS_TERMINATED_CASH_CLAIM_CREATED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_BURN_PENDING",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_COMPLETED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_EXCEPTION_REVIEW",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_QUARANTINED",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01",
+        "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_EVENT_CONFIRMED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_SNAPSHOT_REVIEW",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_ALLOCATION_APPROVED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USD_PAYMENT_PENDING",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USD_PAID",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USDC_QUOTED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_CONVERSION_CONFIRMED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USD_RESERVED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USDC_PAID",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_QUOTE_EXPIRED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_RESERVATION_RELEASED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_CONVERSION_COMPLETED",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_RIGHTS_EXCEPTION_REVIEW",
+      "tests": [
+        "배당-정상-01",
+        "배당-배당락-01",
+        "배당-USDC-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_AGENDA_CONFIRMED",
+      "tests": [
+        "의결권-정상-01",
+        "의결권-승인실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_INSTRUCTION_COLLECTION",
+      "tests": [
+        "의결권-정상-01",
+        "의결권-승인실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_TALLY_APPROVED",
+      "tests": [
+        "의결권-정상-01",
+        "의결권-승인실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_DOMESTIC_EXECUTION_PENDING",
+      "tests": [
+        "의결권-정상-01",
+        "의결권-승인실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_EXECUTION_CONFIRMED",
+      "tests": [
+        "의결권-정상-01",
+        "의결권-승인실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_COMPLETED",
+      "tests": [
+        "의결권-정상-01",
+        "의결권-승인실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_DETECTED",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_ALL_WORK_HELD",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_PLAN_REVIEW",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_PLAN_APPROVED",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_QUANTITY_APPLIED",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_RECONCILED",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_RELEASE_APPROVED",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORTING_PERIOD_CLOSED",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_GENERATED",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_APPROVED",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_SUBMISSION_PENDING",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_SUBMITTED_ON_TIME",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_SUBMITTED_LATE",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_RECEIPT_CONFIRMED",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_CORRECTION_REVIEW",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_CORRECTED",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_COMPLETED",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "RECONCILIATION_MATCHED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "EXPECTED_TRANSITION_CONFIRMED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "MISMATCH_SUSPECTED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "WORK_HALTED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "EVIDENCE_COLLECTION",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "ROOT_CAUSE_CONFIRMED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "RECONCILIATION_QUARANTINED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "CORRECTION_PENDING",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "FULL_RECONCILIATION_COMPLETED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "RELEASE_APPROVED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "WORK_RESUMED",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    }
   ],
-  "apiCoverage":{"coverageMode":"ALL_OPENAPI_OPERATIONS_AND_ASYNCAPI_MESSAGES","tests":["고객-정상-01","발행-정상-01","결제-차단-01","정산-USD정상-01","정산-USDC정상-01","이벤트-중복-01","이벤트-공백-01","멱등-충돌-01","환매-정상-01","배당-USDC-01","보고-기한-01","보안-개인정보-01"]},
-  "errorCoverage":[
-    {"category":"인증, 권한, 적격성","tests":["고객-차단-01","거버넌스-권한차단-01"]},
-    {"category":"입력, 정수, 멱등","tests":["발행-정수차단-01","멱등-충돌-01"]},
-    {"category":"정보지연, 호가, 위험","tests":["정산-호가차단-01","시장조성-경계-01","시장조성-손실-01"]},
-    {"category":"결제, 수탁, 권리","tests":["결제-차단-01","정산-원장실패-01","대사-불일치-01"]},
-    {"category":"이벤트, 재시작, RPC","tests":["이벤트-중복-01","이벤트-공백-01","재시작-발송함-01","정산-RPC유실-01"]},
-    {"category":"환매, 지급, 소각","tests":["환매-과도기-01","환매-부분실패-01"]},
-    {"category":"중지, 보정, 재개","tests":["중지-KRX-01","중지-기업행동-01","거버넌스-지연-01"]}
+  "openApiOperations": [
+    {
+      "operationId": "getSession",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01"
+      ]
+    },
+    {
+      "operationId": "listProducts",
+      "tests": [
+        "상품-전체-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "operationId": "getProduct",
+      "tests": [
+        "상품-전체-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "operationId": "listPositions",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "listActivities",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "getWorkflow",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "getWorkflowTimeline",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "getCurrentDisclosure",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "operationId": "getCurrentDisclosureConsent",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "operationId": "createDisclosureConsent",
+      "tests": [
+        "공시-동의-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "operationId": "listComplaints",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "createComplaint",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "getComplaint",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "requestWalletLink",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01"
+      ]
+    },
+    {
+      "operationId": "requestWalletReplacement",
+      "tests": [
+        "고객-정상-01",
+        "지갑-복구-01"
+      ]
+    },
+    {
+      "operationId": "listPrimaryOrders",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ]
+    },
+    {
+      "operationId": "createPrimaryOrder",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ]
+    },
+    {
+      "operationId": "cancelPrimaryOrder",
+      "tests": [
+        "발행-정상-01",
+        "주문-휴장만료-01",
+        "체결-정정취소-01"
+      ]
+    },
+    {
+      "operationId": "listQuotes",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ]
+    },
+    {
+      "operationId": "listSecondaryOrders",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ]
+    },
+    {
+      "operationId": "createSecondaryOrder",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-원장실패-01"
+      ]
+    },
+    {
+      "operationId": "listRedemptions",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "operationId": "createRedemption",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "operationId": "createDividendConversion",
+      "tests": [
+        "배당-USDC-01",
+        "배당-배당락-01"
+      ]
+    },
+    {
+      "operationId": "submitVotingInstruction",
+      "tests": [
+        "의결권-정상-01",
+        "의결권-승인실패-01"
+      ]
+    },
+    {
+      "operationId": "listInstitutionTasks",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01"
+      ]
+    },
+    {
+      "operationId": "decideInstitutionTask",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01"
+      ]
+    },
+    {
+      "operationId": "publishMarketMakerQuote",
+      "tests": [
+        "정산-부분-01",
+        "호가-경계-01"
+      ]
+    },
+    {
+      "operationId": "listMarketMakerPositions",
+      "tests": [
+        "시장조성-경계-01",
+        "시장조성-헤지-01"
+      ]
+    },
+    {
+      "operationId": "listMarketMakerHedges",
+      "tests": [
+        "시장조성-경계-01",
+        "시장조성-헤지-01"
+      ]
+    },
+    {
+      "operationId": "decideMarketMakerHedge",
+      "tests": [
+        "시장조성-경계-01",
+        "시장조성-헤지-01"
+      ]
+    },
+    {
+      "operationId": "startReconciliation",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ]
+    },
+    {
+      "operationId": "listHolds",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ]
+    },
+    {
+      "operationId": "decideHoldRelease",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ]
+    },
+    {
+      "operationId": "listRegulatoryReports",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ]
+    },
+    {
+      "operationId": "recordRegulatoryReportSubmission",
+      "tests": [
+        "보고-기한-01",
+        "보고-증거누락-01"
+      ]
+    },
+    {
+      "operationId": "assignComplaint",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "startComplaintProcessing",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "recordComplaintResponse",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "linkComplaintCorrection",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "closeComplaint",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "operationId": "receiveAdapterEvent",
+      "tests": [
+        "이벤트-중복-01",
+        "이벤트-공백-01",
+        "모의정보-표시-01"
+      ]
+    },
+    {
+      "operationId": "submitDomesticOrder",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "submitFundingRequest",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "requestSettlementConfirmation",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "requestCustodyConfirmation",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    },
+    {
+      "operationId": "requestRightsActionConfirmation",
+      "tests": [
+        "보안-증거연결-01",
+        "상태-허용전환전체-01"
+      ]
+    }
   ],
-  "contractCoverage":[
-    {"contract":"RestrictedEquityToken","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["정산-직접이전차단-01","발행-정상-01","결제-정상-01","환매-정상-01","지갑-복구-01","기업행동-분할-01"]},
-    {"contract":"EligibilityRegistry","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["고객-정상-01","고객-차단-01"]},
-    {"contract":"SecurityTokenFactory","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["상품-배포-01","Fuji-배포-01"]},
-    {"contract":"IntentVerifier","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["정산-서명차단-01","발행-정상-01","환매-정상-01"]},
-    {"contract":"IssuanceController","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["발행-정상-01","발행-승인차단-01","결제-정상-01","결제-차단-01"]},
-    {"contract":"SecondarySettlementController","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["정산-USD정상-01","정산-USDC정상-01","정산-DvP실패-01"]},
-    {"contract":"RedemptionController","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["환매-정상-01","환매-차단-01","환매-과도기-01"]},
-    {"contract":"RecoveryController","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["지갑-복구-01","지갑-복구차단-01"]},
-    {"contract":"CorporateActionController","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["기업행동-분할-01","기업행동-소수차단-01"]},
-    {"contract":"MarketPolicyRegistry","functionCoverage":"ALL_MANIFEST_FUNCTIONS","eventCoverage":"ALL_MANIFEST_EVENTS","tests":["중지-가격-01","중지-USDC-01","중지-KRX-01","거버넌스-지연-01"]}
+  "asyncApiMessages": [
+    {
+      "messageName": "WorkflowEvent",
+      "tests": [
+        "상태-허용전환전체-01",
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "messageName": "InstitutionEvent",
+      "tests": [
+        "발행-정상-01",
+        "결제-차단-01",
+        "모의정보-표시-01"
+      ]
+    },
+    {
+      "messageName": "ChainEvent",
+      "tests": [
+        "정산-USDC정상-01",
+        "정산-RPC유실-01"
+      ]
+    },
+    {
+      "messageName": "ReconciliationEvent",
+      "tests": [
+        "대사-정상-01",
+        "대사-불일치-01"
+      ]
+    },
+    {
+      "messageName": "AuditEvent",
+      "tests": [
+        "보안-증거연결-01"
+      ]
+    },
+    {
+      "messageName": "QuarantineEvent",
+      "tests": [
+        "이벤트-공백-01",
+        "정산-원장실패-01"
+      ]
+    },
+    {
+      "messageName": "DisclosureConsentEvent",
+      "tests": [
+        "공시-동의-01"
+      ]
+    },
+    {
+      "messageName": "ComplaintEvent",
+      "tests": [
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    }
   ],
-  "contractErrorCoverage":[
-    {"error":"DirectTransferDisabled","tests":["정산-직접이전차단-01","Fuji-직접이전차단-01"]},
-    {"error":"ApprovalDisabled","tests":["정산-직접이전차단-01","Fuji-직접이전차단-01"]},
-    {"error":"UnauthorizedController","tests":["거버넌스-권한차단-01"]},
-    {"error":"IneligibleWallet","tests":["고객-차단-01","정산-호가차단-01"]},
-    {"error":"MarketMakerRequired","tests":["정산-직접이전차단-01","정산-호가차단-01"]},
-    {"error":"InsufficientAvailableBalance","tests":["정산-재고차단-01","환매-차단-01"]},
-    {"error":"ScopePaused","tests":["중지-가격-01","중지-USDC-01","중지-KRX-01","중지-기업행동-01"]},
-    {"error":"SignatureExpired","tests":["정산-서명차단-01"]},
-    {"error":"NonceAlreadyUsed","tests":["정산-서명차단-01"]},
-    {"error":"PolicyVersionMismatch","tests":["정산-서명차단-01"]},
-    {"error":"EvidenceAlreadyUsed","tests":["발행-재사용차단-01"]},
-    {"error":"MissingIndependentApproval","tests":["발행-승인차단-01","지갑-복구차단-01"]},
-    {"error":"PaymentMismatch","tests":["정산-DvP실패-01"]},
-    {"error":"NonIntegralCorporateAction","tests":["기업행동-소수차단-01"]}
+  "contractFunctions": [
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "name",
+      "tests": [
+        "대사-정상-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "symbol",
+      "tests": [
+        "대사-정상-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "decimals",
+      "tests": [
+        "대사-정상-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "balanceOf",
+      "tests": [
+        "대사-정상-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "totalSupply",
+      "tests": [
+        "대사-정상-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "allowance",
+      "tests": [
+        "정산-직접이전차단-01",
+        "Fuji-직접이전차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "transfer",
+      "tests": [
+        "정산-직접이전차단-01",
+        "Fuji-직접이전차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "transferFrom",
+      "tests": [
+        "정산-직접이전차단-01",
+        "Fuji-직접이전차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "approve",
+      "tests": [
+        "정산-직접이전차단-01",
+        "Fuji-직접이전차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "availableBalanceOf",
+      "tests": [
+        "대사-정상-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "pendingSettlementBalanceOf",
+      "tests": [
+        "대사-정상-01",
+        "상품-배포-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "redemptionLockedBalanceOf",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "burnPendingBalanceOf",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "administrativeFrozenBalanceOf",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "isAddressFrozen",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "mintPending",
+      "tests": [
+        "발행-정상-01",
+        "발행-재사용차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "releasePending",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "controlledTransfer",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "lockForRedemption",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "cancelRedemptionLock",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "markBurnPending",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "burnPending",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "freezeAvailable",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "unfreezeAvailable",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "freezeAddress",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "recoverAllBuckets",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "function": "applySplitBatch",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "EligibilityRegistry",
+      "function": "setEligibility",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "contract": "EligibilityRegistry",
+      "function": "setMarketMaker",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "contract": "EligibilityRegistry",
+      "function": "revoke",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "contract": "EligibilityRegistry",
+      "function": "isEligible",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "contract": "EligibilityRegistry",
+      "function": "isMarketMaker",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "contract": "SecurityTokenFactory",
+      "function": "deploySecurityToken",
+      "tests": [
+        "상품-배포-01",
+        "Fuji-배포-01"
+      ]
+    },
+    {
+      "contract": "IntentVerifier",
+      "function": "verifyAndConsumePrimaryOrder",
+      "tests": [
+        "발행-정상-01",
+        "정산-서명차단-01",
+        "환매-정상-01"
+      ]
+    },
+    {
+      "contract": "IntentVerifier",
+      "function": "verifyAndConsumeSecondaryBundle",
+      "tests": [
+        "발행-정상-01",
+        "정산-서명차단-01",
+        "환매-정상-01"
+      ]
+    },
+    {
+      "contract": "IntentVerifier",
+      "function": "verifyAndConsumeRedemption",
+      "tests": [
+        "발행-정상-01",
+        "정산-서명차단-01",
+        "환매-정상-01"
+      ]
+    },
+    {
+      "contract": "IntentVerifier",
+      "function": "cancelNonce",
+      "tests": [
+        "발행-정상-01",
+        "정산-서명차단-01",
+        "환매-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "confirmExecutionAllocation",
+      "tests": [
+        "발행-정상-01",
+        "발행-체결배분차단-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "approveT2Risk",
+      "tests": [
+        "발행-정상-01",
+        "발행-승인차단-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "approveRightsEntry",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "confirmRightsRecorded",
+      "tests": [
+        "발행-정상-01",
+        "발행-원장반영차단-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "executePendingMint",
+      "tests": [
+        "발행-정상-01",
+        "발행-증거불일치-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "confirmDomesticSettlement",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "confirmCustodyQuantity",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "executeRelease",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01"
+      ]
+    },
+    {
+      "contract": "SecondarySettlementController",
+      "function": "settleUsdLedger",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-DvP실패-01"
+      ]
+    },
+    {
+      "contract": "SecondarySettlementController",
+      "function": "settleUsdc",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-DvP실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "lockRedemption",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "cancelBeforeDomesticSale",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "confirmRightsTerminated",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "confirmCashClaim",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "markBurnPending",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "approveUsdPayment",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "executeBurn",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RecoveryController",
+      "function": "approveRightsRecovery",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RecoveryController",
+      "function": "approveComplianceRecovery",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RecoveryController",
+      "function": "executeRecovery",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "function": "approveRightsPlan",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "function": "approveAuditPlan",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "function": "applySplitBatch",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "function": "finalizeSplit",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "function": "pauseScope",
+      "tests": [
+        "중지-가격-01",
+        "중지-USDC-01",
+        "중지-KRX-01",
+        "거버넌스-지연-01"
+      ]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "function": "resumeScope",
+      "tests": [
+        "중지-가격-01",
+        "중지-USDC-01",
+        "중지-KRX-01",
+        "거버넌스-지연-01"
+      ]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "function": "setPolicyVersion",
+      "tests": [
+        "중지-가격-01",
+        "중지-USDC-01",
+        "중지-KRX-01",
+        "거버넌스-지연-01"
+      ]
+    }
   ],
-  "roleCoverageMode":"ALL_MANIFEST_ROLES",
-  "roleTests":["거버넌스-권한차단-01","거버넌스-긴급중지-01","거버넌스-지연-01","보안-역할분리-01"],
-  "roleCoverage":[
-    {"role":"DEFAULT_ADMIN_ROLE","tests":["거버넌스-지연-01","보안-역할분리-01"]},
-    {"role":"ELIGIBILITY_OPERATOR_ROLE","tests":["고객-정상-01","고객-차단-01"]},
-    {"role":"RISK_APPROVER_ROLE","tests":["발행-정상-01","발행-승인차단-01"]},
-    {"role":"RIGHTS_APPROVER_ROLE","tests":["발행-정상-01","발행-승인차단-01"]},
-    {"role":"SETTLEMENT_CONFIRMER_ROLE","tests":["결제-정상-01","결제-차단-01"]},
-    {"role":"CUSTODY_CONFIRMER_ROLE","tests":["결제-정상-01","결제-차단-01"]},
-    {"role":"ISSUANCE_EXECUTOR_ROLE","tests":["발행-정상-01","발행-승인차단-01"]},
-    {"role":"SETTLEMENT_EXECUTOR_ROLE","tests":["정산-USD정상-01","정산-USDC정상-01"]},
-    {"role":"REDEMPTION_RIGHTS_APPROVER_ROLE","tests":["환매-정상-01","환매-과도기-01"]},
-    {"role":"PAYMENT_APPROVER_ROLE","tests":["환매-정상-01","환매-부분실패-01"]},
-    {"role":"REDEMPTION_EXECUTOR_ROLE","tests":["환매-정상-01","환매-차단-01"]},
-    {"role":"RECOVERY_RIGHTS_APPROVER_ROLE","tests":["지갑-복구-01","지갑-복구차단-01"]},
-    {"role":"RECOVERY_COMPLIANCE_APPROVER_ROLE","tests":["지갑-복구-01","지갑-복구차단-01"]},
-    {"role":"RECOVERY_EXECUTOR_ROLE","tests":["지갑-복구-01","지갑-복구차단-01"]},
-    {"role":"CORPORATE_ACTION_RIGHTS_APPROVER_ROLE","tests":["기업행동-분할-01","기업행동-소수차단-01"]},
-    {"role":"CORPORATE_ACTION_AUDIT_APPROVER_ROLE","tests":["기업행동-분할-01","기업행동-소수차단-01"]},
-    {"role":"CORPORATE_ACTION_EXECUTOR_ROLE","tests":["기업행동-분할-01","기업행동-소수차단-01"]},
-    {"role":"EMERGENCY_PAUSER_ROLE","tests":["거버넌스-긴급중지-01","거버넌스-지연-01"]}
+  "contractEvents": [
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "Transfer",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "PendingMinted",
+      "tests": [
+        "발행-정상-01",
+        "발행-재사용차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "PendingReleased",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "ControlledTransfer",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "RedemptionLocked",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "BurnPendingMarked",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "PendingBurned",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "AdministrativeFreezeChanged",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "AddressFrozen",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "WalletRecovered",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "SplitBatchApplied",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "EligibilityRegistry",
+      "event": "EligibilityUpdated",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "contract": "EligibilityRegistry",
+      "event": "MarketMakerStatusUpdated",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "contract": "SecurityTokenFactory",
+      "event": "SecurityTokenRegistered",
+      "tests": [
+        "상품-배포-01",
+        "Fuji-배포-01"
+      ]
+    },
+    {
+      "contract": "IntentVerifier",
+      "event": "IntentConsumed",
+      "tests": [
+        "발행-정상-01",
+        "정산-서명차단-01",
+        "환매-정상-01"
+      ]
+    },
+    {
+      "contract": "IntentVerifier",
+      "event": "NonceCancelled",
+      "tests": [
+        "발행-정상-01",
+        "정산-서명차단-01",
+        "환매-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "ExecutionAllocationConfirmed",
+      "tests": [
+        "발행-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "T2RiskApproved",
+      "tests": [
+        "발행-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "RightsEntryApproved",
+      "tests": [
+        "발행-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "RightsRecordingConfirmed",
+      "tests": [
+        "발행-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "DomesticSettlementConfirmed",
+      "tests": [
+        "발행-정상-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "CustodyQuantityConfirmed",
+      "tests": [
+        "발행-정상-01"
+      ]
+    },
+    {
+      "contract": "SecondarySettlementController",
+      "event": "UsdLedgerSettlementRecorded",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-DvP실패-01"
+      ]
+    },
+    {
+      "contract": "SecondarySettlementController",
+      "event": "UsdcDvpSettled",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01",
+        "정산-DvP실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "RedemptionWorkflowLocked",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "RightsTerminated",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "CashClaimConfirmed",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "UsdPaymentApproved",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RecoveryController",
+      "event": "RightsRecoveryApproved",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RecoveryController",
+      "event": "ComplianceRecoveryApproved",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "RecoveryController",
+      "event": "RecoveryExecuted",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "event": "RightsPlanApproved",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "event": "AuditPlanApproved",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "event": "SplitBatchApplied",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "CorporateActionController",
+      "event": "SplitFinalized",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "event": "ScopePaused",
+      "tests": [
+        "중지-가격-01",
+        "중지-USDC-01",
+        "중지-KRX-01",
+        "거버넌스-지연-01"
+      ]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "event": "ScopeResumed",
+      "tests": [
+        "중지-가격-01",
+        "중지-USDC-01",
+        "중지-KRX-01",
+        "거버넌스-지연-01"
+      ]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "event": "PolicyVersionChanged",
+      "tests": [
+        "중지-가격-01",
+        "중지-USDC-01",
+        "중지-KRX-01",
+        "거버넌스-지연-01"
+      ]
+    }
   ],
-  "invariantCoverage":[
-    {"invariant":"TOTAL_SUPPLY_EQUALS_FIVE_BUCKETS","tests":["대사-정상-01","기업행동-분할-01"]},
-    {"invariant":"CUSTODY_RIGHTS_EQUAL_SUPPLY_MINUS_BURN_PENDING","tests":["대사-정상-01","환매-과도기-01"]},
-    {"invariant":"PENDING_SETTLEMENT_IS_NOT_TRANSFERABLE","tests":["정산-재고차단-01"]},
-    {"invariant":"SECONDARY_TRADE_REQUIRES_INVESTOR_AND_MARKET_MAKER","tests":["정산-직접이전차단-01"]},
-    {"invariant":"USDC_DVP_IS_ATOMIC_ONCHAIN","tests":["정산-DvP실패-01"]},
-    {"invariant":"OFFCHAIN_LEDGER_CONFIRMATION_REQUIRED_FOR_BUSINESS_COMPLETION","tests":["정산-원장실패-01"]},
-    {"invariant":"RECOVERY_PRESERVES_EACH_BUCKET_AND_TOTAL_SUPPLY","tests":["지갑-복구-01"]},
-    {"invariant":"CORPORATE_ACTION_REQUIRES_INTEGER_RESULT","tests":["기업행동-분할-01","기업행동-소수차단-01"]},
-    {"invariant":"NONCES_WORKFLOWS_AND_EVIDENCE_ARE_SINGLE_USE","tests":["발행-재사용차단-01","정산-서명차단-01"]}
+  "contractErrors": [
+    {
+      "error": "DirectTransferDisabled",
+      "tests": [
+        "정산-직접이전차단-01"
+      ]
+    },
+    {
+      "error": "ApprovalDisabled",
+      "tests": [
+        "정산-직접이전차단-01"
+      ]
+    },
+    {
+      "error": "UnauthorizedController",
+      "tests": [
+        "거버넌스-권한차단-01"
+      ]
+    },
+    {
+      "error": "IneligibleWallet",
+      "tests": [
+        "고객-차단-01"
+      ]
+    },
+    {
+      "error": "MarketMakerRequired",
+      "tests": [
+        "정산-직접이전차단-01"
+      ]
+    },
+    {
+      "error": "InsufficientAvailableBalance",
+      "tests": [
+        "정산-재고차단-01",
+        "환매-차단-01"
+      ]
+    },
+    {
+      "error": "ScopePaused",
+      "tests": [
+        "중지-가격-01",
+        "중지-USDC-01",
+        "중지-KRX-01"
+      ]
+    },
+    {
+      "error": "SignatureExpired",
+      "tests": [
+        "정산-서명차단-01"
+      ]
+    },
+    {
+      "error": "NonceAlreadyUsed",
+      "tests": [
+        "정산-서명차단-01"
+      ]
+    },
+    {
+      "error": "PolicyVersionMismatch",
+      "tests": [
+        "정산-서명차단-01"
+      ]
+    },
+    {
+      "error": "EvidenceAlreadyUsed",
+      "tests": [
+        "발행-재사용차단-01"
+      ]
+    },
+    {
+      "error": "MissingIndependentApproval",
+      "tests": [
+        "발행-승인차단-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01"
+      ]
+    },
+    {
+      "error": "IssuanceEvidenceMismatch",
+      "tests": [
+        "발행-증거불일치-01"
+      ]
+    },
+    {
+      "error": "AllocationExceeded",
+      "tests": [
+        "발행-체결배분차단-01"
+      ]
+    },
+    {
+      "error": "PaymentMismatch",
+      "tests": [
+        "정산-DvP실패-01"
+      ]
+    },
+    {
+      "error": "NonIntegralCorporateAction",
+      "tests": [
+        "기업행동-소수차단-01"
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "role": "DEFAULT_ADMIN_ROLE",
+      "tests": [
+        "거버넌스-지연-01"
+      ]
+    },
+    {
+      "role": "ELIGIBILITY_OPERATOR_ROLE",
+      "tests": [
+        "고객-정상-01",
+        "고객-차단-01"
+      ]
+    },
+    {
+      "role": "EXECUTION_ALLOCATION_CONFIRMER_ROLE",
+      "tests": [
+        "발행-정상-01",
+        "발행-체결배분차단-01"
+      ]
+    },
+    {
+      "role": "RISK_APPROVER_ROLE",
+      "tests": [
+        "발행-정상-01",
+        "발행-승인차단-01"
+      ]
+    },
+    {
+      "role": "RIGHTS_ENTRY_APPROVER_ROLE",
+      "tests": [
+        "발행-정상-01",
+        "발행-권리승인차단-01"
+      ]
+    },
+    {
+      "role": "RIGHTS_RECORDING_CONFIRMER_ROLE",
+      "tests": [
+        "발행-정상-01",
+        "발행-원장반영차단-01"
+      ]
+    },
+    {
+      "role": "SETTLEMENT_CONFIRMER_ROLE",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01"
+      ]
+    },
+    {
+      "role": "CUSTODY_CONFIRMER_ROLE",
+      "tests": [
+        "결제-정상-01",
+        "결제-차단-01"
+      ]
+    },
+    {
+      "role": "ISSUANCE_EXECUTOR_ROLE",
+      "tests": [
+        "발행-정상-01",
+        "발행-증거불일치-01"
+      ]
+    },
+    {
+      "role": "SETTLEMENT_EXECUTOR_ROLE",
+      "tests": [
+        "정산-USD정상-01",
+        "정산-USDC정상-01"
+      ]
+    },
+    {
+      "role": "REDEMPTION_RIGHTS_APPROVER_ROLE",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "role": "PAYMENT_APPROVER_ROLE",
+      "tests": [
+        "환매-정상-01",
+        "환매-부분실패-01"
+      ]
+    },
+    {
+      "role": "REDEMPTION_EXECUTOR_ROLE",
+      "tests": [
+        "환매-정상-01",
+        "환매-차단-01"
+      ]
+    },
+    {
+      "role": "RECOVERY_RIGHTS_APPROVER_ROLE",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "role": "RECOVERY_COMPLIANCE_APPROVER_ROLE",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "role": "RECOVERY_EXECUTOR_ROLE",
+      "tests": [
+        "지갑-복구-01",
+        "지갑-복구차단-01"
+      ]
+    },
+    {
+      "role": "CORPORATE_ACTION_RIGHTS_APPROVER_ROLE",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "role": "CORPORATE_ACTION_AUDIT_APPROVER_ROLE",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "role": "CORPORATE_ACTION_EXECUTOR_ROLE",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "role": "EMERGENCY_PAUSER_ROLE",
+      "tests": [
+        "거버넌스-긴급중지-01",
+        "거버넌스-지연-01"
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "invariant": "TOTAL_SUPPLY_EQUALS_FIVE_BUCKETS",
+      "tests": [
+        "대사-정상-01",
+        "기업행동-분할-01"
+      ]
+    },
+    {
+      "invariant": "CUSTODY_RIGHTS_EQUAL_SUPPLY_MINUS_BURN_PENDING",
+      "tests": [
+        "대사-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "invariant": "PENDING_SETTLEMENT_IS_NOT_TRANSFERABLE",
+      "tests": [
+        "정산-재고차단-01"
+      ]
+    },
+    {
+      "invariant": "SECONDARY_TRADE_REQUIRES_INVESTOR_AND_MARKET_MAKER",
+      "tests": [
+        "정산-직접이전차단-01"
+      ]
+    },
+    {
+      "invariant": "USDC_DVP_IS_ATOMIC_ONCHAIN",
+      "tests": [
+        "정산-DvP실패-01"
+      ]
+    },
+    {
+      "invariant": "OFFCHAIN_LEDGER_CONFIRMATION_REQUIRED_FOR_BUSINESS_COMPLETION",
+      "tests": [
+        "정산-원장실패-01"
+      ]
+    },
+    {
+      "invariant": "RECOVERY_PRESERVES_EACH_BUCKET_AND_TOTAL_SUPPLY",
+      "tests": [
+        "지갑-복구-01"
+      ]
+    },
+    {
+      "invariant": "CORPORATE_ACTION_REQUIRES_INTEGER_RESULT",
+      "tests": [
+        "기업행동-분할-01",
+        "기업행동-소수차단-01"
+      ]
+    },
+    {
+      "invariant": "NONCES_WORKFLOWS_AND_EVIDENCE_ARE_SINGLE_USE",
+      "tests": [
+        "발행-재사용차단-01",
+        "정산-서명차단-01"
+      ]
+    }
+  ],
+  "errorCategories": [
+    {
+      "category": "인증, 권한, 적격성",
+      "tests": [
+        "고객-차단-01",
+        "거버넌스-권한차단-01"
+      ]
+    },
+    {
+      "category": "입력, 정수, 멱등",
+      "tests": [
+        "발행-정수차단-01",
+        "멱등-충돌-01"
+      ]
+    },
+    {
+      "category": "정보, 호가, 위험 경계",
+      "tests": [
+        "호가-경계-01",
+        "정보-경계-01",
+        "USDC-경계-01",
+        "손실-경계-01"
+      ]
+    },
+    {
+      "category": "발행 증거",
+      "tests": [
+        "발행-체결배분차단-01",
+        "발행-승인차단-01",
+        "발행-권리승인차단-01",
+        "발행-원장반영차단-01",
+        "발행-증거불일치-01"
+      ]
+    },
+    {
+      "category": "민원과 투자자 보호",
+      "tests": [
+        "공시-동의-01",
+        "민원-분류-01",
+        "민원-정정종결-01"
+      ]
+    },
+    {
+      "category": "이벤트, 재시작, RPC",
+      "tests": [
+        "이벤트-중복-01",
+        "이벤트-공백-01",
+        "재시작-발송함-01",
+        "정산-RPC유실-01"
+      ]
+    },
+    {
+      "category": "환매와 권리업무",
+      "tests": [
+        "환매-부분실패-01",
+        "배당-배당락-01",
+        "의결권-승인실패-01",
+        "보고-증거누락-01"
+      ]
+    }
   ]
 }
