@@ -1,0 +1,68 @@
+{
+  "$schema": "./governance-abi.schema.json",
+  "schemaVersion": "1.0.0",
+  "status": "APPROVED",
+  "businessAbiReference": "./contract-abi.json",
+  "accessControlContracts": [
+    "RestrictedEquityToken",
+    "EligibilityRegistry",
+    "SecurityTokenFactory",
+    "IntentVerifier",
+    "MarketPolicyRegistry"
+  ],
+  "standardAccessControl": {
+    "functions": [
+      { "name": "DEFAULT_ADMIN_ROLE", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bytes32" }] },
+      { "name": "getRoleAdmin", "stateMutability": "view", "inputs": [{ "name": "role", "type": "bytes32" }], "outputs": [{ "name": "", "type": "bytes32" }] },
+      { "name": "grantRole", "stateMutability": "nonpayable", "inputs": [{ "name": "role", "type": "bytes32" }, { "name": "account", "type": "address" }], "outputs": [] },
+      { "name": "hasRole", "stateMutability": "view", "inputs": [{ "name": "role", "type": "bytes32" }, { "name": "account", "type": "address" }], "outputs": [{ "name": "", "type": "bool" }] },
+      { "name": "renounceRole", "stateMutability": "nonpayable", "inputs": [{ "name": "role", "type": "bytes32" }, { "name": "callerConfirmation", "type": "address" }], "outputs": [] },
+      { "name": "revokeRole", "stateMutability": "nonpayable", "inputs": [{ "name": "role", "type": "bytes32" }, { "name": "account", "type": "address" }], "outputs": [] },
+      { "name": "supportsInterface", "stateMutability": "view", "inputs": [{ "name": "interfaceId", "type": "bytes4" }], "outputs": [{ "name": "", "type": "bool" }] }
+    ],
+    "events": [
+      { "name": "RoleAdminChanged", "inputs": [{ "name": "role", "type": "bytes32", "indexed": true }, { "name": "previousAdminRole", "type": "bytes32", "indexed": true }, { "name": "newAdminRole", "type": "bytes32", "indexed": true }] },
+      { "name": "RoleGranted", "inputs": [{ "name": "role", "type": "bytes32", "indexed": true }, { "name": "account", "type": "address", "indexed": true }, { "name": "sender", "type": "address", "indexed": true }] },
+      { "name": "RoleRevoked", "inputs": [{ "name": "role", "type": "bytes32", "indexed": true }, { "name": "account", "type": "address", "indexed": true }, { "name": "sender", "type": "address", "indexed": true }] }
+    ],
+    "errors": [
+      { "name": "AccessControlBadConfirmation", "inputs": [] },
+      { "name": "AccessControlUnauthorizedAccount", "inputs": [{ "name": "account", "type": "address" }, { "name": "neededRole", "type": "bytes32" }] }
+    ]
+  },
+  "contractExtensions": [
+    {
+      "contract": "SecurityTokenFactory",
+      "functions": [
+        { "name": "getSecurityToken", "stateMutability": "view", "inputs": [{ "name": "krxCode", "type": "string" }, { "name": "isin", "type": "string" }, { "name": "designVersionHash", "type": "bytes32" }], "outputs": [{ "name": "", "type": "address" }] }
+      ],
+      "events": [],
+      "errors": []
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "functions": [
+        { "name": "isScopePaused", "stateMutability": "view", "inputs": [{ "name": "token", "type": "address" }, { "name": "scope", "type": "bytes32" }], "outputs": [{ "name": "", "type": "bool" }] },
+        { "name": "policyVersion", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "bytes32" }] }
+      ],
+      "events": [],
+      "errors": []
+    },
+    {
+      "contract": "IntentVerifier",
+      "functions": [
+        { "name": "brokerSettlementSigner", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "", "type": "address" }] },
+        { "name": "setBrokerSettlementSigner", "stateMutability": "nonpayable", "inputs": [{ "name": "workflowId", "type": "bytes16" }, { "name": "newSigner", "type": "address" }, { "name": "evidenceHash", "type": "bytes32" }], "outputs": [] },
+        { "name": "eip712Domain", "stateMutability": "view", "inputs": [], "outputs": [{ "name": "fields", "type": "bytes1" }, { "name": "name", "type": "string" }, { "name": "version", "type": "string" }, { "name": "chainId", "type": "uint256" }, { "name": "verifyingContract", "type": "address" }, { "name": "salt", "type": "bytes32" }, { "name": "extensions", "type": "uint256[]" }] }
+      ],
+      "events": [
+        { "name": "BrokerSettlementSignerChanged", "inputs": [{ "name": "workflowId", "type": "bytes16", "indexed": true }, { "name": "previousSigner", "type": "address", "indexed": true }, { "name": "newSigner", "type": "address", "indexed": true }, { "name": "evidenceHash", "type": "bytes32", "indexed": false }] },
+        { "name": "EIP712DomainChanged", "inputs": [] }
+      ],
+      "errors": [
+        { "name": "InvalidShortString", "inputs": [] },
+        { "name": "StringTooLong", "inputs": [{ "name": "str", "type": "string" }] }
+      ]
+    }
+  ]
+}

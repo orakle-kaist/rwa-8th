@@ -22,7 +22,7 @@
     "test": "pnpm test:unit",
     "test:browser": "playwright test",
     "test:chain": "pnpm --filter @rwa/contracts-client test:integration",
-    "test:contracts": "forge test --root contracts",
+    "test:contracts": "FOUNDRY_PROFILE=ci forge test && pnpm --filter @rwa/generated validate:contracts",
     "test:database": "pnpm --filter @rwa/database test:integration",
     "test:full": "pnpm test:quick && pnpm test:database && pnpm test:chain && pnpm test:browser",
     "test:quick": "bash scripts/check-no-secrets.sh && bash scripts/validate-research.sh && pnpm validate:specs && pnpm typecheck && pnpm test:unit && pnpm test:contracts",

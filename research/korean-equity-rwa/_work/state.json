@@ -1,6 +1,6 @@
 {
   "stage": "stage_ten_in_progress",
-  "next_action": "Validate and commit the stage-ten runtime foundation before implementing the restricted token foundation.",
+  "next_action": "Validate and commit the restricted token foundation before implementing eligibility and investor protection.",
   "updated_at": "2026-08-31T00:00:00+09:00",
-  "iteration": 36
+  "iteration": 37
 }

@@ -10,7 +10,8 @@
   "scripts": {
     "generate": "openapi-typescript ../../docs/07-data-api-events/specs/openapi.platform.yaml -o src/platform-api.ts && openapi-typescript ../../docs/07-data-api-events/specs/openapi.adapters.yaml -o src/adapters-api.ts",
     "typecheck": "../../node_modules/.bin/tsc --noEmit -p tsconfig.json",
-    "validate": "tsx src/validate-specs.ts"
+    "validate": "tsx src/validate-specs.ts",
+    "validate:contracts": "tsx src/validate-contract-artifacts.ts"
   },
   "devDependencies": {
     "@types/node": "26.4.0",
