@@ -67,6 +67,10 @@ PoC는 역할과 기관이 포함된 합성 Bearer 토큰을 사용한다.
 | `GET /activities` | 투자자와 기관 | 주문, 권리, 자금과 토큰 활동 |
 | `GET /workflows/{workflowId}` | 관련 사용자 | 독립 상태축의 현재값과 투영 완전성 |
 | `GET /workflows/{workflowId}/timeline` | 관련 사용자 | 명령, 기관사실, 승인, 체인 결과와 정정 계보 |
+| `GET /disclosures/current` | 투자자와 기관 | 현재 적용 위험공시, 버전, 유효기간과 책임기관 |
+| `GET /disclosure-consents/current` | 투자자와 기관 | 현재 공시 동의의 유효, 누락 또는 만료 상태 |
+| `GET /complaints` | 투자자와 기관 | 권한 범위의 민원 목록과 책임기관 및 처리상태 |
+| `GET /complaints/{complaintId}` | 관련 사용자 | 민원, 관련 주문, 공시 버전, 답변 참조, 정정 연결과 종결 근거 |
 
 목록 조회는 `limit`과 불투명 `cursor`를 사용한다. 모든 조회에는 `projectionAsOf`, `lastEventSequence`와 `projectionStatus`가 포함된다.
 
@@ -76,6 +80,8 @@ PoC는 역할과 기관이 포함된 합성 Bearer 토큰을 사용한다.
 |---|---|---|
 | `POST /wallet-link-requests` | 지갑, 소유확인 서명 | 계좌 담당 승인과 적격성 반영 |
 | `POST /wallet-replacement-requests` | 기존 및 새 지갑, 교체사유 | 기존지갑 동결, 두 승인과 복구 실행 |
+| `POST /disclosure-consents` | 공시 ID, 버전, 전자 동의시각 | 동의 유효상태와 주문 연결 가능 여부 반영 |
+| `POST /complaints` | 민원 종류, 제목, 내용, 관련 업무와 공시 버전 | 책임기관 배정, 답변, 정정 연결 또는 종결 |
 | `POST /primary-orders` | 1차 주문 서명, 종목, 수량, KRW 지정가격, 거래일, 자금경로 | 국내 체결, 권리기입, 발행과 T+2 두 확인 |
 | `POST /primary-orders/{orderId}/cancellations` | 취소사유 | 국내 제출 전 취소 또는 기관 취소결과 |
 | `GET /quotes` | 종목, 자금경로와 방향 | 유효한 지정 시장조성자 호가 조회 |
@@ -101,6 +107,11 @@ PoC는 역할과 기관이 포함된 합성 Bearer 토큰을 사용한다.
 | `POST /holds/{holdId}/release-decisions` | 보정, 전체 재대사와 독립 승인 뒤 재개 |
 | `GET /regulatory-reports` | 월말 보고 생성, 제출, 접수와 정정증거 조회 |
 | `POST /regulatory-reports/{reportId}/submission-results` | 접수 또는 실패와 정정 연결 |
+| `POST /institution/complaints/{complaintId}/assignments` | 플랫폼 또는 해외 증권사를 책임기관으로 배정 |
+| `POST /institution/complaints/{complaintId}/processing-starts` | 책임기관이 처리 시작과 내부 담당 참조번호 기록 |
+| `POST /institution/complaints/{complaintId}/responses` | 답변 참조번호와 투자자 제공시각 기록 |
+| `POST /institution/complaints/{complaintId}/correction-links` | 원기록을 바꾸지 않고 별도 정정 업무 연결 |
+| `POST /institution/complaints/{complaintId}/closures` | 답변과 필요한 정정 결과 확인 뒤 종결 |
 
 `institution/tasks`는 업무를 일반화하지만 `taskType`별 입력은 JSON Schema `oneOf`로 제한한다. 임의의 상태명이나 자유형 승인 payload는 허용하지 않는다.
 

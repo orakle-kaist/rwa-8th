@@ -1746,6 +1746,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
             "PostgreSQL", "최소 한 번", "eventId", "sourceSequence", "aggregateVersion",
             "workflow.events.v1", "institution.events.v1", "chain.events.v1",
             "reconciliation.events.v1", "audit.events.v1", "quarantine.events.v1",
+            "investor-protection.events.v1", "complaint.events.v1",
             "정정", "30초", "60초", "Kafka", "traceability.json",
         ],
     }
@@ -1892,6 +1893,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
     expected_channels = {
         "workflow.events.v1", "institution.events.v1", "chain.events.v1",
         "reconciliation.events.v1", "audit.events.v1", "quarantine.events.v1",
+        "investor-protection.events.v1", "complaint.events.v1",
     }
     actual_channels = {channel.get("address") for channel in parsed[ASYNCAPI].get("channels", {}).values()}
     if actual_channels != expected_channels:

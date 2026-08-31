@@ -39,6 +39,16 @@ channels:
     messages:
       quarantineEvent:
         $ref: '#/components/messages/QuarantineEvent'
+  investorProtectionEvents:
+    address: investor-protection.events.v1
+    messages:
+      disclosureConsentEvent:
+        $ref: '#/components/messages/DisclosureConsentEvent'
+  complaintEvents:
+    address: complaint.events.v1
+    messages:
+      complaintEvent:
+        $ref: '#/components/messages/ComplaintEvent'
 operations:
   publishWorkflowEvent:
     action: send
@@ -94,6 +104,30 @@ operations:
       $ref: '#/channels/quarantineEvents'
     messages:
       - $ref: '#/channels/quarantineEvents/messages/quarantineEvent'
+  publishDisclosureConsentEvent:
+    action: send
+    channel:
+      $ref: '#/channels/investorProtectionEvents'
+    messages:
+      - $ref: '#/channels/investorProtectionEvents/messages/disclosureConsentEvent'
+  consumeDisclosureConsentEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/investorProtectionEvents'
+    messages:
+      - $ref: '#/channels/investorProtectionEvents/messages/disclosureConsentEvent'
+  publishComplaintEvent:
+    action: send
+    channel:
+      $ref: '#/channels/complaintEvents'
+    messages:
+      - $ref: '#/channels/complaintEvents/messages/complaintEvent'
+  consumeComplaintEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/complaintEvents'
+    messages:
+      - $ref: '#/channels/complaintEvents/messages/complaintEvent'
 components:
   messages:
     WorkflowEvent:
@@ -129,6 +163,18 @@ components:
     QuarantineEvent:
       name: QuarantineEvent
       title: 순번공백, 서명실패와 영구 처리실패
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'
+    DisclosureConsentEvent:
+      name: DisclosureConsentEvent
+      title: 위험공시 전자 동의
+      contentType: application/json
+      payload:
+        $ref: './schemas/events.schema.json'
+    ComplaintEvent:
+      name: ComplaintEvent
+      title: 민원 접수, 배정, 답변, 정정 연결과 종결
       contentType: application/json
       payload:
         $ref: './schemas/events.schema.json'

@@ -69,6 +69,36 @@
       "labelKo": "동의 만료"
     },
     {
+      "axis": "COMPLAINT",
+      "code": "COMPLAINT_SUBMITTED",
+      "labelKo": "접수"
+    },
+    {
+      "axis": "COMPLAINT",
+      "code": "COMPLAINT_ASSIGNED",
+      "labelKo": "책임기관 배정"
+    },
+    {
+      "axis": "COMPLAINT",
+      "code": "COMPLAINT_IN_PROGRESS",
+      "labelKo": "처리 중"
+    },
+    {
+      "axis": "COMPLAINT",
+      "code": "COMPLAINT_RESPONSE_RECORDED",
+      "labelKo": "답변 기록"
+    },
+    {
+      "axis": "COMPLAINT",
+      "code": "COMPLAINT_CORRECTION_REVIEW",
+      "labelKo": "정정 검토"
+    },
+    {
+      "axis": "COMPLAINT",
+      "code": "COMPLAINT_CLOSED",
+      "labelKo": "종결"
+    },
+    {
       "axis": "WALLET_LINKAGE",
       "code": "WALLET_UNLINKED",
       "labelKo": "지갑 미연결"

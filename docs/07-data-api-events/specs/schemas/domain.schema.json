@@ -20,6 +20,131 @@
       "type": "string",
       "enum": ["MM_BUYS", "MM_SELLS"]
     },
+    "Disclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disclosureId", "version", "titleKo", "effectiveFrom", "validUntil", "responsibleInstitutionId", "simulation"],
+      "properties": {
+        "disclosureId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "titleKo": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "effectiveFrom": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "validUntil": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "responsibleInstitutionId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "contentEvidenceId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "simulation": { "const": true }
+      }
+    },
+    "DisclosureConsentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disclosureId", "version", "consentedAt"],
+      "properties": {
+        "disclosureId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "consentedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" }
+      }
+    },
+    "DisclosureConsentView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["disclosureId", "version", "status", "simulation"],
+      "properties": {
+        "disclosureId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "status": { "type": "string", "enum": ["VALID", "MISSING", "EXPIRED"] },
+        "consentedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "validUntil": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "simulation": { "const": true }
+      }
+    },
+    "ComplaintType": {
+      "type": "string",
+      "enum": ["PLATFORM_TECHNICAL", "BROKERAGE_ACCOUNT", "TRADE_ERROR", "REGULATORY"]
+    },
+    "ComplaintStatus": {
+      "type": "string",
+      "enum": ["SUBMITTED", "ASSIGNED", "IN_PROGRESS", "RESPONSE_RECORDED", "CORRECTION_REVIEW", "CLOSED"]
+    },
+    "ComplaintRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "titleKo", "descriptionKo", "disclosureVersion"],
+      "properties": {
+        "type": { "$ref": "#/$defs/ComplaintType" },
+        "titleKo": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "descriptionKo": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "relatedWorkflowId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "relatedOrderId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "disclosureVersion": { "type": "string", "minLength": 1, "maxLength": 64 }
+      }
+    },
+    "ComplaintView": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["complaintId", "type", "status", "submittedAt", "disclosureVersion", "simulation", "projection"],
+      "properties": {
+        "complaintId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "type": { "$ref": "#/$defs/ComplaintType" },
+        "status": { "$ref": "#/$defs/ComplaintStatus" },
+        "submittedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "responsibleInstitutionId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "relatedWorkflowId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "relatedOrderId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "disclosureVersion": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "responseReferenceId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "correctionWorkflowId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "closedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "simulation": { "const": true },
+        "projection": { "$ref": "common.schema.json#/$defs/ProjectionMetadata" }
+      }
+    },
+    "ComplaintAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["responsibleInstitutionId", "reasonKo"],
+      "properties": {
+        "responsibleInstitutionId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "reasonKo": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "ComplaintResponseRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["responseReferenceId", "providedAt", "evidenceId"],
+      "properties": {
+        "responseReferenceId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "providedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "evidenceId": { "$ref": "common.schema.json#/$defs/Uuid" }
+      }
+    },
+    "ComplaintProcessingStart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["handlerReferenceId", "startedAt"],
+      "properties": {
+        "handlerReferenceId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "startedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" }
+      }
+    },
+    "ComplaintCorrectionLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correctionWorkflowId", "reasonKo"],
+      "properties": {
+        "correctionWorkflowId": { "$ref": "common.schema.json#/$defs/Uuid" },
+        "reasonKo": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "ComplaintClosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolution", "closedAt"],
+      "properties": {
+        "resolution": { "type": "string", "enum": ["ANSWERED", "CORRECTED", "NO_CORRECTION_REQUIRED"] },
+        "closedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" }
+      }
+    },
     "PrimaryOrderRequest": {
       "type": "object",
       "additionalProperties": false,
@@ -181,6 +306,7 @@
           "enum": [
             "CUSTOMER_ELIGIBILITY",
             "INVESTOR_PROTECTION",
+            "COMPLAINT",
             "WALLET_LINKAGE",
             "PRODUCT_COMMON",
             "PRIMARY_AVAILABILITY",
@@ -217,6 +343,7 @@
           "type": "string",
           "enum": [
             "WALLET_LINKAGE",
+            "COMPLAINT",
             "PRIMARY_ISSUANCE",
             "SECONDARY_TRADE",
             "MARKET_MAKER_HEDGE",

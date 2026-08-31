@@ -128,6 +128,99 @@ paths:
                     items: { $ref: '#/components/schemas/TimelineItem' }
                   projection:
                     $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata'
+  /disclosures/current:
+    get:
+      tags: [CommonQueries]
+      operationId: getCurrentDisclosure
+      summary: 현재 적용 위험공시와 책임기관 조회
+      responses:
+        '200':
+          description: 현재 적용 위험공시
+          content:
+            application/json:
+              schema: { $ref: './schemas/domain.schema.json#/$defs/Disclosure' }
+        '404': { $ref: '#/components/responses/Error' }
+  /disclosure-consents/current:
+    get:
+      tags: [CommonQueries]
+      operationId: getCurrentDisclosureConsent
+      summary: 현재 위험공시 동의의 유효 여부 조회
+      responses:
+        '200':
+          description: 유효, 누락 또는 만료 상태
+          content:
+            application/json:
+              schema: { $ref: './schemas/domain.schema.json#/$defs/DisclosureConsentView' }
+  /disclosure-consents:
+    post:
+      tags: [InvestorCommands]
+      operationId: createDisclosureConsent
+      summary: 현재 위험공시에 전자 동의 제출
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/domain.schema.json#/$defs/DisclosureConsentRequest' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /complaints:
+    get:
+      tags: [CommonQueries]
+      operationId: listComplaints
+      summary: 본인 또는 역할 범위의 민원 목록 조회
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: 민원 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items, projection]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: './schemas/domain.schema.json#/$defs/ComplaintView' }
+                  nextCursor: { type: string }
+                  projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    post:
+      tags: [InvestorCommands]
+      operationId: createComplaint
+      summary: 투자자 민원 접수
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/domain.schema.json#/$defs/ComplaintRequest' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /complaints/{complaintId}:
+    get:
+      tags: [CommonQueries]
+      operationId: getComplaint
+      summary: 본인 또는 담당 범위의 민원 상세 조회
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+      responses:
+        '200':
+          description: 책임기관, 답변, 정정과 종결 근거를 포함한 민원
+          content:
+            application/json:
+              schema: { $ref: './schemas/domain.schema.json#/$defs/ComplaintView' }
+        '404': { $ref: '#/components/responses/Error' }
   /wallet-link-requests:
     post:
       tags: [InvestorCommands]
@@ -502,6 +595,91 @@ paths:
       responses:
         '202': { $ref: '#/components/responses/Accepted' }
         '409': { $ref: '#/components/responses/Error' }
+  /institution/complaints/{complaintId}/assignments:
+    post:
+      tags: [InstitutionCommands]
+      operationId: assignComplaint
+      summary: 민원 책임기관 배정
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/domain.schema.json#/$defs/ComplaintAssignment' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /institution/complaints/{complaintId}/responses:
+    post:
+      tags: [InstitutionCommands]
+      operationId: recordComplaintResponse
+      summary: 투자자에게 제공한 답변 참조 기록
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/domain.schema.json#/$defs/ComplaintResponseRecord' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /institution/complaints/{complaintId}/processing-starts:
+    post:
+      tags: [InstitutionCommands]
+      operationId: startComplaintProcessing
+      summary: 배정된 책임기관의 민원 처리 시작
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/domain.schema.json#/$defs/ComplaintProcessingStart' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /institution/complaints/{complaintId}/correction-links:
+    post:
+      tags: [InstitutionCommands]
+      operationId: linkComplaintCorrection
+      summary: 민원과 별도 정정 업무 연결
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/domain.schema.json#/$defs/ComplaintCorrectionLink' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+  /institution/complaints/{complaintId}/closures:
+    post:
+      tags: [InstitutionCommands]
+      operationId: closeComplaint
+      summary: 답변과 정정 결과 확인 후 민원 종결
+      parameters:
+        - $ref: '#/components/parameters/ComplaintId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/domain.schema.json#/$defs/ComplaintClosure' }
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
   /adapter-events:
     post:
       tags: [AdapterIngress]
@@ -561,6 +739,11 @@ components:
       schema: { type: string, format: uuid }
     OrderId:
       name: orderId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ComplaintId:
+      name: complaintId
       in: path
       required: true
       schema: { type: string, format: uuid }
