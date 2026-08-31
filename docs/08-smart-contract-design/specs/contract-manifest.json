@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "1.0.0",
+  "stage": 8,
+  "status": "APPROVED",
+  "network": {
+    "name": "Avalanche Fuji C-Chain",
+    "chainId": 43113,
+    "productionApproval": false
+  },
+  "tokenModel": {
+    "standard": "RESTRICTED_ERC20_INTERFACE",
+    "decimals": 0,
+    "oneShareOneRightOneToken": true,
+    "directTransferDisabled": true,
+    "transferFromDisabled": true,
+    "arbitraryApprovalDisabled": true,
+    "erc3643": "COMPARISON_ONLY",
+    "erc4626": "EXCLUDED",
+    "proxyUpgradeability": false,
+    "buckets": [
+      "AVAILABLE",
+      "PENDING_DOMESTIC_SETTLEMENT",
+      "REDEMPTION_LOCKED",
+      "BURN_PENDING",
+      "ADMINISTRATIVE_FROZEN"
+    ]
+  },
+  "governance": {
+    "safeThreshold": 2,
+    "safeOwners": 3,
+    "timelockSeconds": 60,
+    "timelockValueIsProductionRecommendation": false,
+    "emergencyPauseCanResume": false,
+    "deployerRenouncesAdmin": true
+  },
+  "typedData": {
+    "verifyingContract": "IntentVerifier",
+    "supportsEoa": true,
+    "supportsErc1271": true,
+    "types": [
+      "PRIMARY_LIMIT_ORDER_INTENT",
+      "SECONDARY_INVESTOR_ORDER",
+      "REDEMPTION_INTENT",
+      "MARKET_MAKER_QUOTE",
+      "BROKER_SETTLEMENT_APPROVAL"
+    ]
+  },
+  "contracts": [
+    {
+      "name": "RestrictedEquityToken",
+      "kind": "PER_SECURITY",
+      "functions": ["name", "symbol", "decimals", "balanceOf", "totalSupply", "allowance", "transfer", "transferFrom", "approve", "availableBalanceOf", "pendingSettlementBalanceOf", "redemptionLockedBalanceOf", "burnPendingBalanceOf", "administrativeFrozenBalanceOf", "isAddressFrozen", "mintPending", "releasePending", "controlledTransfer", "lockForRedemption", "cancelRedemptionLock", "markBurnPending", "burnPending", "freezeAvailable", "unfreezeAvailable", "freezeAddress", "recoverAllBuckets", "applySplitBatch"],
+      "events": ["Transfer", "PendingMinted", "PendingReleased", "ControlledTransfer", "RedemptionLocked", "BurnPendingMarked", "PendingBurned", "AdministrativeFreezeChanged", "AddressFrozen", "WalletRecovered", "SplitBatchApplied"]
+    },
+    {
+      "name": "EligibilityRegistry",
+      "kind": "SHARED",
+      "functions": ["setEligibility", "setMarketMaker", "revoke", "isEligible", "isMarketMaker"],
+      "events": ["EligibilityUpdated", "MarketMakerStatusUpdated"]
+    },
+    {
+      "name": "SecurityTokenFactory",
+      "kind": "SHARED",
+      "functions": ["deploySecurityToken"],
+      "events": ["SecurityTokenRegistered"]
+    },
+    {
+      "name": "IntentVerifier",
+      "kind": "SHARED",
+      "functions": ["verifyAndConsumePrimaryOrder", "verifyAndConsumeSecondaryBundle", "verifyAndConsumeRedemption", "cancelNonce"],
+      "events": ["IntentConsumed", "NonceCancelled"]
+    },
+    {
+      "name": "IssuanceController",
+      "kind": "SHARED",
+      "functions": ["confirmExecutionAllocation", "approveT2Risk", "approveRightsEntry", "confirmRightsRecorded", "executePendingMint", "confirmDomesticSettlement", "confirmCustodyQuantity", "executeRelease"],
+      "events": ["ExecutionAllocationConfirmed", "T2RiskApproved", "RightsEntryApproved", "RightsRecordingConfirmed", "DomesticSettlementConfirmed", "CustodyQuantityConfirmed"]
+    },
+    {
+      "name": "SecondarySettlementController",
+      "kind": "SHARED",
+      "functions": ["settleUsdLedger", "settleUsdc"],
+      "events": ["UsdLedgerSettlementRecorded", "UsdcDvpSettled"]
+    },
+    {
+      "name": "RedemptionController",
+      "kind": "SHARED",
+      "functions": ["lockRedemption", "cancelBeforeDomesticSale", "confirmRightsTerminated", "confirmCashClaim", "markBurnPending", "approveUsdPayment", "executeBurn"],
+      "events": ["RedemptionWorkflowLocked", "RightsTerminated", "CashClaimConfirmed", "UsdPaymentApproved"]
+    },
+    {
+      "name": "RecoveryController",
+      "kind": "SHARED",
+      "functions": ["approveRightsRecovery", "approveComplianceRecovery", "executeRecovery"],
+      "events": ["RightsRecoveryApproved", "ComplianceRecoveryApproved", "RecoveryExecuted"]
+    },
+    {
+      "name": "CorporateActionController",
+      "kind": "SHARED",
+      "functions": ["approveRightsPlan", "approveAuditPlan", "applySplitBatch", "finalizeSplit"],
+      "events": ["RightsPlanApproved", "AuditPlanApproved", "SplitBatchApplied", "SplitFinalized"]
+    },
+    {
+      "name": "MarketPolicyRegistry",
+      "kind": "SHARED",
+      "functions": ["pauseScope", "resumeScope", "setPolicyVersion"],
+      "events": ["ScopePaused", "ScopeResumed", "PolicyVersionChanged"]
+    }
+  ],
+  "roles": [
+    "DEFAULT_ADMIN_ROLE",
+    "ELIGIBILITY_OPERATOR_ROLE",
+    "EXECUTION_ALLOCATION_CONFIRMER_ROLE",
+    "RISK_APPROVER_ROLE",
+    "RIGHTS_ENTRY_APPROVER_ROLE",
+    "RIGHTS_RECORDING_CONFIRMER_ROLE",
+    "SETTLEMENT_CONFIRMER_ROLE",
+    "CUSTODY_CONFIRMER_ROLE",
+    "ISSUANCE_EXECUTOR_ROLE",
+    "SETTLEMENT_EXECUTOR_ROLE",
+    "REDEMPTION_RIGHTS_APPROVER_ROLE",
+    "PAYMENT_APPROVER_ROLE",
+    "REDEMPTION_EXECUTOR_ROLE",
+    "RECOVERY_RIGHTS_APPROVER_ROLE",
+    "RECOVERY_COMPLIANCE_APPROVER_ROLE",
+    "RECOVERY_EXECUTOR_ROLE",
+    "CORPORATE_ACTION_RIGHTS_APPROVER_ROLE",
+    "CORPORATE_ACTION_AUDIT_APPROVER_ROLE",
+    "CORPORATE_ACTION_EXECUTOR_ROLE",
+    "EMERGENCY_PAUSER_ROLE"
+  ],
+  "deploymentScope": {
+    "candidateUniverse": "KOSPI_200_SNAPSHOT_2026-08-28",
+    "actualFujiDeploymentCount": 6,
+    "requiresOfficialIsin": true,
+    "securities": [
+      {"krxCode": "005930", "nameKo": "삼성전자", "isinStatus": "OFFICIAL_CONFIRMATION_REQUIRED"},
+      {"krxCode": "000660", "nameKo": "SK하이닉스", "isinStatus": "OFFICIAL_CONFIRMATION_REQUIRED"},
+      {"krxCode": "017670", "nameKo": "SK텔레콤", "isinStatus": "OFFICIAL_CONFIRMATION_REQUIRED"},
+      {"krxCode": "005380", "nameKo": "현대차", "isinStatus": "OFFICIAL_CONFIRMATION_REQUIRED"},
+      {"krxCode": "035420", "nameKo": "NAVER", "isinStatus": "OFFICIAL_CONFIRMATION_REQUIRED"},
+      {"krxCode": "006800", "nameKo": "미래에셋증권", "isinStatus": "OFFICIAL_CONFIRMATION_REQUIRED"}
+    ]
+  },
+  "requiredInvariants": [
+    "TOTAL_SUPPLY_EQUALS_FIVE_BUCKETS",
+    "CUSTODY_RIGHTS_EQUAL_SUPPLY_MINUS_BURN_PENDING",
+    "PENDING_SETTLEMENT_IS_NOT_TRANSFERABLE",
+    "SECONDARY_TRADE_REQUIRES_INVESTOR_AND_MARKET_MAKER",
+    "USDC_DVP_IS_ATOMIC_ONCHAIN",
+    "OFFCHAIN_LEDGER_CONFIRMATION_REQUIRED_FOR_BUSINESS_COMPLETION",
+    "RECOVERY_PRESERVES_EACH_BUCKET_AND_TOTAL_SUPPLY",
+    "CORPORATE_ACTION_REQUIRES_INTEGER_RESULT",
+    "NONCES_WORKFLOWS_AND_EVIDENCE_ARE_SINGLE_USE"
+  ]
+}

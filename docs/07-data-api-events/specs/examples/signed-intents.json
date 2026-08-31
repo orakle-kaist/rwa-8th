@@ -18,7 +18,7 @@
       "fundingAmountMinor": "93095",
       "nonce": "1",
       "expiresAt": "1788140000",
-      "policyVersion": "SIM-1"
+      "policyVersion": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "signer": "0x2222222222222222222222222222222222222222",
     "signature": "0x5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555"
@@ -38,12 +38,12 @@
       "token": "0x4444444444444444444444444444444444444444",
       "investorSide": "INVESTOR_BUYS",
       "paymentMode": "USDC_ONCHAIN",
-      "paymentAssetId": "0x6666666666666666666666666666666666666666",
+      "paymentAssetId": "0x6666666666666666666666666666666666666666666666666666666666666666",
       "shareQuantity": "5",
       "paymentAmountMinor": "5987850000",
       "nonce": "1",
       "expiresAt": "1788140000",
-      "policyVersion": "SIM-1"
+      "policyVersion": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "signer": "0x2222222222222222222222222222222222222222",
     "signature": "0x5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555"
@@ -65,7 +65,7 @@
       "targetTradingDate": "2026-09-01",
       "nonce": "1",
       "expiresAt": "1788140000",
-      "policyVersion": "SIM-1"
+      "policyVersion": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "signer": "0x2222222222222222222222222222222222222222",
     "signature": "0x5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555"
@@ -84,12 +84,12 @@
       "token": "0x4444444444444444444444444444444444444444",
       "marketMakerSide": "MM_SELLS",
       "paymentMode": "USD_LEDGER",
-      "paymentAssetId": "USD_LEDGER",
+      "paymentAssetId": "0x5553445f4c454447455200000000000000000000000000000000000000000000",
       "shareQuantity": "10",
       "unitPriceMinor": "18619",
       "nonce": "1",
       "expiresAt": "1788140000",
-      "policyVersion": "SIM-1"
+      "policyVersion": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "signer": "0x3333333333333333333333333333333333333333",
     "signature": "0x5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555"
@@ -109,14 +109,14 @@
       "marketMaker": "0x3333333333333333333333333333333333333333",
       "token": "0x4444444444444444444444444444444444444444",
       "paymentMode": "USDC_ONCHAIN",
-      "paymentAssetId": "0x6666666666666666666666666666666666666666",
+      "paymentAssetId": "0x6666666666666666666666666666666666666666666666666666666666666666",
       "shareQuantity": "5",
       "paymentAmountMinor": "5987850000",
       "rightsEvidenceHash": "0x7777777777777777777777777777777777777777777777777777777777777777",
       "fundsEvidenceHash": "0x8888888888888888888888888888888888888888888888888888888888888888",
       "nonce": "1",
       "expiresAt": "1788140000",
-      "policyVersion": "SIM-1"
+      "policyVersion": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "signer": "0x9999999999999999999999999999999999999999",
     "signature": "0x5555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555"

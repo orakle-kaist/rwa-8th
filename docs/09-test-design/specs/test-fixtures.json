@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "APPROVED",
+  "simulation": true,
+  "baselineDate": "2026-08-28",
+  "timeZone": "Asia/Seoul",
+  "clockMode": "INJECTED_VIRTUAL_CLOCK",
+  "universe": {
+    "source": "research/korean-equity-rwa/sources/web/kospi200-2026-08-28.json",
+    "distinctSecurityCount": 201,
+    "officialIsinRequiredForFuji": true
+  },
+  "securities": [
+    {"fixtureId":"종목-삼성전자","krxCode":"005930","nameKo":"삼성전자","closeKrwMinor":"257000","referenceUsdMinor":"18619","isinStatus":"OFFICIAL_CONFIRMATION_REQUIRED"},
+    {"fixtureId":"종목-SK하이닉스","krxCode":"000660","nameKo":"SK하이닉스","closeKrwMinor":"1653000","referenceUsdMinor":"119757","isinStatus":"OFFICIAL_CONFIRMATION_REQUIRED"},
+    {"fixtureId":"종목-SK텔레콤","krxCode":"017670","nameKo":"SK텔레콤","closeKrwMinor":"98600","referenceUsdMinor":"7143","isinStatus":"OFFICIAL_CONFIRMATION_REQUIRED"},
+    {"fixtureId":"종목-현대차","krxCode":"005380","nameKo":"현대차","closeKrwMinor":"399500","referenceUsdMinor":"28943","isinStatus":"OFFICIAL_CONFIRMATION_REQUIRED"},
+    {"fixtureId":"종목-NAVER","krxCode":"035420","nameKo":"NAVER","closeKrwMinor":"220500","referenceUsdMinor":"15975","isinStatus":"OFFICIAL_CONFIRMATION_REQUIRED"},
+    {"fixtureId":"종목-미래에셋증권","krxCode":"006800","nameKo":"미래에셋증권","closeKrwMinor":"36150","referenceUsdMinor":"2619","isinStatus":"OFFICIAL_CONFIRMATION_REQUIRED"}
+  ],
+  "marketInputs": {
+    "usdKrw": {"value":"1380.3","classification":"ACTUAL_BASELINE"},
+    "usdcUsdNormal": {"value":"1.0000","classification":"SYNTHETIC"},
+    "usdcUsdMinimum": "0.9950",
+    "usdcUsdMaximum": "1.0050",
+    "usdcUsdBelowMinimum": "0.9949",
+    "usdcUsdAboveMaximum": "1.0051",
+    "normalHalfSpreadBps": 50,
+    "stressHalfSpreadBps": 150
+  },
+  "marketMaker": {
+    "settledInventoryPerSecurity":"100",
+    "pendingInventoryPerSecurity":"20",
+    "quoteQuantity":"10",
+    "positionLimitAbsolute":"20",
+    "perSecurityLossLimitBps":200,
+    "portfolioLossLimitBps":150,
+    "quoteValidSeconds":30,
+    "quoteAllowedAgeSeconds":29,
+    "informationAgeAllowedSeconds":60,
+    "informationAgeBlockedSeconds":61,
+    "perSecurityLossBeforeLimitBps":199,
+    "perSecurityLossAtLimitBps":200,
+    "portfolioLossBeforeLimitBps":149,
+    "portfolioLossAtLimitBps":150,
+    "usdAvailableMinor":"25000000",
+    "usdcAvailableMinor":"250000000000"
+  },
+  "actors": [
+    {"fixtureId":"고객-A","role":"INVESTOR","eligibility":"ELIGIBLE","protection":"PASSED","disclosure":"VALID","usdAvailableMinor":"200000","usdcAvailableMinor":"0"},
+    {"fixtureId":"고객-B","role":"INVESTOR","eligibility":"ELIGIBLE","protection":"PASSED","disclosure":"VALID","usdAvailableMinor":"0","usdcAvailableMinor":"10000000000"},
+    {"fixtureId":"고객-C","role":"INVESTOR","eligibility":"ELIGIBLE","protection":"PASSED","disclosure":"VALID","usdAvailableMinor":"200000","usdcAvailableMinor":"0"},
+    {"fixtureId":"고객-거절","role":"INVESTOR","eligibility":"INELIGIBLE","protection":"FAILED","disclosure":"MISSING","usdAvailableMinor":"0","usdcAvailableMinor":"0"},
+    {"fixtureId":"고객-만료","role":"INVESTOR","eligibility":"EXPIRED","protection":"EXPIRED","disclosure":"EXPIRED","usdAvailableMinor":"0","usdcAvailableMinor":"0"},
+    {"fixtureId":"시장조성자","role":"MARKET_MAKER","eligibility":"ELIGIBLE","protection":"NOT_APPLICABLE","disclosure":"VALID","usdAvailableMinor":"25000000","usdcAvailableMinor":"250000000000"}
+  ],
+  "issuanceRoles": [
+    {"fixtureId":"국내-체결배분확인","role":"EXECUTION_ALLOCATION_CONFIRMER_ROLE"},
+    {"fixtureId":"해외-위험승인","role":"RISK_APPROVER_ROLE"},
+    {"fixtureId":"해외-권리기입승인","role":"RIGHTS_ENTRY_APPROVER_ROLE"},
+    {"fixtureId":"해외-원장반영확인","role":"RIGHTS_RECORDING_CONFIRMER_ROLE"},
+    {"fixtureId":"토큰-발행실행","role":"ISSUANCE_EXECUTOR_ROLE"}
+  ],
+  "primaryScenario": {
+    "securityFixtureId":"종목-삼성전자",
+    "limitKrwMinor":"257000",
+    "orders":[{"actorFixtureId":"고객-A","shareQuantity":"5","funding":"USD_LEDGER"},{"actorFixtureId":"고객-B","shareQuantity":"3","funding":"USDC_CONVERTED_TO_USD"}],
+    "domesticFilledQuantity":"6",
+    "expectedAllocation":[{"actorFixtureId":"고객-A","shareQuantity":"4"},{"actorFixtureId":"고객-B","shareQuantity":"2"}]
+  },
+  "secondaryPartialScenario": {
+    "securityFixtureId":"종목-SK하이닉스",
+    "investorFixtureId":"고객-B",
+    "marketMakerFixtureId":"시장조성자",
+    "orderedQuantity":"8",
+    "quotedQuantity":"5",
+    "expectedFilledQuantity":"5",
+    "expectedCancelledQuantity":"3",
+    "paymentMode":"USDC_ONCHAIN"
+  },
+  "corporateAction": {
+    "splitNumerator":"2",
+    "splitDenominator":"1",
+    "nonIntegralCounterexampleNumerator":"1",
+    "nonIntegralCounterexampleDenominator":"3"
+  },
+  "governance": {
+    "safeOwners":3,
+    "safeThreshold":2,
+    "timelockSeconds":60
+  },
+  "forbiddenFixtureFields": ["customerName","passportNumber","nationality","bankAccountNumber","privateKey","mnemonic","bearerToken"]
+}

@@ -16,11 +16,39 @@
     {
       "axis": "INVESTOR_PROTECTION",
       "queryOperationIds": [
-        "getSession"
+        "getSession",
+        "getCurrentDisclosure",
+        "getCurrentDisclosureConsent"
       ],
-      "commandOperationIds": [],
+      "commandOperationIds": [
+        "createDisclosureConsent"
+      ],
       "eventTypes": [
-        "workflow.state.changed.v1"
+        "workflow.state.changed.v1",
+        "disclosure.consent-recorded.v1"
+      ]
+    },
+    {
+      "axis": "COMPLAINT",
+      "queryOperationIds": [
+        "listComplaints",
+        "getComplaint"
+      ],
+      "commandOperationIds": [
+        "createComplaint",
+        "assignComplaint",
+        "startComplaintProcessing",
+        "recordComplaintResponse",
+        "linkComplaintCorrection",
+        "closeComplaint"
+      ],
+      "eventTypes": [
+        "complaint.submitted.v1",
+        "complaint.assigned.v1",
+        "complaint.processing-started.v1",
+        "complaint.response-recorded.v1",
+        "complaint.correction-linked.v1",
+        "complaint.closed.v1"
       ]
     },
     {
@@ -105,7 +133,9 @@
         "decideInstitutionTask"
       ],
       "eventTypes": [
+        "primary.execution-allocation.confirmed.v1",
         "primary.risk.approved.v1",
+        "rights.entry.approved.v1",
         "rights.entry.completed.v1",
         "token.mint.confirmed.v1"
       ]

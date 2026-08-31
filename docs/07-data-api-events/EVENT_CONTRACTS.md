@@ -60,6 +60,8 @@ HTTP 명령
 | `reconciliation.events.v1` | 대사 모듈 | 중지, 준법과 감사 | 대사 통과, 불일치와 보정결과 |
 | `audit.events.v1` | 모든 제한 업무 | 감사 투영 | 사람 승인, 권한변경, 중지와 재개 |
 | `quarantine.events.v1` | 이벤트 처리기 | 운영과 감사 | 순번공백, 서명실패와 영구 처리실패 |
+| `investor-protection.events.v1` | 고객과 준법 모듈 | 주문 사전조건과 감사 | 위험공시 전자 동의와 만료 |
+| `complaint.events.v1` | 민원 모듈과 책임기관 | 투자자 조회, 준법과 감사 | 접수, 배정, 답변, 정정 연결과 종결 |
 
 ## 5. 이벤트 유형
 
@@ -79,7 +81,9 @@ HTTP 명령
 - `primary.execution.recorded.v1`
 - `primary.execution.corrected.v1`
 - `primary.allocation.completed.v1`
+- `primary.execution-allocation.confirmed.v1`
 - `primary.risk.approved.v1`
+- `rights.entry.approved.v1`
 - `rights.entry.completed.v1`
 - `token.mint.confirmed.v1`
 - `domestic.settlement.confirmed.v1`
@@ -88,7 +92,19 @@ HTTP 명령
 
 체결, 결제, 수탁과 토큰 결과는 서로 다른 이벤트다. 결제와 수탁 두 이벤트가 모두 확인돼야 거래 가능 이벤트를 만들 수 있다.
 
-### 5.3 24/7 거래와 시장조성
+### 5.3 투자자 보호와 민원
+
+- `disclosure.consent-recorded.v1`
+- `complaint.submitted.v1`
+- `complaint.assigned.v1`
+- `complaint.processing-started.v1`
+- `complaint.response-recorded.v1`
+- `complaint.correction-linked.v1`
+- `complaint.closed.v1`
+
+공유 이벤트에는 민원 본문이나 자유형 기관 답변을 넣지 않는다. 민원 ID, 종류, 책임기관, 관련 주문이나 업무, 공시 버전과 증거 위치만 기록한다.
+
+### 5.4 24/7 거래와 시장조성
 
 - `market-maker.quote.published.v1`
 - `market-maker.quote.expired.v1`
@@ -103,7 +119,7 @@ HTTP 명령
 
 USDC DvP는 체인에서 함께 성공하거나 함께 실패한다. USD 거래와 두 자금경로의 권리 원장 확인은 체인 밖이므로 별도 완료 이벤트가 필요하다.
 
-### 5.4 환매와 권리업무
+### 5.5 환매와 권리업무
 
 - `redemption.locked.v1`
 - `redemption.execution.recorded.v1`
@@ -121,7 +137,7 @@ USDC DvP는 체인에서 함께 성공하거나 함께 실패한다. USD 거래�
 - `regulatory-report.submitted.v1`
 - `regulatory-report.corrected.v1`
 
-### 5.5 대사, 중지와 복구
+### 5.6 대사, 중지와 복구
 
 - `reconciliation.completed.v1`
 - `reconciliation.mismatch-detected.v1`

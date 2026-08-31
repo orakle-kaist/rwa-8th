@@ -1,0 +1,5092 @@
+{
+  "$schema": "./test-catalog.schema.json",
+  "schemaVersion": "2.0.0",
+  "status": "APPROVED",
+  "defaults": {
+    "required": true,
+    "automaticRetry": false,
+    "skipAllowed": false,
+    "simulation": true
+  },
+  "profiles": {
+    "QUICK": [
+      "DOCUMENT",
+      "UNIT",
+      "CONTRACT_UNIT"
+    ],
+    "FULL_LOCAL": [
+      "DOCUMENT",
+      "UNIT",
+      "INTEGRATION",
+      "CONTRACT",
+      "BROWSER"
+    ],
+    "FUJI_DEMO": [
+      "FULL_LOCAL_PREREQUISITE",
+      "FUJI"
+    ]
+  },
+  "groups": [
+    {
+      "groupId": "고객상품지갑",
+      "layers": [
+        "UNIT",
+        "INTEGRATION",
+        "BROWSER",
+        "CONTRACT"
+      ],
+      "preconditions": [
+        "합성 고객과 기준종목 fixture 적재"
+      ],
+      "evidence": [
+        "상태이력",
+        "차단사유",
+        "수량스냅샷"
+      ],
+      "cases": [
+        {
+          "testId": "고객-정상-01",
+          "requirementIds": [
+            "고객확인-01",
+            "고객확인-02",
+            "고객확인-03",
+            "투자자보호-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "허용 고객이 보호판정과 최신 공시에 동의하고 전용 지갑 연결"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "허용 고객이 보호판정과 최신 공시에 동의하고 전용 지갑 연결",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "ELIGIBILITY_PENDING"
+          ],
+          "expectedStates": [
+            "ELIGIBLE"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "주문과 권리 수령 가능, 다른 고객과 지갑 미공유"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "고객-차단-01",
+          "requirementIds": [
+            "고객확인-01",
+            "고객확인-02",
+            "투자자보호-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "고객확인 거절, 만료, 보호판정 실패, 공시 누락, 만료를 각각 주입"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "고객확인 거절, 만료, 보호판정 실패, 공시 누락, 만료를 각각 주입",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "ELIGIBILITY_PENDING"
+          ],
+          "expectedStates": [
+            "ELIGIBILITY_PENDING"
+          ],
+          "forbiddenStates": [
+            "ELIGIBLE"
+          ],
+          "expectedQuantities": {
+            "rule": "해당 고객의 신규 주문과 권리 수령만 차단, 사유와 책임기관 표시"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "공시-동의-01",
+          "requirementIds": [
+            "고객확인-04",
+            "투자자보호-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "disclosureVersion": "SIM-RISK-2",
+            "discloses": [
+              "책임기관",
+              "수탁 및 도산 위험",
+              "이전 제한",
+              "비용",
+              "민원기관"
+            ],
+            "consentedAt": "2026-08-31T00:00:00Z"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "책임기관, 수탁과 도산 위험, 이전 제한을 담은 현재 공시를 조회하고 전자 동의",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "DISCLOSURE_CONSENT_PENDING"
+          ],
+          "expectedStates": [
+            "DISCLOSURE_CONSENT_VALID"
+          ],
+          "forbiddenStates": [
+            "DISCLOSURE_CONSENT_MISSING",
+            "DISCLOSURE_CONSENT_EXPIRED"
+          ],
+          "expectedQuantities": {
+            "rule": "공시 버전, 동의시각, 만료와 후속 주문이 연결되고 미동의 주문은 차단"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "민원-분류-01",
+          "requirementIds": [
+            "민원처리-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "complaintTypes": [
+              "PLATFORM_TECHNICAL",
+              "BROKERAGE_ACCOUNT",
+              "TRADE_ERROR",
+              "REGULATORY"
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "플랫폼 기술문의와 계좌, 거래오류, 규제 민원을 각각 접수",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "COMPLAINT_SUBMITTED"
+          ],
+          "expectedStates": [
+            "COMPLAINT_ASSIGNED"
+          ],
+          "forbiddenStates": [
+            "COMPLAINT_CLOSED"
+          ],
+          "expectedQuantities": {
+            "rule": "종류에 맞는 플랫폼 또는 해외 증권사가 책임기관으로 배정되고 투자자가 상태 조회"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "민원-정정종결-01",
+          "requirementIds": [
+            "민원처리-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "startState": "COMPLAINT_RESPONSE_RECORDED",
+            "correctionWorkflowId": "합성 UUID",
+            "resolution": "CORRECTED"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "기관 답변 뒤 거래오류 정정 업무를 연결하고 민원 종결",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "COMPLAINT_SUBMITTED"
+          ],
+          "expectedStates": [
+            "COMPLAINT_CORRECTION_REVIEW",
+            "COMPLAINT_CLOSED"
+          ],
+          "forbiddenStates": [
+            "COMPLAINT_SUBMITTED"
+          ],
+          "expectedQuantities": {
+            "rule": "답변 참조, 정정 업무와 종결 근거가 연결되고 원주문은 덮어쓰지 않음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "모의정보-표시-01",
+          "requirementIds": [
+            "감사기록-03",
+            "고객확인-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "surfaces": [
+              "INVESTOR_APP",
+              "INSTITUTION_CONSOLE",
+              "ADAPTER_RESPONSE"
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "투자자 앱과 모든 기관 화면 및 합성 기관 응답 조회",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "ELIGIBLE"
+          ],
+          "expectedStates": [
+            "ELIGIBLE"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "실제 기관 응답으로 오인하지 않도록 모의 정보 표시가 유지됨"
+          },
+          "expectedAmounts": {
+            "simulationMarkersMissing": "0"
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "지갑-복구-01",
+          "requirementIds": [
+            "고객확인-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "기존 지갑 동결 뒤 권리 담당과 준법 담당이 새 지갑 승인"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "기존 지갑 동결 뒤 권리 담당과 준법 담당이 새 지갑 승인",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "WALLET_REPLACEMENT_REVIEW"
+          ],
+          "expectedStates": [
+            "WALLET_LINKED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "다섯 수량 상태가 그대로 이동하고 총발행량 불변"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "지갑-복구차단-01",
+          "requirementIds": [
+            "고객확인-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "승인 하나 누락, 부적격 새 지갑 또는 사용 중인 지갑으로 복구"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "승인 하나 누락, 부적격 새 지갑 또는 사용 중인 지갑으로 복구",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "WALLET_REPLACEMENT_REVIEW"
+          ],
+          "expectedStates": [
+            "WALLET_REPLACEMENT_REVIEW"
+          ],
+          "forbiddenStates": [
+            "WALLET_LINKED"
+          ],
+          "expectedQuantities": {
+            "rule": "복구 전체 실패, 기존 수량 보존"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "상품-전체-01",
+          "requirementIds": [
+            "상품목록-01",
+            "상품목록-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "기준일 KOSPI 200 스냅샷 등록"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "기준일 KOSPI 200 스냅샷 등록",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "PRODUCT_CANDIDATE"
+          ],
+          "expectedStates": [
+            "PRODUCT_REVIEWED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "서로 다른 201개 코드, 대표 6종목 포함, 중복 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "상품-배포-01",
+          "requirementIds": [
+            "상품목록-02",
+            "상품목록-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "BROWSER",
+            "CONTRACT"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "고객상품지갑",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "대표 6종목 계약 생성"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "대표 6종목 계약 생성",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "PRODUCT_CANDIDATE"
+          ],
+          "expectedStates": [
+            "PRODUCT_REVIEWED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "주소, 메타정보, 공급량과 정책상태가 종목별 분리"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "상태이력",
+            "차단사유",
+            "수량스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "발행결제",
+      "layers": [
+        "UNIT",
+        "INTEGRATION",
+        "CONTRACT",
+        "BROWSER"
+      ],
+      "preconditions": [
+        "고객 A, B 적격",
+        "삼성전자 상품 활성"
+      ],
+      "evidence": [
+        "주문과 배분",
+        "승인증거",
+        "권리원장",
+        "토큰이벤트"
+      ],
+      "cases": [
+        {
+          "testId": "발행-정상-01",
+          "requirementIds": [
+            "1차발행-01",
+            "1차발행-03",
+            "1차발행-04",
+            "수량단위-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "orders": [
+              {
+                "actor": "고객-A",
+                "quantity": "5",
+                "funding": "USD_LEDGER"
+              },
+              {
+                "actor": "고객-B",
+                "quantity": "3",
+                "funding": "USDC_CONVERSION"
+              }
+            ],
+            "domesticFill": "6",
+            "allocation": {
+              "고객-A": "4",
+              "고객-B": "2"
+            }
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "삼성전자 같은 지정가격의 USD 5주와 USDC 3주를 취합하고 6주 부분체결",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "pendingMintTotal": "6",
+            "customerA": "4",
+            "customerB": "2",
+            "unissued": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-분리-01",
+          "requirementIds": [
+            "1차발행-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "종목 또는 KRW 지정가격, 거래일이 다른 주문"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "종목 또는 KRW 지정가격, 거래일이 다른 주문",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "서로 다른 취합주문으로 분리"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "주문-휴장만료-01",
+          "requirementIds": [
+            "1차발행-01",
+            "1차발행-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "holidayRequestDate": "2026-08-30",
+            "nextBusinessDate": "2026-08-31",
+            "timeInForce": "DAY"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "KRX 휴장 중 주문과 영업일 당일 미체결 주문 제출",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "PRIMARY_KRX_OPEN_PENDING"
+          ],
+          "expectedStates": [
+            "PRIMARY_KRX_OPEN_PENDING",
+            "PRIMARY_CANCELLED"
+          ],
+          "forbiddenStates": [
+            "PRIMARY_CANCELLED"
+          ],
+          "expectedQuantities": {
+            "rule": "휴장 주문은 다음 영업일 대기열로 이동하고 당일 주문은 장 종료에 만료"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-정수차단-01",
+          "requirementIds": [
+            "1차발행-01",
+            "수량단위-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "시장가, 0주, 0.5주와 음수 수량 제출"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "시장가, 0주, 0.5주와 음수 수량 제출",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "expectedQuantities": {
+            "rule": "입력 또는 업무 검증에서 거절, 자금과 권리 불변"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-승인차단-01",
+          "requirementIds": [
+            "1차발행-03",
+            "1차발행-05"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "executionAllocationConfirmed": true,
+            "t2RiskApproved": false,
+            "rightsEntryApproved": true,
+            "rightsRecorded": true,
+            "quantity": "4"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "T+2 위험 승인이 누락됨",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "expectedQuantities": {
+            "totalSupplyDelta": "0",
+            "rightsDelta": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "MissingIndependentApproval"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-재사용차단-01",
+          "requirementIds": [
+            "1차발행-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "체결, 위험 또는 권리기입 증거를 다른 업무에 재사용"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "체결, 위험 또는 권리기입 증거를 다른 업무에 재사용",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "expectedQuantities": {
+            "rule": "추가 권리와 토큰 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "EvidenceAlreadyUsed"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-재시작-01",
+          "requirementIds": [
+            "1차발행-05",
+            "국내결제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "권리기입 완료 뒤 체인 발행 응답을 유실하고 프로세스 재시작"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "권리기입 완료 뒤 체인 발행 응답을 유실하고 프로세스 재시작",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "체인 결과 조회 뒤 한 번만 확정 또는 권리만 있는 격리"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "체결-정정취소-01",
+          "requirementIds": [
+            "1차발행-03",
+            "국내결제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "originalExecutedQuantity": "6",
+            "correctedExecutedQuantity": "5",
+            "correctionCount": 1
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "선발행 전후 국내 체결 정정과 취소를 전달",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "PRIMARY_CORRECTION_REVIEW"
+          ],
+          "expectedStates": [
+            "PRIMARY_ALLOCATION_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "finalRightsAndTokens": "5",
+            "duplicateAdjustment": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "결제-정상-01",
+          "requirementIds": [
+            "국내결제-01",
+            "국내결제-02",
+            "국내결제-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "국내 결제와 수탁수량 확인이 모두 도착"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "국내 결제와 수탁수량 확인이 모두 도착",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SETTLEMENT_AND_CUSTODY_PENDING"
+          ],
+          "expectedStates": [
+            "SETTLEMENT_AND_CUSTODY_CONFIRMED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "재발행 없이 결제 대기에서 거래 가능으로 전환"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "결제-차단-01",
+          "requirementIds": [
+            "국내결제-01",
+            "국내결제-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "발행결제",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "결제만 또는 수탁만 확인"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "결제만 또는 수탁만 확인",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SETTLEMENT_AND_CUSTODY_PENDING"
+          ],
+          "expectedStates": [
+            "SETTLEMENT_AND_CUSTODY_PENDING"
+          ],
+          "forbiddenStates": [
+            "SETTLEMENT_AND_CUSTODY_CONFIRMED"
+          ],
+          "expectedQuantities": {
+            "rule": "거래 가능 전환, 24/7 거래, 환매와 위험한도 회복 차단"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "주문과 배분",
+            "승인증거",
+            "권리원장",
+            "토큰이벤트",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "이차정산시장조성",
+      "layers": [
+        "UNIT",
+        "INTEGRATION",
+        "CONTRACT",
+        "BROWSER"
+      ],
+      "preconditions": [
+        "결제완료 권리",
+        "적격 투자자와 지정 MM"
+      ],
+      "evidence": [
+        "서명검증",
+        "체인영수증",
+        "권리, 자금, 재고 스냅샷"
+      ],
+      "cases": [
+        {
+          "testId": "정산-USD정상-01",
+          "requirementIds": [
+            "24시간거래-01",
+            "24시간거래-03",
+            "24시간거래-06"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "적격 투자자와 지정 시장조성자가 USD 장부로 거래"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "적격 투자자와 지정 시장조성자가 USD 장부로 거래",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "거래 가능 토큰, 권리와 USD가 같은 수량으로 최종 반영"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-USDC정상-01",
+          "requirementIds": [
+            "24시간거래-01",
+            "24시간거래-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "시험 USDC와 권리토큰 DvP"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "시험 USDC와 권리토큰 DvP",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "한 체인 거래에서 함께 이전, 권리 원장 확인 뒤 업무 완료"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-부분-01",
+          "requirementIds": [
+            "24시간거래-02",
+            "24시간거래-05",
+            "시장조성-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "orderedQuantity": "8",
+            "quotedQuantity": "5"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "SK하이닉스 8주 주문에 5주 호가",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "filled": "5",
+            "cancelled": "3",
+            "executionCount": "1"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-직접이전차단-01",
+          "requirementIds": [
+            "24시간거래-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "transfer, transferFrom, approve와 투자자 간 정산 시도"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "transfer, transferFrom, approve와 투자자 간 정산 시도",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "forbiddenStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "모두 실패하고 잔액과 nonce 불변"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "DirectTransferDisabled",
+            "ApprovalDisabled",
+            "MarketMakerRequired"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-재고차단-01",
+          "requirementIds": [
+            "24시간거래-05",
+            "국내결제-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "결제 대기, 환매 잠금, 소각 대기 또는 부족한 거래 가능 수량 사용"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "결제 대기, 환매 잠금, 소각 대기 또는 부족한 거래 가능 수량 사용",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "forbiddenStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "체결 거절, 국내 총보유량 불변"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "InsufficientAvailableBalance"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-서명차단-01",
+          "requirementIds": [
+            "24시간거래-06"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "위조, 만료, 취소, nonce 재사용과 정책버전 불일치"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "위조, 만료, 취소, nonce 재사용과 정책버전 불일치",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "forbiddenStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "전체 정산 실패, 성공하지 않은 nonce는 원인에 맞게 보존"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "SignatureExpired",
+            "NonceAlreadyUsed",
+            "PolicyVersionMismatch"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-호가차단-01",
+          "requirementIds": [
+            "24시간거래-02",
+            "시장조성-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "만료시각 도달, 자금 부족, 부적격 지갑 또는 지정 MM 아님"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "만료시각 도달, 자금 부족, 부적격 지갑 또는 지정 MM 아님",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "forbiddenStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "가장 좁은 요청만 차단하고 예약 해제"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-DvP실패-01",
+          "requirementIds": [
+            "24시간거래-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "USDC 또는 권리토큰 이전을 실패시킴"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "USDC 또는 권리토큰 이전을 실패시킴",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "forbiddenStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "두 자산 모두 이전되지 않고 체인 거래 전체 원복"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "PaymentMismatch"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-원장실패-01",
+          "requirementIds": [
+            "24시간거래-03",
+            "안전통제-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "체인 정산 성공 뒤 권리 원장 확정 실패"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "체인 정산 성공 뒤 권리 원장 확정 실패",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "forbiddenStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "완료 표시 금지, 관련 지갑과 수량 격리"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정산-RPC유실-01",
+          "requirementIds": [
+            "안전통제-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "전송 뒤 RPC 응답 유실"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "전송 뒤 RPC 응답 유실",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ORDER_RECEIVED"
+          ],
+          "expectedStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "거래 해시와 이벤트 확인 전 재전송 금지, 중복 체결 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "시장조성-경계-01",
+          "requirementIds": [
+            "시장조성-02",
+            "시장조성-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "순포지션 20과 21, 정보 60초와 61초를 각각 입력"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "순포지션 20과 21, 정보 60초와 61초를 각각 입력",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "MM_NORMAL"
+          ],
+          "expectedStates": [
+            "HEDGE_INVENTORY_ADJUSTED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "20과 60은 허용, 위험을 늘리는 21과 61은 차단"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "호가-경계-01",
+          "requirementIds": [
+            "24시간거래-02",
+            "시장조성-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "quoteValidSeconds": 30,
+            "attemptAges": [
+              29,
+              30
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "동일 호가를 생성 후 29초와 30초에 체결 시도",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "QUOTE_ACTIVE"
+          ],
+          "expectedStates": [
+            "QUOTE_ACTIVE",
+            "QUOTE_EXPIRED"
+          ],
+          "forbiddenStates": [
+            "SECONDARY_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "29초 허용, 만료시각에 도달한 30초 체결 차단"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "정보-경계-01",
+          "requirementIds": [
+            "시장조성-02",
+            "안전통제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "allowedAgeSeconds": 60,
+            "blockedAgeSeconds": 61
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "환율과 위험정보의 기준시각을 60초와 61초로 설정",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ENABLED"
+          ],
+          "expectedStates": [
+            "SECONDARY_ENABLED",
+            "SECONDARY_DISABLED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "60초 허용, 61초부터 관련 24/7 승인 차단"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "USDC-경계-01",
+          "requirementIds": [
+            "시장조성-02",
+            "안전통제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "allowed": [
+              "0.9950",
+              "1.0050"
+            ],
+            "blocked": [
+              "0.9949",
+              "1.0051"
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "USDC 가격을 0.9950, 1.0050과 각각 경계 밖으로 설정",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "FUNDS_AVAILABLE"
+          ],
+          "expectedStates": [
+            "TRANSFER_CONFIRMED"
+          ],
+          "forbiddenStates": [
+            "TRANSFER_CONFIRMED_OUTSIDE_ALLOWED_RANGE"
+          ],
+          "expectedQuantities": {
+            "rule": "경계값 허용, 경계 밖에서는 USDC 경로만 중지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "시장조성-손실-01",
+          "requirementIds": [
+            "시장조성-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "종목 및 전체 손실한도 도달"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "종목 및 전체 손실한도 도달",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "MM_NORMAL"
+          ],
+          "expectedStates": [
+            "HEDGE_INVENTORY_ADJUSTED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "승인된 범위의 신규 호가와 체결 중지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "손실-경계-01",
+          "requirementIds": [
+            "시장조성-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "perSecurityBps": [
+              199,
+              200,
+              201
+            ],
+            "portfolioBps": [
+              149,
+              150,
+              151
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "손실한도 직전, 도달과 초과 값을 차례로 입력",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "MM_NORMAL"
+          ],
+          "expectedStates": [
+            "MM_NORMAL",
+            "MM_QUOTING_HALTED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "직전까지 허용하고 도달부터 신규 호가 중지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "시장조성-헤지-01",
+          "requirementIds": [
+            "시장조성-03",
+            "시장조성-04",
+            "시장조성-05"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이차정산시장조성",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "순매도와 순매수 뒤 다음 개장 헤지 생성"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "순매도와 순매수 뒤 다음 개장 헤지 생성",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "MM_NORMAL"
+          ],
+          "expectedStates": [
+            "HEDGE_INVENTORY_ADJUSTED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "각각 기초주식 매수와 매도 방향, 결제완료 뒤 다음 재고 반영"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "서명검증",
+            "체인영수증",
+            "권리, 자금, 재고 스냅샷",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "이벤트장애대사",
+      "layers": [
+        "INTEGRATION",
+        "API",
+        "BROWSER"
+      ],
+      "preconditions": [
+        "PostgreSQL 발송함과 모의 어댑터 실행"
+      ],
+      "evidence": [
+        "eventId와 순번",
+        "발송함 기록",
+        "격리와 재개 기록"
+      ],
+      "cases": [
+        {
+          "testId": "이벤트-중복-01",
+          "requirementIds": [
+            "안전통제-02"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "같은 eventId와 기관 순번 재수신"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "같은 eventId와 기관 순번 재수신",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "기존 결과 반환, 상태와 수량 추가변경 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "이벤트-공백-01",
+          "requirementIds": [
+            "감사기록-02"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "기관 순번을 하나 건너뜀"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "기관 순번을 하나 건너뜀",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "forbiddenStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "expectedQuantities": {
+            "rule": "이후 이벤트 대기 또는 격리, 불완전 투영으로 자산이동 금지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "이벤트-정정-01",
+          "requirementIds": [
+            "감사기록-02"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "늦은 정정이 원 이벤트를 참조"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "늦은 정정이 원 이벤트를 참조",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "원기록 보존, 영향받는 권리, 토큰, 자금, 보고 재계산"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "멱등-충돌-01",
+          "requirementIds": [
+            "안전통제-02"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "같은 키와 같은 본문, 같은 키와 다른 본문 제출"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "같은 키와 같은 본문, 같은 키와 다른 본문 제출",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "전자는 기존 결과, 후자는 409, 중복 업무 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "재시작-발송함-01",
+          "requirementIds": [
+            "안전통제-03"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "데이터 저장 뒤 발송 전과 발송 뒤 확인 전 각각 중단"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "데이터 저장 뒤 발송 전과 발송 뒤 확인 전 각각 중단",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "요청 유실과 중복 실행 없이 재개"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "대사-정상-01",
+          "requirementIds": [
+            "안전통제-01"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "같은 기준시각의 두 축 대사"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "같은 기준시각의 두 축 대사",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "expectedStates": [
+            "WORK_RESUMED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "전체 토큰과 권리, 국내 결제완료 수량 공식 통과"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "대사-불일치-01",
+          "requirementIds": [
+            "국내결제-04",
+            "안전통제-01"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "권리, 토큰 또는 국내 수탁 차이 주입"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "권리, 토큰 또는 국내 수탁 차이 주입",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [
+            "WORK_RESUMED"
+          ],
+          "expectedQuantities": {
+            "rule": "신규 발행과 24/7 중지, 독립 확인 가능한 환매만 지속"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "상태-허용전환전체-01",
+          "requirementIds": [
+            "감사기록-01"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "상태모델의 각 상태에서 문서상 허용된 다음 상태로 전환"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "상태모델의 각 상태에서 문서상 허용된 다음 상태로 전환",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "ELIGIBILITY_PENDING"
+          ],
+          "expectedStates": [
+            "WORK_RESUMED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "모든 상태 전환에서 자산효과가 정의된 경우에만 수량이 바뀐다."
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ],
+          "coveredStateCodes": [
+            "ELIGIBILITY_PENDING",
+            "ELIGIBLE",
+            "INELIGIBLE",
+            "ELIGIBILITY_EXPIRED",
+            "ELIGIBILITY_SUSPENDED",
+            "PROTECTION_REVIEW_PENDING",
+            "PROTECTION_PASSED",
+            "PROTECTION_FAILED",
+            "PROTECTION_EXPIRED",
+            "DISCLOSURE_CONSENT_PENDING",
+            "DISCLOSURE_CONSENT_VALID",
+            "DISCLOSURE_CONSENT_MISSING",
+            "DISCLOSURE_CONSENT_EXPIRED",
+            "COMPLAINT_SUBMITTED",
+            "COMPLAINT_ASSIGNED",
+            "COMPLAINT_IN_PROGRESS",
+            "COMPLAINT_RESPONSE_RECORDED",
+            "COMPLAINT_CORRECTION_REVIEW",
+            "COMPLAINT_CLOSED",
+            "WALLET_UNLINKED",
+            "WALLET_LINK_APPROVAL_PENDING",
+            "WALLET_LINKED",
+            "WALLET_REPLACEMENT_REVIEW",
+            "WALLET_FROZEN",
+            "PRODUCT_CANDIDATE",
+            "PRODUCT_REVIEWED",
+            "PRODUCT_INFORMATION_UNCONFIRMED",
+            "MATERIAL_EVENT_REVIEW",
+            "PRIMARY_ENABLED",
+            "PRIMARY_DISABLED",
+            "SECONDARY_ENABLED",
+            "SECONDARY_DISABLED",
+            "REDEMPTION_ENABLED",
+            "REDEMPTION_RESTRICTED",
+            "PRIMARY_DRAFT",
+            "PRIMARY_FUNDS_CHECK",
+            "PRIMARY_FUNDS_CHECK_FAILED",
+            "PRIMARY_AGGREGATION_PENDING",
+            "PRIMARY_KRX_OPEN_PENDING",
+            "PRIMARY_SUBMITTED_DOMESTICALLY",
+            "PRIMARY_UNFILLED",
+            "PRIMARY_PARTIALLY_FILLED",
+            "PRIMARY_FULLY_FILLED",
+            "PRIMARY_ALLOCATION_COMPLETED",
+            "PRIMARY_CORRECTION_REVIEW",
+            "PRIMARY_CANCELLED",
+            "EXECUTED_NOT_ISSUED",
+            "T2_RISK_APPROVAL_PENDING",
+            "RIGHTS_APPROVAL_PENDING",
+            "RIGHTS_ENTRY_PENDING",
+            "RIGHTS_ENTRY_COMPLETED",
+            "TOKEN_MINT_PENDING",
+            "RIGHTS_ENTRY_QUARANTINED",
+            "TOKEN_UNMINTED",
+            "TOKEN_SETTLEMENT_PENDING",
+            "TOKEN_TRADABLE",
+            "TOKEN_RESERVED",
+            "TOKEN_REDEMPTION_LOCKED",
+            "TOKEN_BURN_PENDING",
+            "TOKEN_BURNED",
+            "TOKEN_QUARANTINED",
+            "SETTLEMENT_AND_CUSTODY_PENDING",
+            "SETTLEMENT_ONLY_CONFIRMED",
+            "CUSTODY_ONLY_CONFIRMED",
+            "SETTLEMENT_AND_CUSTODY_CONFIRMED",
+            "SETTLEMENT_EXCEPTION_REVIEW",
+            "CUSTODY_CONFIRMATION_PENDING",
+            "CUSTODY_CONFIRMED",
+            "CUSTODY_MISMATCH",
+            "FUNDS_AVAILABLE",
+            "FUNDS_RECEIPT_CONFIRMED",
+            "USD_CONVERSION_PENDING",
+            "USD_ATTRIBUTED",
+            "FUNDS_RESERVED",
+            "FUNDS_USED",
+            "RESERVATION_RELEASED",
+            "FUNDS_RETURN_PENDING",
+            "WALLET_BALANCE_CONFIRMED",
+            "TRANSFER_CONFIRMED",
+            "PAYMENT_PENDING",
+            "PAYMENT_COMPLETED",
+            "CONVERSION_QUOTED",
+            "CUSTOMER_CONVERSION_CONFIRMED",
+            "USDC_PAYMENT_CONFIRMED",
+            "RESERVATION_RELEASED_AFTER_FAILURE",
+            "QUOTE_DRAFT",
+            "QUOTE_REVIEW",
+            "QUOTE_ACTIVE",
+            "QUOTE_PARTIALLY_FILLED",
+            "QUOTE_FULLY_FILLED",
+            "QUOTE_EXPIRED",
+            "QUOTE_WITHDRAWN",
+            "QUOTE_BLOCKED",
+            "SECONDARY_ORDER_RECEIVED",
+            "SECONDARY_PRECHECK",
+            "SECONDARY_RESERVED",
+            "SECONDARY_PARTIALLY_CONFIRMED",
+            "SECONDARY_FULLY_CONFIRMED",
+            "SECONDARY_AUTO_REVERSED",
+            "SECONDARY_QUARANTINED",
+            "SECONDARY_COMPLETED",
+            "SECONDARY_REJECTED",
+            "MM_NORMAL",
+            "MM_RISK_REDUCING_ONLY",
+            "MM_QUOTING_HALTED",
+            "HEDGE_CREATED",
+            "HEDGE_RISK_REVIEW",
+            "HEDGE_KRX_OPEN_PENDING",
+            "HEDGE_SUBMITTED_DOMESTICALLY",
+            "HEDGE_PARTIALLY_FILLED",
+            "HEDGE_FULLY_FILLED",
+            "HEDGE_T2_PENDING",
+            "HEDGE_INVENTORY_ADJUSTED",
+            "HEDGE_ON_HOLD",
+            "REDEMPTION_REQUESTED",
+            "RIGHTS_AND_TOKEN_LOCKED",
+            "DOMESTIC_SALE_PENDING",
+            "REDEMPTION_SUBMITTED_DOMESTICALLY",
+            "REDEMPTION_UNFILLED",
+            "REDEMPTION_PARTIALLY_FILLED",
+            "REDEMPTION_FULLY_FILLED",
+            "SALE_PROCEEDS_SETTLEMENT_PENDING",
+            "RIGHTS_TERMINATED_CASH_CLAIM_CREATED",
+            "REDEMPTION_BURN_PENDING",
+            "REDEMPTION_COMPLETED",
+            "REDEMPTION_EXCEPTION_REVIEW",
+            "REDEMPTION_QUARANTINED",
+            "DIVIDEND_EVENT_CONFIRMED",
+            "DIVIDEND_SNAPSHOT_REVIEW",
+            "DIVIDEND_ALLOCATION_APPROVED",
+            "DIVIDEND_USD_PAYMENT_PENDING",
+            "DIVIDEND_USD_PAID",
+            "DIVIDEND_USDC_QUOTED",
+            "DIVIDEND_CONVERSION_CONFIRMED",
+            "DIVIDEND_USD_RESERVED",
+            "DIVIDEND_USDC_PAID",
+            "DIVIDEND_QUOTE_EXPIRED",
+            "DIVIDEND_RESERVATION_RELEASED",
+            "DIVIDEND_CONVERSION_COMPLETED",
+            "DIVIDEND_RIGHTS_EXCEPTION_REVIEW",
+            "VOTE_AGENDA_CONFIRMED",
+            "VOTE_INSTRUCTION_COLLECTION",
+            "VOTE_TALLY_APPROVED",
+            "VOTE_DOMESTIC_EXECUTION_PENDING",
+            "VOTE_EXECUTION_CONFIRMED",
+            "VOTE_COMPLETED",
+            "CORPORATE_ACTION_DETECTED",
+            "CORPORATE_ACTION_ALL_WORK_HELD",
+            "CORPORATE_ACTION_PLAN_REVIEW",
+            "CORPORATE_ACTION_PLAN_APPROVED",
+            "CORPORATE_ACTION_QUANTITY_APPLIED",
+            "CORPORATE_ACTION_RECONCILED",
+            "CORPORATE_ACTION_RELEASE_APPROVED",
+            "REPORTING_PERIOD_CLOSED",
+            "REPORT_GENERATED",
+            "REPORT_APPROVED",
+            "REPORT_SUBMISSION_PENDING",
+            "REPORT_SUBMITTED_ON_TIME",
+            "REPORT_SUBMITTED_LATE",
+            "REPORT_RECEIPT_CONFIRMED",
+            "REPORT_CORRECTION_REVIEW",
+            "REPORT_CORRECTED",
+            "REPORT_COMPLETED",
+            "RECONCILIATION_MATCHED",
+            "EXPECTED_TRANSITION_CONFIRMED",
+            "MISMATCH_SUSPECTED",
+            "WORK_HALTED",
+            "EVIDENCE_COLLECTION",
+            "ROOT_CAUSE_CONFIRMED",
+            "RECONCILIATION_QUARANTINED",
+            "CORRECTION_PENDING",
+            "FULL_RECONCILIATION_COMPLETED",
+            "RELEASE_APPROVED",
+            "WORK_RESUMED"
+          ]
+        },
+        {
+          "testId": "상태-금지전환전체-01",
+          "requirementIds": [
+            "안전통제-02"
+          ],
+          "layers": [
+            "INTEGRATION",
+            "API",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "이벤트장애대사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "각 상태에서 문서에 없는 대표 금지 전환을 요청"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "각 상태에서 문서에 없는 대표 금지 전환을 요청",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "ELIGIBILITY_PENDING"
+          ],
+          "expectedStates": [
+            "WORK_RESUMED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "모든 상태 전환에서 자산효과가 정의된 경우에만 수량이 바뀐다."
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "STATE_CONFLICT"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "eventId와 순번",
+            "발송함 기록",
+            "격리와 재개 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ],
+          "coveredStateCodes": [
+            "ELIGIBILITY_PENDING",
+            "ELIGIBLE",
+            "INELIGIBLE",
+            "ELIGIBILITY_EXPIRED",
+            "ELIGIBILITY_SUSPENDED",
+            "PROTECTION_REVIEW_PENDING",
+            "PROTECTION_PASSED",
+            "PROTECTION_FAILED",
+            "PROTECTION_EXPIRED",
+            "DISCLOSURE_CONSENT_PENDING",
+            "DISCLOSURE_CONSENT_VALID",
+            "DISCLOSURE_CONSENT_MISSING",
+            "DISCLOSURE_CONSENT_EXPIRED",
+            "COMPLAINT_SUBMITTED",
+            "COMPLAINT_ASSIGNED",
+            "COMPLAINT_IN_PROGRESS",
+            "COMPLAINT_RESPONSE_RECORDED",
+            "COMPLAINT_CORRECTION_REVIEW",
+            "COMPLAINT_CLOSED",
+            "WALLET_UNLINKED",
+            "WALLET_LINK_APPROVAL_PENDING",
+            "WALLET_LINKED",
+            "WALLET_REPLACEMENT_REVIEW",
+            "WALLET_FROZEN",
+            "PRODUCT_CANDIDATE",
+            "PRODUCT_REVIEWED",
+            "PRODUCT_INFORMATION_UNCONFIRMED",
+            "MATERIAL_EVENT_REVIEW",
+            "PRIMARY_ENABLED",
+            "PRIMARY_DISABLED",
+            "SECONDARY_ENABLED",
+            "SECONDARY_DISABLED",
+            "REDEMPTION_ENABLED",
+            "REDEMPTION_RESTRICTED",
+            "PRIMARY_DRAFT",
+            "PRIMARY_FUNDS_CHECK",
+            "PRIMARY_FUNDS_CHECK_FAILED",
+            "PRIMARY_AGGREGATION_PENDING",
+            "PRIMARY_KRX_OPEN_PENDING",
+            "PRIMARY_SUBMITTED_DOMESTICALLY",
+            "PRIMARY_UNFILLED",
+            "PRIMARY_PARTIALLY_FILLED",
+            "PRIMARY_FULLY_FILLED",
+            "PRIMARY_ALLOCATION_COMPLETED",
+            "PRIMARY_CORRECTION_REVIEW",
+            "PRIMARY_CANCELLED",
+            "EXECUTED_NOT_ISSUED",
+            "T2_RISK_APPROVAL_PENDING",
+            "RIGHTS_APPROVAL_PENDING",
+            "RIGHTS_ENTRY_PENDING",
+            "RIGHTS_ENTRY_COMPLETED",
+            "TOKEN_MINT_PENDING",
+            "RIGHTS_ENTRY_QUARANTINED",
+            "TOKEN_UNMINTED",
+            "TOKEN_SETTLEMENT_PENDING",
+            "TOKEN_TRADABLE",
+            "TOKEN_RESERVED",
+            "TOKEN_REDEMPTION_LOCKED",
+            "TOKEN_BURN_PENDING",
+            "TOKEN_BURNED",
+            "TOKEN_QUARANTINED",
+            "SETTLEMENT_AND_CUSTODY_PENDING",
+            "SETTLEMENT_ONLY_CONFIRMED",
+            "CUSTODY_ONLY_CONFIRMED",
+            "SETTLEMENT_AND_CUSTODY_CONFIRMED",
+            "SETTLEMENT_EXCEPTION_REVIEW",
+            "CUSTODY_CONFIRMATION_PENDING",
+            "CUSTODY_CONFIRMED",
+            "CUSTODY_MISMATCH",
+            "FUNDS_AVAILABLE",
+            "FUNDS_RECEIPT_CONFIRMED",
+            "USD_CONVERSION_PENDING",
+            "USD_ATTRIBUTED",
+            "FUNDS_RESERVED",
+            "FUNDS_USED",
+            "RESERVATION_RELEASED",
+            "FUNDS_RETURN_PENDING",
+            "WALLET_BALANCE_CONFIRMED",
+            "TRANSFER_CONFIRMED",
+            "PAYMENT_PENDING",
+            "PAYMENT_COMPLETED",
+            "CONVERSION_QUOTED",
+            "CUSTOMER_CONVERSION_CONFIRMED",
+            "USDC_PAYMENT_CONFIRMED",
+            "RESERVATION_RELEASED_AFTER_FAILURE",
+            "QUOTE_DRAFT",
+            "QUOTE_REVIEW",
+            "QUOTE_ACTIVE",
+            "QUOTE_PARTIALLY_FILLED",
+            "QUOTE_FULLY_FILLED",
+            "QUOTE_EXPIRED",
+            "QUOTE_WITHDRAWN",
+            "QUOTE_BLOCKED",
+            "SECONDARY_ORDER_RECEIVED",
+            "SECONDARY_PRECHECK",
+            "SECONDARY_RESERVED",
+            "SECONDARY_PARTIALLY_CONFIRMED",
+            "SECONDARY_FULLY_CONFIRMED",
+            "SECONDARY_AUTO_REVERSED",
+            "SECONDARY_QUARANTINED",
+            "SECONDARY_COMPLETED",
+            "SECONDARY_REJECTED",
+            "MM_NORMAL",
+            "MM_RISK_REDUCING_ONLY",
+            "MM_QUOTING_HALTED",
+            "HEDGE_CREATED",
+            "HEDGE_RISK_REVIEW",
+            "HEDGE_KRX_OPEN_PENDING",
+            "HEDGE_SUBMITTED_DOMESTICALLY",
+            "HEDGE_PARTIALLY_FILLED",
+            "HEDGE_FULLY_FILLED",
+            "HEDGE_T2_PENDING",
+            "HEDGE_INVENTORY_ADJUSTED",
+            "HEDGE_ON_HOLD",
+            "REDEMPTION_REQUESTED",
+            "RIGHTS_AND_TOKEN_LOCKED",
+            "DOMESTIC_SALE_PENDING",
+            "REDEMPTION_SUBMITTED_DOMESTICALLY",
+            "REDEMPTION_UNFILLED",
+            "REDEMPTION_PARTIALLY_FILLED",
+            "REDEMPTION_FULLY_FILLED",
+            "SALE_PROCEEDS_SETTLEMENT_PENDING",
+            "RIGHTS_TERMINATED_CASH_CLAIM_CREATED",
+            "REDEMPTION_BURN_PENDING",
+            "REDEMPTION_COMPLETED",
+            "REDEMPTION_EXCEPTION_REVIEW",
+            "REDEMPTION_QUARANTINED",
+            "DIVIDEND_EVENT_CONFIRMED",
+            "DIVIDEND_SNAPSHOT_REVIEW",
+            "DIVIDEND_ALLOCATION_APPROVED",
+            "DIVIDEND_USD_PAYMENT_PENDING",
+            "DIVIDEND_USD_PAID",
+            "DIVIDEND_USDC_QUOTED",
+            "DIVIDEND_CONVERSION_CONFIRMED",
+            "DIVIDEND_USD_RESERVED",
+            "DIVIDEND_USDC_PAID",
+            "DIVIDEND_QUOTE_EXPIRED",
+            "DIVIDEND_RESERVATION_RELEASED",
+            "DIVIDEND_CONVERSION_COMPLETED",
+            "DIVIDEND_RIGHTS_EXCEPTION_REVIEW",
+            "VOTE_AGENDA_CONFIRMED",
+            "VOTE_INSTRUCTION_COLLECTION",
+            "VOTE_TALLY_APPROVED",
+            "VOTE_DOMESTIC_EXECUTION_PENDING",
+            "VOTE_EXECUTION_CONFIRMED",
+            "VOTE_COMPLETED",
+            "CORPORATE_ACTION_DETECTED",
+            "CORPORATE_ACTION_ALL_WORK_HELD",
+            "CORPORATE_ACTION_PLAN_REVIEW",
+            "CORPORATE_ACTION_PLAN_APPROVED",
+            "CORPORATE_ACTION_QUANTITY_APPLIED",
+            "CORPORATE_ACTION_RECONCILED",
+            "CORPORATE_ACTION_RELEASE_APPROVED",
+            "REPORTING_PERIOD_CLOSED",
+            "REPORT_GENERATED",
+            "REPORT_APPROVED",
+            "REPORT_SUBMISSION_PENDING",
+            "REPORT_SUBMITTED_ON_TIME",
+            "REPORT_SUBMITTED_LATE",
+            "REPORT_RECEIPT_CONFIRMED",
+            "REPORT_CORRECTION_REVIEW",
+            "REPORT_CORRECTED",
+            "REPORT_COMPLETED",
+            "RECONCILIATION_MATCHED",
+            "EXPECTED_TRANSITION_CONFIRMED",
+            "MISMATCH_SUSPECTED",
+            "WORK_HALTED",
+            "EVIDENCE_COLLECTION",
+            "ROOT_CAUSE_CONFIRMED",
+            "RECONCILIATION_QUARANTINED",
+            "CORRECTION_PENDING",
+            "FULL_RECONCILIATION_COMPLETED",
+            "RELEASE_APPROVED",
+            "WORK_RESUMED"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "환매권리업무",
+      "layers": [
+        "UNIT",
+        "INTEGRATION",
+        "CONTRACT",
+        "BROWSER"
+      ],
+      "preconditions": [
+        "결제완료 권리와 권리업무 fixture"
+      ],
+      "evidence": [
+        "지급청구",
+        "소각이벤트",
+        "배당, 의결권, 보고 기록"
+      ],
+      "cases": [
+        {
+          "testId": "환매-정상-01",
+          "requirementIds": [
+            "환매-01",
+            "환매-02",
+            "환매-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "거래 가능 수량 잠금, 취합 매도, T+2와 권리종료"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "거래 가능 수량 잠금, 취합 매도, T+2와 권리종료",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "REDEMPTION_REQUESTED"
+          ],
+          "expectedStates": [
+            "REDEMPTION_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "USD 지급청구와 소각 대기 생성 뒤 소각과 USD 지급 완료"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "환매-차단-01",
+          "requirementIds": [
+            "환매-01",
+            "환매-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "결제 대기, 이미 잠긴, 동결 또는 소각 대기 수량 환매"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "결제 대기, 이미 잠긴, 동결 또는 소각 대기 수량 환매",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "REDEMPTION_REQUESTED"
+          ],
+          "expectedStates": [
+            "REDEMPTION_REQUESTED"
+          ],
+          "forbiddenStates": [
+            "REDEMPTION_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "환매 잠금 거절, 기존 상태 보존"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "InsufficientAvailableBalance"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "환매-과도기-01",
+          "requirementIds": [
+            "환매-03",
+            "환매-05"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "국내 매도대금 결제와 권리종료 뒤 소각 전 상태"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "국내 매도대금 결제와 권리종료 뒤 소각 전 상태",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "REDEMPTION_REQUESTED"
+          ],
+          "expectedStates": [
+            "REDEMPTION_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "국내 총량 감소, 지급청구와 소각 대기 연결, 주식 권리에서 제외"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "환매-부분실패-01",
+          "requirementIds": [
+            "환매-03",
+            "환매-04",
+            "환매-05"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "USD 지급과 소각 중 한쪽만 완료"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "USD 지급과 소각 중 한쪽만 완료",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "REDEMPTION_REQUESTED"
+          ],
+          "expectedStates": [
+            "REDEMPTION_REQUESTED"
+          ],
+          "forbiddenStates": [
+            "REDEMPTION_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "업무 완료 금지, 해당 요청 격리와 독립 대사"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "배당-정상-01",
+          "requirementIds": [
+            "권리관리-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "기준일 스냅샷과 국내 수령총액으로 USD 배분"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "기준일 스냅샷과 국내 수령총액으로 USD 배분",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "DIVIDEND_EVENT_CONFIRMED"
+          ],
+          "expectedStates": [
+            "DIVIDEND_USD_PAID"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "세금, 수수료, 지급과 잔여금 합이 총액 이내, 중복 지급 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "배당-USDC-01",
+          "requirementIds": [
+            "배당전환-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "USD 지급 뒤 전환 성공, 견적 만료와 전환 실패"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "USD 지급 뒤 전환 성공, 견적 만료와 전환 실패",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "DIVIDEND_EVENT_CONFIRMED"
+          ],
+          "expectedStates": [
+            "DIVIDEND_USD_PAID"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "성공은 USDC 지급, 실패는 USD 예약 해제, 중복 전환 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "의결권-정상-01",
+          "requirementIds": [
+            "권리관리-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "찬성, 반대, 기권과 미응답 집계"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "찬성, 반대, 기권과 미응답 집계",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "VOTE_AGENDA_CONFIRMED"
+          ],
+          "expectedStates": [
+            "VOTE_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "기준수량 이내 불통일 지시, 미응답 미행사, 일반 거래 유지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "보고-기한-01",
+          "requirementIds": [
+            "권리관리-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "다음 달 10일과 11일 제출 및 정정"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "다음 달 10일과 11일 제출 및 정정",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "REPORTING_PERIOD_CLOSED"
+          ],
+          "expectedStates": [
+            "REPORT_COMPLETED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "정상, 지연 구분, 접수, 정정 연결과 10년 보관 증거"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "지급청구",
+            "소각이벤트",
+            "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "중지거버넌스기업행동",
+      "layers": [
+        "UNIT",
+        "INTEGRATION",
+        "CONTRACT",
+        "BROWSER"
+      ],
+      "preconditions": [
+        "정책 registry와 Safe, timelock 구성"
+      ],
+      "evidence": [
+        "중지, 재개 이벤트",
+        "역할 변경",
+        "수량 전후"
+      ],
+      "cases": [
+        {
+          "testId": "중지-가격-01",
+          "requirementIds": [
+            "안전통제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "가격, 환율, 위험정보 지연"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "가격, 환율, 위험정보 지연",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ENABLED"
+          ],
+          "expectedStates": [
+            "SECONDARY_DISABLED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "해당 종목 24/7만 중지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "중지-USDC-01",
+          "requirementIds": [
+            "배당전환-01",
+            "안전통제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "USDC 확인가격 범위 이탈"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "USDC 확인가격 범위 이탈",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ENABLED"
+          ],
+          "expectedStates": [
+            "SECONDARY_DISABLED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "USDC 경로만 중지, USD 경로 유지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "중지-KRX-01",
+          "requirementIds": [
+            "상품목록-03",
+            "시장조성-03",
+            "시장조성-05",
+            "안전통제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "거래정지 또는 중요사건"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "거래정지 또는 중요사건",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ENABLED"
+          ],
+          "expectedStates": [
+            "SECONDARY_DISABLED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "신규 발행과 24/7 중지, 환매 국내 매도는 사람 판단"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "중지-기업행동-01",
+          "requirementIds": [
+            "상품목록-03",
+            "안전통제-04"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "합성 비현금 기업행동"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "합성 비현금 기업행동",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SECONDARY_ENABLED"
+          ],
+          "expectedStates": [
+            "SECONDARY_DISABLED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "해당 종목 발행, 정산, 환매 모두 중지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "거버넌스-권한차단-01",
+          "requirementIds": [
+            "안전통제-05"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "무승인 발행, 소각, 복구, 정책변경과 금지 역할조합"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "무승인 발행, 소각, 복구, 정책변경과 금지 역할조합",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "WORK_HALTED"
+          ],
+          "expectedStates": [
+            "WORK_HALTED"
+          ],
+          "forbiddenStates": [
+            "WORK_RESUMED"
+          ],
+          "expectedQuantities": {
+            "rule": "모든 호출 실패, 상태 불변"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "UnauthorizedController"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "거버넌스-긴급중지-01",
+          "requirementIds": [
+            "안전통제-04",
+            "안전통제-05"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "긴급중지 키로 중지 뒤 같은 키로 재개"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "긴급중지 키로 중지 뒤 같은 키로 재개",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "WORK_HALTED"
+          ],
+          "expectedStates": [
+            "WORK_RESUMED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "중지는 즉시, 재개는 실패"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "거버넌스-지연-01",
+          "requirementIds": [
+            "안전통제-05"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "Safe 2-of-3가 재개 예약"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "Safe 2-of-3가 재개 예약",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "WORK_HALTED"
+          ],
+          "expectedStates": [
+            "WORK_RESUMED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "60초 전 실행 실패, 60초부터 실행 성공과 이벤트 기록"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "기업행동-분할-01",
+          "requirementIds": [
+            "권리관리-03"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "모든 상태에 2대1 분할 적용"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "모든 상태에 2대1 분할 적용",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "CORPORATE_ACTION_DETECTED"
+          ],
+          "expectedStates": [
+            "CORPORATE_ACTION_RECONCILED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "정수 수량 2배, 상태 구분 보존, 예상 총량과 대사 일치"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "기업행동-소수차단-01",
+          "requirementIds": [
+            "권리관리-03",
+            "수량단위-01"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "중지거버넌스기업행동",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "정수로 계산되지 않는 병합 또는 배치 일부 실패"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "정수로 계산되지 않는 병합 또는 배치 일부 실패",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "CORPORATE_ACTION_DETECTED"
+          ],
+          "expectedStates": [
+            "CORPORATE_ACTION_DETECTED"
+          ],
+          "forbiddenStates": [
+            "CORPORATE_ACTION_RECONCILED"
+          ],
+          "expectedQuantities": {
+            "rule": "전체 원복, 종목 중지 유지"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "NonIntegralCorporateAction"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "중지, 재개 이벤트",
+            "역할 변경",
+            "수량 전후",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "보안감사",
+      "layers": [
+        "DOCUMENT",
+        "INTEGRATION",
+        "CONTRACT",
+        "BROWSER"
+      ],
+      "preconditions": [
+        "전체 증거와 역할 구성"
+      ],
+      "evidence": [
+        "스키마 검사",
+        "권한 목록",
+        "감사 추적"
+      ],
+      "cases": [
+        {
+          "testId": "발행-USDC전환-01",
+          "requirementIds": [
+            "1차발행-01",
+            "1차발행-02"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "actor": "고객-B",
+            "fundingMode": "USDC_CONVERSION",
+            "shareQuantity": "3",
+            "requiredSequence": [
+              "FUNDS_RECEIPT_CONFIRMED",
+              "USD_CONVERSION_PENDING",
+              "USD_ATTRIBUTED"
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "1차 주문용 USDC 수취, 모의 USD 전환과 고객계좌 귀속",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "USD_ATTRIBUTED"
+          ],
+          "forbiddenStates": [
+            "PRIMARY_SUBMITTED_DOMESTICALLY"
+          ],
+          "expectedQuantities": {
+            "rule": "USD 귀속 전 국내 주문과 발행이 시작되지 않고 완료 뒤 기존 발행 흐름 진입"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-체결배분차단-01",
+          "requirementIds": [
+            "1차발행-04",
+            "1차발행-05"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "executedQuantity": "6",
+            "confirmedAllocation": "4",
+            "attemptedMintQuantity": "5"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "국내 체결 또는 고객별 배분 확인이 없거나 발행수량이 배분 상한을 초과",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "expectedQuantities": {
+            "totalSupplyDelta": "0",
+            "rightsDelta": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "AllocationExceeded"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-권리승인차단-01",
+          "requirementIds": [
+            "1차발행-05"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "executionAllocationConfirmed": true,
+            "t2RiskApproved": true,
+            "rightsEntryApproved": false,
+            "rightsRecorded": false,
+            "quantity": "4"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "권리기입 승인이 누락됨",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "expectedQuantities": {
+            "totalSupplyDelta": "0",
+            "rightsDelta": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "MissingIndependentApproval"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-원장반영차단-01",
+          "requirementIds": [
+            "1차발행-05"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "executionAllocationConfirmed": true,
+            "t2RiskApproved": true,
+            "rightsEntryApproved": true,
+            "rightsRecorded": false,
+            "quantity": "4"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "권리기입 승인은 있으나 실제 원장 반영 확인이 없음",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "expectedQuantities": {
+            "totalSupplyDelta": "0",
+            "rightsDelta": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "MissingIndependentApproval"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "발행-증거불일치-01",
+          "requirementIds": [
+            "1차발행-05"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "workflowId": "A",
+            "investor": "고객-A",
+            "securityId": "005930",
+            "allocationQuantity": "4",
+            "rightsRecordedQuantity": "3"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "네 증거의 업무, 투자자, 종목 또는 수량을 다르게 제출",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "expectedStates": [
+            "EXECUTED_NOT_ISSUED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_SETTLEMENT_PENDING"
+          ],
+          "expectedQuantities": {
+            "totalSupplyDelta": "0",
+            "rightsDelta": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [
+            "IssuanceEvidenceMismatch"
+          ],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "결제불이행-예외-01",
+          "requirementIds": [
+            "국내결제-03"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "failure": "T2_DEFAULT",
+            "approvedOutcomes": [
+              "REPLACEMENT_SHARES",
+              "CONTRACTUAL_CASH_COMPENSATION"
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "T+2 결제불이행 뒤 대체주식 조달과 약관상 현금보상을 각각 승인",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "SETTLEMENT_AND_CUSTODY_PENDING"
+          ],
+          "expectedStates": [
+            "SETTLEMENT_AND_CUSTODY_CONFIRMED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "automaticDeletion": "0",
+            "riskLimitRecoveredBeforeResolution": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "배당-배당락-01",
+          "requirementIds": [
+            "권리관리-01"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "trades": [
+              "EX_DATE_BEFORE",
+              "EX_DATE_AFTER"
+            ],
+            "settlement": "DELAYED",
+            "domesticAllocationEvidence": true
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "배당락 전후 체결과 T+2 결제지연 수량을 국내 배정증거와 대조",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "DIVIDEND_EVENT_CONFIRMED"
+          ],
+          "expectedStates": [
+            "DIVIDEND_USD_PAID"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "결제 대기 상태만으로 판단하지 않고 배당권이 정확히 한 번 귀속"
+          },
+          "expectedAmounts": {
+            "duplicateDividendPayments": "0",
+            "allocationRule": "국내 배정증거와 배당락 기준에 일치"
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "의결권-승인실패-01",
+          "requirementIds": [
+            "권리관리-02"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "instructionTiming": "AFTER_DEADLINE",
+            "brokerApproval": "FAILED"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "마감 뒤 지시를 제출하고 해외 증권사 승인을 실패시킴",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "VOTE_AGENDA_CONFIRMED"
+          ],
+          "expectedStates": [
+            "VOTE_AGENDA_CONFIRMED"
+          ],
+          "forbiddenStates": [
+            "VOTE_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "submittedVotes": "0",
+            "tradingHalt": "0"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "보고-증거누락-01",
+          "requirementIds": [
+            "권리관리-04"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "missingEvidence": [
+              "MONTH_END_SNAPSHOT",
+              "SUBMISSION_RECEIPT",
+              "RETENTION_PROOF"
+            ]
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "월말 고정본 또는 제출 및 보관 증거를 누락",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "REPORTING_PERIOD_CLOSED"
+          ],
+          "expectedStates": [
+            "REPORT_CORRECTION_REVIEW"
+          ],
+          "forbiddenStates": [
+            "REPORT_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "경고와 신규 주문 보류, 증거 보완 뒤 독립 확인으로 재개"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "보안-개인정보-01",
+          "requirementIds": [
+            "감사기록-03",
+            "권리관리-04"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "API, 이벤트, 로그, 체인과 증거 산출물 검사"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "API, 이벤트, 로그, 체인과 증거 산출물 검사",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "금지된 신원, 계좌, 여권, 비밀키, 전체 인증토큰 없음"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "보안-역할분리-01",
+          "requirementIds": [
+            "안전통제-05"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "승인 역할과 해당 실행 역할의 겸임 시도"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "승인 역할과 해당 실행 역할의 겸임 시도",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "배포 또는 권한검사 실패"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "보안-증거연결-01",
+          "requirementIds": [
+            "감사기록-01"
+          ],
+          "layers": [
+            "DOCUMENT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "보안감사",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "업무, 증거, 정책버전과 체인 이벤트 조회"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "업무, 증거, 정책버전과 체인 이벤트 조회",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "EXPECTED_TRANSITION_CONFIRMED"
+          ],
+          "expectedStates": [
+            "RECONCILIATION_MATCHED"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "상태변경과 사람 승인을 처음부터 재구성 가능"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "스키마 검사",
+            "권한 목록",
+            "감사 추적",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        }
+      ]
+    },
+    {
+      "groupId": "Fuji",
+      "layers": [
+        "FUJI"
+      ],
+      "preconditions": [
+        "전체 로컬 검증 통과",
+        "대표 6종목 공식 ISIN 확인"
+      ],
+      "evidence": [
+        "배포주소",
+        "transaction hash",
+        "블록과 이벤트",
+        "실행 커밋"
+      ],
+      "cases": [
+        {
+          "testId": "Fuji-배포-01",
+          "requirementIds": [
+            "상품목록-02"
+          ],
+          "layers": [
+            "FUJI"
+          ],
+          "profile": "FUJI_DEMO",
+          "required": true,
+          "automated": false,
+          "fixtureRefs": [
+            "Fuji",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "공식 ISIN을 확인한 대표 6종목 배포"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "공식 ISIN을 확인한 대표 6종목 배포",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "TOKEN_UNMINTED"
+          ],
+          "expectedStates": [
+            "TOKEN_TRADABLE"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "서로 다른 주소, 소수점 0, 올바른 종목정보와 권한"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "배포주소",
+            "transaction hash",
+            "블록과 이벤트",
+            "실행 커밋",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "Fuji-직접이전차단-01",
+          "requirementIds": [
+            "24시간거래-01",
+            "안전통제-05"
+          ],
+          "layers": [
+            "FUJI"
+          ],
+          "profile": "FUJI_DEMO",
+          "required": true,
+          "automated": false,
+          "fixtureRefs": [
+            "Fuji",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "삼성전자 토큰의 일반 이전과 임의 승인"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "삼성전자 토큰의 일반 이전과 임의 승인",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "TOKEN_UNMINTED"
+          ],
+          "expectedStates": [
+            "TOKEN_UNMINTED"
+          ],
+          "forbiddenStates": [
+            "TOKEN_TRADABLE"
+          ],
+          "expectedQuantities": {
+            "rule": "체인에서 실패하고 잔액 불변"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "배포주소",
+            "transaction hash",
+            "블록과 이벤트",
+            "실행 커밋",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "Fuji-생애주기-01",
+          "requirementIds": [
+            "1차발행-05",
+            "국내결제-02",
+            "24시간거래-05",
+            "환매-05"
+          ],
+          "layers": [
+            "FUJI"
+          ],
+          "profile": "FUJI_DEMO",
+          "required": true,
+          "automated": false,
+          "fixtureRefs": [
+            "Fuji",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "삼성전자 결제 대기 발행, 전환, 시험 USDC DvP, 환매 잠금과 소각"
+          },
+          "steps": [
+            "해당 fixture와 시작 상태를 적재한다.",
+            "삼성전자 결제 대기 발행, 전환, 시험 USDC DvP, 환매 잠금과 소각",
+            "상태, 수량, 금액, 오류와 증거를 함께 대조한다."
+          ],
+          "startStates": [
+            "TOKEN_UNMINTED"
+          ],
+          "expectedStates": [
+            "TOKEN_TRADABLE"
+          ],
+          "forbiddenStates": [],
+          "expectedQuantities": {
+            "rule": "승인된 이벤트 순서와 수량 불변식, 거래 영수증 보존"
+          },
+          "expectedAmounts": {
+            "rule": "해당 업무의 자금 불변식 또는 승인된 금액을 검증한다."
+          },
+          "expectedErrors": [],
+          "recoveryOrQuarantine": [
+            "오류가 있으면 승인된 범위만 원복 또는 격리한다."
+          ],
+          "resumeConditions": [
+            "원인 해소, 필요한 재대사와 승인 뒤에만 재개한다."
+          ],
+          "evidence": [
+            "배포주소",
+            "transaction hash",
+            "블록과 이벤트",
+            "실행 커밋",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        }
+      ]
+    }
+  ]
+}
