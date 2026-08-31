@@ -7,7 +7,7 @@
   "properties": {
     "$schema": { "const": "./test-catalog.schema.json" },
     "schemaVersion": { "const": "2.0.0" },
-    "status": { "const": "AWAITING_APPROVAL" },
+    "status": { "const": "APPROVED" },
     "defaults": { "type": "object" },
     "profiles": { "type": "object" },
     "groups": {

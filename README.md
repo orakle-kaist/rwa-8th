@@ -2,9 +2,9 @@
 
 이 프로젝트는 비거주 일반 개인투자자가 해외 금융기관을 통해 한국 상장주식에 접근할 수 있도록 `한국형 규제 수탁 권리의 24/7 2차시장 통제`를 설계하고 검증하는 PoC다. Dinari의 수탁형 토큰화 주식을 참고하되 한국의 외국인 통합계좌, KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
 
-> 현재 상태: **7~9단계 정합성 보완 검토 대기, 10단계 착수 보류**
+> 현재 상태: **9단계 및 7~9단계 정합성 보완 승인 완료, 10단계 착수 가능**
 >
-> 다음 행동: 발행 증거 분리, 위험공시와 민원 계약, ABI 및 개별 시험 추적을 함께 검토하고 9단계를 승인한다. 승인 전에는 10단계 구현을 시작하지 않는다.
+> 다음 행동: 승인된 1~9단계 문서와 테스트 명세를 기준으로 10단계 PoC 구현을 시작한다.
 >
 > 실제 PoC 코드 구현: **10단계**에서 시작한다.
 
@@ -32,8 +32,8 @@
 | 6. 시스템 구조와 보안 | 승인 완료 | [시스템 구조](docs/06-architecture-security/ARCHITECTURE.md), [기술 선택](docs/06-architecture-security/TECHNOLOGY_DECISIONS.md), [보안과 개인정보](docs/06-architecture-security/SECURITY_AND_PRIVACY.md) | 구성요소, 토큰과 체인 및 외부정보, 권한과 키, 개인정보와 위협 통제를 확인할 때 |
 | 7. 데이터와 연계 | 승인 완료 | [공통 데이터](docs/07-data-api-events/DATA_MODEL.md), [API 계약](docs/07-data-api-events/API_CONTRACTS.md), [이벤트 계약](docs/07-data-api-events/EVENT_CONTRACTS.md)과 [기계 명세](docs/07-data-api-events/specs/) | 공통 데이터, API와 이벤트를 설계할 때 |
 | 8. 스마트컨트랙트 | 승인 완료 | [계약 구조](docs/08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [계약 인터페이스](docs/08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](docs/08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](docs/08-smart-contract-design/INVARIANTS.md)과 [기계 명세](docs/08-smart-contract-design/specs/contract-manifest.json) | 제한형 권리토큰의 발행, 상태, 정산, 환매, 복구와 권한을 확인할 때 |
-| 9. 테스트 설계 | 7~9단계 정합성 보완 검토 대기 | [테스트 전략](docs/09-test-design/TEST_STRATEGY.md), [테스트 시나리오](docs/09-test-design/TEST_SCENARIOS.md), [fixture와 증거](docs/09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](docs/09-test-design/DEMO_CHECKLIST.md)와 [기계 명세](docs/09-test-design/specs/) | 구현 전 요구사항, 상태, API와 계약을 개별 시험에 연결한 결과를 검토할 때 |
-| 10. PoC 구현 | 승인 전 착수 금지 | `docs/10-poc-implementation/`과 구현 코드 예정 | 9단계 승인 뒤 설계를 실제 코드로 만들 때 |
+| 9. 테스트 설계 | 승인 완료 | [테스트 전략](docs/09-test-design/TEST_STRATEGY.md), [테스트 시나리오](docs/09-test-design/TEST_SCENARIOS.md), [fixture와 증거](docs/09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](docs/09-test-design/DEMO_CHECKLIST.md)와 [기계 명세](docs/09-test-design/specs/) | 구현 전 요구사항, 상태, API와 계약에 연결된 시험 기준을 확인할 때 |
+| 10. PoC 구현 | 착수 가능 | `docs/10-poc-implementation/`과 구현 코드 예정 | 승인된 9단계 시험 기준에 따라 설계를 실제 코드로 만들 때 |
 | 11. 결과 정리 | 시작 전 | `docs/11-results/` 예정 | 시연 결과, 확인된 사실과 한계를 정리할 때 |
 
 10단계 이후 폴더는 해당 단계가 시작될 때 만든다. 빈 폴더나 내용이 정해지지 않은 문서를 미리 만들지 않는다.
@@ -73,7 +73,7 @@ scripts/                          문서, 링크와 원자료 검증
 - 6단계 세 문서는 2026년 8월 31일 팀 내부 승인된 7단계 설계의 입력이다.
 - 7단계 세 문서와 기계 명세는 2026년 8월 31일 팀 내부 승인된 8단계 설계의 입력이다.
 - 8단계 네 문서와 계약 명세는 2026년 8월 31일 팀 내부 승인됐으며 9단계 테스트 설계의 입력이다.
-- 9단계 네 문서와 기계 명세는 팀 내부 검토안이다. 승인 전에는 테스트 코드나 PoC 구현 기준으로 확정하지 않는다.
+- 9단계 네 문서와 기계 명세는 2026년 8월 31일 팀 내부 승인됐으며 10단계 구현과 검수의 기준이다.
 - `research/`는 설계의 근거와 조사과정을 보존하지만 승인 문서를 대신하지 않는다.
 - `research/korean-equity-rwa/_work/`는 검증과 이력용이므로 일반 독자가 먼저 읽을 필요가 없다.
 - `archive/pre-prd-v1/`은 과거 아이디어를 보존한 자료이며 현재 요구사항이나 구현 기준으로 사용하지 않는다.

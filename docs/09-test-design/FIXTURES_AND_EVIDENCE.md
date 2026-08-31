@@ -1,6 +1,6 @@
 # 9단계 fixture와 증거
 
-상태: **9단계 팀 내부 검토안, 승인 대기**
+상태: **9단계 팀 내부 승인 완료**
 
 fixture는 실제 고객, 자금이나 기관 기록이 아닌 합성 입력이다. 가격과 환율의 기준 및 통제값은 [PoC 시험 데이터](../02-poc-definition/POC_TEST_DATA.md)가 우선하며 `specs/test-fixtures.json`은 실행 가능한 사본이다.
 

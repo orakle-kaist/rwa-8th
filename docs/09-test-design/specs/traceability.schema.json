@@ -11,7 +11,7 @@
   "properties": {
     "$schema": { "const": "./traceability.schema.json" },
     "schemaVersion": { "const": "2.0.0" },
-    "status": { "const": "AWAITING_APPROVAL" },
+    "status": { "const": "APPROVED" },
     "requirements": { "type": "array", "items": { "$ref": "#/$defs/RequirementCoverage" } },
     "states": { "type": "array", "items": { "$ref": "#/$defs/StateCoverage" } },
     "openApiOperations": { "type": "array", "items": { "$ref": "#/$defs/NamedCoverage" } },

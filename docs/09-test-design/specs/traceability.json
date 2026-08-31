@@ -1,7 +1,7 @@
 {
   "$schema": "./traceability.schema.json",
   "schemaVersion": "2.0.0",
-  "status": "AWAITING_APPROVAL",
+  "status": "APPROVED",
   "requirements": [
     {
       "requirementId": "1차발행-01",

@@ -1,7 +1,7 @@
 {
   "$schema": "./test-catalog.schema.json",
   "schemaVersion": "2.0.0",
-  "status": "AWAITING_APPROVAL",
+  "status": "APPROVED",
   "defaults": {
     "required": true,
     "automaticRetry": false,
