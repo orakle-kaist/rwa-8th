@@ -2,7 +2,7 @@
 
 상태: **8단계 팀 내부 승인 완료**
 
-이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 함수, 구조체, 반환값, 이벤트와 오류의 정확한 Solidity 자료형과 `indexed` 항목은 [기계 판독 ABI](specs/contract-abi.json)를 기준으로 한다.
+이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 고객·기관 업무에 쓰는 함수와 이벤트는 [업무 ABI](specs/contract-abi.json)를 기준으로 한다. 정책 조회, 상품주소 조회, 해외 증권사 서명자 변경과 표준 역할관리는 [관리 ABI](specs/governance-abi.json)를 별도 기준으로 삼는다. 기존 64개 업무 함수, 38개 업무 이벤트와 16개 업무 오류의 의미와 개수는 관리 기능 추가로 바뀌지 않는다.
 
 ## 1. 공통 입력과 실행 규칙
 
@@ -180,3 +180,7 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 | `NonIntegralCorporateAction` | 기업행동 결과가 정수로 계산되지 않음 |
 
 오류 인자와 선택자 충돌도 [기계 판독 ABI](specs/contract-abi.json)를 기준으로 9단계에서 검사한다. API의 UUID 문자열은 정규 UUID 16바이트를 순서대로 담은 `bytes16`, 증거 해시는 `bytes32`, 지갑과 계약은 `address`, 수량, 최소단위 금액과 nonce는 `uint256`, 만료시각은 Unix seconds `uint256`으로 손실 없이 변환한다.
+
+## 12. 관리 인터페이스 경계
+
+관리 ABI는 고객 주문이나 기관 업무를 새로 만들지 않는다. `SecurityTokenFactory.getSecurityToken`은 종목·ISIN·설계버전의 등록주소를 확인하고, `MarketPolicyRegistry.isScopePaused`와 `policyVersion`은 현재 통제상태를 조회한다. `IntentVerifier`의 해외 증권사 정산 서명자 조회·변경과 OpenZeppelin 역할 조회·부여·회수는 Safe와 지연 실행의 관리대상이다. 컴파일 결과에는 업무 ABI와 승인된 관리 ABI에 없는 공개 함수, 이벤트와 오류가 존재할 수 없다.

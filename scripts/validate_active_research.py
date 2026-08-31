@@ -68,6 +68,8 @@ ROLES_AND_GOVERNANCE = STAGE_EIGHT_ROOT / "ROLES_AND_GOVERNANCE.md"
 INVARIANTS = STAGE_EIGHT_ROOT / "INVARIANTS.md"
 CONTRACT_MANIFEST = STAGE_EIGHT_ROOT / "specs" / "contract-manifest.json"
 CONTRACT_ABI = STAGE_EIGHT_ROOT / "specs" / "contract-abi.json"
+GOVERNANCE_ABI = STAGE_EIGHT_ROOT / "specs" / "governance-abi.json"
+GOVERNANCE_ABI_SCHEMA = STAGE_EIGHT_ROOT / "specs" / "governance-abi.schema.json"
 STAGE_NINE_ROOT = DOCS_ROOT / "09-test-design"
 TEST_STRATEGY = STAGE_NINE_ROOT / "TEST_STRATEGY.md"
 TEST_SCENARIOS = STAGE_NINE_ROOT / "TEST_SCENARIOS.md"
@@ -263,6 +265,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         INVARIANTS,
         CONTRACT_MANIFEST,
         CONTRACT_ABI,
+        GOVERNANCE_ABI,
+        GOVERNANCE_ABI_SCHEMA,
         TEST_STRATEGY,
         TEST_SCENARIOS,
         FIXTURES_AND_EVIDENCE,
@@ -336,7 +340,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "9단계 및 7~9단계 정합성 보완 승인 완료" not in readme
+        or "10단계 PoC 구현 중" not in readme
     ):
         errors.append("README must identify PRD.md and the stage-nine review status")
     if (
@@ -378,8 +382,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/09-test-design/TEST_SCENARIOS.md" not in readme
         or "docs/09-test-design/FIXTURES_AND_EVIDENCE.md" not in readme
         or "docs/09-test-design/DEMO_CHECKLIST.md" not in readme
-        or "9단계 및 7~9단계 정합성 보완 승인 완료" not in readme
-        or "10단계 착수 가능" not in readme
+        or "10단계 PoC 구현 중" not in readme
+        or "docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md" not in readme
     ):
         errors.append("README must identify stage-nine review artifacts and block stage ten")
     if "실제 PoC 코드 구현: **10단계**" not in readme:
@@ -870,6 +874,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1106,6 +1111,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1473,6 +1479,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1711,7 +1718,7 @@ def validate_stage_six_contract(errors: list[str]) -> None:
     if state.get("stage") not in {
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
-        "ready_for_stage_ten"
+        "ready_for_stage_ten", "stage_ten_in_progress"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2016,6 +2023,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "ready_for_stage_eight", "awaiting_stage_eight_approval", "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2029,7 +2037,9 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         ROLES_AND_GOVERNANCE,
         INVARIANTS,
     ]
-    if not all(path.is_file() for path in stage_eight_paths) or not CONTRACT_MANIFEST.is_file() or not CONTRACT_ABI.is_file():
+    if not all(path.is_file() for path in stage_eight_paths) or not all(
+        path.is_file() for path in [CONTRACT_MANIFEST, CONTRACT_ABI, GOVERNANCE_ABI, GOVERNANCE_ABI_SCHEMA]
+    ):
         return  # validate_workspace_contract reports missing required files
 
     documents = {path.name: path.read_text(encoding="utf-8") for path in stage_eight_paths}
@@ -2202,6 +2212,22 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     abi_errors = [entry.get("name") for entry in abi_spec.get("errors", [])]
     if set(abi_errors) != expected_abi_errors or len(abi_errors) != len(set(abi_errors)):
         errors.append("contract ABI must define every approved custom error exactly once")
+    try:
+        governance_abi = json.loads(GOVERNANCE_ABI.read_text(encoding="utf-8"))
+        governance_schema = json.loads(GOVERNANCE_ABI_SCHEMA.read_text(encoding="utf-8"))
+        validator = Draft202012Validator(governance_schema)
+        for issue in validator.iter_errors(governance_abi):
+            errors.append(f"governance ABI schema violation: {issue.message}")
+    except Exception as exc:
+        errors.append(f"governance ABI validation failed: {exc}")
+        governance_abi = {}
+    if governance_abi.get("status") != "APPROVED" or governance_abi.get("businessAbiReference") != "./contract-abi.json":
+        errors.append("governance ABI must be approved and reference the business ABI")
+    if set(governance_abi.get("accessControlContracts", [])) != {
+        "RestrictedEquityToken", "EligibilityRegistry", "SecurityTokenFactory",
+        "IntentVerifier", "MarketPolicyRegistry",
+    }:
+        errors.append("governance ABI must cover all five foundation contracts")
     allowed_abi_types = {
         "address", "address[]", "bool", "bytes", "bytes16", "bytes32", "string",
         "uint8", "uint256", "PrimaryOrderIntent", "SecondaryOrderIntent",
@@ -2276,7 +2302,10 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
             errors.append(f"{label} must record stage-eight approval and stage-nine readiness")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") not in {"ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten"}:
+    if state.get("stage") not in {
+        "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
+        "stage_ten_in_progress",
+    }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
         errors.append("active project iteration must preserve stage-eight approval history")
@@ -2335,7 +2364,8 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     parsed: dict[Path, object] = {}
     for path in [
         TEST_CATALOG, TEST_CATALOG_SCHEMA, TEST_FIXTURES, TEST_TRACEABILITY,
-        TEST_TRACEABILITY_SCHEMA, CONTRACT_MANIFEST, CONTRACT_ABI, STATE_CATALOG,
+        TEST_TRACEABILITY_SCHEMA, CONTRACT_MANIFEST, CONTRACT_ABI, GOVERNANCE_ABI,
+        STATE_CATALOG,
         PLATFORM_OPENAPI, ADAPTER_OPENAPI, ASYNCAPI,
     ]:
         try:
@@ -2345,7 +2375,7 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
                 parsed[path] = json.loads(path.read_text(encoding="utf-8"))
         except Exception as exc:
             errors.append(f"stage-nine structured data parse failed: {path.name}: {exc}")
-    if len(parsed) != 11:
+    if len(parsed) != 12:
         return
 
     catalog = parsed[TEST_CATALOG]
@@ -2353,6 +2383,7 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     traceability = parsed[TEST_TRACEABILITY]
     manifest = parsed[CONTRACT_MANIFEST]
     contract_abi = parsed[CONTRACT_ABI]
+    governance_abi = parsed[GOVERNANCE_ABI]
     state_catalog = parsed[STATE_CATALOG]
 
     for schema_path, document_path in [
@@ -2499,6 +2530,27 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             f"contract function {entry.get('contract')}.{entry.get('function')}", entry.get("tests", [])
         )
 
+    governance_functions = {
+        ("AccessControl", entry.get("name"))
+        for entry in governance_abi.get("standardAccessControl", {}).get("functions", [])
+    } | {
+        (extension.get("contract"), entry.get("name"))
+        for extension in governance_abi.get("contractExtensions", [])
+        for entry in extension.get("functions", [])
+    }
+    administrative_function_entries = traceability.get("administrativeContractFunctions", [])
+    traced_governance_functions = [
+        (entry.get("contract"), entry.get("function"))
+        for entry in administrative_function_entries
+    ]
+    if set(traced_governance_functions) != governance_functions or len(traced_governance_functions) != len(set(traced_governance_functions)):
+        errors.append("stage-nine traceability must map every administrative contract function exactly once")
+    for entry in administrative_function_entries:
+        check_test_refs(
+            f"administrative function {entry.get('contract')}.{entry.get('function')}",
+            entry.get("tests", []),
+        )
+
     expected_event_keys = {
         (contract.get("name"), event)
         for contract in manifest.get("contracts", [])
@@ -2513,6 +2565,26 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             f"contract event {entry.get('contract')}.{entry.get('event')}", entry.get("tests", [])
         )
 
+    governance_events = {
+        ("AccessControl", entry.get("name"))
+        for entry in governance_abi.get("standardAccessControl", {}).get("events", [])
+    } | {
+        (extension.get("contract"), entry.get("name"))
+        for extension in governance_abi.get("contractExtensions", [])
+        for entry in extension.get("events", [])
+    }
+    administrative_event_entries = traceability.get("administrativeContractEvents", [])
+    traced_governance_events = [
+        (entry.get("contract"), entry.get("event")) for entry in administrative_event_entries
+    ]
+    if set(traced_governance_events) != governance_events or len(traced_governance_events) != len(set(traced_governance_events)):
+        errors.append("stage-nine traceability must map every administrative contract event exactly once")
+    for entry in administrative_event_entries:
+        check_test_refs(
+            f"administrative event {entry.get('contract')}.{entry.get('event')}",
+            entry.get("tests", []),
+        )
+
     expected_contract_errors = {entry.get("name") for entry in contract_abi.get("errors", [])}
     contract_error_entries = traceability.get("contractErrors", [])
     traced_contract_errors = [entry.get("error") for entry in contract_error_entries]
@@ -2523,6 +2595,21 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
         errors.append("stage-nine traceability must cover every approved contract error exactly once")
     for entry in contract_error_entries:
         check_test_refs(f"contract error {entry.get('error')}", entry.get("tests", []))
+
+    governance_errors = {
+        entry.get("name")
+        for entry in governance_abi.get("standardAccessControl", {}).get("errors", [])
+    } | {
+        entry.get("name")
+        for extension in governance_abi.get("contractExtensions", [])
+        for entry in extension.get("errors", [])
+    }
+    administrative_error_entries = traceability.get("administrativeContractErrors", [])
+    traced_governance_errors = [entry.get("error") for entry in administrative_error_entries]
+    if set(traced_governance_errors) != governance_errors or len(traced_governance_errors) != len(set(traced_governance_errors)):
+        errors.append("stage-nine traceability must cover every administrative contract error exactly once")
+    for entry in administrative_error_entries:
+        check_test_refs(f"administrative error {entry.get('error')}", entry.get("tests", []))
 
     manifest_roles = set(manifest.get("roles", []))
     role_entries = traceability.get("roles", [])
@@ -2636,19 +2723,24 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     workflow = WORKFLOW.read_text(encoding="utf-8")
     for label, content in [("README", readme), ("WORKFLOW", workflow)]:
-        if "9단계" not in content or "승인" not in content or "10단계" not in content or "착수" not in content:
-            errors.append(f"{label} must record stage-nine approval and stage-ten readiness")
+        if (
+            "9단계" not in content
+            or "승인" not in content
+            or "10단계" not in content
+            or "구현 중" not in content
+        ):
+            errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_ten":
-        errors.append("active project state must be ready for stage-ten implementation")
-    if state.get("iteration") != 35:
-        errors.append("active project iteration must be 35 for stage-nine approval")
+    if state.get("stage") != "stage_ten_in_progress":
+        errors.append("active project state must record stage-ten implementation in progress")
+    if state.get("iteration") != 37:
+        errors.append("active project iteration must be 37 for the restricted token foundation")
     expected_next_action = (
-        "Start stage-ten PoC implementation from the approved stage-nine test design."
+        "Validate and commit the restricted token foundation before implementing eligibility and investor protection."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must start stage-ten implementation")
+        errors.append("active project next action must validate the restricted token foundation")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -2900,6 +2992,85 @@ def validate_alignment_approval_contract(errors: list[str]) -> None:
         )
 
 
+def validate_stage_ten_foundation(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "package.json",
+        REPO_ROOT / "pnpm-lock.yaml",
+        REPO_ROOT / "pnpm-workspace.yaml",
+        REPO_ROOT / "compose.yaml",
+        REPO_ROOT / "foundry.toml",
+        REPO_ROOT / "playwright.config.ts",
+        REPO_ROOT / "vitest.config.ts",
+        REPO_ROOT / "apps" / "web" / "package.json",
+        REPO_ROOT / "apps" / "api" / "package.json",
+        REPO_ROOT / "apps" / "mock-institutions" / "package.json",
+        REPO_ROOT / "packages" / "domain" / "package.json",
+        REPO_ROOT / "packages" / "database" / "package.json",
+        REPO_ROOT / "packages" / "contracts-client" / "package.json",
+        REPO_ROOT / "packages" / "generated" / "package.json",
+        REPO_ROOT / "packages" / "generated" / "src" / "platform-api.ts",
+        REPO_ROOT / "packages" / "generated" / "src" / "adapters-api.ts",
+        REPO_ROOT / "packages" / "generated" / "src" / "validate-contract-artifacts.ts",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "foundation.ts",
+        REPO_ROOT / "contracts" / "src" / "RestrictedEquityToken.sol",
+        REPO_ROOT / "contracts" / "src" / "EligibilityRegistry.sol",
+        REPO_ROOT / "contracts" / "src" / "SecurityTokenFactory.sol",
+        REPO_ROOT / "contracts" / "src" / "IntentVerifier.sol",
+        REPO_ROOT / "contracts" / "src" / "MarketPolicyRegistry.sol",
+        REPO_ROOT / "contracts" / "script" / "DeployFoundation.s.sol",
+        GOVERNANCE_ABI,
+        GOVERNANCE_ABI_SCHEMA,
+        REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "TOKEN_FOUNDATION_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten runtime foundation is missing files: " + ", ".join(missing))
+        return
+
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    if package.get("packageManager") != "pnpm@10.32.1":
+        errors.append("stage-ten foundation must pin pnpm 10.32.1")
+    if package.get("engines") != {"node": "24.18.0", "pnpm": "10.32.1"}:
+        errors.append("stage-ten foundation must pin the approved Node.js and pnpm engines")
+
+    expected_versions = {
+        ("apps/web", "dependencies", "next"): "16.3.3",
+        ("apps/web", "dependencies", "react"): "19.2.8",
+        ("apps/api", "dependencies", "fastify"): "5.12.1",
+        ("packages/database", "dependencies", "drizzle-orm"): "0.45.2",
+        ("packages/contracts-client", "dependencies", "viem"): "2.56.0",
+    }
+    for (directory, dependency_group, dependency), expected in expected_versions.items():
+        manifest = json.loads(
+            (REPO_ROOT / directory / "package.json").read_text(encoding="utf-8")
+        )
+        actual = manifest.get(dependency_group, {}).get(dependency)
+        if actual != expected:
+            errors.append(
+                f"{directory} must pin {dependency} {expected}, found {actual}"
+            )
+
+    compose = (REPO_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    for term in ["postgres:", "anvil:", "postgres:17.6-bookworm", "foundry:v1.7.1"]:
+        if term not in compose:
+            errors.append(f"stage-ten compose file is missing approved runtime term: {term}")
+
+    guide = (
+        REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "상태: **10단계 구현 중**", "합성 Bearer", "PostgreSQL", "Anvil",
+        "승인된 OpenAPI", "실제 비밀값", "제한형 권리토큰", "Safe 3인 중 2인",
+        "업무 ABI", "관리 ABI",
+    ]:
+        if term not in guide:
+            errors.append(f"stage-ten implementation guide is missing: {term}")
+
+    if (REPO_ROOT / ".env").exists():
+        errors.append("repository must not contain a local .env file")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -2914,6 +3085,7 @@ def main() -> int:
     validate_stage_seven_contract(errors)
     validate_stage_eight_contract(errors)
     validate_stage_nine_contract(errors)
+    validate_stage_ten_foundation(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -2924,7 +3096,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, "
         "and 16 source checksums passed."
     )
     return 0

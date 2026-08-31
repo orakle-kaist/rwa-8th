@@ -1,0 +1,24 @@
+{
+  "name": "@rwa/generated",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./platform-api": "./src/platform-api.ts",
+    "./adapters-api": "./src/adapters-api.ts"
+  },
+  "scripts": {
+    "generate": "openapi-typescript ../../docs/07-data-api-events/specs/openapi.platform.yaml -o src/platform-api.ts && openapi-typescript ../../docs/07-data-api-events/specs/openapi.adapters.yaml -o src/adapters-api.ts",
+    "typecheck": "../../node_modules/.bin/tsc --noEmit -p tsconfig.json",
+    "validate": "tsx src/validate-specs.ts",
+    "validate:contracts": "tsx src/validate-contract-artifacts.ts"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.0",
+    "ajv": "8.20.0",
+    "openapi-typescript": "7.13.0",
+    "tsx": "4.23.13",
+    "typescript": "5.9.3",
+    "yaml": "2.9.0"
+  }
+}

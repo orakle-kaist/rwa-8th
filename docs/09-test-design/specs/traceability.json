@@ -3913,6 +3913,73 @@
       ]
     }
   ],
+  "administrativeContractFunctions": [
+    {
+      "contract": "AccessControl",
+      "function": "DEFAULT_ADMIN_ROLE",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "function": "getRoleAdmin",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "function": "grantRole",
+      "tests": ["거버넌스-지연-01", "거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "function": "hasRole",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "function": "renounceRole",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "function": "revokeRole",
+      "tests": ["거버넌스-지연-01", "거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "function": "supportsInterface",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "SecurityTokenFactory",
+      "function": "getSecurityToken",
+      "tests": ["상품-배포-01"]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "function": "isScopePaused",
+      "tests": ["중지-가격-01", "중지-USDC-01", "중지-KRX-01"]
+    },
+    {
+      "contract": "MarketPolicyRegistry",
+      "function": "policyVersion",
+      "tests": ["중지-가격-01", "거버넌스-지연-01"]
+    },
+    {
+      "contract": "IntentVerifier",
+      "function": "brokerSettlementSigner",
+      "tests": ["정산-서명차단-01"]
+    },
+    {
+      "contract": "IntentVerifier",
+      "function": "setBrokerSettlementSigner",
+      "tests": ["정산-서명차단-01", "거버넌스-지연-01"]
+    },
+    {
+      "contract": "IntentVerifier",
+      "function": "eip712Domain",
+      "tests": ["정산-서명차단-01"]
+    }
+  ],
   "contractEvents": [
     {
       "contract": "RestrictedEquityToken",
@@ -4223,6 +4290,33 @@
       ]
     }
   ],
+  "administrativeContractEvents": [
+    {
+      "contract": "AccessControl",
+      "event": "RoleAdminChanged",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "event": "RoleGranted",
+      "tests": ["거버넌스-지연-01"]
+    },
+    {
+      "contract": "AccessControl",
+      "event": "RoleRevoked",
+      "tests": ["거버넌스-지연-01"]
+    },
+    {
+      "contract": "IntentVerifier",
+      "event": "BrokerSettlementSignerChanged",
+      "tests": ["거버넌스-지연-01", "정산-서명차단-01"]
+    },
+    {
+      "contract": "IntentVerifier",
+      "event": "EIP712DomainChanged",
+      "tests": ["정산-서명차단-01"]
+    }
+  ],
   "contractErrors": [
     {
       "error": "DirectTransferDisabled",
@@ -4324,6 +4418,24 @@
       "tests": [
         "기업행동-소수차단-01"
       ]
+    }
+  ],
+  "administrativeContractErrors": [
+    {
+      "error": "AccessControlBadConfirmation",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "error": "AccessControlUnauthorizedAccount",
+      "tests": ["거버넌스-권한차단-01"]
+    },
+    {
+      "error": "InvalidShortString",
+      "tests": ["정산-서명차단-01"]
+    },
+    {
+      "error": "StringTooLong",
+      "tests": ["정산-서명차단-01"]
     }
   ],
   "roles": [

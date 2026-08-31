@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/governance-abi.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "status", "businessAbiReference", "accessControlContracts", "standardAccessControl", "contractExtensions"],
+  "properties": {
+    "$schema": { "const": "./governance-abi.schema.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "status": { "const": "APPROVED" },
+    "businessAbiReference": { "const": "./contract-abi.json" },
+    "accessControlContracts": { "type": "array", "minItems": 5, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "standardAccessControl": { "$ref": "#/$defs/Surface" },
+    "contractExtensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["contract", "functions", "events", "errors"],
+        "properties": {
+          "contract": { "type": "string", "minLength": 1 },
+          "functions": { "type": "array", "items": { "$ref": "#/$defs/Function" } },
+          "events": { "type": "array", "items": { "$ref": "#/$defs/Event" } },
+          "errors": { "type": "array", "items": { "$ref": "#/$defs/Error" } }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "Parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type"],
+      "properties": { "name": { "type": "string" }, "type": { "type": "string", "minLength": 1 } }
+    },
+    "EventParameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "indexed"],
+      "properties": { "name": { "type": "string" }, "type": { "type": "string", "minLength": 1 }, "indexed": { "type": "boolean" } }
+    },
+    "Function": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "stateMutability", "inputs", "outputs"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "stateMutability": { "enum": ["pure", "view", "nonpayable", "payable"] },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/Parameter" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/Parameter" } }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "inputs"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/EventParameter" } }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "inputs"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/Parameter" } }
+      }
+    },
+    "Surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["functions", "events", "errors"],
+      "properties": {
+        "functions": { "type": "array", "items": { "$ref": "#/$defs/Function" } },
+        "events": { "type": "array", "items": { "$ref": "#/$defs/Event" } },
+        "errors": { "type": "array", "items": { "$ref": "#/$defs/Error" } }
+      }
+    }
+  }
+}

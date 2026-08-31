@@ -1,0 +1,47 @@
+import cors from "@fastify/cors";
+import { authenticateDemoBearer, type Clock } from "@rwa/domain";
+import Fastify, { type FastifyInstance } from "fastify";
+
+export interface BuildAppOptions {
+  clock: Clock;
+  logger?: boolean;
+}
+
+export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
+  const app = Fastify({ logger: options.logger ?? true });
+  await app.register(cors, { origin: ["http://localhost:3000"] });
+
+  app.get("/health", async () => ({
+    service: "rwa-api",
+    status: "ok",
+    simulation: true,
+    time: options.clock.now().toISOString(),
+  }));
+
+  app.get("/api/v1/session", async (request, reply) => {
+    const principal = authenticateDemoBearer(request.headers.authorization);
+    if (!principal) {
+      return reply.status(401).send({
+        code: "AUTHENTICATION_REQUIRED",
+        messageKo: "합성 사용자 인증이 필요하다.",
+        retryable: false,
+        responsibleRole: "PLATFORM_OPERATOR",
+        nextActionKo: "허용된 데모 사용자를 선택한다.",
+        simulation: true,
+      });
+    }
+
+    return {
+      actorId: principal.principalId,
+      role: principal.role,
+      simulation: true,
+      projection: {
+        projectionAsOf: options.clock.now().toISOString(),
+        lastEventSequence: 0,
+        projectionStatus: "CURRENT",
+      },
+    };
+  });
+
+  return app;
+}

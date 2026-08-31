@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": [
     "$schema", "schemaVersion", "status", "requirements", "states", "openApiOperations",
-    "asyncApiMessages", "contractFunctions", "contractEvents", "contractErrors", "roles",
+    "asyncApiMessages", "contractFunctions", "administrativeContractFunctions", "contractEvents", "administrativeContractEvents", "contractErrors", "administrativeContractErrors", "roles",
     "invariants", "errorCategories"
   ],
   "properties": {
@@ -17,8 +17,11 @@
     "openApiOperations": { "type": "array", "items": { "$ref": "#/$defs/NamedCoverage" } },
     "asyncApiMessages": { "type": "array", "items": { "$ref": "#/$defs/MessageCoverage" } },
     "contractFunctions": { "type": "array", "items": { "$ref": "#/$defs/ContractFunctionCoverage" } },
+    "administrativeContractFunctions": { "type": "array", "items": { "$ref": "#/$defs/ContractFunctionCoverage" } },
     "contractEvents": { "type": "array", "items": { "$ref": "#/$defs/ContractEventCoverage" } },
+    "administrativeContractEvents": { "type": "array", "items": { "$ref": "#/$defs/ContractEventCoverage" } },
     "contractErrors": { "type": "array", "items": { "$ref": "#/$defs/ErrorCoverage" } },
+    "administrativeContractErrors": { "type": "array", "items": { "$ref": "#/$defs/ErrorCoverage" } },
     "roles": { "type": "array", "items": { "$ref": "#/$defs/RoleCoverage" } },
     "invariants": { "type": "array", "items": { "$ref": "#/$defs/InvariantCoverage" } },
     "errorCategories": { "type": "array", "items": { "$ref": "#/$defs/CategoryCoverage" } }

@@ -1,0 +1,26 @@
+{
+  "name": "@rwa/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "worker": "tsx src/worker.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/cors": "11.3.0",
+    "@rwa/database": "workspace:*",
+    "@rwa/domain": "workspace:*",
+    "fastify": "5.12.1",
+    "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.0",
+    "@types/pg": "8.23.1",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2"
+  }
+}

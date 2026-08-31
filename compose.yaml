@@ -1,0 +1,96 @@
+name: korean-equity-rwa-poc
+
+services:
+  postgres:
+    image: postgres:17.6-bookworm
+    environment:
+      POSTGRES_DB: rwa_poc
+      POSTGRES_USER: rwa_poc
+      POSTGRES_PASSWORD: rwa_poc_local_only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rwa_poc -d rwa_poc"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    ports:
+      - "5432:5432"
+    volumes:
+      - rwa-postgres:/var/lib/postgresql/data
+
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:v1.7.1
+    command:
+      - anvil
+      - --host
+      - 0.0.0.0
+      - --chain-id
+      - "31337"
+      - --block-time
+      - "1"
+    ports:
+      - "8545:8545"
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pnpm", "db:migrate"]
+    environment: &application-environment
+      DATABASE_URL: postgresql://rwa_poc:rwa_poc_local_only@postgres:5432/rwa_poc
+      ANVIL_RPC_URL: http://anvil:8545
+      TEST_CLOCK_MODE: system
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pnpm", "dev:api"]
+    environment:
+      <<: *application-environment
+      API_HOST: 0.0.0.0
+      API_PORT: "4000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "4000:4000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pnpm", "--filter", "@rwa/api", "worker"]
+    environment: *application-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  mock-institutions:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pnpm", "dev:mock"]
+    environment:
+      MOCK_INSTITUTIONS_PORT: "4100"
+    ports:
+      - "4100:4100"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pnpm", "dev:web"]
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "3000:3000"
+
+volumes:
+  rwa-postgres:
