@@ -11,10 +11,18 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
-  webServer: {
-    command: "pnpm dev:web",
-    url: "http://127.0.0.1:3000",
-    reuseExistingServer: false,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: "pnpm --filter @rwa/api test-server",
+      url: "http://127.0.0.1:4000/health",
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command: "pnpm dev:web",
+      url: "http://127.0.0.1:3000",
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+  ],
 });

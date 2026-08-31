@@ -31,6 +31,8 @@ paths:
                   actorId: { type: string, format: uuid }
                   role: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
                   institutionId: { type: string, format: uuid }
+                  customerReadiness:
+                    $ref: './schemas/domain.schema.json#/$defs/CustomerReadiness'
                   simulation: { const: true }
                   projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
         '401': { $ref: '#/components/responses/Error' }
@@ -785,13 +787,15 @@ components:
     Product:
       type: object
       additionalProperties: false
-      required: [securityId, nameKo, referenceVersion, availability, simulation, projection]
+      required: [securityId, nameKo, referenceVersion, candidateStatus, representative, availability, blockingReasons, notices, simulation, projection]
       properties:
         securityId: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
         isin: { $ref: './schemas/common.schema.json#/$defs/Isin' }
         nameKo: { type: string, minLength: 1 }
         referenceVersion: { type: string, minLength: 1 }
         tokenAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        candidateStatus: { type: string, enum: [CANDIDATE, REVIEWED, INFORMATION_UNCONFIRMED] }
+        representative: { type: boolean }
         availability:
           type: object
           additionalProperties: false
@@ -800,6 +804,27 @@ components:
             primary: { type: string, enum: [ENABLED, DISABLED] }
             secondary: { type: string, enum: [ENABLED, DISABLED] }
             redemption: { type: string, enum: [ENABLED, DISABLED, MANUAL_REVIEW] }
+        blockingReasons:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [code, messageKo]
+            properties:
+              code: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+              messageKo: { type: string, minLength: 1 }
+        notices:
+          type: object
+          additionalProperties: false
+          required: [rightsNatureKo, custodyRiskKo, transferRestrictionKo, settlementKo, dividendKo, votingKo, redemptionKo]
+          properties:
+            rightsNatureKo: { type: string, minLength: 1 }
+            custodyRiskKo: { type: string, minLength: 1 }
+            transferRestrictionKo: { type: string, minLength: 1 }
+            settlementKo: { type: string, minLength: 1 }
+            dividendKo: { type: string, minLength: 1 }
+            votingKo: { type: string, minLength: 1 }
+            redemptionKo: { type: string, minLength: 1 }
         simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     PagedProducts:

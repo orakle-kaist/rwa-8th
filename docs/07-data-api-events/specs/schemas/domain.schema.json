@@ -8,6 +8,35 @@
       "type": "string",
       "enum": ["USD_LEDGER", "USDC_CONVERSION", "USDC_ONCHAIN"]
     },
+    "CustomerReadiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligibility", "investorProtection", "wallet", "canPlaceNewOrder", "canReceiveRights", "blockingReasons"],
+      "properties": {
+        "eligibility": { "type": "string", "enum": ["PENDING", "ELIGIBLE", "INELIGIBLE", "EXPIRED"] },
+        "investorProtection": { "type": "string", "enum": ["PENDING", "PASSED", "FAILED", "EXPIRED"] },
+        "wallet": { "type": "string", "enum": ["UNLINKED", "APPROVAL_PENDING", "CHAIN_SYNC_PENDING", "CHAIN_SYNC_FAILED", "LINKED", "REPLACEMENT_REVIEW", "FROZEN"] },
+        "activeWallet": { "$ref": "common.schema.json#/$defs/EvmAddress" },
+        "validUntil": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
+        "policyVersion": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "canPlaceNewOrder": { "type": "boolean" },
+        "canReceiveRights": { "type": "boolean" },
+        "blockingReasons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "messageKo", "responsibleInstitutionId", "nextActionKo"],
+            "properties": {
+              "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+              "messageKo": { "type": "string", "minLength": 1 },
+              "responsibleInstitutionId": { "$ref": "common.schema.json#/$defs/Uuid" },
+              "nextActionKo": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
     "PrimaryFundingMode": {
       "type": "string",
       "enum": ["USD_LEDGER", "USDC_CONVERSION"]
@@ -23,11 +52,25 @@
     "Disclosure": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["disclosureId", "version", "titleKo", "effectiveFrom", "validUntil", "responsibleInstitutionId", "simulation"],
+      "required": ["disclosureId", "version", "titleKo", "sections", "effectiveFrom", "validUntil", "responsibleInstitutionId", "simulation"],
       "properties": {
         "disclosureId": { "$ref": "common.schema.json#/$defs/Uuid" },
         "version": { "type": "string", "minLength": 1, "maxLength": 64 },
         "titleKo": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "sections": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "titleKo", "summaryKo"],
+            "properties": {
+              "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+              "titleKo": { "type": "string", "minLength": 1, "maxLength": 100 },
+              "summaryKo": { "type": "string", "minLength": 1, "maxLength": 1000 }
+            }
+          }
+        },
         "effectiveFrom": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
         "validUntil": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
         "responsibleInstitutionId": { "$ref": "common.schema.json#/$defs/Uuid" },
@@ -82,10 +125,12 @@
     "ComplaintView": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["complaintId", "type", "status", "submittedAt", "disclosureVersion", "simulation", "projection"],
+      "required": ["complaintId", "type", "titleKo", "descriptionKo", "status", "submittedAt", "disclosureVersion", "simulation", "projection"],
       "properties": {
         "complaintId": { "$ref": "common.schema.json#/$defs/Uuid" },
         "type": { "$ref": "#/$defs/ComplaintType" },
+        "titleKo": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "descriptionKo": { "type": "string", "minLength": 1, "maxLength": 2000 },
         "status": { "$ref": "#/$defs/ComplaintStatus" },
         "submittedAt": { "$ref": "common.schema.json#/$defs/UtcTimestamp" },
         "responsibleInstitutionId": { "$ref": "common.schema.json#/$defs/Uuid" },
@@ -343,6 +388,9 @@
           "type": "string",
           "enum": [
             "WALLET_LINKAGE",
+            "WALLET_REPLACEMENT",
+            "DISCLOSURE_CONSENT",
+            "INSTITUTION_DECISION",
             "COMPLAINT",
             "PRIMARY_ISSUANCE",
             "SECONDARY_TRADE",

@@ -664,6 +664,9 @@ export interface components {
             nameKo: string;
             referenceVersion: string;
             tokenAddress?: components["schemas"]["EvmAddress"];
+            /** @enum {string} */
+            candidateStatus: "CANDIDATE" | "REVIEWED" | "INFORMATION_UNCONFIRMED";
+            representative: boolean;
             availability: {
                 /** @enum {string} */
                 primary: "ENABLED" | "DISABLED";
@@ -671,6 +674,19 @@ export interface components {
                 secondary: "ENABLED" | "DISABLED";
                 /** @enum {string} */
                 redemption: "ENABLED" | "DISABLED" | "MANUAL_REVIEW";
+            };
+            blockingReasons: {
+                code: string;
+                messageKo: string;
+            }[];
+            notices: {
+                rightsNatureKo: string;
+                custodyRiskKo: string;
+                transferRestrictionKo: string;
+                settlementKo: string;
+                dividendKo: string;
+                votingKo: string;
+                redemptionKo: string;
             };
             /** @constant */
             simulation: true;
@@ -730,8 +746,30 @@ export interface components {
             items: components["schemas"]["Quote"][];
             projection: components["schemas"]["ProjectionMetadata"];
         };
+        EvmAddress: string;
         /** Format: date-time */
         UtcTimestamp: string;
+        /** Format: uuid */
+        Uuid: string;
+        CustomerReadiness: {
+            /** @enum {string} */
+            eligibility: "PENDING" | "ELIGIBLE" | "INELIGIBLE" | "EXPIRED";
+            /** @enum {string} */
+            investorProtection: "PENDING" | "PASSED" | "FAILED" | "EXPIRED";
+            /** @enum {string} */
+            wallet: "UNLINKED" | "APPROVAL_PENDING" | "CHAIN_SYNC_PENDING" | "CHAIN_SYNC_FAILED" | "LINKED" | "REPLACEMENT_REVIEW" | "FROZEN";
+            activeWallet?: components["schemas"]["EvmAddress"];
+            validUntil?: components["schemas"]["UtcTimestamp"];
+            policyVersion?: string;
+            canPlaceNewOrder: boolean;
+            canReceiveRights: boolean;
+            blockingReasons: {
+                code: string;
+                messageKo: string;
+                responsibleInstitutionId: components["schemas"]["Uuid"];
+                nextActionKo: string;
+            }[];
+        };
         ProjectionMetadata: {
             projectionAsOf: components["schemas"]["UtcTimestamp"];
             lastEventSequence: number;
@@ -742,8 +780,6 @@ export interface components {
                 to: number;
             }[];
         };
-        /** Format: uuid */
-        Uuid: string;
         ErrorResponse: {
             code: string;
             messageKo: string;
@@ -755,7 +791,6 @@ export interface components {
         };
         SecurityId: string;
         Isin: string;
-        EvmAddress: string;
         NonNegativeIntegerString: string;
         /** @enum {string} */
         Currency: "KRW" | "USD" | "USDC";
@@ -774,7 +809,7 @@ export interface components {
         WorkflowView: {
             workflowId: components["schemas"]["Uuid"];
             /** @enum {string} */
-            workflowType: "WALLET_LINKAGE" | "COMPLAINT" | "PRIMARY_ISSUANCE" | "SECONDARY_TRADE" | "MARKET_MAKER_HEDGE" | "REDEMPTION" | "DIVIDEND_CONVERSION" | "VOTING" | "CORPORATE_ACTION" | "REGULATORY_REPORT" | "RECONCILIATION";
+            workflowType: "WALLET_LINKAGE" | "WALLET_REPLACEMENT" | "DISCLOSURE_CONSENT" | "INSTITUTION_DECISION" | "COMPLAINT" | "PRIMARY_ISSUANCE" | "SECONDARY_TRADE" | "MARKET_MAKER_HEDGE" | "REDEMPTION" | "DIVIDEND_CONVERSION" | "VOTING" | "CORPORATE_ACTION" | "REGULATORY_REPORT" | "RECONCILIATION";
             states: components["schemas"]["StateCatalogEntry"][];
             projection: components["schemas"]["ProjectionMetadata"];
         };
@@ -782,6 +817,11 @@ export interface components {
             disclosureId: components["schemas"]["Uuid"];
             version: string;
             titleKo: string;
+            sections: {
+                code: string;
+                titleKo: string;
+                summaryKo: string;
+            }[];
             effectiveFrom: components["schemas"]["UtcTimestamp"];
             validUntil: components["schemas"]["UtcTimestamp"];
             responsibleInstitutionId: components["schemas"]["Uuid"];
@@ -818,6 +858,8 @@ export interface components {
         ComplaintView: {
             complaintId: components["schemas"]["Uuid"];
             type: components["schemas"]["ComplaintType"];
+            titleKo: string;
+            descriptionKo: string;
             status: components["schemas"]["ComplaintStatus"];
             submittedAt: components["schemas"]["UtcTimestamp"];
             responsibleInstitutionId?: components["schemas"]["Uuid"];
@@ -1166,6 +1208,7 @@ export interface operations {
                         role: string;
                         /** Format: uuid */
                         institutionId?: string;
+                        customerReadiness?: components["schemas"]["CustomerReadiness"];
                         /** @constant */
                         simulation: true;
                         projection: components["schemas"]["ProjectionMetadata"];

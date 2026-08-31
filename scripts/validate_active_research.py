@@ -2734,13 +2734,13 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") != "stage_ten_in_progress":
         errors.append("active project state must record stage-ten implementation in progress")
-    if state.get("iteration") != 37:
-        errors.append("active project iteration must be 37 for the restricted token foundation")
+    if state.get("iteration") != 38:
+        errors.append("active project iteration must be 38 for eligibility and investor protection")
     expected_next_action = (
-        "Validate and commit the restricted token foundation before implementing eligibility and investor protection."
+        "Review and commit eligibility and investor protection before implementing primary issuance and T+2 settlement."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must validate the restricted token foundation")
+        errors.append("active project next action must proceed to primary issuance after protection review")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3071,6 +3071,57 @@ def validate_stage_ten_foundation(errors: list[str]) -> None:
         errors.append("repository must not contain a local .env file")
 
 
+def validate_stage_ten_protection(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0002_customer_product_protection.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "seed-protection.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "protection.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "protection-routes.ts",
+        REPO_ROOT / "apps" / "web" / "app" / "investor" / "investor-workspace.tsx",
+        REPO_ROOT / "apps" / "web" / "app" / "institution" / "institution-workspace.tsx",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "eligibility.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "ELIGIBILITY_AND_PROTECTION_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten eligibility and protection implementation is missing: " + ", ".join(missing))
+        return
+
+    seed = (REPO_ROOT / "packages" / "database" / "src" / "seed-protection.ts").read_text(encoding="utf-8")
+    for term in [
+        "KOSPI200-2026-08-28", "SIM-RISK-2", "PRODUCT_SOURCE_CHECKSUM",
+        "INFORMATION_UNCONFIRMED", "'DISABLED', 'DISABLED', 'DISABLED'",
+    ]:
+        if term not in seed:
+            errors.append(f"protection seed is missing approved boundary: {term}")
+    if seed.count('"005930"') < 1 or seed.count('"006800"') < 1:
+        errors.append("protection seed must preserve the representative security set")
+
+    evidence = (
+        REPO_ROOT / "docs" / "10-poc-implementation" / "ELIGIBILITY_AND_PROTECTION_EVIDENCE.md"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "201개", "공식 ISIN", "전 종목 거래기능은 차단", "적격성 레지스트리",
+        "민원", "모의 환경", "1차 지정가 주문",
+    ]:
+        if term not in evidence:
+            errors.append(f"eligibility and protection evidence is missing: {term}")
+
+    operation_count = 0
+    for path in [PLATFORM_OPENAPI, ADAPTER_OPENAPI]:
+        openapi = yaml.safe_load(path.read_text(encoding="utf-8"))
+        operation_count += sum(
+            1
+            for item in openapi.get("paths", {}).values()
+            for method, operation in item.items()
+            if method.lower() in {"get", "post", "put", "patch", "delete"}
+            and isinstance(operation, dict)
+            and operation.get("operationId")
+        )
+    if operation_count != 47:
+        errors.append(f"protection implementation must preserve 47 OpenAPI operations, found {operation_count}")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3086,6 +3137,7 @@ def main() -> int:
     validate_stage_eight_contract(errors)
     validate_stage_nine_contract(errors)
     validate_stage_ten_foundation(errors)
+    validate_stage_ten_protection(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3096,7 +3148,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, "
         "and 16 source checksums passed."
     )
     return 0

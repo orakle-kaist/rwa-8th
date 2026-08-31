@@ -1,15 +1,21 @@
 import cors from "@fastify/cors";
 import { authenticateDemoBearer, type Clock } from "@rwa/domain";
 import Fastify, { type FastifyInstance } from "fastify";
+import type { Pool } from "pg";
+
+import { getCustomerReadiness } from "@rwa/database";
+
+import { registerProtectionRoutes } from "./protection-routes.js";
 
 export interface BuildAppOptions {
   clock: Clock;
   logger?: boolean;
+  pool?: Pool;
 }
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: options.logger ?? true });
-  await app.register(cors, { origin: ["http://localhost:3000"] });
+  await app.register(cors, { origin: ["http://localhost:3000", "http://127.0.0.1:3000"] });
 
   app.get("/health", async () => ({
     service: "rwa-api",
@@ -31,10 +37,14 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       });
     }
 
+    const readiness = options.pool
+      ? await getCustomerReadiness(options.pool, principal.principalId, options.clock.now())
+      : undefined;
     return {
       actorId: principal.principalId,
       role: principal.role,
       simulation: true,
+      ...(readiness ? { customerReadiness: readiness } : {}),
       projection: {
         projectionAsOf: options.clock.now().toISOString(),
         lastEventSequence: 0,
@@ -42,6 +52,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       },
     };
   });
+
+  if (options.pool) await registerProtectionRoutes(app, options.pool, options.clock);
 
   return app;
 }

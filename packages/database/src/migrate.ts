@@ -3,18 +3,22 @@ import { fileURLToPath } from "node:url";
 
 import { Pool } from "pg";
 
+import { seedProtectionData } from "./seed-protection.js";
+
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
   throw new Error("DATABASE_URL이 필요하다.");
 }
 
-const migrationUrl = new URL("../migrations/0001_foundation.sql", import.meta.url);
-const sql = await readFile(fileURLToPath(migrationUrl), "utf8");
 const pool = new Pool({ connectionString: databaseUrl });
 
 try {
-  await pool.query(sql);
-  process.stdout.write("database foundation migration applied\n");
+  for (const name of ["0001_foundation.sql", "0002_customer_product_protection.sql"]) {
+    const migrationUrl = new URL(`../migrations/${name}`, import.meta.url);
+    await pool.query(await readFile(fileURLToPath(migrationUrl), "utf8"));
+  }
+  await seedProtectionData(pool);
+  process.stdout.write("database migrations and approved synthetic reference data applied\n");
 } finally {
   await pool.end();
 }

@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     include: ["test/**/*.integration.test.ts"],
     retry: 0,
+    fileParallelism: false,
     sequence: {
       concurrent: false,
     },

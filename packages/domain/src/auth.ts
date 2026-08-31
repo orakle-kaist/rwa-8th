@@ -9,6 +9,16 @@ export const demoPrincipals = {
     role: "INVESTOR",
     displayName: "합성 투자자 B",
   },
+  "demo:investor-denied": {
+    principalId: "00000000-0000-4000-8000-000000000003",
+    role: "INVESTOR",
+    displayName: "합성 거절 고객",
+  },
+  "demo:investor-expired": {
+    principalId: "00000000-0000-4000-8000-000000000004",
+    role: "INVESTOR",
+    displayName: "합성 만료 고객",
+  },
   "demo:platform-operator": {
     principalId: "00000000-0000-4000-8000-000000000101",
     role: "PLATFORM_OPERATOR",

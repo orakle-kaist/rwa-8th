@@ -553,7 +553,7 @@
             "PRODUCT_CANDIDATE"
           ],
           "expectedStates": [
-            "PRODUCT_REVIEWED"
+            "PRODUCT_INFORMATION_UNCONFIRMED"
           ],
           "forbiddenStates": [],
           "expectedQuantities": {
@@ -609,7 +609,7 @@
             "PRODUCT_CANDIDATE"
           ],
           "expectedStates": [
-            "PRODUCT_REVIEWED"
+            "PRODUCT_INFORMATION_UNCONFIRMED"
           ],
           "forbiddenStates": [],
           "expectedQuantities": {
