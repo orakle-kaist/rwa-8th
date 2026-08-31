@@ -1,0 +1,22 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.next/
+coverage/
+dist/
+*.tsbuildinfo
+node_modules/
+playwright-report/
+test-results/
+
+# Foundry output and local deployment secrets
+contracts/broadcast/
+contracts/cache/
+contracts/out/
+contracts/.env
+
+# Local runtime state and generated evidence
+.runtime/
+docs/10-poc-implementation/evidence/local/
+docs/10-poc-implementation/evidence/fuji/

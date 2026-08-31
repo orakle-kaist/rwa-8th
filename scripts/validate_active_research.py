@@ -336,7 +336,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "9단계 및 7~9단계 정합성 보완 승인 완료" not in readme
+        or "10단계 PoC 구현 중" not in readme
     ):
         errors.append("README must identify PRD.md and the stage-nine review status")
     if (
@@ -378,8 +378,8 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/09-test-design/TEST_SCENARIOS.md" not in readme
         or "docs/09-test-design/FIXTURES_AND_EVIDENCE.md" not in readme
         or "docs/09-test-design/DEMO_CHECKLIST.md" not in readme
-        or "9단계 및 7~9단계 정합성 보완 승인 완료" not in readme
-        or "10단계 착수 가능" not in readme
+        or "10단계 PoC 구현 중" not in readme
+        or "docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md" not in readme
     ):
         errors.append("README must identify stage-nine review artifacts and block stage ten")
     if "실제 PoC 코드 구현: **10단계**" not in readme:
@@ -870,6 +870,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1106,6 +1107,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1473,6 +1475,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1711,7 +1714,7 @@ def validate_stage_six_contract(errors: list[str]) -> None:
     if state.get("stage") not in {
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
-        "ready_for_stage_ten"
+        "ready_for_stage_ten", "stage_ten_in_progress"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2016,6 +2019,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "ready_for_stage_eight", "awaiting_stage_eight_approval", "ready_for_stage_nine",
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
+        "stage_ten_in_progress",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2276,7 +2280,10 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
             errors.append(f"{label} must record stage-eight approval and stage-nine readiness")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") not in {"ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten"}:
+    if state.get("stage") not in {
+        "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
+        "stage_ten_in_progress",
+    }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
         errors.append("active project iteration must preserve stage-eight approval history")
@@ -2636,19 +2643,24 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     workflow = WORKFLOW.read_text(encoding="utf-8")
     for label, content in [("README", readme), ("WORKFLOW", workflow)]:
-        if "9단계" not in content or "승인" not in content or "10단계" not in content or "착수" not in content:
-            errors.append(f"{label} must record stage-nine approval and stage-ten readiness")
+        if (
+            "9단계" not in content
+            or "승인" not in content
+            or "10단계" not in content
+            or "구현 중" not in content
+        ):
+            errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "ready_for_stage_ten":
-        errors.append("active project state must be ready for stage-ten implementation")
-    if state.get("iteration") != 35:
-        errors.append("active project iteration must be 35 for stage-nine approval")
+    if state.get("stage") != "stage_ten_in_progress":
+        errors.append("active project state must record stage-ten implementation in progress")
+    if state.get("iteration") != 36:
+        errors.append("active project iteration must be 36 for the stage-ten runtime foundation")
     expected_next_action = (
-        "Start stage-ten PoC implementation from the approved stage-nine test design."
+        "Validate and commit the stage-ten runtime foundation before implementing the restricted token foundation."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must start stage-ten implementation")
+        errors.append("active project next action must validate the stage-ten runtime foundation")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -2900,6 +2912,73 @@ def validate_alignment_approval_contract(errors: list[str]) -> None:
         )
 
 
+def validate_stage_ten_foundation(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "package.json",
+        REPO_ROOT / "pnpm-lock.yaml",
+        REPO_ROOT / "pnpm-workspace.yaml",
+        REPO_ROOT / "compose.yaml",
+        REPO_ROOT / "foundry.toml",
+        REPO_ROOT / "playwright.config.ts",
+        REPO_ROOT / "vitest.config.ts",
+        REPO_ROOT / "apps" / "web" / "package.json",
+        REPO_ROOT / "apps" / "api" / "package.json",
+        REPO_ROOT / "apps" / "mock-institutions" / "package.json",
+        REPO_ROOT / "packages" / "domain" / "package.json",
+        REPO_ROOT / "packages" / "database" / "package.json",
+        REPO_ROOT / "packages" / "contracts-client" / "package.json",
+        REPO_ROOT / "packages" / "generated" / "package.json",
+        REPO_ROOT / "packages" / "generated" / "src" / "platform-api.ts",
+        REPO_ROOT / "packages" / "generated" / "src" / "adapters-api.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten runtime foundation is missing files: " + ", ".join(missing))
+        return
+
+    package = json.loads((REPO_ROOT / "package.json").read_text(encoding="utf-8"))
+    if package.get("packageManager") != "pnpm@10.32.1":
+        errors.append("stage-ten foundation must pin pnpm 10.32.1")
+    if package.get("engines") != {"node": "24.18.0", "pnpm": "10.32.1"}:
+        errors.append("stage-ten foundation must pin the approved Node.js and pnpm engines")
+
+    expected_versions = {
+        ("apps/web", "dependencies", "next"): "16.3.3",
+        ("apps/web", "dependencies", "react"): "19.2.8",
+        ("apps/api", "dependencies", "fastify"): "5.12.1",
+        ("packages/database", "dependencies", "drizzle-orm"): "0.45.2",
+        ("packages/contracts-client", "dependencies", "viem"): "2.56.0",
+    }
+    for (directory, dependency_group, dependency), expected in expected_versions.items():
+        manifest = json.loads(
+            (REPO_ROOT / directory / "package.json").read_text(encoding="utf-8")
+        )
+        actual = manifest.get(dependency_group, {}).get(dependency)
+        if actual != expected:
+            errors.append(
+                f"{directory} must pin {dependency} {expected}, found {actual}"
+            )
+
+    compose = (REPO_ROOT / "compose.yaml").read_text(encoding="utf-8")
+    for term in ["postgres:", "anvil:", "postgres:17.6-bookworm", "foundry:v1.7.1"]:
+        if term not in compose:
+            errors.append(f"stage-ten compose file is missing approved runtime term: {term}")
+
+    guide = (
+        REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "상태: **10단계 구현 중**", "합성 Bearer", "PostgreSQL", "Anvil",
+        "승인된 OpenAPI", "실제 비밀값",
+    ]:
+        if term not in guide:
+            errors.append(f"stage-ten implementation guide is missing: {term}")
+
+    if (REPO_ROOT / ".env").exists():
+        errors.append("repository must not contain a local .env file")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -2914,6 +2993,7 @@ def main() -> int:
     validate_stage_seven_contract(errors)
     validate_stage_eight_contract(errors)
     validate_stage_nine_contract(errors)
+    validate_stage_ten_foundation(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -2924,7 +3004,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten runtime foundation, "
         "and 16 source checksums passed."
     )
     return 0

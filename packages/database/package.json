@@ -1,0 +1,23 @@
+{
+  "name": "@rwa/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "migrate": "tsx src/migrate.ts",
+    "test:integration": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.2",
+    "pg": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.4.0",
+    "@types/pg": "8.23.1",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "korean-equity-rwa-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": "24.18.0",
+    "pnpm": "10.32.1"
+  },
+  "scripts": {
+    "build": "pnpm generate && pnpm --recursive --if-present build",
+    "clean": "pnpm --recursive --if-present clean",
+    "dev": "pnpm --parallel --filter @rwa/api --filter @rwa/mock-institutions --filter @rwa/web dev",
+    "dev:api": "pnpm --filter @rwa/api dev",
+    "dev:mock": "pnpm --filter @rwa/mock-institutions dev",
+    "dev:web": "pnpm --filter @rwa/web dev",
+    "db:migrate": "pnpm --filter @rwa/database migrate",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "generate": "pnpm --filter @rwa/generated generate",
+    "test": "pnpm test:unit",
+    "test:browser": "playwright test",
+    "test:chain": "pnpm --filter @rwa/contracts-client test:integration",
+    "test:contracts": "forge test --root contracts",
+    "test:database": "pnpm --filter @rwa/database test:integration",
+    "test:full": "pnpm test:quick && pnpm test:database && pnpm test:chain && pnpm test:browser",
+    "test:quick": "bash scripts/check-no-secrets.sh && bash scripts/validate-research.sh && pnpm validate:specs && pnpm typecheck && pnpm test:unit && pnpm test:contracts",
+    "test:unit": "vitest run --exclude '**/*.integration.test.ts'",
+    "typecheck": "pnpm --recursive --if-present typecheck",
+    "validate:specs": "pnpm --filter @rwa/generated validate"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "5.6.1",
+    "@playwright/test": "1.62.1",
+    "@safe-global/safe-contracts": "1.4.1-2",
+    "@types/node": "26.4.0",
+    "ethers": "5.4.0",
+    "prettier": "3.9.6",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "4.1.11"
+  }
+}

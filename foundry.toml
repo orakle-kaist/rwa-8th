@@ -1,0 +1,20 @@
+[profile.default]
+src = "contracts/src"
+test = "contracts/test"
+script = "contracts/script"
+out = "contracts/out"
+cache_path = "contracts/cache"
+solc_version = "0.8.30"
+optimizer = true
+optimizer_runs = 200
+evm_version = "cancun"
+ffi = false
+
+remappings = [
+  "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
+  "@safe-global/safe-contracts/=node_modules/@safe-global/safe-contracts/contracts/"
+]
+
+[profile.ci]
+fuzz = { runs = 256 }
+invariant = { runs = 128, depth = 64, fail_on_revert = false }

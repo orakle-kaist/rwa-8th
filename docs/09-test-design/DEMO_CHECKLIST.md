@@ -18,9 +18,9 @@
 
 - [x] 9단계 문서와 기계 명세가 팀 내부 승인 완료 상태다.
 - [ ] `test-catalog.json`의 모든 필수 항목을 구현할 위치가 정해졌다.
-- [ ] Vitest, 실제 PostgreSQL, Foundry, Anvil과 Playwright Chromium 실행환경이 재현 가능하다.
-- [ ] 패키지와 도구 버전을 잠금파일 또는 고정 설정으로 보존한다.
-- [ ] 합성 계정과 키만 사용하고 저장소에 비밀값이 없다.
+- [x] Vitest, 실제 PostgreSQL, Foundry, Anvil과 Playwright Chromium 실행환경이 재현 가능하다.
+- [x] 패키지와 도구 버전을 잠금파일 또는 고정 설정으로 보존한다.
+- [x] 합성 계정과 키만 사용하고 저장소에 비밀값이 없다.
 - [ ] 자동시험이 외부 Fuji나 실제 기관 연결 없이 전체 로컬 검증을 수행할 수 있다.
 
 ## 3. 로컬 시연 후보 게이트
