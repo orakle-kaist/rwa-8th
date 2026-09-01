@@ -511,7 +511,6 @@ async function decideRightsTask(
     const approvedRecovery = approved.rows[0];
     if (!approvedRecovery) throw new Error("지갑 복구 승인기록이 없다.");
     if (approvedRecovery.rights_approved && approvedRecovery.compliance_approved) {
-      const transactionHash = evidence(`wallet-recovery:${taskId}`);
       await client.query(
         "UPDATE customer_wallets SET status='REVOKED',active=false,updated_at=$2 WHERE principal_id=$1 AND wallet_address=$3",
         [approvedRecovery.principal_id, now, approvedRecovery.old_wallet],
@@ -521,11 +520,11 @@ async function decideRightsTask(
         [approvedRecovery.principal_id, now, approvedRecovery.new_wallet],
       );
       await client.query(
-        `UPDATE wallet_recoveries SET chain_executed=true,rights_ledger_updated=true,reconciled=true,
-        transaction_hash=$2,status='RECOVERY_COMPLETED',updated_at=$3 WHERE workflow_id=$1`,
-        [taskId, transactionHash, now],
+        `UPDATE wallet_recoveries SET chain_executed=false,rights_ledger_updated=true,reconciled=false,
+        transaction_hash=NULL,status='RECOVERY_CHAIN_PENDING',updated_at=$2 WHERE workflow_id=$1`,
+        [taskId, now],
       );
-      next = "RECOVERY_COMPLETED";
+      next = "RECOVERY_CHAIN_PENDING";
     } else next = "RECOVERY_APPROVAL_PENDING";
   } else if (row.workflow_type === "CORPORATE_ACTION") {
     if (actorRole === "RIGHTS_ENTRY_APPROVER")
@@ -603,11 +602,11 @@ async function decideRightsTask(
         ],
       );
       await client.query(
-        `UPDATE corporate_actions SET domestic_applied=true,token_applied=true,reconciled=true,
-        status='CORPORATE_ACTION_RECONCILED',transaction_hash=$2,updated_at=$3 WHERE action_id=$1`,
-        [taskId, evidence(`corporate-action:${taskId}`), now],
+        `UPDATE corporate_actions SET domestic_applied=true,token_applied=false,reconciled=false,
+        status='CORPORATE_ACTION_CHAIN_PENDING',transaction_hash=NULL,updated_at=$2 WHERE action_id=$1`,
+        [taskId, now],
       );
-      next = "CORPORATE_ACTION_RECONCILED";
+      next = "CORPORATE_ACTION_CHAIN_PENDING";
     } else next = "CORPORATE_ACTION_PLAN_REVIEW";
   } else throw new Error("지원하지 않는 권리업무 결정이다.");
   await client.query("UPDATE workflows SET status=$2,updated_at=$3 WHERE workflow_id=$1", [

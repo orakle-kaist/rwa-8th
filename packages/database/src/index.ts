@@ -12,3 +12,4 @@ export * from "./seed-rights.js";
 export * from "./schema.js";
 export * from "./runtime-state.js";
 export * from "./common-queries.js";
+export * from "./chain-execution.js";

@@ -11,6 +11,7 @@ export {
   writeCorporateActionController,
   writeRecoveryController,
 } from "./rights.js";
+export { deployLocalStack, paymentAssetId, type LocalDeploymentManifest } from "./local-stack.js";
 
 export const anvilChain = defineChain({
   id: 31_337,

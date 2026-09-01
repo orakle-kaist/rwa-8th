@@ -1,7 +1,10 @@
 import { spawnSync } from "node:child_process";
+import { access } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import { Pool } from "pg";
+
+import { recordLocalChainDeployment } from "./chain-execution.js";
 
 const requiredConfirmation = "RESET_LOCAL_SYNTHETIC_RWA_POC";
 const confirmed = process.argv.includes("--confirm=" + requiredConfirmation);
@@ -38,5 +41,13 @@ const migration = spawnSync("pnpm", ["db:migrate"], {
 });
 if (migration.status !== 0) {
   throw new Error("스키마 초기화 뒤 승인 fixture 적재에 실패했다.");
+}
+const manifestPath = resolve(import.meta.dirname, "../../..", ".runtime/local-deployment.json");
+await access(manifestPath);
+const deployedPool = new Pool({ connectionString: databaseUrl });
+try {
+  await recordLocalChainDeployment(deployedPool, manifestPath);
+} finally {
+  await deployedPool.end();
 }
 process.stdout.write("local synthetic demo reset complete: rwa_poc\n");

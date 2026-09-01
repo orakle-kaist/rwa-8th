@@ -14,10 +14,12 @@ import { Pool } from "pg";
 
 import { buildApp } from "./app.js";
 import { loadApiConfig } from "./config.js";
+import { LocalChainSynchronizer } from "./local-chain-synchronizer.js";
 
 const config = loadApiConfig(process.env);
 const clock = createClock(process.env);
 const pool = new Pool({ connectionString: config.databaseUrl });
+const localChain = await LocalChainSynchronizer.create(pool, process.env);
 const app = await buildApp({ clock, pool });
 let processing = false;
 let lastExpiryDate: string | undefined;
@@ -40,10 +42,23 @@ const timer = setInterval(() => {
     );
     const messages = await claimOutbox(pool, 20, clock.now());
     for (const message of messages) {
+      let handledTarget = message.workflowId;
       if (message.eventType === "ELIGIBILITY_CHAIN_SYNC_REQUESTED") {
-        throw new Error("브라우저 시험 서버에서는 체인 적격성 반영을 실행하지 않는다.");
+        const payload = message.payload as Record<string, string>;
+        const transactionHash = await localChain.executeEligibility(
+          message.workflowId,
+          payload.wallet as `0x${string}`,
+          new Date(payload.validUntil!),
+        );
+        const { completeEligibilityChainSync } = await import("@rwa/database");
+        await completeEligibilityChainSync(pool, {
+          workflowId: message.workflowId,
+          outboxId: message.outboxId,
+          transactionHash,
+          now: clock.now(),
+        });
       }
-      if (
+      else if (
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
         !(await processHedgeOutbox(pool, message, clock.now())) &&
         !(await processRedemptionOutbox(pool, message, clock.now())) &&
@@ -52,11 +67,22 @@ const timer = setInterval(() => {
           pool,
           message,
           clock.now(),
-          async () => `0x${message.workflowId.replaceAll("-", "").padEnd(64, "0")}`,
+          (payload) => localChain.executeSecondary(message.workflowId, payload),
         ))
       ) {
         await processProtectionMessage(pool, message, clock.now());
       }
+      const messagePayload = message.payload as Record<string, unknown>;
+      if (typeof messagePayload.taskId === "string") handledTarget = messagePayload.taskId;
+      else if (messagePayload.data) {
+        const data = messagePayload.data as Record<string, unknown>;
+        for (const key of ["taskId", "hedgeId", "redemptionId", "orderId"])
+          if (typeof data[key] === "string") {
+            handledTarget = String(data[key]);
+            break;
+          }
+      }
+      await localChain.synchronize(handledTarget);
     }
   })()
     .catch((error) => {

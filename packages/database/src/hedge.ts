@@ -662,11 +662,10 @@ export async function processHedgeOutbox(
         );
         await client.query(
           `UPDATE market_maker_hedges SET rights_terminated=true,cash_claim_usd_minor=$2,
-             token_transaction_hash=$3,updated_at=$4 WHERE hedge_id=$1`,
+             token_transaction_hash=NULL,updated_at=$3 WHERE hedge_id=$1`,
           [
             message.workflowId,
             claim.toString(),
-            evidence(`${message.workflowId}:BURN_PENDING`),
             now,
           ],
         );

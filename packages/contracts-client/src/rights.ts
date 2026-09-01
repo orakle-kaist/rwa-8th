@@ -1,17 +1,16 @@
 import { parseAbi, type Abi, type Address, type Hex, type WalletClient } from "viem";
 
 export const recoveryControllerWriteAbi = parseAbi([
-  "function approveRightsRecovery(bytes16 workflowId,address token,address oldWallet,address newWallet,bytes32 evidenceHash)",
-  "function approveComplianceRecovery(bytes16 workflowId,address token,address oldWallet,address newWallet,bytes32 evidenceHash)",
-  "function executeRecovery(bytes16 workflowId,address token,address oldWallet,address newWallet,bytes32 evidenceHash)",
+  "function approveRightsRecovery(bytes16 workflowId,address oldWallet,address newWallet,bytes32 evidenceHash)",
+  "function approveComplianceRecovery(bytes16 workflowId,address oldWallet,address newWallet,bytes32 evidenceHash)",
+  "function executeRecovery(bytes16 workflowId,address token,address oldWallet,address newWallet)",
 ] as string[]) as Abi;
 
 export const corporateActionControllerWriteAbi = parseAbi([
-  "function registerAction(bytes16 workflowId,address token,uint256 numerator,uint256 denominator,uint256 expectedSupply,bytes32 evidenceHash)",
-  "function approveRightsPlan(bytes16 workflowId,bytes32 evidenceHash)",
-  "function approveAuditPlan(bytes16 workflowId,bytes32 evidenceHash)",
-  "function applyBatch(bytes16 workflowId,address[] accounts,bytes32 evidenceHash)",
-  "function finalizeAction(bytes16 workflowId,bytes32 evidenceHash)",
+  "function approveRightsPlan(bytes16 workflowId,address token,uint256 numerator,uint256 denominator,uint256 expectedSupply,bytes32 evidenceHash)",
+  "function approveAuditPlan(bytes16 workflowId,address token,uint256 numerator,uint256 denominator,uint256 expectedSupply,bytes32 evidenceHash)",
+  "function applySplitBatch(bytes16 workflowId,address token,address[] accounts)",
+  "function finalizeSplit(bytes16 workflowId)",
 ] as string[]) as Abi;
 
 async function write(
@@ -54,7 +53,7 @@ export function writeCorporateActionController(
   input: {
     controller: Address;
     functionName:
-      "registerAction" | "approveRightsPlan" | "approveAuditPlan" | "applyBatch" | "finalizeAction";
+      "approveRightsPlan" | "approveAuditPlan" | "applySplitBatch" | "finalizeSplit";
     args: readonly unknown[];
   },
 ) {

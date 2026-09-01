@@ -19,6 +19,7 @@ import {
   transitionCurrentWorkflowState,
   transitionWorkflowState,
 } from "./runtime-state.js";
+import { getLocalChainMetadata } from "./chain-execution.js";
 
 const decisionRoles = new Set([
   "EXECUTION_ALLOCATION_CONFIRMER",
@@ -64,6 +65,7 @@ async function recordHistory(
 }
 
 export async function getLocalRedemptionScenario(pool: Pool, principalId: string, now: Date) {
+  const chain = await getLocalChainMetadata(pool);
   const result = await pool.query<Record<string, unknown>>(
     `SELECT instrument.security_id,instrument.display_name,instrument.redemption_enabled,
        COALESCE(rights.settled_quantity,0)::text settled_quantity,
@@ -91,7 +93,7 @@ export async function getLocalRedemptionScenario(pool: Pool, principalId: string
   return {
     securityId: LOCAL_REDEMPTION_SECURITY_ID,
     displayName: row.display_name,
-    tokenAddress: LOCAL_REDEMPTION_TOKEN_ADDRESS,
+    tokenAddress: chain.tokens[LOCAL_REDEMPTION_SECURITY_ID] ?? LOCAL_REDEMPTION_TOKEN_ADDRESS,
     referenceLimitKrw: LOCAL_REDEMPTION_LIMIT_KRW.toString(),
     redemptionEnabled: Boolean(row.redemption_enabled),
     settledQuantity: quantities.settled.toString(),
@@ -100,7 +102,7 @@ export async function getLocalRedemptionScenario(pool: Pool, principalId: string
     burnPendingQuantity: quantities.burnPending.toString(),
     domesticSettledQuantity: String(row.domestic_settled_quantity),
     tokenTotalSupply: String(row.token_total_supply),
-    policyVersion: LOCAL_REDEMPTION_POLICY,
+    policyVersion: chain.policyVersion,
     simulation: true,
     notices: [
       "기존 로컬 1차 발행의 T+2 완료 권리만 환매할 수 있다.",
@@ -111,7 +113,7 @@ export async function getLocalRedemptionScenario(pool: Pool, principalId: string
       name: "Korean Equity RWA Intent",
       version: "1",
       chainId: 31337,
-      verifyingContract: "0x0000000000000000000000000000000000000990",
+      verifyingContract: chain.verifyingContract,
     },
     projection: projection(now),
   };

@@ -16,6 +16,7 @@
     "dev:mock": "pnpm --filter @rwa/mock-institutions dev",
     "dev:web": "pnpm --filter @rwa/web dev",
     "demo:reset": "tsx packages/database/src/reset-demo.ts",
+    "chain:deploy:local": "tsx scripts/deploy-local-stack.ts",
     "db:migrate": "pnpm --filter @rwa/database migrate",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

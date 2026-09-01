@@ -21,6 +21,7 @@ import { commandHash, getCustomerReadiness, type ProjectionMetadata } from "./pr
 import { initializeWorkflowState, transitionWorkflowState } from "./runtime-state.js";
 import { MARKET_MAKER_PRINCIPAL_ID, MARKET_MAKER_WALLET } from "./seed-secondary.js";
 import { createOrNetHedgeForSecondaryTrade } from "./hedge.js";
+import { getLocalChainMetadata } from "./chain-execution.js";
 
 function projection(now: Date): ProjectionMetadata {
   return { projectionAsOf: now.toISOString(), lastEventSequence: 0, projectionStatus: "CURRENT" };
@@ -54,6 +55,7 @@ async function history(
 }
 
 export async function getLocalSecondaryScenario(pool: Pool, principalId: string, now: Date) {
+  const chain = await getLocalChainMetadata(pool);
   const result = await pool.query<Record<string, unknown>>(
     `SELECT instrument.*,state.reference_usd_minor,state.information_effective_at,state.usdc_usd_ppm,
             state.half_spread_bps,state.security_loss_bps,state.portfolio_loss_bps,
@@ -76,7 +78,7 @@ export async function getLocalSecondaryScenario(pool: Pool, principalId: string,
     displayName: row.display_name,
     tokenSymbol: row.token_symbol,
     tokenAddress: String(row.token_address ?? "0x0000000000000000000000000000000000009902"),
-    mockUsdcAddress: "0x0000000000000000000000000000000000000dC2",
+    mockUsdcAddress: chain.mockUsdcAddress,
     referenceSecurityId: row.reference_security_id,
     referenceUsdMinor: String(row.reference_usd_minor),
     normalAskUsdMinor: LOCAL_SECONDARY_NORMAL_ASK_USD_MINOR.toString(),
@@ -106,9 +108,9 @@ export async function getLocalSecondaryScenario(pool: Pool, principalId: string,
       name: "Korean Equity RWA Intent",
       version: "1",
       chainId: 31337,
-      verifyingContract: "0x0000000000000000000000000000000000000990",
+      verifyingContract: chain.verifyingContract,
     },
-    policyVersion: LOCAL_SECONDARY_POLICY,
+    policyVersion: chain.policyVersion,
     notices: [
       "로컬 전용 합성 상품이며 실제 SK하이닉스 주식이나 공식 ISIN 상품이 아니다.",
       "국내 결제완료 권리만 지정 시장조성자와 거래할 수 있다.",

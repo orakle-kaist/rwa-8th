@@ -38,11 +38,30 @@ services:
     environment: &application-environment
       DATABASE_URL: postgresql://rwa_poc:rwa_poc_local_only@postgres:5432/rwa_poc
       ANVIL_RPC_URL: http://anvil:8545
-      SECONDARY_SIMULATION_CHAIN: "true"
+      CHAIN_RPC_URL: http://anvil:8545
+      LOCAL_CHAIN_MANIFEST_PATH: /app/.runtime/local-deployment.json
       TEST_CLOCK_MODE: system
+    volumes:
+      - rwa-runtime:/app/.runtime
     depends_on:
       postgres:
         condition: service_healthy
+      chain-deploy:
+        condition: service_completed_successfully
+    restart: "no"
+
+  chain-deploy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pnpm", "chain:deploy:local"]
+    environment:
+      ANVIL_RPC_URL: http://anvil:8545
+    volumes:
+      - rwa-runtime:/app/.runtime
+    depends_on:
+      anvil:
+        condition: service_started
     restart: "no"
 
   api:
@@ -54,6 +73,8 @@ services:
       <<: *application-environment
       API_HOST: 0.0.0.0
       API_PORT: "4000"
+    volumes:
+      - rwa-runtime:/app/.runtime
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -66,6 +87,8 @@ services:
       dockerfile: Dockerfile
     command: ["pnpm", "--filter", "@rwa/api", "worker"]
     environment: *application-environment
+    volumes:
+      - rwa-runtime:/app/.runtime
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -95,3 +118,4 @@ services:
 
 volumes:
   rwa-postgres:
+  rwa-runtime:

@@ -10,6 +10,7 @@ import {
 import type { Pool, PoolClient } from "pg";
 
 import { commandHash, getCustomerReadiness, type ProjectionMetadata } from "./protection.js";
+import { getLocalChainMetadata } from "./chain-execution.js";
 import {
   initializeWorkflowState,
   transitionCurrentWorkflowState,
@@ -55,6 +56,7 @@ async function history(
 }
 
 export async function getLocalPrimaryScenario(pool: Pool, principalId: string, now: Date) {
+  const chain = await getLocalChainMetadata(pool);
   const instrument = await pool.query<Record<string, unknown>>(
     "SELECT * FROM local_simulation_instruments WHERE security_id=$1",
     [LOCAL_PRIMARY_SECURITY_ID],
@@ -89,9 +91,9 @@ export async function getLocalPrimaryScenario(pool: Pool, principalId: string, n
       name: "Korean Equity RWA Intent",
       version: "1",
       chainId: 31337,
-      verifyingContract: "0x0000000000000000000000000000000000000990",
+      verifyingContract: chain.verifyingContract,
     },
-    policyVersion: "PRIMARY-SIM-1",
+    policyVersion: chain.policyVersion,
     simulation: true,
     projection: projection(now),
   };
@@ -677,10 +679,9 @@ async function applyPrimaryDecision(
        VALUES ($1,$2,$3,0,$4) ON CONFLICT (principal_id,security_id) DO UPDATE SET pending_quantity=customer_rights_positions.pending_quantity+EXCLUDED.pending_quantity,updated_at=EXCLUDED.updated_at`,
       [row.principal_id, row.security_id, quantity.toString(), now],
     );
-    const tx = evidence(`${taskId}:PENDING_MINT`);
     await client.query(
-      "UPDATE primary_orders SET status='SETTLEMENT_AND_CUSTODY_PENDING',rights_status='RIGHTS_RECORDED',token_status='PENDING_SETTLEMENT',token_transaction_hash=$2,updated_at=$3 WHERE order_id=$1",
-      [taskId, tx, now],
+      "UPDATE primary_orders SET status='SETTLEMENT_AND_CUSTODY_PENDING',rights_status='RIGHTS_RECORDED',token_status='PENDING_SETTLEMENT',token_transaction_hash=NULL,updated_at=$2 WHERE order_id=$1",
+      [taskId, now],
     );
     await client.query(
       `UPDATE instrument_control_totals SET token_total_supply=token_total_supply+$2,updated_at=$3
@@ -1073,8 +1074,8 @@ async function confirmSettlementSide(
       [row.security_id, row.allocated_quantity, now],
     );
     await client.query(
-      "UPDATE primary_orders SET status='TRADABLE',token_status='TRADABLE',settlement_status='SETTLED_AND_CUSTODIED',release_transaction_hash=$2,updated_at=$3 WHERE order_id=$1",
-      [orderId, evidence(`${orderId}:RELEASE`), now],
+      "UPDATE primary_orders SET status='TRADABLE',token_status='TRADABLE',settlement_status='SETTLED_AND_CUSTODIED',release_transaction_hash=NULL,updated_at=$2 WHERE order_id=$1",
+      [orderId, now],
     );
     await client.query(
       "UPDATE workflows SET status='COMPLETED',updated_at=$2 WHERE workflow_id=$1",
