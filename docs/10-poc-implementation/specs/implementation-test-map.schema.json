@@ -125,7 +125,7 @@
             }
           },
           "evidence": { "$ref": "#/$defs/stringArray" },
-          "status": { "enum": ["LOCAL_AUTOMATED", "BLOCKED_OFFICIAL_ISIN"] }
+          "status": { "enum": ["LOCAL_AUTOMATED", "BLOCKED_OFFICIAL_ISIN", "FUJI_MANUAL"] }
         }
       }
     }

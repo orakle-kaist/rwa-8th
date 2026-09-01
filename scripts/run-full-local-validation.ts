@@ -56,6 +56,7 @@ function run(label: string, command: string, args: string[], extra: NodeJS.Proce
 try {
   await ensureAnvil();
   run("빠른 검증", "pnpm", ["test:quick"]);
+  run("PostgreSQL 변경사항 적용", "pnpm", ["db:migrate"]);
   run("PostgreSQL", "pnpm", ["test:database"]);
   run("API", "pnpm", ["test:api"]);
   run("계약 클라이언트", "pnpm", ["test:chain"]);

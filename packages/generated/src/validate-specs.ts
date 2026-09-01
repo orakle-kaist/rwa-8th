@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -133,6 +134,11 @@ const implementationCases = implementationTestMap.cases as Array<{
 const implementationIds = new Set(implementationCases.map((testCase) => testCase.testId));
 const localCases = implementationCases.filter((testCase) => testCase.automated);
 const fujiCases = implementationCases.filter((testCase) => !testCase.automated);
+const officialIsinEvidencePath = resolve(
+  repositoryRoot,
+  "research/korean-equity-rwa/sources/web/krx-listed-2026-08-28-representative-6.json",
+);
+const officialIsinVerified = existsSync(officialIsinEvidencePath);
 if (
   implementationCases.length !== 79 ||
   implementationIds.size !== 79 ||
@@ -151,9 +157,12 @@ if (
       Object.values(testCase.expectedResult).some((value) => value === null) ||
       testCase.status !== "LOCAL_AUTOMATED",
   ) ||
-  fujiCases.some(
-    (testCase) =>
-      testCase.primaryExecutable !== null || testCase.status !== "BLOCKED_OFFICIAL_ISIN",
+  fujiCases.some((testCase) =>
+    officialIsinVerified
+      ? testCase.primaryExecutable?.file !== "scripts/test-fuji.ts" ||
+        testCase.primaryExecutable.testName !== testCase.testId ||
+        testCase.status !== "FUJI_MANUAL"
+      : testCase.primaryExecutable !== null || testCase.status !== "BLOCKED_OFFICIAL_ISIN",
   )
 ) {
   fail("로컬 시험 실행위치 또는 Fuji 차단상태가 승인된 구현 경계와 다르다.");

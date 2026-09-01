@@ -3429,8 +3429,25 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
     ]
     if len(cases) != 79 or len(local) != 76 or len(fuji) != 3 or len(set(primary)) != 76:
         errors.append("implementation test map must contain 76 unique local tests and 3 Fuji tests")
-    if any(case.get("status") != "BLOCKED_OFFICIAL_ISIN" for case in fuji):
-        errors.append("Fuji tests must remain blocked before official ISIN verification")
+    official_isin = (
+        REPO_ROOT
+        / "research"
+        / "korean-equity-rwa"
+        / "sources"
+        / "web"
+        / "krx-listed-2026-08-28-representative-6.json"
+    )
+    expected_fuji_status = "FUJI_MANUAL" if official_isin.exists() else "BLOCKED_OFFICIAL_ISIN"
+    if any(case.get("status") != expected_fuji_status for case in fuji):
+        errors.append("Fuji test status must follow the official ISIN evidence gate")
+    if official_isin.exists():
+        if any(
+            case.get("primaryExecutable", {}).get("file") != "scripts/test-fuji.ts"
+            for case in fuji
+        ):
+            errors.append("verified Fuji tests must point to the Fuji execution script")
+    elif any(case.get("primaryExecutable") is not None for case in fuji):
+        errors.append("blocked Fuji tests must not claim an executable result")
 
     matrix = parsed[STATE_TRANSITION_MATRIX]
     states = matrix.get("states", [])

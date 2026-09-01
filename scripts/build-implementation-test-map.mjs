@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -9,6 +10,12 @@ const catalog = JSON.parse(
 );
 const traceability = JSON.parse(
   await readFile(resolve(root, "docs/09-test-design/specs/traceability.json"), "utf8"),
+);
+const officialIsinVerified = existsSync(
+  resolve(
+    root,
+    "research/korean-equity-rwa/sources/web/krx-listed-2026-08-28-representative-6.json",
+  ),
 );
 
 const groupFiles = {
@@ -116,7 +123,9 @@ const cases = catalog.groups.flatMap((group) =>
     executionProfile: testCase.profile,
     primaryExecutable: testCase.automated
       ? { runner: "Vitest", file: groupFiles[group.groupId], testName: testCase.testId }
-      : null,
+      : officialIsinVerified
+        ? { runner: "Fuji 수동 실행기", file: "scripts/test-fuji.ts", testName: testCase.testId }
+        : null,
     supportingExecutables: testCase.automated
       ? (supportingExecutables[group.groupId] ?? []).map(([runner, file, testName]) => ({
           runner,
@@ -136,7 +145,11 @@ const cases = catalog.groups.flatMap((group) =>
     },
     traceability: reverseLinks(testCase.testId),
     evidence: testCase.evidence,
-    status: testCase.automated ? "LOCAL_AUTOMATED" : "BLOCKED_OFFICIAL_ISIN",
+    status: testCase.automated
+      ? "LOCAL_AUTOMATED"
+      : officialIsinVerified
+        ? "FUJI_MANUAL"
+        : "BLOCKED_OFFICIAL_ISIN",
   })),
 );
 

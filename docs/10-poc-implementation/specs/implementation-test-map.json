@@ -6042,7 +6042,11 @@
       "groupId": "Fuji",
       "automated": false,
       "executionProfile": "FUJI_DEMO",
-      "primaryExecutable": null,
+      "primaryExecutable": {
+        "runner": "Fuji 수동 실행기",
+        "file": "scripts/test-fuji.ts",
+        "testName": "Fuji-배포-01"
+      },
       "supportingExecutables": [],
       "expectedResult": {
         "startStates": ["TOKEN_UNMINTED"],
@@ -6074,14 +6078,18 @@
         "결과 JSON",
         "상태 전후 스냅샷"
       ],
-      "status": "BLOCKED_OFFICIAL_ISIN"
+      "status": "FUJI_MANUAL"
     },
     {
       "testId": "Fuji-직접이전차단-01",
       "groupId": "Fuji",
       "automated": false,
       "executionProfile": "FUJI_DEMO",
-      "primaryExecutable": null,
+      "primaryExecutable": {
+        "runner": "Fuji 수동 실행기",
+        "file": "scripts/test-fuji.ts",
+        "testName": "Fuji-직접이전차단-01"
+      },
       "supportingExecutables": [],
       "expectedResult": {
         "startStates": ["TOKEN_UNMINTED"],
@@ -6118,14 +6126,18 @@
         "결과 JSON",
         "상태 전후 스냅샷"
       ],
-      "status": "BLOCKED_OFFICIAL_ISIN"
+      "status": "FUJI_MANUAL"
     },
     {
       "testId": "Fuji-생애주기-01",
       "groupId": "Fuji",
       "automated": false,
       "executionProfile": "FUJI_DEMO",
-      "primaryExecutable": null,
+      "primaryExecutable": {
+        "runner": "Fuji 수동 실행기",
+        "file": "scripts/test-fuji.ts",
+        "testName": "Fuji-생애주기-01"
+      },
       "supportingExecutables": [],
       "expectedResult": {
         "startStates": ["TOKEN_UNMINTED"],
@@ -6157,7 +6169,7 @@
         "결과 JSON",
         "상태 전후 스냅샷"
       ],
-      "status": "BLOCKED_OFFICIAL_ISIN"
+      "status": "FUJI_MANUAL"
     }
   ]
 }

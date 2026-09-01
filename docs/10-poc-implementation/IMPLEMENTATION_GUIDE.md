@@ -78,6 +78,16 @@
 - `pnpm test:acceptance:trace`: 승인된 76개 로컬 시험을 독립된 시험번호로 실행
 - `pnpm test:acceptance`: 깨끗한 커밋에서 전체 로컬 검증과 76개 시험을 실행하고 증거 생성
 
+### Fuji 최종 게이트
+
+1. 공공데이터포털에서 `금융위원회_KRX상장종목정보` 활용신청을 완료하고 `DATA_GO_KR_SERVICE_KEY`를 셸에만 설정한다.
+2. `pnpm isin:verify`로 2026년 8월 28일 대표 6종목의 공식 ISIN과 체크섬 증거를 만든다.
+3. 12자 이상의 `FUJI_KEYSTORE_PASSWORD`를 셸에만 설정하고 `pnpm fuji:keys`를 실행한다. 생성된 배포자 공개주소에만 Fuji 시험 AVAX를 충전한다.
+4. 깨끗한 도구 커밋에서 `pnpm test:acceptance`를 통과한 뒤 `pnpm deploy:fuji`를 실행한다.
+5. 같은 커밋에서 `pnpm test:fuji`를 실행해 배포, 직접이전 차단과 삼성전자 대표 생애주기를 검증한다.
+
+Fuji 키는 `.runtime/fuji/`의 암호화 키 저장소에만 두며 저장소와 증거에는 공개주소만 남긴다. 지급자산은 Circle 발행물이 아닌 소수점 6자리 `Mock USDC`이고, 토큰명과 증거에는 모의 테스트 전용임을 표시한다. 실행기는 체인 ID가 `43113`이 아니거나 공식 ISIN, 가스 잔액, 배포 커밋 중 하나가 다르면 중지한다.
+
 각 기능 커밋은 관련 자동시험을 추가하고 실행 결과를 보고한다. 자동 재시도와 건너뜀은 사용하지 않는다.
 
 ```bash
