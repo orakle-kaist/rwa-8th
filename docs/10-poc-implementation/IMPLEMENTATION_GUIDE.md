@@ -4,7 +4,7 @@
 
 이 문서는 승인된 1~9단계를 코드로 옮기는 방법과 검증 증거를 연결한다. 구현은 실제 자금, 주식, 개인정보나 기관 API를 사용하지 않는다.
 
-기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 구현 증거](REDEMPTION_LIFECYCLE_EVIDENCE.md), [권리업무와 운영 통제 구현 증거](RIGHTS_AND_RECOVERY_EVIDENCE.md), [전체 시연과 로컬 인수시험 구현 증거](LOCAL_ACCEPTANCE_EVIDENCE.md), [Fuji 배포와 검증 증거](FUJI_DEPLOYMENT_EVIDENCE.md)에 정리한다. 마스터부터 실제 화면과 로컬·Fuji 증거를 역방향으로 확인한 결과는 [10단계 구현 정합성 검토](IMPLEMENTATION_REVIEW.md)에서 확인한다.
+화면만 순서대로 확인하려면 [PoC 화면 직접 확인 가이드](MANUAL_DEMO_GUIDE.md)에서 시작한다. 기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 구현 증거](REDEMPTION_LIFECYCLE_EVIDENCE.md), [권리업무와 운영 통제 구현 증거](RIGHTS_AND_RECOVERY_EVIDENCE.md), [전체 시연과 로컬 인수시험 구현 증거](LOCAL_ACCEPTANCE_EVIDENCE.md), [Fuji 배포와 검증 증거](FUJI_DEPLOYMENT_EVIDENCE.md)에 정리한다. 마스터부터 실제 화면과 로컬·Fuji 증거를 역방향으로 확인한 결과는 [10단계 구현 정합성 검토](IMPLEMENTATION_REVIEW.md)에서 확인한다.
 
 ## 1. 현재 구현 범위
 

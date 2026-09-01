@@ -9,6 +9,81 @@ test("실행 기반 화면은 모의 환경과 두 화면군을 분명히 표시
   await expect(page.getByRole("link", { name: /통합 기관 콘솔/ })).toBeVisible();
 });
 
+test("정상 고객은 합성 여권부터 시작해 투자자 업무공간으로 이동한다", async ({ page }) => {
+  await page.goto("/investor/onboarding");
+  await expect(page.getByRole("heading", { name: "모의 한국주식 계좌 개설" })).toBeVisible();
+  await expect(page.getByText("모의 온보딩이며 실제 계좌가 개설되지 않는다.")).toBeVisible();
+
+  await page.getByRole("button", { name: "모의 계좌 개설 시작" }).click();
+  await expect(page.getByRole("heading", { name: "합성 여권 제출" })).toBeVisible();
+  await expect(page.getByLabel("합성 여권 미리보기")).toContainText("NOT A REAL DOCUMENT");
+  await expect(page.getByText(/파일 입력 없음 · OCR 없음/)).toBeVisible();
+  await page.getByRole("button", { name: "합성 여권 제출" }).click();
+
+  await expect(page.getByRole("heading", { name: "고객확인과 판매 가능 판정" })).toBeVisible();
+  await page.getByRole("button", { name: "판정 확인" }).click();
+  await expect(page.getByRole("heading", { name: "투자자 보호 문답" })).toBeVisible();
+  for (const checkbox of await page.getByRole("checkbox").all()) await checkbox.check();
+  await page.getByRole("button", { name: "문답 확인" }).click();
+
+  await expect(page.getByRole("heading", { name: /핵심 위험공시/ })).toBeVisible();
+  await page.getByRole("button", { name: "위험공시 확인 및 계속" }).click();
+  await expect(page.getByRole("heading", { name: "전용 자기보관 지갑 확인" })).toBeVisible();
+  await page.getByRole("button", { name: "전용 지갑 확인" }).click();
+
+  await expect(page.getByRole("heading", { name: "모의 계좌 준비가 완료됐다" })).toBeVisible();
+  await page.getByRole("link", { name: "투자자 업무공간으로 이동" }).click();
+  await expect(page).toHaveURL(/\/investor\?profile=investorA&onboarding=complete/);
+  await expect(page.getByRole("heading", { name: "투자자 업무공간" })).toBeVisible();
+  await expect(page.getByLabel("검토용 시나리오 전환")).toHaveValue("investorA");
+});
+
+test("거절 고객 온보딩은 책임기관과 주문 차단을 안내한다", async ({ page }) => {
+  await page.goto("/investor/onboarding");
+  await page.getByText("검토자 설정: 다른 심사 결과 선택").click();
+  await page.getByLabel("시연 시나리오").selectOption("denied");
+  await page.getByRole("button", { name: "모의 계좌 개설 시작" }).click();
+  await page.getByRole("button", { name: "합성 여권 제출" }).click();
+  await expect(page.getByText("거절", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("인가 해외 증권사", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "판정 확인" }).click();
+  for (const checkbox of await page.getByRole("checkbox").all()) await checkbox.check();
+  await page.getByRole("button", { name: "문답 확인" }).click();
+  await page.getByRole("button", { name: "위험공시 확인 및 계속" }).click();
+  await page.getByRole("button", { name: "심사 결과 보기" }).click();
+  await expect(page.getByRole("heading", { name: "계좌 개설을 진행할 수 없다" })).toBeVisible();
+  await expect(page.getByText(/주문과 권리 수령이 차단/)).toBeVisible();
+});
+
+test("만료 고객 온보딩은 재실사 필요성을 안내한다", async ({ page }) => {
+  await page.goto("/investor/onboarding");
+  await page.getByText("검토자 설정: 다른 심사 결과 선택").click();
+  await page.getByLabel("시연 시나리오").selectOption("expired");
+  await page.getByRole("button", { name: "모의 계좌 개설 시작" }).click();
+  await page.getByRole("button", { name: "합성 여권 제출" }).click();
+  await page.getByRole("button", { name: "판정 확인" }).click();
+  for (const checkbox of await page.getByRole("checkbox").all()) await checkbox.check();
+  await page.getByRole("button", { name: "문답 확인" }).click();
+  await page.getByRole("button", { name: "위험공시 확인 및 계속" }).click();
+  await page.getByRole("button", { name: "심사 결과 보기" }).click();
+  await expect(page.getByRole("heading", { name: "고객확인 재실사가 필요하다" })).toBeVisible();
+  await expect(page.getByText(/유효기간이 끝났다/)).toBeVisible();
+});
+
+test("온보딩 재시작은 브라우저 진행상태만 초기화하고 직접 업무공간 진입을 유지한다", async ({
+  page,
+}) => {
+  await page.goto("/investor/onboarding");
+  await page.getByRole("button", { name: "모의 계좌 개설 시작" }).click();
+  await page.getByRole("button", { name: "온보딩 다시 시작" }).click();
+  await expect(page.getByRole("heading", { name: "모의 계좌 개설 시작" })).toBeVisible();
+  await expect(page.getByRole("status")).toContainText("거래 데이터는 변경하지 않았다");
+
+  await page.goto("/investor");
+  await expect(page.getByRole("heading", { name: "투자자 업무공간" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "온보딩 다시 시작" })).toBeVisible();
+});
+
 test("투자자와 기관 화면은 서로 다른 모의 업무공간으로 이동한다", async ({ page }) => {
   await page.goto("/investor");
   await expect(page.getByRole("heading", { name: "투자자 업무공간" })).toBeVisible();
@@ -38,10 +113,10 @@ test("투자자와 기관 화면은 서로 다른 모의 업무공간으로 이�
 
 test("거절·만료 고객은 주문 차단 상태와 이유를 확인한다", async ({ page }) => {
   await page.goto("/investor");
-  await page.getByLabel("합성 고객").selectOption("denied");
+  await page.getByLabel("검토용 시나리오 전환").selectOption("denied");
   await expect(page.getByText("INELIGIBLE", { exact: true })).toBeVisible();
   await expect(page.getByText("유효한 판매 가능 판정이 없다.", { exact: true })).toBeVisible();
-  await page.getByLabel("합성 고객").selectOption("expired");
+  await page.getByLabel("검토용 시나리오 전환").selectOption("expired");
   await expect(page.getByText("EXPIRED", { exact: true }).first()).toBeVisible();
 });
 
@@ -101,7 +176,7 @@ test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 �
   await page.getByRole("button", { name: "서명하고 1차 주문 접수" }).click();
   await expect(page.getByRole("status")).toContainText("1차 지정가 주문을 접수했다");
 
-  await page.getByLabel("합성 고객").selectOption("investorB");
+  await page.getByLabel("검토용 시나리오 전환").selectOption("investorB");
   await page.getByLabel("정수 수량").fill("3");
   await page.getByLabel("자금 경로").selectOption("USDC_CONVERSION");
   await page.getByRole("button", { name: "서명하고 1차 주문 접수" }).click();
@@ -193,7 +268,7 @@ test("기존 A 4주·B 2주 권리를 4주 부분환매하고 USD 지급과 소�
   await page.getByRole("button", { name: "서명하고 환매 요청" }).click();
   await expect(page.getByRole("status")).toContainText("환매 요청과 권리·토큰 잠금");
 
-  await page.getByLabel("합성 고객").selectOption("investorB");
+  await page.getByLabel("검토용 시나리오 전환").selectOption("investorB");
   await page.getByLabel("정수 환매수량").fill("2");
   await page.getByRole("button", { name: "서명하고 환매 요청" }).click();
   await expect(page.getByRole("status")).toContainText("환매 요청과 권리·토큰 잠금");
@@ -238,7 +313,7 @@ test("기존 A 4주·B 2주 권리를 4주 부분환매하고 USD 지급과 소�
   await expect(page.getByText("USD 청구 18619센트 · 지급 완료 · 소각 완료")).toBeVisible();
   await page.goto("/investor");
   await expect(page.getByText("환매 가능").locator("..")).toContainText("1주");
-  await page.getByLabel("합성 고객").selectOption("investorB");
+  await page.getByLabel("검토용 시나리오 전환").selectOption("investorB");
   await expect(page.getByText("환매 가능").locator("..")).toContainText("1주");
 });
 
@@ -255,7 +330,7 @@ test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하�
   await expect(page.getByText("결제 대기 20 · 예약 5")).toBeVisible();
 
   await page.goto("/investor");
-  await page.getByLabel("합성 고객").selectOption("investorB");
+  await page.getByLabel("검토용 시나리오 전환").selectOption("investorB");
   await expect(page.getByRole("heading", { name: "로컬 24/7 제한 거래 시험" })).toBeVisible();
   await expect
     .poll(() => page.getByLabel("지정 시장조성자 호가").locator("option").count())

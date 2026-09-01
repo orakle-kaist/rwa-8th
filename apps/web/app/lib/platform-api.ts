@@ -7,6 +7,8 @@ export const demoTokens = {
   expired: "demo:investor-expired",
 } as const;
 
+export type DemoProfile = keyof typeof demoTokens;
+
 export async function platformFetch<T>(
   path: string,
   input: { token?: string; method?: "GET" | "POST"; body?: unknown } = {},

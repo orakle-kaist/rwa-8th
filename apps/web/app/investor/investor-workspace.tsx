@@ -1,6 +1,7 @@
 "use client";
 
 import { walletOwnershipMessage } from "@rwa/domain/protection";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { keccak256, toHex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
@@ -13,6 +14,7 @@ import {
   type Complaint,
   type Consent,
   type Disclosure,
+  type DemoProfile,
   type Product,
   type PrimaryOrder,
   type Redemption,
@@ -28,8 +30,12 @@ const profileLabels = {
   expired: "만료 고객",
 };
 
-export function InvestorWorkspace() {
-  const [profile, setProfile] = useState<keyof typeof demoTokens>("investorA");
+export function InvestorWorkspace({
+  initialProfile = "investorA",
+}: {
+  initialProfile?: DemoProfile;
+}) {
+  const [profile, setProfile] = useState<DemoProfile>(initialProfile);
   const [session, setSession] = useState<Session>();
   const [disclosure, setDisclosure] = useState<Disclosure>();
   const [consent, setConsent] = useState<Consent>();
@@ -569,19 +575,24 @@ export function InvestorWorkspace() {
           <h1>투자자 업무공간</h1>
           <p>합성 고객 판정부터 공시 동의, 전용 지갑과 상품 후보를 한 흐름으로 확인한다.</p>
         </div>
-        <label className="profilePicker">
-          합성 고객
-          <select
-            value={profile}
-            onChange={(event) => setProfile(event.target.value as keyof typeof demoTokens)}
-          >
-            {Object.entries(profileLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="scenarioTools">
+          <label className="profilePicker">
+            검토용 시나리오 전환
+            <select
+              value={profile}
+              onChange={(event) => setProfile(event.target.value as DemoProfile)}
+            >
+              {Object.entries(profileLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Link className="subtleLink" href="/investor/onboarding">
+            온보딩 다시 시작
+          </Link>
+        </div>
       </section>
 
       <div className="noticeBar" role="status">

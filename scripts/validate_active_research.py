@@ -83,6 +83,7 @@ TEST_TRACEABILITY_SCHEMA = STAGE_NINE_ROOT / "specs" / "traceability.schema.json
 STAGE_TEN_ROOT = DOCS_ROOT / "10-poc-implementation"
 LOCAL_ACCEPTANCE_EVIDENCE = STAGE_TEN_ROOT / "LOCAL_ACCEPTANCE_EVIDENCE.md"
 IMPLEMENTATION_REVIEW = STAGE_TEN_ROOT / "IMPLEMENTATION_REVIEW.md"
+MANUAL_DEMO_GUIDE = STAGE_TEN_ROOT / "MANUAL_DEMO_GUIDE.md"
 IMPLEMENTATION_TEST_MAP = STAGE_TEN_ROOT / "specs" / "implementation-test-map.json"
 IMPLEMENTATION_TEST_MAP_SCHEMA = STAGE_TEN_ROOT / "specs" / "implementation-test-map.schema.json"
 STATE_TRANSITION_MATRIX = STAGE_TEN_ROOT / "specs" / "state-transition-matrix.json"
@@ -203,6 +204,8 @@ def markdown_files() -> list[Path]:
         FIXTURES_AND_EVIDENCE,
         DEMO_CHECKLIST,
         LOCAL_ACCEPTANCE_EVIDENCE,
+        IMPLEMENTATION_REVIEW,
+        MANUAL_DEMO_GUIDE,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -3609,6 +3612,37 @@ def validate_stage_ten_implementation_review(errors: list[str]) -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     if "docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md" not in readme:
         errors.append("README must link the stage-ten implementation review")
+    if "docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md" not in readme:
+        errors.append("README must link the screen-first manual demo guide")
+
+    if not MANUAL_DEMO_GUIDE.is_file():
+        errors.append("stage-ten manual demo guide is missing")
+    else:
+        guide = MANUAL_DEMO_GUIDE.read_text(encoding="utf-8")
+        for term in [
+            "모의 계좌 개설",
+            "합성 여권",
+            "고객확인과 투자자 보호",
+            "24/7 제한 거래",
+            "통합 기관 콘솔",
+            "운영자용 부록",
+        ]:
+            if term not in guide:
+                errors.append(f"manual demo guide is missing: {term}")
+
+    onboarding_source = (
+        REPO_ROOT / "apps" / "web" / "app" / "investor" / "onboarding" / "investor-onboarding.tsx"
+    )
+    if not onboarding_source.is_file():
+        errors.append("screen-first synthetic onboarding implementation is missing")
+    else:
+        source = onboarding_source.read_text(encoding="utf-8")
+        for forbidden in ['type="file"', "FileReader", "passportNumber", "dateOfBirth"]:
+            if forbidden in source:
+                errors.append(f"synthetic onboarding must not collect real identity files or fields: {forbidden}")
+        for term in ["NOT A REAL DOCUMENT", "파일 입력 없음", "실제 개인정보 저장 없음"]:
+            if term not in source:
+                errors.append(f"synthetic onboarding is missing privacy boundary: {term}")
 
 
 def main() -> int:

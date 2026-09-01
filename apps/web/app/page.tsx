@@ -30,10 +30,10 @@ export default function HomePage() {
         </p>
 
         <div className="entryGrid">
-          <Link className="entryCard primary" href="/investor">
+          <Link className="entryCard primary" href="/investor/onboarding">
             <span className="entryLabel">투자자 앱</span>
-            <strong>주문과 보유권리 확인</strong>
-            <small>합성 고객확인, 발행, 24/7 거래와 환매</small>
+            <strong>모의 계좌 개설부터 시작</strong>
+            <small>합성 여권, 고객확인, 발행, 24/7 거래와 환매</small>
           </Link>
           <Link className="entryCard" href="/institution">
             <span className="entryLabel">통합 기관 콘솔</span>
