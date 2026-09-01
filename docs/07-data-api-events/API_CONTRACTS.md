@@ -84,6 +84,7 @@ PoC는 역할과 기관이 포함된 합성 Bearer 토큰을 사용한다.
 | `POST /complaints` | 민원 종류, 제목, 내용, 관련 업무와 공시 버전 | 책임기관 배정, 답변, 정정 연결 또는 종결 |
 | `POST /primary-orders` | 1차 주문 서명, 종목, 수량, KRW 지정가격, 거래일, 자금경로 | 국내 체결, 권리기입, 발행과 T+2 두 확인 |
 | `POST /primary-orders/{orderId}/cancellations` | 취소사유 | 국내 제출 전 취소 또는 기관 취소결과 |
+| `POST /redemptions/{redemptionId}/cancellations` | 취소사유 | 국내 매도 제출 전 권리와 토큰 잠금해제 또는 제출 뒤 거절 |
 | `GET /quotes` | 종목, 자금경로와 방향 | 유효한 지정 시장조성자 호가 조회 |
 | `POST /secondary-orders` | 투자자 서명과 `quoteId` | 토큰, 권리와 자금 확정 또는 격리 |
 | `POST /redemptions` | 환매 서명, 수량과 KRW 지정가격 | 매도대금 결제, 지급청구, 소각과 USD 지급 |

@@ -2724,7 +2724,8 @@
             "ELIGIBILITY_PENDING"
           ],
           "expectedStates": [
-            "WORK_RESUMED"
+            "WORK_RESUMED",
+            "REDEMPTION_CANCELLED"
           ],
           "forbiddenStates": [],
           "expectedQuantities": {
@@ -2864,6 +2865,7 @@
             "HEDGE_INVENTORY_ADJUSTED",
             "HEDGE_ON_HOLD",
             "REDEMPTION_REQUESTED",
+            "REDEMPTION_CANCELLED",
             "RIGHTS_AND_TOKEN_LOCKED",
             "DOMESTIC_SALE_PENDING",
             "REDEMPTION_SUBMITTED_DOMESTICALLY",
@@ -3096,6 +3098,7 @@
             "HEDGE_INVENTORY_ADJUSTED",
             "HEDGE_ON_HOLD",
             "REDEMPTION_REQUESTED",
+            "REDEMPTION_CANCELLED",
             "RIGHTS_AND_TOKEN_LOCKED",
             "DOMESTIC_SALE_PENDING",
             "REDEMPTION_SUBMITTED_DOMESTICALLY",
@@ -3228,6 +3231,65 @@
             "지급청구",
             "소각이벤트",
             "배당, 의결권, 보고 기록",
+            "입력 fixture 버전",
+            "결과 JSON",
+            "상태 전후 스냅샷"
+          ]
+        },
+        {
+          "testId": "환매-취소-01",
+          "requirementIds": [
+            "환매-01",
+            "환매-02"
+          ],
+          "layers": [
+            "UNIT",
+            "INTEGRATION",
+            "CONTRACT",
+            "BROWSER"
+          ],
+          "profile": "FULL_LOCAL",
+          "required": true,
+          "automated": true,
+          "fixtureRefs": [
+            "환매권리업무",
+            "합성-기준값"
+          ],
+          "inputs": {
+            "scenario": "국내 매도 제출 전 취소는 권리와 토큰 잠금을 함께 해제하고 제출 뒤 취소는 차단"
+          },
+          "steps": [
+            "결제완료 권리를 환매 잠금한다.",
+            "국내 제출 전 취소와 제출 후 취소를 각각 요청한다.",
+            "고객 권리, 토큰 잠금과 상태이력을 대조한다."
+          ],
+          "startStates": [
+            "REDEMPTION_REQUESTED"
+          ],
+          "expectedStates": [
+            "REDEMPTION_CANCELLED"
+          ],
+          "forbiddenStates": [
+            "REDEMPTION_COMPLETED"
+          ],
+          "expectedQuantities": {
+            "rule": "제출 전 취소 수량은 거래 가능으로 전부 복귀하고 제출 뒤에는 잠금 불변"
+          },
+          "expectedAmounts": {
+            "rule": "취소된 요청에는 USD 지급청구가 생기지 않는다."
+          },
+          "expectedErrors": [
+            "InvalidState"
+          ],
+          "recoveryOrQuarantine": [
+            "제출 뒤 취소 요청은 예외 검토로 보내고 원기록을 유지한다."
+          ],
+          "resumeConditions": [
+            "제출 뒤에는 정정 또는 정상 환매 생애주기로만 진행한다."
+          ],
+          "evidence": [
+            "잠금과 해제 이벤트",
+            "국내 제출 증거",
             "입력 fixture 버전",
             "결과 JSON",
             "상태 전후 스냅샷"

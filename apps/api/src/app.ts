@@ -7,12 +7,14 @@ import {
   getCustomerReadiness,
   getLocalPrimaryScenario,
   getLocalSecondaryScenario,
+  getLocalRedemptionScenario,
 } from "@rwa/database";
 
 import { registerProtectionRoutes } from "./protection-routes.js";
 import { registerPrimaryRoutes } from "./primary-routes.js";
 import { registerSecondaryRoutes } from "./secondary-routes.js";
 import { registerHedgeRoutes } from "./hedge-routes.js";
+import { registerRedemptionRoutes } from "./redemption-routes.js";
 
 export interface BuildAppOptions {
   clock: Clock;
@@ -64,6 +66,11 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
               principal.principalId,
               options.clock.now(),
             ),
+            localRedemptionScenario: await getLocalRedemptionScenario(
+              options.pool,
+              principal.principalId,
+              options.clock.now(),
+            ),
           }
         : {}),
       projection: {
@@ -79,6 +86,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     await registerPrimaryRoutes(app, options.pool, options.clock);
     await registerSecondaryRoutes(app, options.pool, options.clock);
     await registerHedgeRoutes(app, options.pool, options.clock);
+    await registerRedemptionRoutes(app, options.pool, options.clock);
   }
 
   return app;

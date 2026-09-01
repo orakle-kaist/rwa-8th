@@ -53,8 +53,8 @@ const [
 ]);
 
 const operations = [...operationIds(platformApi), ...operationIds(adapterApi)];
-if (operations.length !== 47 || new Set(operations).size !== 47) {
-  fail(`OpenAPI 동작은 서로 다른 47개여야 하지만 ${operations.length}개다.`);
+if (operations.length !== 48 || new Set(operations).size !== 48) {
+  fail(`OpenAPI 동작은 서로 다른 48개여야 하지만 ${operations.length}개다.`);
 }
 
 const messages = Object.values(
@@ -70,8 +70,8 @@ const contracts = manifest.contracts as Array<{
 }>;
 const functionCount = contracts.reduce((total, contract) => total + contract.functions.length, 0);
 const eventCount = contracts.reduce((total, contract) => total + contract.events.length, 0);
-if (contracts.length !== 10 || functionCount !== 68 || eventCount !== 41) {
-  fail("계약 수, 함수 수 또는 이벤트 수가 승인된 10·68·41과 다르다.");
+if (contracts.length !== 10 || functionCount !== 71 || eventCount !== 44) {
+  fail("계약 수, 함수 수 또는 이벤트 수가 승인된 10·71·44와 다르다.");
 }
 
 const errors = contractAbi.errors as unknown[];
@@ -108,16 +108,16 @@ if (
 
 const groups = testCatalog.groups as Array<{ cases: unknown[] }>;
 const testCount = groups.reduce((total, group) => total + group.cases.length, 0);
-if (testCatalog.status !== "APPROVED" || testCount !== 78) {
-  fail(`승인된 필수 시험은 78개여야 하지만 ${testCount}개다.`);
+if (testCatalog.status !== "APPROVED" || testCount !== 79) {
+  fail(`승인된 필수 시험은 79개여야 하지만 ${testCount}개다.`);
 }
 
 if (
   traceability.status !== "APPROVED" ||
   (traceability.requirements as unknown[]).length !== 49 ||
-  (traceability.states as unknown[]).length !== 174
+  (traceability.states as unknown[]).length !== 175
 ) {
-  fail("요구사항 49개와 상태 174개의 승인된 추적표가 아니다.");
+  fail("요구사항 49개와 상태 175개의 승인된 추적표가 아니다.");
 }
 
 if (
@@ -129,5 +129,5 @@ if (
 }
 
 process.stdout.write(
-  "approved specs: 47 operations, 8 messages, 10 contracts, 78 tests, 49 requirements, 174 states, separate governance ABI\n",
+  "approved specs: 48 operations, 8 messages, 10 contracts, 79 tests, 49 requirements, 175 states, separate governance ABI\n",
 );

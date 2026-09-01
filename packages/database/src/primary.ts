@@ -626,6 +626,11 @@ async function applyPrimaryDecision(
       [taskId, tx, now],
     );
     await client.query(
+      `UPDATE instrument_control_totals SET token_total_supply=token_total_supply+$2,updated_at=$3
+       WHERE security_id=$1`,
+      [row.security_id, quantity.toString(), now],
+    );
+    await client.query(
       "UPDATE workflows SET status='SETTLEMENT_AND_CUSTODY_PENDING',updated_at=$2 WHERE workflow_id=$1",
       [taskId, now],
     );
@@ -762,6 +767,11 @@ async function applyPrimaryDecision(
     if (rightsUpdate.rowCount !== 1) throw new Error("취소할 결제 대기 수탁권리수량이 부족하다.");
     await client.query(
       "UPDATE t2_risk_limits SET used_quantity=used_quantity-$2,updated_at=$3 WHERE security_id=$1",
+      [row.security_id, quantity.toString(), now],
+    );
+    await client.query(
+      `UPDATE instrument_control_totals SET token_total_supply=token_total_supply-$2,updated_at=$3
+       WHERE security_id=$1 AND token_total_supply >= $2`,
       [row.security_id, quantity.toString(), now],
     );
     await client.query(
@@ -985,17 +995,24 @@ async function confirmSettlementSide(
       principal_id: string;
       security_id: string;
       allocated_quantity: string;
+      status: string;
     }>(
-      "SELECT principal_id,security_id,allocated_quantity::text FROM primary_orders WHERE order_id=$1",
+      "SELECT principal_id,security_id,allocated_quantity::text,status FROM primary_orders WHERE order_id=$1 FOR UPDATE",
       [orderId],
     );
     const row = order.rows[0]!;
+    if (row.status === "TRADABLE") return;
     await client.query(
       "UPDATE customer_rights_positions SET pending_quantity=pending_quantity-$3,settled_quantity=settled_quantity+$3,updated_at=$4 WHERE principal_id=$1 AND security_id=$2",
       [row.principal_id, row.security_id, row.allocated_quantity, now],
     );
     await client.query(
       "UPDATE t2_risk_limits SET used_quantity=used_quantity-$2,updated_at=$3 WHERE security_id=$1",
+      [row.security_id, row.allocated_quantity, now],
+    );
+    await client.query(
+      `UPDATE instrument_control_totals SET domestic_settled_quantity=domestic_settled_quantity+$2,updated_at=$3
+       WHERE security_id=$1`,
       [row.security_id, row.allocated_quantity, now],
     );
     await client.query(

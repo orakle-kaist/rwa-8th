@@ -420,7 +420,8 @@
     {
       "requirementId": "환매-01",
       "positiveTests": [
-        "환매-정상-01"
+        "환매-정상-01",
+        "환매-취소-01"
       ],
       "negativeTests": [
         "환매-차단-01"
@@ -429,7 +430,8 @@
     {
       "requirementId": "환매-02",
       "positiveTests": [
-        "환매-정상-01"
+        "환매-정상-01",
+        "환매-취소-01"
       ],
       "negativeTests": [
         "환매-차단-01"
@@ -2131,8 +2133,22 @@
       "stateCode": "REDEMPTION_REQUESTED",
       "tests": [
         "환매-정상-01",
+        "환매-취소-01",
         "환매-과도기-01",
         "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_CANCELLED",
+      "tests": [
+        "환매-취소-01"
       ],
       "allowedTransitionTests": [
         "상태-허용전환전체-01"
@@ -3161,6 +3177,12 @@
       ]
     },
     {
+      "operationId": "cancelRedemption",
+      "tests": [
+        "환매-취소-01"
+      ]
+    },
+    {
       "operationId": "createDividendConversion",
       "tests": [
         "배당-USDC-01",
@@ -3814,8 +3836,31 @@
       "contract": "RedemptionController",
       "function": "cancelBeforeDomesticSale",
       "tests": [
+        "환매-취소-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "markDomesticSaleSubmitted",
+      "tests": [
         "환매-정상-01",
-        "환매-부분실패-01"
+        "환매-취소-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "confirmDomesticExecution",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "confirmSaleProceedsSettled",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
       ]
     },
     {
@@ -4238,6 +4283,30 @@
       "tests": [
         "환매-정상-01",
         "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "DomesticSaleSubmitted",
+      "tests": [
+        "환매-정상-01",
+        "환매-취소-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "DomesticExecutionConfirmed",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "SaleProceedsSettled",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
       ]
     },
     {

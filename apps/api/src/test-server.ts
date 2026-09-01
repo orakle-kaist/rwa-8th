@@ -5,6 +5,7 @@ import {
   processHedgeOutbox,
   processSecondaryOutbox,
   processProtectionMessage,
+  processRedemptionOutbox,
 } from "@rwa/database";
 import { createClock, seoulCalendarDate } from "@rwa/domain";
 import { Pool } from "pg";
@@ -36,6 +37,7 @@ const timer = setInterval(() => {
       if (
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
         !(await processHedgeOutbox(pool, message, clock.now())) &&
+        !(await processRedemptionOutbox(pool, message, clock.now())) &&
         !(await processSecondaryOutbox(
           pool,
           message,

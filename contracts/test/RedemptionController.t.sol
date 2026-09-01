@@ -43,6 +43,7 @@ contract RedemptionControllerTest is TestBase {
         verifier.grantRole(RoleIds.REDEMPTION_EXECUTOR_ROLE, address(controller));
         controller.grantRole(RoleIds.REDEMPTION_EXECUTOR_ROLE, address(this));
         controller.grantRole(RoleIds.REDEMPTION_RIGHTS_APPROVER_ROLE, address(this));
+        controller.grantRole(RoleIds.SETTLEMENT_CONFIRMER_ROLE, address(this));
         controller.grantRole(RoleIds.PAYMENT_APPROVER_ROLE, address(this));
 
         token.mintPending(_workflow(), marketMaker, 104, _evidence());
@@ -56,6 +57,9 @@ contract RedemptionControllerTest is TestBase {
         assertEq(token.availableBalanceOf(marketMaker), 100);
         assertEq(token.redemptionLockedBalanceOf(marketMaker), 4);
 
+        controller.markDomesticSaleSubmitted(workflowId, keccak256("submitted"));
+        controller.confirmDomesticExecution(workflowId, 4, keccak256("executed"));
+        controller.confirmSaleProceedsSettled(workflowId, 4, 478_840, keccak256("settled"));
         controller.confirmRightsTerminated(
             workflowId, address(token), marketMaker, 4, keccak256("rights-terminated")
         );
@@ -83,9 +87,38 @@ contract RedemptionControllerTest is TestBase {
         bytes16 secondId = bytes16(uint128(202));
         IntentTypes.RedemptionIntent memory second = _intent(secondId, 4, 3);
         controller.lockRedemption(secondId, second, _signIntent(second));
-        controller.confirmRightsTerminated(secondId, address(token), marketMaker, 4, keccak256("terminated-2"));
+        controller.markDomesticSaleSubmitted(secondId, keccak256("submitted-2"));
         vm.expectRevert();
         controller.cancelBeforeDomesticSale(secondId, keccak256("late-cancel"));
+    }
+
+    function test_PartialExecutionReleasesOnlyUnfilledQuantityAndRequiresSettlement() public {
+        bytes16 workflowId = bytes16(uint128(301));
+        IntentTypes.RedemptionIntent memory intent = _intent(workflowId, 5, 4);
+        controller.lockRedemption(workflowId, intent, _signIntent(intent));
+        controller.markDomesticSaleSubmitted(workflowId, keccak256("submitted-3"));
+        controller.confirmDomesticExecution(workflowId, 4, keccak256("partial-execution"));
+
+        assertEq(token.availableBalanceOf(marketMaker), 100);
+        assertEq(token.redemptionLockedBalanceOf(marketMaker), 4);
+        vm.expectRevert();
+        controller.confirmRightsTerminated(
+            workflowId, address(token), marketMaker, 4, keccak256("premature-termination")
+        );
+
+        controller.confirmSaleProceedsSettled(workflowId, 4, 744_76, keccak256("partial-settlement"));
+        controller.confirmRightsTerminated(
+            workflowId, address(token), marketMaker, 4, keccak256("partial-termination")
+        );
+        vm.expectRevert();
+        controller.confirmCashClaim(workflowId, 4, 744_75, keccak256("wrong-cash-claim"));
+        controller.confirmCashClaim(workflowId, 4, 744_76, keccak256("partial-cash-claim"));
+        controller.markBurnPending(workflowId);
+        controller.approveUsdPayment(workflowId, 744_76, keccak256("partial-payment"));
+        controller.executeBurn(workflowId);
+
+        assertEq(token.availableBalanceOf(marketMaker), 100);
+        assertEq(token.totalSupply(), 100);
     }
 
     function _intent(bytes16 workflowId, uint256 quantity, uint256 nonce)

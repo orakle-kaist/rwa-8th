@@ -14,6 +14,7 @@ import {
   type Disclosure,
   type Product,
   type PrimaryOrder,
+  type Redemption,
   type SecondaryOrder,
   type SecondaryQuote,
   type Session,
@@ -36,6 +37,7 @@ export function InvestorWorkspace() {
   const [primaryOrders, setPrimaryOrders] = useState<PrimaryOrder[]>([]);
   const [secondaryOrders, setSecondaryOrders] = useState<SecondaryOrder[]>([]);
   const [secondaryQuotes, setSecondaryQuotes] = useState<SecondaryQuote[]>([]);
+  const [redemptions, setRedemptions] = useState<Redemption[]>([]);
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("데이터를 불러오는 중이다.");
   const refreshSequence = useRef(0);
@@ -57,6 +59,7 @@ export function InvestorWorkspace() {
         complaintPage,
         orderPage,
         secondaryPage,
+        redemptionPage,
       ] = await Promise.all([
         platformFetch<Session>("/session", { token }),
         platformFetch<Disclosure>("/disclosures/current"),
@@ -65,6 +68,7 @@ export function InvestorWorkspace() {
         platformFetch<{ items: Complaint[] }>("/complaints", { token }),
         platformFetch<{ items: PrimaryOrder[] }>("/primary-orders", { token }),
         platformFetch<{ items: SecondaryOrder[] }>("/secondary-orders", { token }),
+        platformFetch<{ items: Redemption[] }>("/redemptions", { token }),
       ]);
       const quotePages = await Promise.all(
         (["USD_LEDGER", "USDC_ONCHAIN"] as const).flatMap((fundingMode) =>
@@ -83,6 +87,7 @@ export function InvestorWorkspace() {
       setComplaints(complaintPage.items);
       setPrimaryOrders(orderPage.items);
       setSecondaryOrders(secondaryPage.items);
+      setRedemptions(redemptionPage.items);
       setSecondaryQuotes(quotePages.flatMap((page) => page.items));
       setMessage("모의 기준정보와 고객 상태를 확인했다.");
     } catch (error) {
@@ -348,6 +353,86 @@ export function InvestorWorkspace() {
     }
   }
 
+  async function submitRedemption(formData: FormData) {
+    if (!session?.localRedemptionScenario || !demoOrderAccount) return;
+    try {
+      const quantity = String(formData.get("quantity"));
+      const redemptionId = crypto.randomUUID();
+      const expiresAt = String(Math.floor(Date.now() / 1000) + 3600);
+      const message = {
+        redemptionId,
+        investor: demoOrderAccount.address,
+        token: session.localRedemptionScenario.tokenAddress,
+        shareQuantity: quantity,
+        krwLimitPrice: session.localRedemptionScenario.referenceLimitKrw,
+        targetTradingDate: "2026-08-31",
+        nonce: String(Date.now()),
+        expiresAt,
+        policyVersion: keccak256(toHex(session.localRedemptionScenario.policyVersion)),
+      };
+      const signature = await demoOrderAccount.signTypedData({
+        domain: session.localRedemptionScenario.intentDomain,
+        types: {
+          RedemptionIntent: [
+            { name: "redemptionId", type: "bytes16" },
+            { name: "investor", type: "address" },
+            { name: "token", type: "address" },
+            { name: "shareQuantity", type: "uint256" },
+            { name: "krwLimitPrice", type: "uint256" },
+            { name: "targetTradingDate", type: "string" },
+            { name: "nonce", type: "uint256" },
+            { name: "expiresAt", type: "uint256" },
+            { name: "policyVersion", type: "bytes32" },
+          ],
+        },
+        primaryType: "RedemptionIntent",
+        message: {
+          ...message,
+          redemptionId: `0x${redemptionId.replaceAll("-", "")}` as `0x${string}`,
+          shareQuantity: BigInt(quantity),
+          krwLimitPrice: BigInt(message.krwLimitPrice),
+          nonce: BigInt(message.nonce),
+          expiresAt: BigInt(expiresAt),
+        },
+      });
+      await platformFetch("/redemptions", {
+        token,
+        method: "POST",
+        body: {
+          securityId: session.localRedemptionScenario.securityId,
+          shareQuantity: quantity,
+          krwLimitPrice: message.krwLimitPrice,
+          targetTradingDate: message.targetTradingDate,
+          signedIntent: {
+            domain: session.localRedemptionScenario.intentDomain,
+            primaryType: "RedemptionIntent",
+            message,
+            signer: demoOrderAccount.address,
+            signature,
+          },
+        },
+      });
+      setMessage("환매 요청과 권리·토큰 잠금을 접수했다. 국내 취합매도를 기다린다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "환매 요청에 실패했다.");
+    }
+  }
+
+  async function cancelRedemption(redemptionId: string) {
+    try {
+      await platformFetch(`/redemptions/${redemptionId}/cancellations`, {
+        token,
+        method: "POST",
+        body: { reasonKo: "국내 제출 전 투자자 취소" },
+      });
+      setMessage("환매 취소를 접수해 권리와 토큰 잠금을 해제했다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "환매 취소에 실패했다.");
+    }
+  }
+
   const readiness = session?.customerReadiness;
   return (
     <div className="workspaceContent">
@@ -437,6 +522,89 @@ export function InvestorWorkspace() {
             ))}
           </ul>
         </article>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">PRIMARY REDEMPTION</p>
+            <h2>일반 투자자 환매 생애주기</h2>
+          </div>
+          <span className="statePill">USD 지급 전용</span>
+        </div>
+        <p className="panelCopy">
+          기존 990001 1차 발행에서 T+2가 끝난 권리만 잠근다. 실제 주식·자금·가격이 아닌 모의
+          흐름이다.
+        </p>
+        <section className="metricGrid compactMetrics">
+          <StatusCard
+            label="결제완료 권리"
+            value={`${session?.localRedemptionScenario?.settledQuantity ?? "0"}주`}
+          />
+          <StatusCard
+            label="환매 가능"
+            value={`${session?.localRedemptionScenario?.availableQuantity ?? "0"}주`}
+          />
+          <StatusCard
+            label="환매 잠금"
+            value={`${session?.localRedemptionScenario?.redemptionLockedQuantity ?? "0"}주`}
+          />
+          <StatusCard
+            label="소각 대기"
+            value={`${session?.localRedemptionScenario?.burnPendingQuantity ?? "0"}주`}
+          />
+        </section>
+        <form action={(formData) => void submitRedemption(formData)} className="stackForm">
+          <label>
+            정수 환매수량
+            <input
+              name="quantity"
+              type="number"
+              min="1"
+              step="1"
+              defaultValue={profile === "investorB" ? "2" : "3"}
+            />
+          </label>
+          <p>KRW 지정가 257,000원 · 다음 모의 KRX 거래일 · T+2 뒤 USD 고객계좌 지급</p>
+          <button
+            type="submit"
+            disabled={
+              !demoOrderAccount ||
+              BigInt(session?.localRedemptionScenario?.availableQuantity ?? "0") === 0n
+            }
+          >
+            서명하고 환매 요청
+          </button>
+        </form>
+        <div className="timelineList">
+          {redemptions.length === 0 ? (
+            <p className="emptyState">접수한 환매가 없다.</p>
+          ) : (
+            redemptions.map((item) => (
+              <div key={item.redemptionId}>
+                <strong>
+                  {item.requestedQuantity}주 환매 · 배분 {item.allocatedQuantity}주
+                </strong>
+                <span>{item.status}</span>
+                <small>
+                  미체결 해제 {item.releasedQuantity}주 · USD 청구 {item.cashClaimUsdMinor ?? "-"}
+                  센트 · 수수료 0(합성)
+                </small>
+                {!item.domesticSaleSubmitted &&
+                  !item.tokenBurned &&
+                  item.status !== "REDEMPTION_CANCELLED" && (
+                    <button
+                      className="subtleButton"
+                      type="button"
+                      onClick={() => void cancelRedemption(item.redemptionId)}
+                    >
+                      국내 제출 전 취소
+                    </button>
+                  )}
+              </div>
+            ))
+          )}
+        </div>
       </section>
 
       <section className="panel widePanel">

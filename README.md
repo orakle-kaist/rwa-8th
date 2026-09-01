@@ -2,9 +2,9 @@
 
 이 프로젝트는 비거주 일반 개인투자자가 해외 금융기관을 통해 한국 상장주식에 접근할 수 있도록 `한국형 규제 수탁 권리의 24/7 2차시장 통제`를 설계하고 검증하는 PoC다. Dinari의 수탁형 토큰화 주식을 참고하되 한국의 외국인 통합계좌, KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
 
-> 현재 상태: **10단계 PoC 구현 중 — 시장조성자 헤지와 재고조정 기능 구현 완료, 사용자 검토 대기**
+> 현재 상태: **10단계 PoC 구현 중 — 일반 투자자 환매 생애주기 구현 완료, 사용자 검토 대기**
 >
-> 다음 행동: 이번 기능을 검토한 뒤 일반 투자자 환매 생애주기를 구현한다.
+> 다음 행동: 이번 기능을 검토한 뒤 권리업무와 운영 통제를 구현한다.
 >
 > 실제 PoC 코드 구현: **10단계**에서 시작한다.
 
@@ -33,7 +33,7 @@
 | 7. 데이터와 연계 | 승인 완료 | [공통 데이터](docs/07-data-api-events/DATA_MODEL.md), [API 계약](docs/07-data-api-events/API_CONTRACTS.md), [이벤트 계약](docs/07-data-api-events/EVENT_CONTRACTS.md)과 [기계 명세](docs/07-data-api-events/specs/) | 공통 데이터, API와 이벤트를 설계할 때 |
 | 8. 스마트컨트랙트 | 승인 완료 | [계약 구조](docs/08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [계약 인터페이스](docs/08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](docs/08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](docs/08-smart-contract-design/INVARIANTS.md)과 [기계 명세](docs/08-smart-contract-design/specs/contract-manifest.json) | 제한형 권리토큰의 발행, 상태, 정산, 환매, 복구와 권한을 확인할 때 |
 | 9. 테스트 설계 | 승인 완료 | [테스트 전략](docs/09-test-design/TEST_STRATEGY.md), [테스트 시나리오](docs/09-test-design/TEST_SCENARIOS.md), [fixture와 증거](docs/09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](docs/09-test-design/DEMO_CHECKLIST.md)와 [기계 명세](docs/09-test-design/specs/) | 구현 전 요구사항, 상태, API와 계약에 연결된 시험 기준을 확인할 때 |
-| 10. PoC 구현 | 구현 중 | [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md), [제한형 토큰 기반 증거](docs/10-poc-implementation/TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 증거](docs/10-poc-implementation/ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 증거](docs/10-poc-implementation/PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 증거](docs/10-poc-implementation/SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 증거](docs/10-poc-implementation/HEDGE_WORKFLOW_EVIDENCE.md)와 구현 코드 | 승인된 9단계 시험 기준에 따라 설계를 실제 코드로 만들고 검증할 때 |
+| 10. PoC 구현 | 구현 중 | [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md), [제한형 토큰 기반 증거](docs/10-poc-implementation/TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 증거](docs/10-poc-implementation/ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 증거](docs/10-poc-implementation/PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 증거](docs/10-poc-implementation/SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 증거](docs/10-poc-implementation/HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 증거](docs/10-poc-implementation/REDEMPTION_LIFECYCLE_EVIDENCE.md)와 구현 코드 | 승인된 9단계 시험 기준에 따라 설계를 실제 코드로 만들고 검증할 때 |
 | 11. 결과 정리 | 시작 전 | `docs/11-results/` 예정 | 시연 결과, 확인된 사실과 한계를 정리할 때 |
 
 10단계 이후 폴더는 해당 단계가 시작될 때 만든다. 빈 폴더나 내용이 정해지지 않은 문서를 미리 만들지 않는다.

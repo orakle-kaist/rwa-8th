@@ -100,6 +100,16 @@ export async function seedPrimaryData(pool: Pool, now = new Date("2026-08-31T12:
        ON CONFLICT (security_id) DO UPDATE SET limit_quantity=EXCLUDED.limit_quantity`,
       [LOCAL_PRIMARY_SECURITY_ID, T2_RISK_LIMIT_SHARES.toString(), now],
     );
+    await client.query(
+      `INSERT INTO instrument_control_totals
+        (security_id,domestic_settled_quantity,token_total_supply,updated_at)
+       VALUES ($1,0,0,$2) ON CONFLICT (security_id) DO NOTHING`,
+      [LOCAL_PRIMARY_SECURITY_ID, now],
+    );
+    await client.query(
+      "UPDATE local_simulation_instruments SET redemption_enabled=true WHERE security_id=$1",
+      [LOCAL_PRIMARY_SECURITY_ID],
+    );
     await client.query("COMMIT");
   } catch (error) {
     await client.query("ROLLBACK");

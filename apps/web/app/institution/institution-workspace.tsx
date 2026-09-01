@@ -10,6 +10,7 @@ import {
   type Complaint,
   type Product,
   type PrimaryOrder,
+  type Redemption,
   type MarketMakerHedge,
   type MarketMakerPosition,
   type SecondaryOrder,
@@ -29,6 +30,7 @@ export function InstitutionWorkspace() {
   const [secondaryOrders, setSecondaryOrders] = useState<SecondaryOrder[]>([]);
   const [positions, setPositions] = useState<MarketMakerPosition[]>([]);
   const [hedges, setHedges] = useState<MarketMakerHedge[]>([]);
+  const [redemptions, setRedemptions] = useState<Redemption[]>([]);
   const [session, setSession] = useState<Session>();
   const [message, setMessage] = useState("기관 대기열을 불러오는 중이다.");
   const marketMakerAccount = useMemo(
@@ -51,6 +53,7 @@ export function InstitutionWorkspace() {
         positionPage,
         hedgePage,
         nextSession,
+        redemptionPage,
       ] = await Promise.all([
         allProducts(),
         platformFetch<{ items: Complaint[] }>("/complaints", { token: brokerToken }),
@@ -64,6 +67,7 @@ export function InstitutionWorkspace() {
           token: brokerToken,
         }),
         platformFetch<Session>("/session", { token: brokerToken }),
+        platformFetch<{ items: Redemption[] }>("/redemptions", { token: brokerToken }),
       ]);
       setProducts(productItems);
       setComplaints(complaintPage.items);
@@ -73,6 +77,7 @@ export function InstitutionWorkspace() {
       setPositions(positionPage.items);
       setHedges(hedgePage.items);
       setSession(nextSession);
+      setRedemptions(redemptionPage.items);
       setMessage("최신 모의 투영을 확인했다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
@@ -344,6 +349,9 @@ export function InstitutionWorkspace() {
         RIGHTS_ENTRY_APPROVAL_PENDING: "demo:rights-approver",
         RIGHTS_RECORDING_PENDING: "demo:rights-recorder",
         SETTLEMENT_AND_CUSTODY_PENDING: "demo:settlement-confirmer",
+        SALE_PROCEEDS_SETTLEMENT_PENDING: "demo:settlement-confirmer",
+        RIGHTS_TERMINATION_PENDING: "demo:rights-recorder",
+        PAYMENT_AND_BURN_PENDING: "demo:broker-operator",
       };
       const primaryOrder = primaryOrders.find((order) => order.orderId === task.workflowId);
       if (
@@ -361,7 +369,10 @@ export function InstitutionWorkspace() {
               ? "합성 계좌와 고객 판정을 확인했다."
               : "필수 확인자료가 부족하다.",
           expectedAggregateVersion: 1,
-          ...(state === "AWAITING_KRX_EXECUTION" ? { filledQuantity: "6" } : {}),
+          ...(state === "AWAITING_KRX_EXECUTION"
+            ? { filledQuantity: task.workflowType === "REDEMPTION_BATCH" ? "4" : "6" }
+            : {}),
+          ...(state === "PAYMENT_AND_BURN_PENDING" ? { action: "COMPLETE_BOTH" } : {}),
         },
       });
       setMessage(
@@ -543,7 +554,7 @@ export function InstitutionWorkspace() {
             </div>
             <span className="statePill">30초 유효</span>
           </div>
-          <form action={(formData) => void publishSecondaryQuote(formData)} className="stackForm">
+          <form action={publishSecondaryQuote} className="stackForm">
             <label>
               MM 방향
               <select name="side" defaultValue="SELL">
@@ -602,6 +613,42 @@ export function InstitutionWorkspace() {
             ))}
           </div>
         </article>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">REDEMPTION CONTROL</p>
+            <h2>일반 투자자 환매·지급·소각</h2>
+          </div>
+          <span className="statePill">모의 KRX · USD 지급</span>
+        </div>
+        <div className="complaintTable">
+          {redemptions.length === 0 ? (
+            <p className="emptyState">접수된 일반 투자자 환매가 없다.</p>
+          ) : (
+            redemptions.map((item) => (
+              <div className="complaintRow" key={item.redemptionId}>
+                <div>
+                  <small>{item.securityId} · 지정가 257,000원</small>
+                  <strong>
+                    요청 {item.requestedQuantity}주 · 체결배분 {item.allocatedQuantity}주
+                  </strong>
+                </div>
+                <span>{item.status}</span>
+                <small>
+                  미체결 해제 {item.releasedQuantity}주 · 권리종료{" "}
+                  {item.rightsTerminated ? "완료" : "대기"}
+                </small>
+                <small>
+                  USD 청구 {item.cashClaimUsdMinor ?? "-"}센트 · 지급{" "}
+                  {item.usdPaid ? "완료" : "대기"} · 소각 {item.tokenBurned ? "완료" : "대기"}
+                </small>
+                <em>{item.quarantineReasonKo ?? "실제 거래가 아닌 모의 기관 처리"}</em>
+              </div>
+            ))
+          )}
+        </div>
       </section>
 
       <section className="panel widePanel">
@@ -728,10 +775,13 @@ export function InstitutionWorkspace() {
                 <small>
                   {task.workflowType.startsWith("PRIMARY_")
                     ? "각 단계의 독립 증거와 역할을 확인"
-                    : "기관 승인 뒤 체인 반영 필요"}
+                    : task.workflowType.startsWith("REDEMPTION")
+                      ? "국내 매도, T+2, 권리종료와 지급·소각을 단계별 확인"
+                      : "기관 승인 뒤 체인 반영 필요"}
                 </small>
                 {task.states[0]?.code === "PENDING_APPROVAL" ||
                 task.workflowType.startsWith("PRIMARY_") ||
+                task.workflowType.startsWith("REDEMPTION") ||
                 task.workflowType === "SECONDARY_TRADE" ? (
                   <div className="buttonGroup">
                     <button type="button" onClick={() => void decideTask(task, "APPROVE")}>

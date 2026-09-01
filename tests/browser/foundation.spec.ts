@@ -140,6 +140,62 @@ test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 �
   await expect(page.getByText("TRADABLE", { exact: true })).toHaveCount(2);
 });
 
+test("기존 A 4주·B 2주 권리를 4주 부분환매하고 USD 지급과 소각을 완결한다", async ({ page }) => {
+  await page.goto("/investor");
+  await expect(page.getByRole("heading", { name: "일반 투자자 환매 생애주기" })).toBeVisible();
+  await page.getByLabel("정수 환매수량").fill("3");
+  await page.getByRole("button", { name: "서명하고 환매 요청" }).click();
+  await expect(page.getByRole("status")).toContainText("환매 요청과 권리·토큰 잠금");
+
+  await page.getByLabel("합성 고객").selectOption("investorB");
+  await page.getByLabel("정수 환매수량").fill("2");
+  await page.getByRole("button", { name: "서명하고 환매 요청" }).click();
+  await expect(page.getByRole("status")).toContainText("환매 요청과 권리·토큰 잠금");
+
+  await page.goto("/institution");
+  const batch = page.getByRole("row").filter({ hasText: "REDEMPTION_BATCH" });
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return batch.count();
+    })
+    .toBe(1);
+  await batch.getByRole("button", { name: "승인 접수" }).click();
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return page.getByText("요청 3주 · 체결배분 3주").count();
+    })
+    .toBe(1);
+  await expect(page.getByText("요청 2주 · 체결배분 1주")).toBeVisible();
+  await expect(page.getByText(/미체결 해제 1주/)).toBeVisible();
+
+  for (const state of [
+    "SALE_PROCEEDS_SETTLEMENT_PENDING",
+    "RIGHTS_TERMINATION_PENDING",
+    "PAYMENT_AND_BURN_PENDING",
+  ]) {
+    for (let processed = 0; processed < 2; processed += 1) {
+      const task = page.getByRole("row").filter({ hasText: state }).first();
+      await expect(task).toBeVisible();
+      await task.getByRole("button", { name: "승인 접수" }).click();
+      await expect
+        .poll(async () => {
+          await page.getByRole("button", { name: "새로고침" }).last().click();
+          return page.getByRole("row").filter({ hasText: state }).count();
+        })
+        .toBe(1 - processed);
+    }
+  }
+
+  await expect(page.getByText("USD 청구 55857센트 · 지급 완료 · 소각 완료")).toBeVisible();
+  await expect(page.getByText("USD 청구 18619센트 · 지급 완료 · 소각 완료")).toBeVisible();
+  await page.goto("/investor");
+  await expect(page.getByText("환매 가능").locator("..")).toContainText("1주");
+  await page.getByLabel("합성 고객").selectOption("investorB");
+  await expect(page.getByText("환매 가능").locator("..")).toContainText("1주");
+});
+
 test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하고 3주를 해제한다", async ({ page }) => {
   await page.goto("/institution");
   await expect(page.getByRole("heading", { name: "24/7 지정가 호가" })).toBeVisible();

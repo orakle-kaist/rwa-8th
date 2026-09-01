@@ -85,8 +85,8 @@
     {
       "name": "RedemptionController",
       "kind": "SHARED",
-      "functions": ["lockRedemption", "cancelBeforeDomesticSale", "confirmRightsTerminated", "confirmCashClaim", "markBurnPending", "approveUsdPayment", "executeBurn"],
-      "events": ["RedemptionWorkflowLocked", "RightsTerminated", "CashClaimConfirmed", "UsdPaymentApproved"]
+      "functions": ["lockRedemption", "cancelBeforeDomesticSale", "markDomesticSaleSubmitted", "confirmDomesticExecution", "confirmSaleProceedsSettled", "confirmRightsTerminated", "confirmCashClaim", "markBurnPending", "approveUsdPayment", "executeBurn"],
+      "events": ["RedemptionWorkflowLocked", "DomesticSaleSubmitted", "DomesticExecutionConfirmed", "SaleProceedsSettled", "RightsTerminated", "CashClaimConfirmed", "UsdPaymentApproved"]
     },
     {
       "name": "RecoveryController",

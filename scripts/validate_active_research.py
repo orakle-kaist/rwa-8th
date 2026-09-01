@@ -2735,13 +2735,13 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") != "stage_ten_in_progress":
         errors.append("active project state must record stage-ten implementation in progress")
-    if state.get("iteration") != 38:
-        errors.append("active project iteration must preserve the stage-ten implementation baseline")
+    if state.get("iteration") != 39:
+        errors.append("active project iteration must record the investor redemption implementation")
     expected_next_action = (
-        "Review the market-maker hedge and inventory adjustment feature before implementing the investor redemption lifecycle."
+        "Review the investor redemption lifecycle before implementing rights administration and operational controls."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must proceed to investor redemption after hedge review")
+        errors.append("active project next action must proceed to rights administration after redemption review")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3119,8 +3119,8 @@ def validate_stage_ten_protection(errors: list[str]) -> None:
             and isinstance(operation, dict)
             and operation.get("operationId")
         )
-    if operation_count != 47:
-        errors.append(f"protection implementation must preserve 47 OpenAPI operations, found {operation_count}")
+    if operation_count != 48:
+        errors.append(f"implementation must expose 48 approved OpenAPI operations, found {operation_count}")
 
 
 def validate_stage_ten_primary_issuance(errors: list[str]) -> None:
@@ -3217,6 +3217,52 @@ def validate_stage_ten_market_maker_hedge(errors: list[str]) -> None:
             errors.append(f"market-maker hedge evidence is missing: {term}")
 
 
+def validate_stage_ten_redemption(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0006_redemptions.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "redemption.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "redemption.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "redemption-routes.ts",
+        REPO_ROOT / "contracts" / "src" / "RedemptionController.sol",
+        REPO_ROOT / "contracts" / "test" / "RedemptionController.t.sol",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "redemption.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "REDEMPTION_LIFECYCLE_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten investor redemption implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "redemption.ts").read_text(encoding="utf-8")
+    for term in ["990001", "257_000n", "74_476n", "allocateRedemptionFill", "allocateUsdClaims"]:
+        if term not in domain:
+            errors.append(f"investor redemption domain is missing approved control: {term}")
+
+    workflow = (REPO_ROOT / "packages" / "database" / "src" / "redemption.ts").read_text(encoding="utf-8")
+    for term in [
+        "REDEMPTION_CANCELLED",
+        "SALE_PROCEEDS_SETTLEMENT_PENDING",
+        "RIGHTS_TERMINATION_PENDING",
+        "PAYMENT_AND_BURN_PENDING",
+        "QUARANTINED",
+    ]:
+        if term not in workflow:
+            errors.append(f"investor redemption workflow is missing approved state: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "REDEMPTION_LIFECYCLE_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "A 3주, B 1주",
+        "미체결 1주",
+        "55,857센트",
+        "18,619센트",
+        "각각 1주",
+        "정상적인 환매 과도기",
+        "실제 삼성전자 상품이 아니며",
+    ]:
+        if term not in evidence:
+            errors.append(f"investor redemption evidence is missing: {term}")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3236,6 +3282,7 @@ def main() -> int:
     validate_stage_ten_primary_issuance(errors)
     validate_stage_ten_secondary_trading(errors)
     validate_stage_ten_market_maker_hedge(errors)
+    validate_stage_ten_redemption(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3246,7 +3293,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, market-maker hedge and inventory adjustment, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, market-maker hedge and inventory adjustment, investor redemption lifecycle, "
         "and 16 source checksums passed."
     )
     return 0

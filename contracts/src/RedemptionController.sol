@@ -16,15 +16,20 @@ import {RoleIds} from "./shared/RoleIds.sol";
 contract RedemptionController is AccessControl, EvidenceGuard {
     bytes32 private constant RIGHTS_TERMINATED = keccak256("RIGHTS_TERMINATED");
     bytes32 private constant CASH_CLAIM = keccak256("CASH_CLAIM");
+    bytes32 private constant BURN_PENDING = keccak256("BURN_PENDING");
     bytes32 private constant PAYMENT_APPROVAL = keccak256("PAYMENT_APPROVAL");
 
     struct RedemptionFacts {
         address token;
         address investor;
-        uint256 quantity;
+        uint256 requestedQuantity;
+        uint256 executedQuantity;
         uint256 usdAmountMinor;
         bool locked;
         bool cancelled;
+        bool domesticSaleSubmitted;
+        bool domesticExecutionConfirmed;
+        bool saleProceedsSettled;
         bool rightsTerminated;
         bool cashClaimConfirmed;
         bool burnPending;
@@ -37,6 +42,13 @@ contract RedemptionController is AccessControl, EvidenceGuard {
 
     event RedemptionWorkflowLocked(
         bytes16 indexed workflowId, address indexed token, address indexed investor, uint256 quantity
+    );
+    event DomesticSaleSubmitted(bytes16 indexed workflowId, bytes32 evidenceHash);
+    event DomesticExecutionConfirmed(
+        bytes16 indexed workflowId, uint256 requestedQuantity, uint256 executedQuantity, bytes32 evidenceHash
+    );
+    event SaleProceedsSettled(
+        bytes16 indexed workflowId, uint256 quantity, uint256 usdAmountMinor, bytes32 evidenceHash
     );
     event RightsTerminated(bytes16 indexed workflowId, uint256 quantity, bytes32 evidenceHash);
     event CashClaimConfirmed(
@@ -62,7 +74,7 @@ contract RedemptionController is AccessControl, EvidenceGuard {
         bytes32 intentDigest = _intentVerifier.verifyAndConsumeRedemption(intent, investorSignature);
         facts.token = intent.token;
         facts.investor = intent.investor;
-        facts.quantity = intent.shareQuantity;
+        facts.requestedQuantity = intent.shareQuantity;
         facts.locked = true;
         RestrictedEquityToken(intent.token).lockForRedemption(
             workflowId, intent.investor, intent.shareQuantity, intentDigest
@@ -75,12 +87,61 @@ contract RedemptionController is AccessControl, EvidenceGuard {
         onlyRole(RoleIds.REDEMPTION_RIGHTS_APPROVER_ROLE)
     {
         RedemptionFacts storage facts = _active(workflowId);
-        require(!facts.rightsTerminated && !facts.burnPending, "domestic sale already finalized");
+        require(!facts.domesticSaleSubmitted, "domestic sale already submitted");
         _consumeEvidence(evidenceHash);
         facts.cancelled = true;
         RestrictedEquityToken(facts.token).cancelRedemptionLock(
-            workflowId, facts.investor, facts.quantity, evidenceHash
+            workflowId, facts.investor, facts.requestedQuantity, evidenceHash
         );
+    }
+
+    function markDomesticSaleSubmitted(bytes16 workflowId, bytes32 evidenceHash)
+        external
+        onlyRole(RoleIds.REDEMPTION_RIGHTS_APPROVER_ROLE)
+    {
+        RedemptionFacts storage facts = _active(workflowId);
+        require(!facts.domesticSaleSubmitted, "domestic sale already submitted");
+        _consumeEvidence(evidenceHash);
+        facts.domesticSaleSubmitted = true;
+        emit DomesticSaleSubmitted(workflowId, evidenceHash);
+    }
+
+    function confirmDomesticExecution(bytes16 workflowId, uint256 executedQuantity, bytes32 evidenceHash)
+        external
+        onlyRole(RoleIds.REDEMPTION_RIGHTS_APPROVER_ROLE)
+    {
+        RedemptionFacts storage facts = _active(workflowId);
+        require(facts.domesticSaleSubmitted, "domestic sale is not submitted");
+        require(!facts.domesticExecutionConfirmed, "domestic execution already confirmed");
+        require(executedQuantity <= facts.requestedQuantity, "execution exceeds request");
+        _consumeEvidence(evidenceHash);
+        facts.domesticExecutionConfirmed = true;
+        facts.executedQuantity = executedQuantity;
+        uint256 unfilled = facts.requestedQuantity - executedQuantity;
+        if (unfilled != 0) {
+            RestrictedEquityToken(facts.token).cancelRedemptionLock(
+                workflowId, facts.investor, unfilled, keccak256(abi.encode(evidenceHash, "UNFILLED"))
+            );
+        }
+        if (executedQuantity == 0) facts.cancelled = true;
+        emit DomesticExecutionConfirmed(workflowId, facts.requestedQuantity, executedQuantity, evidenceHash);
+    }
+
+    function confirmSaleProceedsSettled(
+        bytes16 workflowId,
+        uint256 quantity,
+        uint256 usdAmountMinor,
+        bytes32 evidenceHash
+    ) external onlyRole(RoleIds.SETTLEMENT_CONFIRMER_ROLE) {
+        RedemptionFacts storage facts = _active(workflowId);
+        require(facts.domesticExecutionConfirmed, "domestic execution is not confirmed");
+        require(quantity == facts.executedQuantity && quantity != 0, "settlement quantity mismatch");
+        require(usdAmountMinor != 0, "sale proceeds are zero");
+        require(!facts.saleProceedsSettled, "sale proceeds already settled");
+        _consumeEvidence(evidenceHash);
+        facts.saleProceedsSettled = true;
+        facts.usdAmountMinor = usdAmountMinor;
+        emit SaleProceedsSettled(workflowId, quantity, usdAmountMinor, evidenceHash);
     }
 
     function confirmRightsTerminated(
@@ -91,6 +152,7 @@ contract RedemptionController is AccessControl, EvidenceGuard {
         bytes32 evidenceHash
     ) external onlyRole(RoleIds.REDEMPTION_RIGHTS_APPROVER_ROLE) {
         RedemptionFacts storage facts = _matching(workflowId, token, investor, quantity);
+        require(facts.saleProceedsSettled, "sale proceeds are not settled");
         require(!facts.rightsTerminated, "rights already terminated");
         _consumeEvidence(evidenceHash);
         facts.rightsTerminated = true;
@@ -105,8 +167,8 @@ contract RedemptionController is AccessControl, EvidenceGuard {
     ) external onlyRole(RoleIds.REDEMPTION_RIGHTS_APPROVER_ROLE) {
         RedemptionFacts storage facts = _active(workflowId);
         if (!facts.rightsTerminated) revert MissingIndependentApproval(workflowId, RIGHTS_TERMINATED);
-        require(quantity == facts.quantity, "cash claim quantity mismatch");
-        require(usdAmountMinor != 0, "cash claim is zero");
+        require(quantity == facts.executedQuantity, "cash claim quantity mismatch");
+        if (usdAmountMinor != facts.usdAmountMinor) revert PaymentMismatch(facts.usdAmountMinor, usdAmountMinor);
         require(!facts.cashClaimConfirmed, "cash claim already confirmed");
         _consumeEvidence(evidenceHash);
         facts.usdAmountMinor = usdAmountMinor;
@@ -123,8 +185,8 @@ contract RedemptionController is AccessControl, EvidenceGuard {
         RestrictedEquityToken(facts.token).markBurnPending(
             workflowId,
             facts.investor,
-            facts.quantity,
-            keccak256(abi.encode(workflowId, facts.quantity, facts.usdAmountMinor, "BURN_PENDING"))
+            facts.executedQuantity,
+            keccak256(abi.encode(workflowId, facts.executedQuantity, facts.usdAmountMinor, "BURN_PENDING"))
         );
     }
 
@@ -143,14 +205,14 @@ contract RedemptionController is AccessControl, EvidenceGuard {
 
     function executeBurn(bytes16 workflowId) external onlyRole(RoleIds.REDEMPTION_EXECUTOR_ROLE) {
         RedemptionFacts storage facts = _active(workflowId);
-        if (!facts.burnPending) revert MissingIndependentApproval(workflowId, CASH_CLAIM);
+        if (!facts.burnPending) revert MissingIndependentApproval(workflowId, BURN_PENDING);
         if (!facts.usdPaymentApproved) revert MissingIndependentApproval(workflowId, PAYMENT_APPROVAL);
         require(!facts.burned, "redemption already burned");
         facts.burned = true;
         RestrictedEquityToken(facts.token).burnPending(
             workflowId,
             facts.investor,
-            facts.quantity,
+            facts.executedQuantity,
             keccak256(abi.encode(workflowId, facts.usdAmountMinor, "EXECUTE_BURN"))
         );
     }
@@ -167,7 +229,7 @@ contract RedemptionController is AccessControl, EvidenceGuard {
     {
         facts = _active(workflowId);
         require(
-            facts.token == token && facts.investor == investor && facts.quantity == quantity,
+            facts.token == token && facts.investor == investor && facts.executedQuantity == quantity,
             "redemption evidence mismatch"
         );
     }

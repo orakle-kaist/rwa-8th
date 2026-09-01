@@ -331,6 +331,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/redemptions/{redemptionId}/cancellations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 국내 매도 제출 전 환매 취소 */
+        post: operations["cancelRedemption"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dividend-conversions": {
         parameters: {
             query?: never;
@@ -743,6 +760,67 @@ export interface components {
             /** @constant */
             simulation: true;
             projection: components["schemas"]["ProjectionMetadata"];
+        };
+        LocalRedemptionScenario: {
+            /** @constant */
+            securityId: "990001";
+            displayName: string;
+            tokenAddress: components["schemas"]["EvmAddress"];
+            /** @constant */
+            referenceLimitKrw: "257000";
+            redemptionEnabled: boolean;
+            settledQuantity: components["schemas"]["NonNegativeIntegerString"];
+            availableQuantity: components["schemas"]["NonNegativeIntegerString"];
+            redemptionLockedQuantity: components["schemas"]["NonNegativeIntegerString"];
+            burnPendingQuantity: components["schemas"]["NonNegativeIntegerString"];
+            domesticSettledQuantity: components["schemas"]["NonNegativeIntegerString"];
+            tokenTotalSupply: components["schemas"]["NonNegativeIntegerString"];
+            /** @constant */
+            policyVersion: "REDEMPTION-SIM-1";
+            notices: string[];
+            intentDomain: {
+                /** @constant */
+                name: "Korean Equity RWA Intent";
+                /** @constant */
+                version: "1";
+                /** @enum {unknown} */
+                chainId: 31337 | 43113;
+                verifyingContract: components["schemas"]["EvmAddress"];
+            };
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
+        };
+        RedemptionView: {
+            /** Format: uuid */
+            redemptionId: string;
+            /** @constant */
+            securityId: "990001";
+            requestedQuantity: components["schemas"]["PositiveIntegerString"];
+            allocatedQuantity: components["schemas"]["NonNegativeIntegerString"];
+            releasedQuantity: components["schemas"]["NonNegativeIntegerString"];
+            /** @constant */
+            krwLimitPrice: "257000";
+            requestedTradingDate?: components["schemas"]["KoreaBusinessDate"];
+            effectiveTradingDate?: components["schemas"]["KoreaBusinessDate"];
+            /** Format: uuid */
+            batchId?: string;
+            status: string;
+            domesticSaleSubmitted: boolean;
+            domesticExecutionConfirmed: boolean;
+            saleProceedsSettled: boolean;
+            rightsTerminated: boolean;
+            cashClaimUsdMinor?: components["schemas"]["NonNegativeIntegerString"];
+            /** @constant */
+            feeUsdMinor: "0";
+            tokenBurned: boolean;
+            usdPaid: boolean;
+            quarantineReasonKo?: string;
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
+        } & {
+            [key: string]: unknown;
         };
         PrimaryOrderView: {
             /** Format: uuid */
@@ -1250,6 +1328,9 @@ export interface components {
                 primaryType?: "RedemptionIntent";
             };
         };
+        RedemptionCancellationRequest: {
+            reasonKo: string;
+        };
         InstitutionDecision: {
             /** @enum {string} */
             decision: "APPROVE" | "REJECT" | "REQUEST_CORRECTION";
@@ -1421,6 +1502,18 @@ export interface components {
                 };
             };
         };
+        /** @description 환매 요청부터 지급청구, 소각과 USD 지급까지의 투영 목록 */
+        RedemptionList: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    items: components["schemas"]["RedemptionView"][];
+                    projection: components["schemas"]["ProjectionMetadata"];
+                };
+            };
+        };
         /** @description 지정 시장조성자의 결제완료·결제대기 재고와 위험 사용량 */
         MarketMakerPositionList: {
             headers: {
@@ -1453,6 +1546,7 @@ export interface components {
         Cursor: string;
         WorkflowId: string;
         OrderId: string;
+        RedemptionId: string;
         ComplaintId: string;
         SecurityId: components["schemas"]["SecurityId"];
         SecurityIdQuery: components["schemas"]["SecurityId"];
@@ -1487,6 +1581,7 @@ export interface operations {
                         customerReadiness?: components["schemas"]["CustomerReadiness"];
                         localPrimaryScenario?: components["schemas"]["LocalPrimaryScenario"];
                         localSecondaryScenario?: components["schemas"]["LocalSecondaryScenario"];
+                        localRedemptionScenario?: components["schemas"]["LocalRedemptionScenario"];
                         /** @constant */
                         simulation: true;
                         projection: components["schemas"]["ProjectionMetadata"];
@@ -1944,7 +2039,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: components["responses"]["WorkflowList"];
+            200: components["responses"]["RedemptionList"];
         };
     };
     createRedemption: {
@@ -1960,6 +2055,29 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["RedemptionRequest"];
+            };
+        };
+        responses: {
+            202: components["responses"]["Accepted"];
+            409: components["responses"]["Error"];
+            422: components["responses"]["Error"];
+        };
+    };
+    cancelRedemption: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "X-Correlation-Id": components["parameters"]["CorrelationId"];
+            };
+            path: {
+                redemptionId: components["parameters"]["RedemptionId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedemptionCancellationRequest"];
             };
         };
         responses: {

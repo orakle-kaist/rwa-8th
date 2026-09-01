@@ -140,6 +140,9 @@
       "functions":[
         {"name":"lockRedemption","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"intent","type":"RedemptionIntent"},{"name":"investorSignature","type":"bytes"}],"outputs":[]},
         {"name":"cancelBeforeDomesticSale","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"markDomesticSaleSubmitted","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"confirmDomesticExecution","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"executedQuantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"confirmSaleProceedsSettled","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"quantity","type":"uint256"},{"name":"usdAmountMinor","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"confirmRightsTerminated","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"token","type":"address"},{"name":"investor","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"confirmCashClaim","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"quantity","type":"uint256"},{"name":"usdAmountMinor","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"markBurnPending","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"}],"outputs":[]},
@@ -148,6 +151,9 @@
       ],
       "events":[
         {"name":"RedemptionWorkflowLocked","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false}]},
+        {"name":"DomesticSaleSubmitted","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
+        {"name":"DomesticExecutionConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"requestedQuantity","type":"uint256","indexed":false},{"name":"executedQuantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
+        {"name":"SaleProceedsSettled","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"usdAmountMinor","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"RightsTerminated","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"CashClaimConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"usdAmountMinor","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"UsdPaymentApproved","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"usdAmountMinor","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]}

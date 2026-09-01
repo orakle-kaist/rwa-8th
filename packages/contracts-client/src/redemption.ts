@@ -6,6 +6,9 @@ const redemptionIntent =
 export const redemptionControllerWriteAbi = parseAbi([
   `function lockRedemption(bytes16 workflowId,${redemptionIntent} intent,bytes investorSignature)`,
   "function cancelBeforeDomesticSale(bytes16 workflowId,bytes32 evidenceHash)",
+  "function markDomesticSaleSubmitted(bytes16 workflowId,bytes32 evidenceHash)",
+  "function confirmDomesticExecution(bytes16 workflowId,uint256 executedQuantity,bytes32 evidenceHash)",
+  "function confirmSaleProceedsSettled(bytes16 workflowId,uint256 quantity,uint256 usdAmountMinor,bytes32 evidenceHash)",
   "function confirmRightsTerminated(bytes16 workflowId,address token,address investor,uint256 quantity,bytes32 evidenceHash)",
   "function confirmCashClaim(bytes16 workflowId,uint256 quantity,uint256 usdAmountMinor,bytes32 evidenceHash)",
   "function markBurnPending(bytes16 workflowId)",
@@ -20,6 +23,9 @@ export async function writeRedemptionController(
     functionName:
       | "lockRedemption"
       | "cancelBeforeDomesticSale"
+      | "markDomesticSaleSubmitted"
+      | "confirmDomesticExecution"
+      | "confirmSaleProceedsSettled"
       | "confirmRightsTerminated"
       | "confirmCashClaim"
       | "markBurnPending"

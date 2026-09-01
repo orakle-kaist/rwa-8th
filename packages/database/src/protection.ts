@@ -649,7 +649,8 @@ export async function listInstitutionTasks(pool: Pool, now: Date) {
        'AWAITING_KRX_EXECUTION','T2_RISK_APPROVAL_PENDING','RIGHTS_ENTRY_APPROVAL_PENDING',
        'RIGHTS_RECORDING_PENDING','SETTLEMENT_AND_CUSTODY_PENDING'
        ,'SETTLEMENT_APPROVAL_PENDING','CHAIN_EXECUTION_PENDING','RIGHTS_LEDGER_CONFIRMATION_PENDING',
-       'LEDGER_RETRY_PENDING'
+       'LEDGER_RETRY_PENDING','SALE_PROCEEDS_SETTLEMENT_PENDING','RIGHTS_TERMINATION_PENDING',
+       'PAYMENT_AND_BURN_PENDING'
      )
      ORDER BY created_at, workflow_id`,
   );
@@ -662,11 +663,13 @@ export async function listInstitutionTasks(pool: Pool, now: Date) {
           axis:
             row.workflow_type === "SECONDARY_TRADE"
               ? "SECONDARY_TRADE"
-              : String(row.workflow_type).startsWith("PRIMARY_")
-                ? "PRIMARY_ISSUANCE"
-                : row.workflow_type === "COMPLAINT"
-                  ? "COMPLAINT"
-                  : "WALLET_LINKAGE",
+              : String(row.workflow_type).startsWith("REDEMPTION")
+                ? "REDEMPTION"
+                : String(row.workflow_type).startsWith("PRIMARY_")
+                  ? "PRIMARY_ISSUANCE"
+                  : row.workflow_type === "COMPLAINT"
+                    ? "COMPLAINT"
+                    : "WALLET_LINKAGE",
           code: row.status,
           labelKo: String(row.status),
         },

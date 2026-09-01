@@ -63,6 +63,7 @@
         "market-maker.hedge.custody-confirmed.v1",
         "market-maker.hedge.usd-paid.v1",
         "redemption.locked.v1",
+        "redemption.cancelled.v1",
         "redemption.execution.recorded.v1",
         "redemption.cash-claim.created.v1",
         "token.burn.confirmed.v1",

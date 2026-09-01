@@ -2,9 +2,11 @@ import { createHash, randomUUID, verify } from "node:crypto";
 
 import {
   acceptPrimaryAdapterEvent,
+  acceptRedemptionAdapterEvent,
   acceptHedgeAdapterEvent,
   isHedgeAdapterEvent,
   acceptPrimaryOrder,
+  isRedemptionAdapterEvent,
   cancelPrimaryOrder,
   getCustomerReadiness,
   listPrimaryOrders,
@@ -275,7 +277,9 @@ export async function registerPrimaryRoutes(app: FastifyInstance, pool: Pool, cl
       };
       const result = isHedgeAdapterEvent(String(body.eventType))
         ? await acceptHedgeAdapterEvent(pool, adapterInput)
-        : await acceptPrimaryAdapterEvent(pool, adapterInput);
+        : isRedemptionAdapterEvent(String(body.eventType))
+          ? await acceptRedemptionAdapterEvent(pool, adapterInput)
+          : await acceptPrimaryAdapterEvent(pool, adapterInput);
       const workflowId = result.workflowId ?? String(body.eventId);
       return reply.status(202).send({
         requestId: workflowId,

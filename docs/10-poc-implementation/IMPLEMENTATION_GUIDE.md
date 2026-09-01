@@ -4,7 +4,7 @@
 
 이 문서는 승인된 1~9단계를 코드로 옮기는 방법과 검증 증거를 연결한다. 구현은 실제 자금, 주식, 개인정보나 기관 API를 사용하지 않는다.
 
-기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md)에 정리한다.
+기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 구현 증거](REDEMPTION_LIFECYCLE_EVIDENCE.md)에 정리한다.
 
 ## 1. 현재 구현 범위
 
@@ -20,7 +20,7 @@
 - 종목별 제한형 권리토큰, 적격성 레지스트리, 결정적 상품 배포와 시장정책 레지스트리
 - 다섯 EIP-712 의사 형식, EOA 및 ERC-1271 검증과 nonce 재사용 차단
 - 실제 Safe 3인 중 2인 승인과 OpenZeppelin 60초 지연 실행 계약
-- 정정 기능을 포함한 업무 ABI 68개와 별도 관리 ABI를 컴파일 결과에 대조하는 자동 검증
+- 일반 투자자 부분환매까지 포함한 업무 ABI 71개와 별도 관리 ABI를 컴파일 결과에 대조하는 자동 검증
 - Foundry 배포 도우미와 viem 기반 Anvil 배포 및 조회 시험
 - 합성 허용·거절·만료 고객, 위험공시와 전자 동의 및 주문·권리수령 준비상태
 - KRX 기준일 원본의 체크섬을 검증한 201개 상품 후보와 대표 6종목 표시
@@ -36,10 +36,13 @@
 - 시장조성자 주문 서명, 해외 증권사 위험승인과 외국인 한도·거래정지 방향 통제
 - 매수 헤지의 결제·수탁 후 재고보충과 매도 헤지의 권리종료·지급청구·소각
 - 부분체결분만 재고에 반영하고 미체결 잔량을 같은 헤지에 보류하는 통제
+- 결제완료 권리의 일반 투자자 환매 요청, 종목·가격·거래일별 취합매도와 정수 비례배분
+- 미체결 수량의 즉시 잠금해제, T+2 뒤 권리종료와 USD 지급청구 전환
+- USD 지급과 토큰 소각의 독립 확인, 일부 완료 격리 및 중복 실행 방지
 
 애플리케이션과 생성 결과는 TypeScript 7.0.2로 검사한다. `openapi-typescript` 7.13.0은 TypeScript 7의 변경된 내부 API와 호환되지 않으므로 생성 도구 프로세스에만 TypeScript 5.9.3을 격리한다. 이 버전은 제품 런타임이나 업무 코드에 사용하지 않는다.
 
-현재까지 고객 준비부터 1차 발행·T+2 전환, 결제완료 권리의 24/7 제한 거래와 시장조성자 헤지·재고조정까지 구현했다. 다음 기능은 일반 투자자의 1차 환매 접수부터 권리종료, USD 지급청구, 소각과 지급까지의 생애주기다. 독립승인 기업행동은 이후 권리업무 기능에서 구현한다.
+현재까지 고객 준비부터 1차 발행·T+2 전환, 결제완료 권리의 24/7 제한 거래, 시장조성자 헤지·재고조정과 일반 투자자 환매까지 닫힌 생애주기를 구현했다. 다음 기능은 현금배당, 선택형 USDC 전환, 의결권, 월별 보고, 지갑 복구와 기업행동을 포함한 권리업무 및 운영 통제다.
 
 ## 2. 로컬 준비
 
@@ -48,6 +51,8 @@
 3. `docker compose up -d postgres anvil`로 PostgreSQL과 로컬 EVM을 시작한다.
 4. `pnpm db:migrate`로 기반 테이블을 만든다.
 5. `pnpm dev`로 웹, API와 기관 모의 서버를 실행한다.
+
+가상시계로 승인 fixture를 재현할 때는 `TEST_CLOCK_MODE=fixed`와 `TEST_CLOCK_ISO`를 데이터 적재와 API 실행에 똑같이 적용한다. 한쪽에만 적용하면 시장정보 기준시각과 60초 신선도 판정이 달라지므로 검증 증거로 사용할 수 없다.
 
 기본 주소는 웹 `http://localhost:3000`, API `http://localhost:4000`, 기관 모의 서버 `http://localhost:4100`, Anvil RPC `http://localhost:8545`다.
 

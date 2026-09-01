@@ -15,6 +15,7 @@ import {
   processPrimaryOutbox,
   processHedgeOutbox,
   processSecondaryOutbox,
+  processRedemptionOutbox,
   recordEligibilityChainSyncFailure,
 } from "@rwa/database";
 import { createClock, seoulCalendarDate } from "@rwa/domain";
@@ -192,6 +193,7 @@ while (!stopping) {
       } else if (
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
         !(await processHedgeOutbox(pool, message, clock.now())) &&
+        !(await processRedemptionOutbox(pool, message, clock.now())) &&
         !(await processSecondaryOutbox(pool, message, clock.now(), (payload) =>
           executeSecondaryChain(message.workflowId, payload),
         ))

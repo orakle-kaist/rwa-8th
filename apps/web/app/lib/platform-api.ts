@@ -73,6 +73,7 @@ export interface Session {
   customerReadiness?: Readiness;
   localPrimaryScenario?: LocalPrimaryScenario;
   localSecondaryScenario?: LocalSecondaryScenario;
+  localRedemptionScenario?: LocalRedemptionScenario;
   projection: { projectionAsOf: string; lastEventSequence: number; projectionStatus: string };
   simulation: true;
 }
@@ -242,6 +243,44 @@ export interface MarketMakerHedge {
   }>;
   domesticOrderReference?: string;
   holdReasonKo?: string;
+  simulation: true;
+}
+
+export interface LocalRedemptionScenario {
+  securityId: "990001";
+  displayName: string;
+  tokenAddress: `0x${string}`;
+  referenceLimitKrw: "257000";
+  redemptionEnabled: boolean;
+  settledQuantity: string;
+  availableQuantity: string;
+  redemptionLockedQuantity: string;
+  burnPendingQuantity: string;
+  domesticSettledQuantity: string;
+  tokenTotalSupply: string;
+  policyVersion: "REDEMPTION-SIM-1";
+  intentDomain: LocalPrimaryScenario["intentDomain"];
+  notices: string[];
+  simulation: true;
+}
+
+export interface Redemption {
+  redemptionId: string;
+  securityId: "990001";
+  requestedQuantity: string;
+  allocatedQuantity: string;
+  releasedQuantity: string;
+  krwLimitPrice: string;
+  status: string;
+  domesticSaleSubmitted: boolean;
+  domesticExecutionConfirmed: boolean;
+  saleProceedsSettled: boolean;
+  rightsTerminated: boolean;
+  cashClaimUsdMinor?: string;
+  feeUsdMinor: "0";
+  tokenBurned: boolean;
+  usdPaid: boolean;
+  quarantineReasonKo?: string;
   simulation: true;
 }
 

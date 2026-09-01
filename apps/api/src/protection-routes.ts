@@ -13,6 +13,7 @@ import {
   isPrimaryWorkflow,
   isSecondaryWorkflow,
   decideSecondarySettlement,
+  isRedemptionWorkflow,
 } from "@rwa/database";
 import {
   authenticateDemoBearer,
@@ -436,11 +437,14 @@ export async function registerProtectionRoutes(
         });
       }
     }
+    const redemption = await isRedemptionWorkflow(pool, taskId);
     return submitCommand(request, reply, {
       workflowType: "INSTITUTION_DECISION",
-      commandType: (await isPrimaryWorkflow(pool, taskId))
-        ? "PRIMARY_DECISION_REQUESTED"
-        : "INSTITUTION_DECISION_REQUESTED",
+      commandType: redemption
+        ? "REDEMPTION_DECISION_REQUESTED"
+        : (await isPrimaryWorkflow(pool, taskId))
+          ? "PRIMARY_DECISION_REQUESTED"
+          : "INSTITUTION_DECISION_REQUESTED",
       payload: {
         ...(request.body as object),
         taskId,

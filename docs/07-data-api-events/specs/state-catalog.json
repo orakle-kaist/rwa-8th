@@ -580,6 +580,11 @@
     },
     {
       "axis": "REDEMPTION",
+      "code": "REDEMPTION_CANCELLED",
+      "labelKo": "국내 제출 전 환매 취소"
+    },
+    {
+      "axis": "REDEMPTION",
       "code": "RIGHTS_AND_TOKEN_LOCKED",
       "labelKo": "권리와 토큰 잠금"
     },

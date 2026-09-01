@@ -116,6 +116,7 @@ describe("Anvil 시장조성자 매도 헤지", () => {
     for (const roleName of [
       "REDEMPTION_EXECUTOR_ROLE",
       "REDEMPTION_RIGHTS_APPROVER_ROLE",
+      "SETTLEMENT_CONFIRMER_ROLE",
       "PAYMENT_APPROVER_ROLE",
     ])
       await write(controller, controllerAbi, "grantRole", [role(roleName), administrator.address]);
@@ -163,6 +164,14 @@ describe("Anvil 시장조성자 매도 헤지", () => {
       await publicClient.waitForTransactionReceipt({ hash });
     };
     await execute("lockRedemption", [redemptionId, intent, signature]);
+    await execute("markDomesticSaleSubmitted", [redemptionId, evidence("sale-submitted")]);
+    await execute("confirmDomesticExecution", [redemptionId, 4n, evidence("execution")]);
+    await execute("confirmSaleProceedsSettled", [
+      redemptionId,
+      4n,
+      478_840n,
+      evidence("sale-proceeds"),
+    ]);
     await execute("confirmRightsTerminated", [
       redemptionId,
       token,
