@@ -22,6 +22,8 @@ docker compose up --build --wait
 
 준비가 끝나면 `http://localhost:3000`에서 **투자자 앱 → 모의 계좌 개설부터 시작**을 누른다. 종료는 `docker compose down`이다. 처음부터 다시 시연하는 방법과 직접 개발 환경은 [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md)에 분리해 두었다.
 
+PoC의 데이터베이스와 로컬 체인은 Docker 내부에서만 사용하므로 컴퓨터에서 이미 실행 중인 PostgreSQL이나 다른 로컬 체인을 중지할 필요가 없다.
+
 ## 처음 읽는 순서
 
 처음 보는 사람은 다음 네 문서만 순서대로 읽으면 프로젝트의 목적과 구현 범위를 이해할 수 있다.
