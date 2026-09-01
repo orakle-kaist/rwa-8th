@@ -794,7 +794,7 @@ export function InstitutionWorkspace() {
             </label>
             <label>
               가격 최소단위
-              <input name="unitPriceMinor" inputMode="numeric" defaultValue="1203550000" />
+              <input name="unitPriceMinor" inputMode="numeric" defaultValue="187120000" />
             </label>
             <button type="submit" disabled={!session?.localSecondaryScenario}>
               시장조성자 지갑으로 서명·게시
