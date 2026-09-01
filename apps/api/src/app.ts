@@ -28,7 +28,9 @@ export interface BuildAppOptions {
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: options.logger ?? true });
-  await app.register(cors, { origin: ["http://localhost:3000", "http://127.0.0.1:3000"] });
+  const browserOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
+  if (process.env.WEB_ORIGIN) browserOrigins.push(process.env.WEB_ORIGIN);
+  await app.register(cors, { origin: [...new Set(browserOrigins)] });
 
   app.get("/health", async () => ({
     service: "rwa-api",
@@ -39,7 +41,9 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
 
   app.post("/internal/mock-adapter-keys", async (request, reply) => {
     if (!options.pool || request.headers["x-simulation-registration-token"] !== "local-mock-only")
-      return reply.status(403).send({ simulation: true, messageKo: "모의 기관 키 등록 권한이 없다." });
+      return reply
+        .status(403)
+        .send({ simulation: true, messageKo: "모의 기관 키 등록 권한이 없다." });
     const body = request.body as Record<string, unknown>;
     await registerMockInstitutionKey(options.pool, {
       sourceInstitutionId: String(body.sourceInstitutionId),
@@ -66,6 +70,24 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     const readiness = options.pool
       ? await getCustomerReadiness(options.pool, principal.principalId, options.clock.now())
       : undefined;
+    const localPrimaryScenario = options.pool
+      ? await getLocalPrimaryScenario(options.pool, principal.principalId, options.clock.now())
+      : undefined;
+    const localSecondaryScenario = options.pool
+      ? await getLocalSecondaryScenario(options.pool, principal.principalId, options.clock.now())
+      : undefined;
+    const localRedemptionScenario = options.pool
+      ? await getLocalRedemptionScenario(options.pool, principal.principalId, options.clock.now())
+      : undefined;
+    const localRightsScenario = options.pool
+      ? await getLocalRightsScenario(
+          options.pool,
+          principal.role === "INVESTOR"
+            ? principal.principalId
+            : "00000000-0000-4000-8000-000000000001",
+          options.clock.now(),
+        )
+      : undefined;
     return {
       actorId: principal.principalId,
       role: principal.role,
@@ -73,28 +95,25 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       ...(readiness ? { customerReadiness: readiness } : {}),
       ...(options.pool
         ? {
-            localPrimaryScenario: await getLocalPrimaryScenario(
-              options.pool,
-              principal.principalId,
-              options.clock.now(),
-            ),
-            localSecondaryScenario: await getLocalSecondaryScenario(
-              options.pool,
-              principal.principalId,
-              options.clock.now(),
-            ),
-            localRedemptionScenario: await getLocalRedemptionScenario(
-              options.pool,
-              principal.principalId,
-              options.clock.now(),
-            ),
-            localRightsScenario: await getLocalRightsScenario(
-              options.pool,
-              principal.role === "INVESTOR"
-                ? principal.principalId
-                : "00000000-0000-4000-8000-000000000001",
-              options.clock.now(),
-            ),
+            localPrimaryScenario,
+            localSecondaryScenario,
+            localRedemptionScenario,
+            localRightsScenario,
+            localInvestorJourney: {
+              securityId: "990001",
+              displayName: "모의 삼성전자 수탁권리",
+              referenceSecurityId: "005930",
+              referenceKrw: "257000",
+              referenceUsdMinor: "18619",
+              normalBidUsdMinor: "18526",
+              normalAskUsdMinor: "18712",
+              usdKrwRate: "1380.3",
+              primary: localPrimaryScenario,
+              secondary: localSecondaryScenario,
+              redemption: localRedemptionScenario,
+              rights: localRightsScenario,
+              simulation: true,
+            },
           }
         : {}),
       projection: {

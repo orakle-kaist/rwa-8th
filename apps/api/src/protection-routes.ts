@@ -132,12 +132,14 @@ export async function registerProtectionRoutes(
   clock: Clock,
 ): Promise<void> {
   app.get("/api/v1/products", async (request) => {
-    const query = request.query as { limit?: string; cursor?: string };
+    const query = request.query as { limit?: string; cursor?: string; scope?: string };
+    const scope = query.scope === "demo" ? "demo" : "candidates";
     return listProducts(
       pool,
       parsePositiveLimit(query.limit, 20),
       Number(query.cursor ?? "0") || 0,
       clock.now(),
+      scope,
     );
   });
 

@@ -97,18 +97,36 @@ export async function seedSecondaryData(pool: Pool, now = new Date("2026-08-31T1
         (security_id,reference_usd_minor,information_effective_at,usdc_usd_ppm,half_spread_bps,
          security_loss_bps,portfolio_loss_bps,domestic_total_quantity,token_total_supply,
          foreign_limit_status,krx_status,updated_at)
-       VALUES ($1,$2,$3,1000000,50,0,0,$4,$4,'ALLOWED','OPEN',$3)
+         VALUES ($1,$2,$3,1000000,50,0,0,$4,$5,'ALLOWED','OPEN',$3)
        ON CONFLICT (security_id) DO UPDATE SET reference_usd_minor=EXCLUDED.reference_usd_minor,
          information_effective_at=EXCLUDED.information_effective_at,updated_at=EXCLUDED.updated_at`,
       [
         LOCAL_SECONDARY_SECURITY_ID,
         LOCAL_SECONDARY_REFERENCE_USD_MINOR.toString(),
         now,
+        MARKET_MAKER_START_SETTLED.toString(),
         (MARKET_MAKER_START_SETTLED + MARKET_MAKER_START_PENDING).toString(),
       ],
     );
-    // Ensure the displayed deterministic normal ask remains tied to the approved fixture.
-    if (LOCAL_SECONDARY_NORMAL_ASK_USD_MINOR !== 120_355n)
+    await client.query(
+      `INSERT INTO instrument_control_totals
+        (security_id,domestic_settled_quantity,token_total_supply,updated_at)
+       VALUES ($1,$2,$3,$4)
+       ON CONFLICT (security_id) DO UPDATE SET
+         domestic_settled_quantity=EXCLUDED.domestic_settled_quantity,
+         token_total_supply=EXCLUDED.token_total_supply,
+         updated_at=EXCLUDED.updated_at
+       WHERE instrument_control_totals.domestic_settled_quantity=0
+         AND instrument_control_totals.token_total_supply=0`,
+      [
+        LOCAL_SECONDARY_SECURITY_ID,
+        MARKET_MAKER_START_SETTLED.toString(),
+        (MARKET_MAKER_START_SETTLED + MARKET_MAKER_START_PENDING).toString(),
+        now,
+      ],
+    );
+    // Ensure the displayed deterministic normal ask remains tied to the approved Samsung fixture.
+    if (LOCAL_SECONDARY_NORMAL_ASK_USD_MINOR !== 18_712n)
       throw new Error("승인된 합성 매도호가가 바뀌었다.");
     await client.query("COMMIT");
   } catch (error) {

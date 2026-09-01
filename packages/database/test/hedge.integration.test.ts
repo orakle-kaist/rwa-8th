@@ -47,8 +47,7 @@ afterAll(async () => pool.end());
 async function completeSecondary(marketMakerSide: "BUY" | "SELL", quantity: bigint) {
   const investorSide = marketMakerSide === "SELL" ? "BUY" : "SELL";
   const fundingMode = marketMakerSide === "SELL" ? "USDC_ONCHAIN" : "USD_LEDGER";
-  const unitPrice =
-    marketMakerSide === "SELL" ? 1_203_550_000n : LOCAL_SECONDARY_NORMAL_ASK_USD_MINOR;
+  const unitPrice = LOCAL_SECONDARY_NORMAL_ASK_USD_MINOR;
   const quoteId = randomUUID();
   const quote = await acceptMarketMakerQuote(pool, {
     principalId: MARKET_MAKER_PRINCIPAL_ID,
@@ -206,7 +205,7 @@ describe("시장조성자 헤지 PostgreSQL 생애주기", () => {
       settled_quantity: "100",
       pending_quantity: "20",
       next_session_starting_quantity: "100",
-      domestic_total_quantity: "125",
+      domestic_total_quantity: "105",
       token_total_supply: "125",
     });
     expect((await listMarketMakerHedges(pool, now)).items[0]?.status).toBe(
@@ -243,7 +242,7 @@ describe("시장조성자 헤지 PostgreSQL 생애주기", () => {
       net_position: "4",
       settled_quantity: "100",
       burn_pending_quantity: "4",
-      domestic_total_quantity: "120",
+      domestic_total_quantity: "100",
       token_total_supply: "124",
     });
     await adapter(hedgeId, "market-maker.hedge.usd-paid.v1", {});
@@ -252,7 +251,7 @@ describe("시장조성자 헤지 PostgreSQL 생애주기", () => {
       net_position: "0",
       settled_quantity: "100",
       burn_pending_quantity: "0",
-      domestic_total_quantity: "120",
+      domestic_total_quantity: "100",
       token_total_supply: "120",
     });
   });
@@ -330,7 +329,7 @@ describe("시장조성자 헤지 PostgreSQL 생애주기", () => {
         fundingMode: "USDC_ONCHAIN",
         paymentAssetId: `0x${"00".repeat(31)}01`,
         shareQuantity: 1n,
-        unitPriceMinor: 1_203_550_000n,
+        unitPriceMinor: LOCAL_SECONDARY_NORMAL_ASK_USD_MINOR,
         halfSpreadBps: 50,
         nonce: BigInt(Date.now() + 50),
         expiresAt: new Date(now.getTime() + 30_000),

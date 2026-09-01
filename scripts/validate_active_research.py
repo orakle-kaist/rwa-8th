@@ -3223,7 +3223,7 @@ def validate_stage_ten_secondary_trading(errors: list[str]) -> None:
         return
 
     domain = (REPO_ROOT / "packages" / "domain" / "src" / "secondary-trading.ts").read_text(encoding="utf-8")
-    for term in ["990002", "SIM990002", "TEST00000002", "120_355n", "100n", "20n", "30", "60"]:
+    for term in ["990001", "SIM990001", "TEST00000001", "18_712n", "100n", "20n", "30", "60", "LOCAL_SECONDARY_REGRESSION_SECURITY_ID"]:
         if term not in domain:
             errors.append(f"secondary trading domain is missing approved synthetic boundary: {term}")
 

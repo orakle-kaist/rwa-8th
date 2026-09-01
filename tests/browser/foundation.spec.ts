@@ -34,8 +34,10 @@ test("정상 고객은 합성 여권부터 시작해 투자자 업무공간으�
   await expect(page.getByRole("heading", { name: "모의 계좌 준비가 완료됐다" })).toBeVisible();
   await page.getByRole("link", { name: "투자자 업무공간으로 이동" }).click();
   await expect(page).toHaveURL(/\/investor\?profile=investorA&onboarding=complete/);
-  await expect(page.getByRole("heading", { name: "투자자 업무공간" })).toBeVisible();
-  await expect(page.getByLabel("검토용 시나리오 전환")).toHaveValue("investorA");
+  await expect(page.getByRole("heading", { name: /안녕하세요/ })).toBeVisible();
+  await expect(page.getByText("다음 할 일")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "모의 삼성전자 상품 살펴보기" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "시장으로 이동" })).toBeVisible();
 });
 
 test("거절 고객 온보딩은 책임기관과 주문 차단을 안내한다", async ({ page }) => {
@@ -80,48 +82,92 @@ test("온보딩 재시작은 브라우저 진행상태만 초기화하고 직접
   await expect(page.getByRole("status")).toContainText("거래 데이터는 변경하지 않았다");
 
   await page.goto("/investor");
-  await expect(page.getByRole("heading", { name: "투자자 업무공간" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /안녕하세요/ })).toBeVisible();
+  await page.getByText("검토 모드", { exact: true }).click();
   await expect(page.getByRole("link", { name: "온보딩 다시 시작" })).toBeVisible();
 });
 
 test("투자자와 기관 화면은 서로 다른 모의 업무공간으로 이동한다", async ({ page }) => {
   await page.goto("/investor");
-  await expect(page.getByRole("heading", { name: "투자자 업무공간" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "투자자 생애주기 시연" })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "시연 단계 바로가기" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "다시 불러오기" })).toBeVisible();
-  await expect(page.getByText(/24\/7은 KRX가 24시간 열리는 것이 아니라/)).toBeVisible();
-  await expect(page.getByText(/토큰은 고객 권리의 기준장부가 아니며/)).toBeVisible();
-  await expect(page.getByRole("link", { name: "MM 헤지" })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("모의 환경");
-  await expect(page.getByText("201개 등록")).toBeVisible();
-  await expect(page.getByText("대표 시연").first()).toBeVisible();
-  await expect(page.getByText("발행 · 24시간 거래 · 환매 모두 차단").first()).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "투자자 메뉴" })).toBeVisible();
+  await expect(page.getByText(/국내 통합 보유총량을 바꾸지 않고/)).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "투자자 메뉴" })
+    .getByRole("link", { name: "시장", exact: true })
+    .click();
+  await expect(page.getByRole("heading", { name: "시장" })).toBeVisible();
+  await expect(page.getByText("PoC 시연 상품")).toBeVisible();
+  await expect(page.getByText("비활성").first()).toBeVisible();
 
   await page.goto("/institution");
-  await expect(page.getByRole("heading", { name: "통합 기관 콘솔" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "기관 간 인계 시연" })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "시연 단계 바로가기" })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "기관 역할별 업무공간" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "업무 대시보드" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "인가 해외 증권사" })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "업무 ID별 기관 인계와 기준 기록" }),
+    page.getByText(/화면 전환은 시연 편의 기능이며 실제 권한 변경이 아니다/),
   ).toBeVisible();
-  await expect(page.getByText(/화면상 역할 전환은 실제 권한을 부여하지 않는다/)).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("모의 환경");
-  await expect(page.getByText("공식 ISIN, 수탁 지원과 판매정책 확인 전")).toBeVisible();
+});
+
+test("투자자 홈의 첫 행동에서 메인 상품과 1차 주문 확인까지 순서대로 이동한다", async ({
+  page,
+}) => {
+  await page.goto("/investor?profile=investorA");
+  await expect(page.getByText("다음 할 일")).toBeVisible();
+  await page.getByRole("link", { name: "시장으로 이동" }).click();
+  await expect(page.getByText("PoC 시연 상품")).toBeVisible();
+  await page.getByRole("link", { name: "상품 상세" }).click();
+  await expect(page.getByRole("heading", { name: "모의 삼성전자 수탁권리" })).toBeVisible();
+  await expect(page.getByText("고객별 수탁권리 원장")).toBeVisible();
+  await page.getByRole("link", { name: "1차 주문" }).click();
+  await expect(page.getByRole("heading", { name: "KRX 1차 주문" })).toBeVisible();
+  await page.getByRole("button", { name: "주문 확인" }).click();
+  await expect(page.getByRole("heading", { name: "최종 확인" })).toBeVisible();
+  await expect(page.getByText(/T\+2 국내 결제와 수탁 확인 전/)).toBeVisible();
+});
+
+test("보유와 24시간 거래 화면은 권리상태와 KRX 경계를 분리한다", async ({ page }) => {
+  await page.goto("/investor/positions?profile=investorA");
+  await expect(page.getByRole("heading", { name: "보유자산" })).toBeVisible();
+  await expect(page.getByText("국내 결제 대기", { exact: true })).toBeVisible();
+  await expect(page.getByText("토큰은 고객 권리의 기준장부가 아니다.")).toBeVisible();
+  await page.getByRole("link", { name: "24/7 거래" }).click();
+  await expect(page.getByRole("heading", { name: "24/7 제한 거래" })).toBeVisible();
+  await expect(page.getByText("KRX 24시간 거래가 아니다.")).toBeVisible();
+  await expect(page.getByText(/국내 통합계좌 총보유량은 그대로/)).toBeVisible();
+});
+
+test("기관 콘솔은 역할별 업무공간과 동일 업무 거래실을 제공한다", async ({ page }) => {
+  await page.goto("/institution");
+  await page.getByRole("link", { name: "인가 해외 증권사" }).click();
+  await expect(page.getByRole("heading", { name: "인가 해외 증권사" })).toBeVisible();
+  await expect(page.getByText(/고객별 수탁권리 원장/)).toBeVisible();
+  await page.getByRole("link", { name: "시장조성" }).click();
+  await expect(page.getByRole("heading", { name: "시장조성" })).toBeVisible();
+  await expect(page.getByText("결제완료 재고", { exact: true })).toBeVisible();
+});
+
+test("투자자 내비게이션과 처리 패널은 모바일에서도 키보드로 접근 가능하다", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/investor/activities?profile=investorA");
+  await expect(page.getByRole("navigation", { name: "투자자 메뉴" })).toBeVisible();
+  const processButton = page.getByRole("button", { name: "처리 과정" }).first();
+  if (await processButton.count()) {
+    await processButton.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("dialog", { name: "처리 과정 보기" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "기관 화면에서 같은 업무 보기" })).toBeVisible();
+    await page.getByRole("button", { name: "닫기" }).click();
+  }
 });
 
 test("거절·만료 고객은 주문 차단 상태와 이유를 확인한다", async ({ page }) => {
-  await page.goto("/investor");
-  await page.getByLabel("검토용 시나리오 전환").selectOption("denied");
-  await expect(page.getByText("INELIGIBLE", { exact: true })).toBeVisible();
-  await expect(page.getByText("유효한 판매 가능 판정이 없다.", { exact: true })).toBeVisible();
-  await page.getByLabel("검토용 시나리오 전환").selectOption("expired");
-  await expect(page.getByText("EXPIRED", { exact: true }).first()).toBeVisible();
+  await page.goto("/investor?profile=denied");
+  await expect(page.getByRole("heading", { name: "계좌 개설 절차 완료하기" })).toBeVisible();
+  await page.goto("/investor?profile=expired");
+  await expect(page.getByRole("heading", { name: "계좌 개설 절차 완료하기" })).toBeVisible();
 });
 
 test("위험공시, 전용 지갑과 민원을 비동기로 접수하고 종결한다", async ({ page }) => {
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await page.getByRole("button", { name: "위 내용을 확인하고 전자 동의" }).click();
   await expect(page.getByRole("status")).toContainText("위험공시 동의를 접수했다");
   await page.getByRole("button", { name: "시험 전용 지갑 연결 요청" }).click();
@@ -140,7 +186,7 @@ test("위험공시, 전용 지갑과 민원을 비동기로 접수하고 종결�
     })
     .toContain("SUBMITTED");
 
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   await expect(page.getByRole("table", { name: "지갑 승인 대기열" })).toBeVisible();
   await expect(page.getByRole("table", { name: "민원 처리 대기열" })).toBeVisible();
   const complaintRow = page.getByRole("row").filter({ hasText: title });
@@ -154,14 +200,17 @@ test("위험공시, 전용 지갑과 민원을 비동기로 접수하고 종결�
   for (const status of expectedStatuses) {
     await complaintRow.getByRole("button", { name: "다음 단계 접수" }).click();
     await expect
-      .poll(async () => {
-        await page.getByRole("button", { name: "새로고침" }).click();
-        return complaintRow.textContent();
-      })
+      .poll(
+        async () => {
+          await page.getByRole("button", { name: "새로고침" }).click();
+          return complaintRow.textContent();
+        },
+        { timeout: 15_000, intervals: [100, 250, 500] },
+      )
       .toContain(status);
   }
 
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await page.getByRole("button", { name: "새로고침" }).click();
   await expect(page.getByText(title).locator("..")).toContainText("CLOSED");
 });
@@ -169,7 +218,7 @@ test("위험공시, 전용 지갑과 민원을 비동기로 접수하고 종결�
 test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 거래 가능으로 전환한다", async ({
   page,
 }) => {
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await expect(page.getByRole("heading", { name: "로컬 생애주기 시험" })).toBeVisible();
   await page.getByLabel("정수 수량").fill("5");
   await page.getByLabel("자금 경로").selectOption("USD_LEDGER");
@@ -182,7 +231,7 @@ test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 �
   await page.getByRole("button", { name: "서명하고 1차 주문 접수" }).click();
   await expect(page.getByRole("status")).toContainText("1차 지정가 주문을 접수했다");
 
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   const batchRow = page.getByRole("row").filter({ hasText: "PRIMARY_BATCH" });
   await expect
     .poll(async () => {
@@ -228,12 +277,12 @@ test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 �
 });
 
 test("배당·의결권·보고와 기업행동 통제를 시연한다", async ({ page }) => {
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   const dividendTask = page.getByRole("row").filter({ hasText: "DIVIDEND" });
   await expect(dividendTask).toBeVisible();
   await dividendTask.getByRole("button", { name: "승인 접수" }).click();
 
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await expect(page.getByRole("heading", { name: "현금배당과 선택형 USDC 전환" })).toBeVisible();
   await expect(
     page
@@ -245,7 +294,7 @@ test("배당·의결권·보고와 기업행동 통제를 시연한다", async (
   await page.getByRole("button", { name: "찬성" }).click();
   await expect(page.getByRole("status")).toContainText("의결권 지시");
 
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   const votingTask = page.getByRole("row").filter({ hasText: "VOTING" });
   await votingTask.getByRole("button", { name: "승인 접수" }).click();
 
@@ -262,7 +311,7 @@ test("배당·의결권·보고와 기업행동 통제를 시연한다", async (
 });
 
 test("기존 A 4주·B 2주 권리를 4주 부분환매하고 USD 지급과 소각을 완결한다", async ({ page }) => {
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await expect(page.getByRole("heading", { name: "일반 투자자 환매 생애주기" })).toBeVisible();
   await page.getByLabel("정수 환매수량").fill("3");
   await page.getByRole("button", { name: "서명하고 환매 요청" }).click();
@@ -273,7 +322,7 @@ test("기존 A 4주·B 2주 권리를 4주 부분환매하고 USD 지급과 소�
   await page.getByRole("button", { name: "서명하고 환매 요청" }).click();
   await expect(page.getByRole("status")).toContainText("환매 요청과 권리·토큰 잠금");
 
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   const batch = page.getByRole("row").filter({ hasText: "REDEMPTION_BATCH" });
   await expect
     .poll(async () => {
@@ -311,14 +360,14 @@ test("기존 A 4주·B 2주 권리를 4주 부분환매하고 USD 지급과 소�
 
   await expect(page.getByText("USD 청구 55857센트 · 지급 완료 · 소각 완료")).toBeVisible();
   await expect(page.getByText("USD 청구 18619센트 · 지급 완료 · 소각 완료")).toBeVisible();
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await expect(page.getByText("환매 가능").locator("..")).toContainText("1주");
   await page.getByLabel("검토용 시나리오 전환").selectOption("investorB");
   await expect(page.getByText("환매 가능").locator("..")).toContainText("1주");
 });
 
 test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하고 3주를 해제한다", async ({ page }) => {
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   await expect(page.getByRole("heading", { name: "24/7 지정가 호가" })).toBeVisible();
   const quoteResponse = page.waitForResponse(
     (response) =>
@@ -329,7 +378,7 @@ test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하�
   expect((await quoteResponse).status()).toBe(202);
   await expect(page.getByText("결제 대기 20 · 예약 5")).toBeVisible();
 
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await page.getByLabel("검토용 시나리오 전환").selectOption("investorB");
   await expect(page.getByRole("heading", { name: "로컬 24/7 제한 거래 시험" })).toBeVisible();
   await expect
@@ -341,7 +390,7 @@ test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하�
   await expect(page.getByRole("status")).toContainText("24시간 제한 거래 주문을 접수했다");
   await expect(page.getByText(/체결 5 · 취소 및 예약해제 3/)).toBeVisible();
 
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   const task = page.getByRole("row").filter({ hasText: "SECONDARY_TRADE" });
   await expect(task).toBeVisible();
   await task.getByRole("button", { name: "승인 접수" }).click();
@@ -373,11 +422,11 @@ test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하�
 });
 
 test("권리·준법 독립 승인 뒤 전용 지갑을 복구한다", async ({ page }) => {
-  await page.goto("/investor");
+  await page.goto("/investor/reviewer");
   await page.getByRole("button", { name: "새 지갑으로 교체 검토" }).click();
   await expect(page.getByRole("status")).toContainText("지갑 교체 검토");
 
-  await page.goto("/institution");
+  await page.goto("/institution/operations");
   const recoveryTask = page.getByRole("row").filter({ hasText: "WALLET_REPLACEMENT" });
   await recoveryTask.getByRole("button", { name: "승인 접수" }).click();
   await expect

@@ -42,6 +42,11 @@ export async function allProducts(): Promise<Product[]> {
   return products;
 }
 
+export async function demoProducts(): Promise<Product[]> {
+  const page = await platformFetch<ProductPage>("/products?scope=demo&limit=10");
+  return page.items;
+}
+
 export interface Product {
   securityId: string;
   nameKo: string;
@@ -77,7 +82,24 @@ export interface Session {
   localSecondaryScenario?: LocalSecondaryScenario;
   localRedemptionScenario?: LocalRedemptionScenario;
   localRightsScenario?: LocalRightsScenario;
+  localInvestorJourney?: LocalInvestorJourney;
   projection: { projectionAsOf: string; lastEventSequence: number; projectionStatus: string };
+  simulation: true;
+}
+
+export interface LocalInvestorJourney {
+  securityId: "990001";
+  displayName: string;
+  referenceSecurityId: "005930";
+  referenceKrw: "257000";
+  referenceUsdMinor: "18619";
+  normalBidUsdMinor: "18526";
+  normalAskUsdMinor: "18712";
+  usdKrwRate: "1380.3";
+  primary?: LocalPrimaryScenario;
+  secondary?: LocalSecondaryScenario;
+  redemption?: LocalRedemptionScenario;
+  rights?: LocalRightsScenario;
   simulation: true;
 }
 
@@ -381,4 +403,52 @@ export interface Workflow {
   workflowType: string;
   states: Array<{ axis: string; code: string; labelKo: string }>;
   simulation: true;
+}
+
+export interface Position {
+  securityId: string;
+  displayName: string;
+  referenceSecurityId?: string;
+  settledRights: string;
+  pendingRights: string;
+  lockedRights: string;
+  burnPendingTokens: string;
+  cashClaim?: { currency: "USD"; amountMinor: string; decimals: 2 };
+  projection: Session["projection"];
+}
+
+export interface Activity {
+  eventId: string;
+  workflowId: string;
+  workflowType: string;
+  securityId?: string;
+  eventType: string;
+  category: "REQUEST" | "INSTITUTION_FACT" | "STATE" | "CHAIN" | "FUNDS" | "AUDIT";
+  actorRoleKo: string;
+  recordLayerKo: string;
+  labelKo: string;
+  occurredAt: string;
+  nextActionKo: string;
+  simulation: true;
+}
+
+export interface TimelineItem {
+  eventId: string;
+  eventType: string;
+  category: "REQUEST" | "INSTITUTION_FACT" | "STATE" | "CHAIN" | "FUNDS" | "AUDIT";
+  actorRoleKo: string;
+  recordLayerKo: string;
+  sourceOrganization?: string;
+  labelKo: string;
+  occurredAt: string;
+  nextActionKo: string;
+  evidenceReference?: string;
+  transactionHash?: string;
+  simulation: true;
+}
+
+export interface WorkflowTimeline {
+  workflowId: string;
+  items: TimelineItem[];
+  projection: Session["projection"];
 }

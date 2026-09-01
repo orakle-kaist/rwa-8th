@@ -126,7 +126,8 @@ export async function deployLocalStack(input?: {
   const transport = http(rpcUrl);
   const publicClient = createPublicClient({ chain: anvilChain, transport });
   const wallet = createWalletClient({ account: deployer, chain: anvilChain, transport });
-  if ((await publicClient.getChainId()) !== 31337) throw new Error("로컬 배포는 Anvil 31337에서만 허용한다.");
+  if ((await publicClient.getChainId()) !== 31337)
+    throw new Error("로컬 배포는 Anvil 31337에서만 허용한다.");
 
   const deploy = async (name: string, args: readonly unknown[] = [], externalPath?: string) => {
     const item = await artifact(name, externalPath);
@@ -136,7 +137,12 @@ export async function deployLocalStack(input?: {
       throw new Error(`${name} 로컬 배포에 실패했다.`);
     return { address: receipt.contractAddress, abi: item.abi };
   };
-  const write = async (address: Address, abi: Abi, functionName: string, args: readonly unknown[]) => {
+  const write = async (
+    address: Address,
+    abi: Abi,
+    functionName: string,
+    args: readonly unknown[],
+  ) => {
     const hash = await wallet.writeContract({
       address,
       abi,
@@ -174,7 +180,16 @@ export async function deployLocalStack(input?: {
   const setupData = (await import("viem")).encodeFunctionData({
     abi: safeSetupAbi,
     functionName: "setup",
-    args: [anvilOwners.slice(0, 3), 2n, "0x0000000000000000000000000000000000000000", "0x", "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", 0n, "0x0000000000000000000000000000000000000000"],
+    args: [
+      anvilOwners.slice(0, 3),
+      2n,
+      "0x0000000000000000000000000000000000000000",
+      "0x",
+      "0x0000000000000000000000000000000000000000",
+      "0x0000000000000000000000000000000000000000",
+      0n,
+      "0x0000000000000000000000000000000000000000",
+    ],
   });
   const safeFactoryAbi = parseAbi([
     "function createProxyWithNonce(address singleton,bytes initializer,uint256 saltNonce) returns (address proxy)",
@@ -201,14 +216,32 @@ export async function deployLocalStack(input?: {
   const safe = (safeLog?.args as { proxy?: Address } | undefined)?.proxy;
   if (!safe) throw new Error("Safe 프록시 주소를 확인할 수 없다.");
 
-  const timelock = await deploy("TimelockController", [60n, [safe], [safe], "0x0000000000000000000000000000000000000000"]);
+  const timelock = await deploy("TimelockController", [
+    60n,
+    [safe],
+    [safe],
+    "0x0000000000000000000000000000000000000000",
+  ]);
   const policyVersion = keccak256(stringToHex("LOCAL-POLICY-V1"));
   const eligibility = await deploy("EligibilityRegistry", [deployer.address]);
   const policy = await deploy("MarketPolicyRegistry", [deployer.address, policyVersion]);
   const verifier = await deploy("IntentVerifier", [deployer.address, policy.address]);
-  const factory = await deploy("SecurityTokenFactory", [deployer.address, eligibility.address, policy.address]);
-  const issuance = await deploy("IssuanceController", [deployer.address, verifier.address, factory.address]);
-  const secondary = await deploy("SecondarySettlementController", [deployer.address, verifier.address, eligibility.address, policy.address]);
+  const factory = await deploy("SecurityTokenFactory", [
+    deployer.address,
+    eligibility.address,
+    policy.address,
+  ]);
+  const issuance = await deploy("IssuanceController", [
+    deployer.address,
+    verifier.address,
+    factory.address,
+  ]);
+  const secondary = await deploy("SecondarySettlementController", [
+    deployer.address,
+    verifier.address,
+    eligibility.address,
+    policy.address,
+  ]);
   const redemption = await deploy("RedemptionController", [deployer.address, verifier.address]);
   const recovery = await deploy("RecoveryController", [deployer.address]);
   const corporateAction = await deploy("CorporateActionController", [deployer.address]);
@@ -219,57 +252,193 @@ export async function deployLocalStack(input?: {
   const marketMaker = privateKeyToAccount(keccak256(stringToHex("SECONDARY-DEMO-MM")));
   const broker = privateKeyToAccount(keccak256(stringToHex("SECONDARY-BROKER")));
 
-  await write(eligibility.address, eligibility.abi, "grantRole", [role("ELIGIBILITY_OPERATOR_ROLE"), deployer.address]);
+  await write(eligibility.address, eligibility.abi, "grantRole", [
+    role("ELIGIBILITY_OPERATOR_ROLE"),
+    deployer.address,
+  ]);
   const validUntil = BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60);
   for (const [index, account] of [investorA, investorB, marketMaker].entries())
-    await write(eligibility.address, eligibility.abi, "setEligibility", [workflow(`ELIGIBLE_${index}`), account.address, true, validUntil, evidence(`ELIGIBLE_${index}`)]);
-  await write(eligibility.address, eligibility.abi, "setMarketMaker", [workflow("MARKET_MAKER"), marketMaker.address, true, validUntil, evidence("MARKET_MAKER")]);
-  await write(verifier.address, verifier.abi, "setBrokerSettlementSigner", [workflow("BROKER_SIGNER"), broker.address, evidence("BROKER_SIGNER")]);
-  await write(policy.address, policy.abi, "grantRole", [role("EMERGENCY_PAUSER_ROLE"), deployer.address]);
+    await write(eligibility.address, eligibility.abi, "setEligibility", [
+      workflow(`ELIGIBLE_${index}`),
+      account.address,
+      true,
+      validUntil,
+      evidence(`ELIGIBLE_${index}`),
+    ]);
+  await write(eligibility.address, eligibility.abi, "setMarketMaker", [
+    workflow("MARKET_MAKER"),
+    marketMaker.address,
+    true,
+    validUntil,
+    evidence("MARKET_MAKER"),
+  ]);
+  await write(verifier.address, verifier.abi, "setBrokerSettlementSigner", [
+    workflow("BROKER_SIGNER"),
+    broker.address,
+    evidence("BROKER_SIGNER"),
+  ]);
+  await write(policy.address, policy.abi, "grantRole", [
+    role("EMERGENCY_PAUSER_ROLE"),
+    deployer.address,
+  ]);
 
   const products = [
-    ["990001", "TEST00000001", "모의 삼성전자 1차 발행 시나리오", "SIM990001"],
-    ["990002", "TEST00000002", "모의 SK하이닉스 24/7 시나리오", "SIM990002"],
+    ["990001", "TEST00000001", "모의 삼성전자 수탁권리", "SIM990001"],
+    ["990002", "TEST00000002", "모의 가격·위험 회귀시험 권리", "SIM990002"],
     ["990003", "TEST00000003", "모의 미래에셋증권 기업행동 시나리오", "SIM990003"],
   ] as const;
   const designVersion = evidence("CONTRACT_DESIGN_V1");
   const tokens = {} as LocalDeploymentManifest["tokens"];
   for (const [securityId, syntheticKey, displayName, symbol] of products) {
-    await write(factory.address, factory.abi, "deploySecurityToken", [workflow(`DEPLOY_${securityId}`), securityId, syntheticKey, displayName, symbol, designVersion, evidence(`DEPLOY_${securityId}`)]);
-    tokens[securityId] = (await publicClient.readContract({ address: factory.address, abi: factory.abi, functionName: "getSecurityToken", args: [securityId, syntheticKey, designVersion] })) as Address;
+    await write(factory.address, factory.abi, "deploySecurityToken", [
+      workflow(`DEPLOY_${securityId}`),
+      securityId,
+      syntheticKey,
+      displayName,
+      symbol,
+      designVersion,
+      evidence(`DEPLOY_${securityId}`),
+    ]);
+    tokens[securityId] = (await publicClient.readContract({
+      address: factory.address,
+      abi: factory.abi,
+      functionName: "getSecurityToken",
+      args: [securityId, syntheticKey, designVersion],
+    })) as Address;
   }
 
   const controllerRoles: Array<[Address, Abi, string[]]> = [
-    [issuance.address, issuance.abi, ["EXECUTION_ALLOCATION_CONFIRMER_ROLE", "RISK_APPROVER_ROLE", "RIGHTS_ENTRY_APPROVER_ROLE", "RIGHTS_RECORDING_CONFIRMER_ROLE", "SETTLEMENT_CONFIRMER_ROLE", "CUSTODY_CONFIRMER_ROLE", "ISSUANCE_EXECUTOR_ROLE"]],
+    [
+      issuance.address,
+      issuance.abi,
+      [
+        "EXECUTION_ALLOCATION_CONFIRMER_ROLE",
+        "RISK_APPROVER_ROLE",
+        "RIGHTS_ENTRY_APPROVER_ROLE",
+        "RIGHTS_RECORDING_CONFIRMER_ROLE",
+        "SETTLEMENT_CONFIRMER_ROLE",
+        "CUSTODY_CONFIRMER_ROLE",
+        "ISSUANCE_EXECUTOR_ROLE",
+      ],
+    ],
     [secondary.address, secondary.abi, ["SETTLEMENT_EXECUTOR_ROLE"]],
-    [redemption.address, redemption.abi, ["REDEMPTION_RIGHTS_APPROVER_ROLE", "SETTLEMENT_CONFIRMER_ROLE", "PAYMENT_APPROVER_ROLE", "REDEMPTION_EXECUTOR_ROLE"]],
-    [recovery.address, recovery.abi, ["RECOVERY_RIGHTS_APPROVER_ROLE", "RECOVERY_COMPLIANCE_APPROVER_ROLE", "RECOVERY_EXECUTOR_ROLE"]],
-    [corporateAction.address, corporateAction.abi, ["CORPORATE_ACTION_RIGHTS_APPROVER_ROLE", "CORPORATE_ACTION_AUDIT_APPROVER_ROLE", "CORPORATE_ACTION_EXECUTOR_ROLE"]],
+    [
+      redemption.address,
+      redemption.abi,
+      [
+        "REDEMPTION_RIGHTS_APPROVER_ROLE",
+        "SETTLEMENT_CONFIRMER_ROLE",
+        "PAYMENT_APPROVER_ROLE",
+        "REDEMPTION_EXECUTOR_ROLE",
+      ],
+    ],
+    [
+      recovery.address,
+      recovery.abi,
+      [
+        "RECOVERY_RIGHTS_APPROVER_ROLE",
+        "RECOVERY_COMPLIANCE_APPROVER_ROLE",
+        "RECOVERY_EXECUTOR_ROLE",
+      ],
+    ],
+    [
+      corporateAction.address,
+      corporateAction.abi,
+      [
+        "CORPORATE_ACTION_RIGHTS_APPROVER_ROLE",
+        "CORPORATE_ACTION_AUDIT_APPROVER_ROLE",
+        "CORPORATE_ACTION_EXECUTOR_ROLE",
+      ],
+    ],
   ];
   for (const [address, abi, names] of controllerRoles)
-    for (const name of names) await write(address, abi, "grantRole", [role(name), deployer.address]);
-  await write(verifier.address, verifier.abi, "grantRole", [role("ISSUANCE_EXECUTOR_ROLE"), issuance.address]);
-  await write(verifier.address, verifier.abi, "grantRole", [role("SETTLEMENT_EXECUTOR_ROLE"), secondary.address]);
-  await write(verifier.address, verifier.abi, "grantRole", [role("REDEMPTION_EXECUTOR_ROLE"), redemption.address]);
+    for (const name of names)
+      await write(address, abi, "grantRole", [role(name), deployer.address]);
+  await write(verifier.address, verifier.abi, "grantRole", [
+    role("ISSUANCE_EXECUTOR_ROLE"),
+    issuance.address,
+  ]);
+  await write(verifier.address, verifier.abi, "grantRole", [
+    role("SETTLEMENT_EXECUTOR_ROLE"),
+    secondary.address,
+  ]);
+  await write(verifier.address, verifier.abi, "grantRole", [
+    role("REDEMPTION_EXECUTOR_ROLE"),
+    redemption.address,
+  ]);
 
   const tokenArtifact = await artifact("RestrictedEquityToken");
   for (const token of Object.values(tokens)) {
-    await write(token, tokenArtifact.abi, "grantRole", [role("ISSUANCE_EXECUTOR_ROLE"), issuance.address]);
-    await write(token, tokenArtifact.abi, "grantRole", [role("SETTLEMENT_EXECUTOR_ROLE"), secondary.address]);
-    await write(token, tokenArtifact.abi, "grantRole", [role("REDEMPTION_EXECUTOR_ROLE"), redemption.address]);
-    await write(token, tokenArtifact.abi, "grantRole", [role("RECOVERY_EXECUTOR_ROLE"), recovery.address]);
-    await write(token, tokenArtifact.abi, "grantRole", [role("CORPORATE_ACTION_EXECUTOR_ROLE"), corporateAction.address]);
-    for (const name of ["ISSUANCE_EXECUTOR_ROLE", "REDEMPTION_EXECUTOR_ROLE", "RECOVERY_EXECUTOR_ROLE"])
+    await write(token, tokenArtifact.abi, "grantRole", [
+      role("ISSUANCE_EXECUTOR_ROLE"),
+      issuance.address,
+    ]);
+    await write(token, tokenArtifact.abi, "grantRole", [
+      role("SETTLEMENT_EXECUTOR_ROLE"),
+      secondary.address,
+    ]);
+    await write(token, tokenArtifact.abi, "grantRole", [
+      role("REDEMPTION_EXECUTOR_ROLE"),
+      redemption.address,
+    ]);
+    await write(token, tokenArtifact.abi, "grantRole", [
+      role("RECOVERY_EXECUTOR_ROLE"),
+      recovery.address,
+    ]);
+    await write(token, tokenArtifact.abi, "grantRole", [
+      role("CORPORATE_ACTION_EXECUTOR_ROLE"),
+      corporateAction.address,
+    ]);
+    for (const name of [
+      "ISSUANCE_EXECUTOR_ROLE",
+      "REDEMPTION_EXECUTOR_ROLE",
+      "RECOVERY_EXECUTOR_ROLE",
+    ])
       await write(token, tokenArtifact.abi, "grantRole", [role(name), deployer.address]);
   }
 
-  await write(tokens["990002"], tokenArtifact.abi, "mintPending", [workflow("MM_SEED_MINT"), marketMaker.address, 120n, evidence("MM_SEED_MINT")]);
-  await write(tokens["990002"], tokenArtifact.abi, "releasePending", [workflow("MM_SEED_RELEASE"), marketMaker.address, 100n, evidence("MM_SEED_RELEASE")]);
-  await write(tokens["990003"], tokenArtifact.abi, "mintPending", [workflow("CA_SEED_MINT"), investorA.address, 10n, evidence("CA_SEED_MINT")]);
-  await write(tokens["990003"], tokenArtifact.abi, "releasePending", [workflow("CA_SEED_RELEASE"), investorA.address, 8n, evidence("CA_SEED_RELEASE")]);
-  await write(tokens["990003"], tokenArtifact.abi, "lockForRedemption", [workflow("CA_SEED_LOCK"), investorA.address, 3n, evidence("CA_SEED_LOCK")]);
-  await write(tokens["990003"], tokenArtifact.abi, "markBurnPending", [workflow("CA_SEED_BURN_PENDING"), investorA.address, 1n, evidence("CA_SEED_BURN_PENDING")]);
-  await write(tokens["990003"], tokenArtifact.abi, "freezeAvailable", [workflow("CA_SEED_FREEZE"), investorA.address, 1n, evidence("CA_SEED_FREEZE")]);
+  await write(tokens["990001"], tokenArtifact.abi, "mintPending", [
+    workflow("MM_SEED_MINT"),
+    marketMaker.address,
+    120n,
+    evidence("MM_SEED_MINT"),
+  ]);
+  await write(tokens["990001"], tokenArtifact.abi, "releasePending", [
+    workflow("MM_SEED_RELEASE"),
+    marketMaker.address,
+    100n,
+    evidence("MM_SEED_RELEASE"),
+  ]);
+  await write(tokens["990003"], tokenArtifact.abi, "mintPending", [
+    workflow("CA_SEED_MINT"),
+    investorA.address,
+    10n,
+    evidence("CA_SEED_MINT"),
+  ]);
+  await write(tokens["990003"], tokenArtifact.abi, "releasePending", [
+    workflow("CA_SEED_RELEASE"),
+    investorA.address,
+    8n,
+    evidence("CA_SEED_RELEASE"),
+  ]);
+  await write(tokens["990003"], tokenArtifact.abi, "lockForRedemption", [
+    workflow("CA_SEED_LOCK"),
+    investorA.address,
+    3n,
+    evidence("CA_SEED_LOCK"),
+  ]);
+  await write(tokens["990003"], tokenArtifact.abi, "markBurnPending", [
+    workflow("CA_SEED_BURN_PENDING"),
+    investorA.address,
+    1n,
+    evidence("CA_SEED_BURN_PENDING"),
+  ]);
+  await write(tokens["990003"], tokenArtifact.abi, "freezeAvailable", [
+    workflow("CA_SEED_FREEZE"),
+    investorA.address,
+    1n,
+    evidence("CA_SEED_FREEZE"),
+  ]);
 
   const usdcAbi = mockUsdc.abi;
   for (const account of [investorB, marketMaker]) {
@@ -277,7 +446,14 @@ export async function deployLocalStack(input?: {
     await publicClient.waitForTransactionReceipt({ hash: fundHash });
     await write(mockUsdc.address, usdcAbi, "mint", [account.address, 250_000n * 1_000_000n]);
     const accountWallet = createWalletClient({ account, chain: anvilChain, transport });
-    const approveHash = await accountWallet.writeContract({ address: mockUsdc.address, abi: usdcAbi, functionName: "approve", args: [secondary.address, 250_000n * 1_000_000n], account, chain: anvilChain } as never);
+    const approveHash = await accountWallet.writeContract({
+      address: mockUsdc.address,
+      abi: usdcAbi,
+      functionName: "approve",
+      args: [secondary.address, 250_000n * 1_000_000n],
+      account,
+      chain: anvilChain,
+    } as never);
     await publicClient.waitForTransactionReceipt({ hash: approveHash });
   }
 
@@ -285,7 +461,17 @@ export async function deployLocalStack(input?: {
     for (const name of ["ISSUANCE_EXECUTOR_ROLE", "REDEMPTION_EXECUTOR_ROLE"])
       await write(token, tokenArtifact.abi, "revokeRole", [role(name), deployer.address]);
 
-  const governed = [eligibility, policy, verifier, factory, issuance, secondary, redemption, recovery, corporateAction];
+  const governed = [
+    eligibility,
+    policy,
+    verifier,
+    factory,
+    issuance,
+    secondary,
+    redemption,
+    recovery,
+    corporateAction,
+  ];
   const defaultAdmin = `0x${"00".repeat(32)}` as Hex;
   for (const contract of governed) {
     await write(contract.address, contract.abi, "grantRole", [defaultAdmin, timelock.address]);
@@ -317,7 +503,12 @@ export async function deployLocalStack(input?: {
       mockUsdc: mockUsdc.address,
     },
     tokens,
-    wallets: { investorA: investorA.address, investorB: investorB.address, marketMaker: marketMaker.address, brokerSigner: broker.address },
+    wallets: {
+      investorA: investorA.address,
+      investorB: investorB.address,
+      marketMaker: marketMaker.address,
+      brokerSigner: broker.address,
+    },
     policyVersion,
   };
   const outputPath = resolve(root, input?.outputPath ?? ".runtime/local-deployment.json");

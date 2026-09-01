@@ -119,7 +119,7 @@ describe("24시간 제한 거래 PostgreSQL 생애주기", () => {
       requestedQuantity: "8",
       fillQuantity: "5",
       cancelledQuantity: "3",
-      fundsReservationReleasedMinor: "3610650000",
+      fundsReservationReleasedMinor: "561360000",
       status: "COMPLETED",
       rightsFinalized: true,
       fundsFinalized: true,

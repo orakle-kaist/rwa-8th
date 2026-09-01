@@ -81,7 +81,7 @@ export function InvestorWorkspace({
         (["USD_LEDGER", "USDC_ONCHAIN"] as const).flatMap((fundingMode) =>
           (["BUY", "SELL"] as const).map((investorSide) =>
             platformFetch<{ items: SecondaryQuote[] }>(
-              `/quotes?securityId=990002&investorSide=${investorSide}&fundingMode=${fundingMode}`,
+              `/quotes?securityId=990001&investorSide=${investorSide}&fundingMode=${fundingMode}`,
             ),
           ),
         ),
@@ -846,7 +846,7 @@ export function InvestorWorkspace({
           <span className="statePill">투자자 ↔ 지정 MM</span>
         </div>
         <p className="panelCopy">
-          {session?.localSecondaryScenario?.displayName} · 결제완료 권리만 거래하며 공식 SK하이닉스
+          {session?.localSecondaryScenario?.displayName} · 결제완료 권리만 거래하며 공식 삼성전자
           상품이 아니다.
         </p>
         <section className="metricGrid compactMetrics">
