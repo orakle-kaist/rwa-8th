@@ -13,7 +13,7 @@
 | S007 | A | [금융위원회, Project Hangang 2단계 지정](https://www.fsc.go.kr/no010101/87338) | 2026년 7월 15일, 하나은행 포함 7개 은행, 이용자·사용처 확대 및 송금 추가 | 은행 결제 역할의 현실성 근거. 본 PoC와 직접 연동을 의미하지 않음 |
 | S008 | B | [하나은행, 예금토큰 서비스 이용약관](https://www.kebhana.com/cont/customer/customer07/customer0702/customer070209/1507311_115365.jsp) | 2025년 4월 1일 시행 약관의 존재 | 기관별 실증 경험의 참고. 특정 은행 종속성은 만들지 않음 |
 | S009 | A | [홍콩 SFC, Tokenised Securities 관련 Circular](https://apps.sfc.hk/edistributionWeb/api/circular/openFile?lang=EN&refNo=23EC52) | 토큰화 증권의 소유권 기록, 기술위험, 결제 완결성, 이전제한, 수탁 공시 통제. 기술위험을 낮춘 전통 증권의 토큰화에는 일률적인 전문투자자 전용 제한을 두지 않지만 공모 규정과 복잡상품 판매규칙은 별도 적용 | 홍콩 일반 개인 대상 판매 가능성, 상품 복잡성과 자기주도 주문 통제를 구분하는 근거 |
-| S010 | A | [미국 SEC Corporation Finance, Tokenized Securities Statement](https://www.sec.gov/newsroom/speeches-statements/corp-fin-statement-tokenized-securities-012826-statement-tokenized-securities) | 발행인 주도형과 제3자 주도형을 구분하고, 제3자가 수탁된 기초주식에 대한 권리를 만들어 토큰으로 표시할 수 있다는 미국법상 분류를 설명 | 1단계 권리를 직접 주식이나 합성형 가격노출과 구분하고 수탁자와 권리 책임주체를 개념적으로 분리 |
+| S010 | A | [미국 SEC Corporation Finance, Tokenized Securities Statement](https://www.sec.gov/newsroom/speeches-statements/corp-fin-statement-tokenized-securities-012826-statement-tokenized-securities) | 발행인 주도형과 제3자 주도형을 구분하고, 제3자형을 수탁형과 합성형으로 나눈다. 수탁형은 보관된 기초증권에 대한 직접 또는 간접 권리를 표시하고 합성형은 연결증권이나 증권기반스왑을 통해 가격노출을 제공한다. 이는 SEC 세 부서의 직원 견해이며 위원회 규칙이나 법적 효력이 있는 지침이 아니다. | 계좌 접근경로와 토큰화 권리모델을 분리하고 본 PoC가 제3자 수탁형을 개념적으로 선택한 이유를 설명 |
 | S011 | A | [ERC-3643](https://eips.ethereum.org/EIPS/eip-3643), [ERC-7943](https://eips.ethereum.org/EIPS/eip-7943), [ERC-7540](https://eips.ethereum.org/EIPS/eip-7540) | 세 표준 모두 Final. ERC-3643은 적격성·통제, ERC-7943은 최소 RWA 통제 인터페이스, ERC-7540은 비동기 ERC-4626 요청 | 전송통제·상태모델 참조. ERC-7540을 일반 주식거래 전체에 적용하지 않음 |
 | S012 | A | [Hyperledger Besu changelog](https://github.com/besu-eth/besu/blob/main/CHANGELOG.md) | Tessera·사설거래 기능 sunset/removal 이력 | Tessera 프라이버시를 전제하지 않고 데이터 최소화·오프체인 분리를 사용 |
 | S013 | A | [BIS Innovation Hub, Project Agorá](https://www.bis.org/about/bisih/topics/fmis/agora.htm) | 토큰화된 상업은행 예금·중앙은행 화폐를 공유 프로그래머블 플랫폼에서 시험 | 장기 결제 구조 비교 사례. 현재 PoC의 구현 의존성은 아님 |
@@ -85,7 +85,7 @@
 - S003~S005는 분산원장 기록에 법적 효력이 생기는 경로를 보여준다. 1단계는 수탁주식에 대한 계약상 권리로 다루고, 2단계는 기존 전자등록기관과 계좌관리기관 또는 등록된 발행인계좌관리기관이 참여하는 법적 증권 계좌부로 구분한다. 법정 장부는 분산원장과 연계장부를 함께 사용할 수 있으므로 모든 정보를 원장에 직접 공개한다고 해석하지 않는다. 개정법은 전원 동의 신청과 상장 등을 전환 사유로 열거하지만 공개 법문만으로 각 사유의 방향을 단정하지 않는다. 시행령과 운영기준을 확인하고, 법 시행만으로 기존 상장주식이 자동 전환된다고 표현하지 않는다.
 - S006~S008은 예금토큰 기술과 기관 경험의 참조다. 외국인 개인이 한국 예금토큰을 직접 보유할 수 있다는 근거로 사용하지 않는다.
 - S009의 홍콩 통제는 참조 프로파일에만 적용한다. 일률적인 전문투자자 전용 제한이 없다는 설명은 공모 승인이나 일반 개인 판매 허가를 뜻하지 않으며 한국 또는 다른 관할의 의무로 일반화하지 않는다.
-- S010은 미국 규제기관의 분류다. 제3자 수탁형 권리에서 수탁자와 권리 책임주체를 구분하는 개념만 참고하며 해외 현지증권사가 한국형 권리를 적법하게 발행할 수 있다는 근거로 사용하지 않는다.
+- S010은 미국 SEC 세 부서의 직원 성명이며 위원회가 승인한 규칙, 규정 또는 법적 효력이 있는 지침이 아니다. 발행인 주도형, 제3자 수탁형과 제3자 합성형을 구분하고 수탁자와 권리 책임주체를 나누는 개념만 참고한다. 외국인 통합계좌를 선택하는 근거, 해외 현지증권사가 한국형 권리를 적법하게 발행할 수 있다는 근거 또는 한국법상 상품 분류로 사용하지 않는다. 성명이 수탁형 토큰화 증권과 별도 모델로 보지 않은 digital custodial receipt를 기존 ADR 또는 GDR과 자동으로 동일시하지 않는다.
 - S011의 표준 준수는 증권법 준수를 의미하지 않는다. 특히 ERC-3643의 agent mint·forced transfer 기능에는 별도의 기관 승인과 준비금 게이트가 필요하다.
 - S014의 49%는 법률상 일반 범주 설명이다. PoC의 잔여수량과 시세는 전부 합성 fixture이며 실제 투자 판단에 사용할 수 없다.
 - S015·S016의 기관 등록은 dShares 상품이나 특정 판매방식에 대한 SEC·FINRA의 승인을 뜻하지 않는다.

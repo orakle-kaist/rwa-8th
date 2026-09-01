@@ -363,6 +363,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
                 "10단계 로컬 시연 후보",
                 "10단계 로컬 통합 정합성 보완 중",
                 "10단계 구현 검토 대기",
+                "마스터 목표·분류체계 재승인 대기",
             ]
         )
     ):
@@ -413,6 +414,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
                 "10단계 로컬 시연 후보",
                 "10단계 로컬 통합 정합성 보완 중",
                 "10단계 구현 검토 대기",
+                "마스터 목표·분류체계 재승인 대기",
             ]
         )
         or "docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md" not in readme
@@ -594,7 +596,7 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
             )
 
     required_goal_terms = [
-        "1~5단계 정합성 보완 승인 완료",
+        "마스터 목표·분류체계 재승인 완료",
         "POC_TEST_DATA.md",
         "1차 발행",
         "24/7 토큰 2차거래",
@@ -911,6 +913,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
         "awaiting_stage_ten_implementation_approval",
+        "awaiting_master_goal_taxonomy_reapproval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1152,6 +1155,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
         "awaiting_stage_ten_implementation_approval",
+        "awaiting_master_goal_taxonomy_reapproval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1524,6 +1528,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
         "awaiting_stage_ten_implementation_approval",
+        "awaiting_master_goal_taxonomy_reapproval",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1764,7 +1769,8 @@ def validate_stage_six_contract(errors: list[str]) -> None:
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
         "ready_for_stage_ten", "stage_ten_in_progress", "stage_ten_local_candidate",
         "stage_ten_integration_alignment", "stage_ten_local_demo_candidate",
-        "awaiting_stage_ten_implementation_approval"
+        "awaiting_stage_ten_implementation_approval",
+        "awaiting_master_goal_taxonomy_reapproval",
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2074,6 +2080,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
         "awaiting_stage_ten_implementation_approval",
+        "awaiting_master_goal_taxonomy_reapproval",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2357,6 +2364,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
         "stage_ten_in_progress", "stage_ten_local_candidate", "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate", "awaiting_stage_ten_implementation_approval",
+        "awaiting_master_goal_taxonomy_reapproval",
     }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
@@ -2781,16 +2789,22 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             or "10단계" not in content
             or not any(
                 status in content
-                for status in ["구현 중", "로컬 시연 후보", "로컬 통합 정합성 보완 중", "구현 검토 대기"]
+                for status in [
+                    "구현 중",
+                    "로컬 시연 후보",
+                    "로컬 통합 정합성 보완 중",
+                    "구현 검토 대기",
+                    "마스터 목표·분류체계 재승인 대기",
+                ]
             )
         ):
             errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") != "awaiting_stage_ten_implementation_approval":
-        errors.append("active project state must record the stage-ten implementation review gate")
-    if state.get("iteration") != 45:
-        errors.append("active project iteration must record the completed stage-ten implementation review")
+        errors.append("active project state must record the stage-ten implementation approval gate")
+    if state.get("iteration") != 47:
+        errors.append("active project iteration must record the approved master goal and taxonomy")
     expected_next_action = (
         "Review the stage-ten local and Fuji implementation evidence, then approve or request corrections before stage eleven."
     )
@@ -2822,6 +2836,44 @@ def validate_master_regulatory_contract(errors: list[str]) -> None:
         errors.append(
             "MASTER.md numbered sections do not match the approved structure: "
             f"found {found_sections}"
+        )
+
+    required_question = (
+        "Dinari 사례를 한국 시장에 맞게 변환해, 한국주식 수탁권리 토큰의 "
+        "통제된 24/7 2차거래를 구현할 수 있는가?"
+    )
+    if required_question not in master:
+        errors.append("MASTER.md must preserve the approved concise opening question")
+
+    required_taxonomy_terms = [
+        "### 2.1 외국인이 한국주식에 접근하는 수단과 계좌 경로",
+        "### 2.2 토큰화 권리모델과 제3자 수탁형 선택",
+        "### 2.3 왜 외국인 통합계좌와 제3자 수탁형을 결합하는가",
+        "ADR 또는 GDR",
+        "해외 ETF 또는 펀드",
+        "| 개별주식 계좌 경로 |",
+        "발행인 주도형",
+        "제3자 수탁형",
+        "제3자 합성형",
+        "SEC 위원회의 규칙, 규정 또는 법적 효력이 있는 지침이 아니다",
+        "미국법 또는 한국법상 분류",
+    ]
+    missing_taxonomy_terms = [term for term in required_taxonomy_terms if term not in master]
+    if missing_taxonomy_terms:
+        errors.append(
+            "MASTER.md is missing the separated access-route and tokenization taxonomy: "
+            + ", ".join(missing_taxonomy_terms)
+        )
+
+    forbidden_mixed_layer_terms = [
+        "### 2.1 누구에게 어떤 접근 방법이 적합한가",
+        "| 접근 방법 | 투자자가 보유하는 것 |",
+    ]
+    present_mixed_layer_terms = [term for term in forbidden_mixed_layer_terms if term in master]
+    if present_mixed_layer_terms:
+        errors.append(
+            "MASTER.md mixes investment instruments, account routes, and tokenization models: "
+            + ", ".join(present_mixed_layer_terms)
         )
 
     required_terms = [
@@ -2951,9 +3003,21 @@ def validate_alignment_approval_contract(errors: list[str]) -> None:
         "ERROR_AND_RECOVERY.md": ERROR_AND_RECOVERY.read_text(encoding="utf-8"),
     }
 
-    for name, text in documents.items():
-        if "1~5단계 정합성 보완 승인 완료" not in text:
-            errors.append(f"{name} must be marked as alignment approval complete")
+    for name in ["MASTER.md", "POC_GOALS.md"]:
+        if "마스터 목표·분류체계 재승인 완료" not in documents[name]:
+            errors.append(f"{name} must be marked as approved after master goal and taxonomy review")
+
+    for name in [
+        "POC_TEST_DATA.md",
+        "PRD.md",
+        "INSTITUTION_WORKFLOWS.md",
+        "REFERENCE_DATA.md",
+        "SCREEN_FLOWS.md",
+        "STATE_MODEL.md",
+        "ERROR_AND_RECOVERY.md",
+    ]:
+        if "1~5단계 정합성 보완 승인 완료" not in documents[name]:
+            errors.append(f"{name} must preserve its completed alignment approval")
 
     required_by_document = {
         "MASTER.md": [
@@ -3584,7 +3648,7 @@ def validate_stage_ten_implementation_review(errors: list[str]) -> None:
 
     review = IMPLEMENTATION_REVIEW.read_text(encoding="utf-8")
     for term in [
-        "검토 완료, 10단계 최종 승인 대기",
+        "구현 검토 완료, 10단계 최종 승인 대기",
         "구현 결함: 발견하지 않음",
         "49개 요구사항",
         "175개 상태",
@@ -3595,6 +3659,9 @@ def validate_stage_ten_implementation_review(errors: list[str]) -> None:
         "공식 상품 후보 201개",
         "외부 검증사항",
         "사용자 승인 전 착수 금지",
+        "마스터 목표와 분류체계 변경 영향 검토",
+        "API, 데이터 구조, 스마트컨트랙트",
+        "변경하지 않는다",
     ]:
         if term not in review:
             errors.append(f"stage-ten implementation review is missing: {term}")
