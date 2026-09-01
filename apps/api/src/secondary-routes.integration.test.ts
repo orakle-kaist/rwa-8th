@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { generateKeyPairSync, randomUUID, sign } from "node:crypto";
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Pool } from "pg";
@@ -7,6 +7,7 @@ import { privateKeyToAccount } from "viem/accounts";
 
 import {
   claimOutbox,
+  processHedgeOutbox,
   processSecondaryOutbox,
   seedPrimaryData,
   seedProtectionData,
@@ -34,6 +35,65 @@ const domain = {
   chainId: 31337,
   verifyingContract,
 } as const;
+const adapterKeys = generateKeyPairSync("ed25519");
+const adapterInstitutionId = "00000000-0000-4000-8000-000000000401";
+let adapterSequence = 0;
+process.env.MOCK_ADAPTER_PUBLIC_KEY = adapterKeys.publicKey
+  .export({ type: "spki", format: "pem" })
+  .toString();
+
+function canonicalJson(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  return `{${Object.entries(value as Record<string, unknown>)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`)
+    .join(",")}}`;
+}
+
+async function submitHedgeAdapterEvent(
+  hedgeId: string,
+  eventType: string,
+  data: Record<string, unknown>,
+) {
+  adapterSequence += 1;
+  const unsigned = {
+    eventId: randomUUID(),
+    eventType,
+    sourceInstitutionId: adapterInstitutionId,
+    sourceSequence: adapterSequence,
+    sentAt: now.toISOString(),
+    keyId: "api-integration-ed25519",
+    sourceMetadata: {
+      sourceOrganization: "모의 국내 증권사·수탁기관",
+      sourceRecordId: randomUUID(),
+      effectiveAt: now.toISOString(),
+      receivedAt: now.toISOString(),
+      policyVersion: "SECONDARY-SIM-1",
+      simulation: true,
+    },
+    data: { hedgeId, ...data },
+  };
+  const signature = sign(
+    null,
+    Buffer.from(canonicalJson(unsigned)),
+    adapterKeys.privateKey,
+  ).toString("base64url");
+  const accepted = await app.inject({
+    method: "POST",
+    url: "/api/v1/adapter-events",
+    headers: { "x-correlation-id": randomUUID() },
+    payload: { ...unsigned, signature },
+  });
+  expect(accepted.statusCode, accepted.body).toBe(202);
+  const messages = await claimOutbox(pool, 20, now);
+  const hedgeMessage = messages.find(
+    (message) =>
+      message.workflowId === hedgeId && message.eventType === "HEDGE_ADAPTER_EVENT_RECEIVED",
+  );
+  expect(hedgeMessage).toBeDefined();
+  await processHedgeOutbox(pool, hedgeMessage!, now);
+}
 
 beforeAll(async () => {
   await app.ready();
@@ -46,6 +106,7 @@ beforeEach(async () => {
   await seedProtectionData(pool);
   await seedPrimaryData(pool, now);
   await seedSecondaryData(pool, now);
+  adapterSequence = 0;
 });
 
 afterAll(async () => {
@@ -271,5 +332,130 @@ describe("24시간 제한 거래 API", () => {
       fillQuantity: "5",
       cancelledQuantity: "3",
     });
+
+    const hedgeList = await app.inject({
+      method: "GET",
+      url: "/api/v1/market-maker/hedges",
+      headers: { authorization: "Bearer demo:broker-operator" },
+    });
+    expect(hedgeList.statusCode, hedgeList.body).toBe(200);
+    const hedge = hedgeList.json().items[0] as {
+      hedgeId: string;
+      requestedQuantity: string;
+      targetTradingDate: string;
+      aggregateVersion: number;
+    };
+    expect(hedge).toMatchObject({ requestedQuantity: "5", targetTradingDate: "2026-09-01" });
+    const hedgeExpiresAt = String(expiresAt + 3600);
+    const hedgeMessage = {
+      orderId: hedge.hedgeId,
+      investor: marketMaker.address,
+      securityId: "990002",
+      shareQuantity: "5",
+      krwLimitPrice: "1653000",
+      targetTradingDate: "2026-09-01",
+      fundingMode: "USD_LEDGER",
+      fundingAmountMinor: "598783",
+      nonce: "21",
+      expiresAt: hedgeExpiresAt,
+      policyVersion,
+    };
+    const hedgeSignature = await marketMaker.signTypedData({
+      domain,
+      types: {
+        PrimaryOrderIntent: [
+          { name: "orderId", type: "bytes16" },
+          { name: "investor", type: "address" },
+          { name: "securityId", type: "string" },
+          { name: "shareQuantity", type: "uint256" },
+          { name: "krwLimitPrice", type: "uint256" },
+          { name: "targetTradingDate", type: "string" },
+          { name: "fundingMode", type: "string" },
+          { name: "fundingAmountMinor", type: "uint256" },
+          { name: "nonce", type: "uint256" },
+          { name: "expiresAt", type: "uint256" },
+          { name: "policyVersion", type: "bytes32" },
+        ],
+      },
+      primaryType: "PrimaryOrderIntent",
+      message: {
+        ...hedgeMessage,
+        orderId: `0x${hedge.hedgeId.replaceAll("-", "")}`,
+        shareQuantity: 5n,
+        krwLimitPrice: 1_653_000n,
+        fundingAmountMinor: 598_783n,
+        nonce: 21n,
+        expiresAt: BigInt(hedgeExpiresAt),
+      },
+    });
+    const mmDecision = await app.inject({
+      method: "POST",
+      url: `/api/v1/market-maker/hedges/${hedge.hedgeId}/decisions`,
+      headers: commandHeaders(),
+      payload: {
+        decision: "APPROVE",
+        reasonKo: "시장조성자 매수 헤지 확인",
+        expectedAggregateVersion: hedge.aggregateVersion,
+        signedHedgeIntent: {
+          domain,
+          primaryType: "PrimaryOrderIntent",
+          message: hedgeMessage,
+          signer: marketMaker.address,
+          signature: hedgeSignature,
+        },
+      },
+    });
+    expect(mmDecision.statusCode, mmDecision.body).toBe(202);
+    const brokerDecision = await app.inject({
+      method: "POST",
+      url: `/api/v1/market-maker/hedges/${hedge.hedgeId}/decisions`,
+      headers: {
+        ...commandHeaders(),
+        authorization: "Bearer demo:broker-operator",
+      },
+      payload: {
+        decision: "APPROVE",
+        reasonKo: "외국인 한도와 위험 확인",
+        expectedAggregateVersion: hedge.aggregateVersion + 1,
+      },
+    });
+    expect(brokerDecision.statusCode, brokerDecision.body).toBe(202);
+    const approved = await app.inject({
+      method: "GET",
+      url: "/api/v1/market-maker/hedges",
+      headers: { authorization: "Bearer demo:market-maker" },
+    });
+    expect(approved.json().items[0]).toMatchObject({ status: "HEDGE_KRX_OPEN_PENDING" });
+
+    await submitHedgeAdapterEvent(hedge.hedgeId, "market-maker.hedge.execution-confirmed.v1", {
+      tradingDate: "2026-09-01",
+      filledQuantity: "5",
+      domesticOrderReference: "SIM-KRX-API-BUY-5",
+    });
+    await submitHedgeAdapterEvent(
+      hedge.hedgeId,
+      "market-maker.hedge.domestic-settlement-confirmed.v1",
+      {},
+    );
+    await submitHedgeAdapterEvent(hedge.hedgeId, "market-maker.hedge.custody-confirmed.v1", {});
+    const adjusted = await app.inject({
+      method: "GET",
+      url: "/api/v1/market-maker/hedges",
+      headers: { authorization: "Bearer demo:market-maker" },
+    });
+    expect(adjusted.json().items[0]).toMatchObject({
+      status: "HEDGE_INVENTORY_ADJUSTED",
+      domesticSettlementConfirmed: true,
+      custodyQuantityConfirmed: true,
+    });
+    expect(adjusted.json().items[0].history.map((item: { state: string }) => item.state)).toEqual(
+      expect.arrayContaining([
+        "HEDGE_CREATED",
+        "HEDGE_RISK_REVIEW",
+        "HEDGE_KRX_OPEN_PENDING",
+        "HEDGE_T2_PENDING",
+        "HEDGE_INVENTORY_ADJUSTED",
+      ]),
+    );
   });
 });

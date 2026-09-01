@@ -73,6 +73,7 @@ export interface Session {
   customerReadiness?: Readiness;
   localPrimaryScenario?: LocalPrimaryScenario;
   localSecondaryScenario?: LocalSecondaryScenario;
+  projection: { projectionAsOf: string; lastEventSequence: number; projectionStatus: string };
   simulation: true;
 }
 
@@ -194,6 +195,10 @@ export interface MarketMakerPosition {
   pendingInventory: string;
   reservedInventory: string;
   netPosition: string;
+  nextSessionStartingInventory: string;
+  riskReducingOnly: boolean;
+  quoteDirectionBlocked?: "BUY" | "SELL";
+  hedgeHoldReasonKo?: string;
   positionLimit: string;
   usdAvailableMinor: string;
   usdReservedMinor: string;
@@ -203,6 +208,40 @@ export interface MarketMakerPosition {
   portfolioLossBps: number;
   secondaryPaused: boolean;
   usdcPaused: boolean;
+  simulation: true;
+}
+
+export interface MarketMakerHedge {
+  hedgeId: string;
+  securityId: string;
+  direction: "BUY" | "SELL";
+  requestedQuantity: string;
+  filledQuantity: string;
+  remainingQuantity: string;
+  netPositionSnapshot: string;
+  krwLimitPrice: string;
+  targetTradingDate: string;
+  status: string;
+  aggregateVersion: number;
+  riskViolationReducing: boolean;
+  positionUtilizationBps: number;
+  foreignLimitStatus: "ALLOWED" | "BLOCKED" | "UNKNOWN";
+  krxStatus: "OPEN" | "CLOSED" | "HALTED";
+  marketMakerConfirmed: boolean;
+  brokerRiskApproved: boolean;
+  domesticSettlementConfirmed: boolean;
+  custodyQuantityConfirmed: boolean;
+  usdPaymentConfirmed: boolean;
+  sourceSecondaryOrderIds: string[];
+  history: Array<{
+    state: string;
+    actorRole: string;
+    occurredAt: string;
+    evidenceHash?: string;
+    reasonKo?: string;
+  }>;
+  domesticOrderReference?: string;
+  holdReasonKo?: string;
   simulation: true;
 }
 

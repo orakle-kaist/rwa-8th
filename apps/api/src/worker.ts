@@ -13,6 +13,7 @@ import {
   expirePrimaryOrders,
   processProtectionMessage,
   processPrimaryOutbox,
+  processHedgeOutbox,
   processSecondaryOutbox,
   recordEligibilityChainSyncFailure,
 } from "@rwa/database";
@@ -190,6 +191,7 @@ while (!stopping) {
         await processChainSync(message);
       } else if (
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
+        !(await processHedgeOutbox(pool, message, clock.now())) &&
         !(await processSecondaryOutbox(pool, message, clock.now(), (payload) =>
           executeSecondaryChain(message.workflowId, payload),
         ))

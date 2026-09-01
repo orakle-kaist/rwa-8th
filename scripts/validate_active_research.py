@@ -2226,9 +2226,9 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     if set(governance_abi.get("accessControlContracts", [])) != {
         "RestrictedEquityToken", "EligibilityRegistry", "SecurityTokenFactory",
         "IntentVerifier", "MarketPolicyRegistry", "IssuanceController",
-        "SecondarySettlementController",
+        "SecondarySettlementController", "RedemptionController",
     }:
-        errors.append("governance ABI must cover all seven implemented access-controlled contracts")
+        errors.append("governance ABI must cover all eight implemented access-controlled contracts")
     allowed_abi_types = {
         "address", "address[]", "bool", "bytes", "bytes16", "bytes32", "string",
         "uint8", "uint256", "PrimaryOrderIntent", "SecondaryOrderIntent",
@@ -2736,12 +2736,12 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     if state.get("stage") != "stage_ten_in_progress":
         errors.append("active project state must record stage-ten implementation in progress")
     if state.get("iteration") != 38:
-        errors.append("active project iteration must be 38 for eligibility and investor protection")
+        errors.append("active project iteration must preserve the stage-ten implementation baseline")
     expected_next_action = (
-        "Review and commit eligibility and investor protection before implementing primary issuance and T+2 settlement."
+        "Review the market-maker hedge and inventory adjustment feature before implementing the investor redemption lifecycle."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must proceed to primary issuance after protection review")
+        errors.append("active project next action must proceed to investor redemption after hedge review")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3182,6 +3182,41 @@ def validate_stage_ten_secondary_trading(errors: list[str]) -> None:
             errors.append(f"secondary trading evidence is missing: {term}")
 
 
+def validate_stage_ten_market_maker_hedge(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0005_market_maker_hedges.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "hedge.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "market-maker-hedge.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "hedge-routes.ts",
+        REPO_ROOT / "contracts" / "src" / "RedemptionController.sol",
+        REPO_ROOT / "contracts" / "test" / "RedemptionController.t.sol",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "redemption.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "HEDGE_WORKFLOW_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten market-maker hedge implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "market-maker-hedge.ts").read_text(encoding="utf-8")
+    for term in ["1_653_000n", "unhedgedQuantity", "hedgePriority", "Asia/Seoul"]:
+        if term not in domain:
+            errors.append(f"market-maker hedge domain is missing approved control: {term}")
+
+    workflow = (REPO_ROOT / "packages" / "database" / "src" / "hedge.ts").read_text(encoding="utf-8")
+    for term in ["HEDGE_CREATED", "HEDGE_ON_HOLD", "HEDGE_T2_PENDING", "HEDGE_INVENTORY_ADJUSTED"]:
+        if term not in workflow:
+            errors.append(f"market-maker hedge workflow is missing approved state: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "HEDGE_WORKFLOW_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "순포지션", "다음 KRX 개장", "외국인 한도", "부분체결", "지급청구",
+        "HEDGE_ON_HOLD", "Foundry", "Anvil", "실제 최적 헤지 전략",
+    ]:
+        if term not in evidence:
+            errors.append(f"market-maker hedge evidence is missing: {term}")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3200,6 +3235,7 @@ def main() -> int:
     validate_stage_ten_protection(errors)
     validate_stage_ten_primary_issuance(errors)
     validate_stage_ten_secondary_trading(errors)
+    validate_stage_ten_market_maker_hedge(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3210,7 +3246,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, market-maker hedge and inventory adjustment, "
         "and 16 source checksums passed."
     )
     return 0

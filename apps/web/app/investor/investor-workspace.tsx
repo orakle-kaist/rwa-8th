@@ -1,7 +1,7 @@
 "use client";
 
 import { walletOwnershipMessage } from "@rwa/domain/protection";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { keccak256, toHex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
@@ -38,6 +38,7 @@ export function InvestorWorkspace() {
   const [secondaryQuotes, setSecondaryQuotes] = useState<SecondaryQuote[]>([]);
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("데이터를 불러오는 중이다.");
+  const refreshSequence = useRef(0);
   const token = demoTokens[profile];
   const demoOrderAccount = useMemo(() => {
     if (profile === "investorA") return privateKeyToAccount(keccak256(toHex("PRIMARY-DEMO-A")));
@@ -46,6 +47,7 @@ export function InvestorWorkspace() {
   }, [profile]);
 
   const refresh = useCallback(async () => {
+    const sequence = ++refreshSequence.current;
     try {
       const [
         nextSession,
@@ -73,6 +75,7 @@ export function InvestorWorkspace() {
           ),
         ),
       );
+      if (sequence !== refreshSequence.current) return;
       setSession(nextSession);
       setDisclosure(nextDisclosure);
       setConsent(nextConsent);
@@ -83,6 +86,7 @@ export function InvestorWorkspace() {
       setSecondaryQuotes(quotePages.flatMap((page) => page.items));
       setMessage("모의 기준정보와 고객 상태를 확인했다.");
     } catch (error) {
+      if (sequence !== refreshSequence.current) return;
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
     }
   }, [token]);

@@ -2,6 +2,8 @@ import { createHash, randomUUID, verify } from "node:crypto";
 
 import {
   acceptPrimaryAdapterEvent,
+  acceptHedgeAdapterEvent,
+  isHedgeAdapterEvent,
   acceptPrimaryOrder,
   cancelPrimaryOrder,
   getCustomerReadiness,
@@ -262,7 +264,7 @@ export async function registerPrimaryRoutes(app: FastifyInstance, pool: Pool, cl
       const bytes = Buffer.from(canonicalJson(unsigned));
       if (!verify(null, bytes, publicKey, Buffer.from(body.signature, "base64url")))
         throw new Error("모의 기관 서명이 유효하지 않다.");
-      const result = await acceptPrimaryAdapterEvent(pool, {
+      const adapterInput = {
         sourceInstitutionId: String(body.sourceInstitutionId),
         eventId: String(body.eventId),
         sourceSequence: Number(body.sourceSequence),
@@ -270,7 +272,10 @@ export async function registerPrimaryRoutes(app: FastifyInstance, pool: Pool, cl
         data: body.data as Record<string, unknown>,
         payloadHash: createHash("sha256").update(bytes).digest("hex"),
         now: clock.now(),
-      });
+      };
+      const result = isHedgeAdapterEvent(String(body.eventType))
+        ? await acceptHedgeAdapterEvent(pool, adapterInput)
+        : await acceptPrimaryAdapterEvent(pool, adapterInput);
       const workflowId = result.workflowId ?? String(body.eventId);
       return reply.status(202).send({
         requestId: workflowId,

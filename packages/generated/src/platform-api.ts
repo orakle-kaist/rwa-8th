@@ -908,6 +908,11 @@ export interface components {
             pendingInventory: components["schemas"]["NonNegativeIntegerString"];
             reservedInventory: components["schemas"]["NonNegativeIntegerString"];
             netPosition: string;
+            nextSessionStartingInventory: components["schemas"]["NonNegativeIntegerString"];
+            riskReducingOnly: boolean;
+            /** @enum {string} */
+            quoteDirectionBlocked?: "BUY" | "SELL";
+            hedgeHoldReasonKo?: string;
             positionLimit: components["schemas"]["PositiveIntegerString"];
             usdAvailableMinor: components["schemas"]["NonNegativeIntegerString"];
             usdReservedMinor: components["schemas"]["NonNegativeIntegerString"];
@@ -920,6 +925,50 @@ export interface components {
             pauseReasonKo?: string;
             /** @constant */
             simulation: true;
+        };
+        MarketMakerHedgeView: {
+            /** Format: uuid */
+            hedgeId: string;
+            /** @constant */
+            securityId: "990002";
+            /** @enum {string} */
+            direction: "BUY" | "SELL";
+            requestedQuantity: components["schemas"]["NonNegativeIntegerString"];
+            filledQuantity: components["schemas"]["NonNegativeIntegerString"];
+            remainingQuantity: components["schemas"]["NonNegativeIntegerString"];
+            netPositionSnapshot: string;
+            krwLimitPrice: components["schemas"]["PositiveIntegerString"];
+            /** Format: date */
+            targetTradingDate: string;
+            status: string;
+            aggregateVersion: number;
+            riskViolationReducing: boolean;
+            positionUtilizationBps: number;
+            /** @enum {string} */
+            foreignLimitStatus: "ALLOWED" | "BLOCKED" | "UNKNOWN";
+            /** @enum {string} */
+            krxStatus: "OPEN" | "CLOSED" | "HALTED";
+            marketMakerConfirmed: boolean;
+            brokerRiskApproved: boolean;
+            domesticSettlementConfirmed: boolean;
+            custodyQuantityConfirmed: boolean;
+            usdPaymentConfirmed: boolean;
+            sourceSecondaryOrderIds: string[];
+            history: {
+                state: string;
+                actorRole: string;
+                occurredAt: components["schemas"]["UtcTimestamp"];
+                evidenceHash?: string;
+                reasonKo?: string;
+            }[];
+            domesticOrderReference?: string;
+            holdReasonKo?: string;
+            tokenTransactionHash?: string;
+            createdAt: components["schemas"]["UtcTimestamp"];
+            updatedAt: components["schemas"]["UtcTimestamp"];
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
         };
         EvmAddress: string;
         /** Format: date-time */
@@ -1211,6 +1260,10 @@ export interface components {
                 /** @constant */
                 primaryType?: "BrokerSettlementApproval";
             };
+            signedHedgeIntent?: components["schemas"]["SignedTypedData"] & {
+                /** @enum {unknown} */
+                primaryType?: "PrimaryOrderIntent" | "RedemptionIntent";
+            };
         };
         MarketMakerQuoteRequest: {
             securityId: components["schemas"]["SecurityId"];
@@ -1376,6 +1429,18 @@ export interface components {
             content: {
                 "application/json": {
                     items: components["schemas"]["MarketMakerPositionView"][];
+                    projection: components["schemas"]["ProjectionMetadata"];
+                };
+            };
+        };
+        /** @description 24시간 체결에서 다음 KRX 개장과 T+2 재고조정까지 이어지는 헤지 대기열 */
+        MarketMakerHedgeList: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    items: components["schemas"]["MarketMakerHedgeView"][];
                     projection: components["schemas"]["ProjectionMetadata"];
                 };
             };
@@ -2034,7 +2099,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: components["responses"]["WorkflowList"];
+            200: components["responses"]["MarketMakerHedgeList"];
         };
     };
     decideMarketMakerHedge: {

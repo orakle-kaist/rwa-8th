@@ -2,6 +2,7 @@ import {
   claimOutbox,
   expirePrimaryOrders,
   processPrimaryOutbox,
+  processHedgeOutbox,
   processSecondaryOutbox,
   processProtectionMessage,
 } from "@rwa/database";
@@ -34,6 +35,7 @@ const timer = setInterval(() => {
       }
       if (
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
+        !(await processHedgeOutbox(pool, message, clock.now())) &&
         !(await processSecondaryOutbox(
           pool,
           message,

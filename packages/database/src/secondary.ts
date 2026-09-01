@@ -19,6 +19,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { commandHash, getCustomerReadiness, type ProjectionMetadata } from "./protection.js";
 import { MARKET_MAKER_PRINCIPAL_ID, MARKET_MAKER_WALLET } from "./seed-secondary.js";
+import { createOrNetHedgeForSecondaryTrade } from "./hedge.js";
 
 function projection(now: Date): ProjectionMetadata {
   return { projectionAsOf: now.toISOString(), lastEventSequence: 0, projectionStatus: "CURRENT" };
@@ -173,6 +174,7 @@ export async function acceptMarketMakerQuote(
 
     const state = await client.query<Record<string, unknown>>(
       `SELECT state.*,position.net_position,position.reserved_sell_quantity,
+              position.risk_reducing_only,position.quote_direction_blocked,
               rights.settled_quantity,rights.secondary_reserved_quantity,
               cash.usd_available_minor,cash.usdc_available_minor
        FROM secondary_market_state state
@@ -187,6 +189,11 @@ export async function acceptMarketMakerQuote(
       return await rollback(client, { rejected: "SECONDARY_TRADING_PAUSED" as const });
     if (input.quote.fundingMode === "USDC_ONCHAIN" && row.usdc_paused)
       return await rollback(client, { rejected: "USDC_PATH_PAUSED" as const });
+    if (
+      row.risk_reducing_only &&
+      String(row.quote_direction_blocked) === input.quote.marketMakerSide
+    )
+      return await rollback(client, { rejected: "QUOTE_RISK_LIMIT" as const });
     const resultingPosition = nextNetPosition(
       BigInt(String(row.net_position)),
       input.quote.marketMakerSide,
@@ -675,6 +682,12 @@ export async function listMarketMakerPositions(pool: Pool, now: Date) {
       pendingInventory: String(row.pending_quantity),
       reservedInventory: String(row.secondary_reserved_quantity),
       netPosition: String(row.net_position),
+      nextSessionStartingInventory: String(row.next_session_starting_quantity),
+      riskReducingOnly: Boolean(row.risk_reducing_only),
+      ...(row.quote_direction_blocked
+        ? { quoteDirectionBlocked: row.quote_direction_blocked }
+        : {}),
+      ...(row.hedge_hold_reason ? { hedgeHoldReasonKo: row.hedge_hold_reason } : {}),
       positionLimit: MARKET_MAKER_POSITION_LIMIT.toString(),
       usdAvailableMinor: String(row.usd_available_minor),
       usdReservedMinor: String(row.usd_reserved_minor),
@@ -1037,6 +1050,12 @@ async function finalizeLedger(client: PoolClient, order: Record<string, unknown>
       now,
     ],
   );
+  await createOrNetHedgeForSecondaryTrade(client, {
+    secondaryOrderId: String(order.order_id),
+    securityId: String(order.security_id),
+    signedPositionDelta: positionDelta,
+    completedAt: now,
+  });
 }
 
 async function releaseOrderReservations(

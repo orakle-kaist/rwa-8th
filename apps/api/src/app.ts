@@ -12,6 +12,7 @@ import {
 import { registerProtectionRoutes } from "./protection-routes.js";
 import { registerPrimaryRoutes } from "./primary-routes.js";
 import { registerSecondaryRoutes } from "./secondary-routes.js";
+import { registerHedgeRoutes } from "./hedge-routes.js";
 
 export interface BuildAppOptions {
   clock: Clock;
@@ -77,6 +78,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     await registerProtectionRoutes(app, options.pool, options.clock);
     await registerPrimaryRoutes(app, options.pool, options.clock);
     await registerSecondaryRoutes(app, options.pool, options.clock);
+    await registerHedgeRoutes(app, options.pool, options.clock);
   }
 
   return app;

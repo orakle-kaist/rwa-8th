@@ -10,7 +10,8 @@
     "IntentVerifier",
     "MarketPolicyRegistry",
     "IssuanceController",
-    "SecondarySettlementController"
+    "SecondarySettlementController",
+    "RedemptionController"
   ],
   "standardAccessControl": {
     "functions": [

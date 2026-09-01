@@ -5,4 +5,5 @@ export * from "./seed-primary.js";
 export * from "./seed-protection.js";
 export * from "./seed-secondary.js";
 export * from "./secondary.js";
+export * from "./hedge.js";
 export * from "./schema.js";

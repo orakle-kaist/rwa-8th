@@ -97,7 +97,7 @@ const extensionFunctionCount = governanceExtensions.reduce(
 );
 if (
   governanceAbi.status !== "APPROVED" ||
-  (governanceAbi.accessControlContracts as unknown[]).length !== 7 ||
+  (governanceAbi.accessControlContracts as unknown[]).length !== 8 ||
   accessControl.functions.length !== 7 ||
   accessControl.events.length !== 3 ||
   accessControl.errors.length !== 2 ||

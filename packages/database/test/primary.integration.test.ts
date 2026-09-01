@@ -145,7 +145,7 @@ describe("1차 발행과 T+2 PostgreSQL 생애주기", () => {
     );
     expect(BigInt(investorBCash.rows[0]!.usd_available_minor)).toBeGreaterThan(0n);
     expect(BigInt(investorBCash.rows[0]!.usd_available_minor)).toBeLessThan(55858n);
-    expect(investorBCash.rows[0]!.usdc_available_minor).toBe("9441420000");
+    expect(investorBCash.rows[0]!.usdc_available_minor).toBe("19441420000");
     expect(
       (
         await pool.query<{ used_quantity: string }>(

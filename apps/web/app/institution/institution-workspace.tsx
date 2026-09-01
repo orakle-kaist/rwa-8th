@@ -10,6 +10,7 @@ import {
   type Complaint,
   type Product,
   type PrimaryOrder,
+  type MarketMakerHedge,
   type MarketMakerPosition,
   type SecondaryOrder,
   type Session,
@@ -27,6 +28,7 @@ export function InstitutionWorkspace() {
   const [primaryOrders, setPrimaryOrders] = useState<PrimaryOrder[]>([]);
   const [secondaryOrders, setSecondaryOrders] = useState<SecondaryOrder[]>([]);
   const [positions, setPositions] = useState<MarketMakerPosition[]>([]);
+  const [hedges, setHedges] = useState<MarketMakerHedge[]>([]);
   const [session, setSession] = useState<Session>();
   const [message, setMessage] = useState("기관 대기열을 불러오는 중이다.");
   const marketMakerAccount = useMemo(
@@ -47,6 +49,7 @@ export function InstitutionWorkspace() {
         orderPage,
         secondaryPage,
         positionPage,
+        hedgePage,
         nextSession,
       ] = await Promise.all([
         allProducts(),
@@ -57,6 +60,9 @@ export function InstitutionWorkspace() {
         platformFetch<{ items: MarketMakerPosition[] }>("/market-maker/positions", {
           token: brokerToken,
         }),
+        platformFetch<{ items: MarketMakerHedge[] }>("/market-maker/hedges", {
+          token: brokerToken,
+        }),
         platformFetch<Session>("/session", { token: brokerToken }),
       ]);
       setProducts(productItems);
@@ -65,12 +71,149 @@ export function InstitutionWorkspace() {
       setPrimaryOrders(orderPage.items);
       setSecondaryOrders(secondaryPage.items);
       setPositions(positionPage.items);
+      setHedges(hedgePage.items);
       setSession(nextSession);
       setMessage("최신 모의 투영을 확인했다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
     }
   }, []);
+
+  async function decideHedge(hedge: MarketMakerHedge) {
+    if (!session?.localSecondaryScenario) throw new Error("헤지 서명정보가 없다.");
+    try {
+      if (hedge.status === "HEDGE_CREATED") {
+        const expiresAt = String(Math.floor(Date.now() / 1000) + 3600);
+        const nonce = String(Date.now());
+        let signedHedgeIntent: unknown;
+        if (hedge.direction === "BUY") {
+          const quantity = BigInt(hedge.requestedQuantity);
+          const krwLimitPrice = BigInt(hedge.krwLimitPrice);
+          const fundingAmountMinor = (
+            (quantity * krwLimitPrice * 1000n + 13_802n) /
+            13_803n
+          ).toString();
+          const message = {
+            orderId: hedge.hedgeId,
+            investor: marketMakerAccount.address,
+            securityId: hedge.securityId,
+            shareQuantity: hedge.requestedQuantity,
+            krwLimitPrice: hedge.krwLimitPrice,
+            targetTradingDate: hedge.targetTradingDate,
+            fundingMode: "USD_LEDGER",
+            fundingAmountMinor,
+            nonce,
+            expiresAt,
+            policyVersion: keccak256(toHex(session.localSecondaryScenario.policyVersion)),
+          };
+          const signature = await marketMakerAccount.signTypedData({
+            domain: session.localSecondaryScenario.intentDomain,
+            types: {
+              PrimaryOrderIntent: [
+                { name: "orderId", type: "bytes16" },
+                { name: "investor", type: "address" },
+                { name: "securityId", type: "string" },
+                { name: "shareQuantity", type: "uint256" },
+                { name: "krwLimitPrice", type: "uint256" },
+                { name: "targetTradingDate", type: "string" },
+                { name: "fundingMode", type: "string" },
+                { name: "fundingAmountMinor", type: "uint256" },
+                { name: "nonce", type: "uint256" },
+                { name: "expiresAt", type: "uint256" },
+                { name: "policyVersion", type: "bytes32" },
+              ],
+            },
+            primaryType: "PrimaryOrderIntent",
+            message: {
+              ...message,
+              orderId: `0x${hedge.hedgeId.replaceAll("-", "")}` as `0x${string}`,
+              shareQuantity: quantity,
+              krwLimitPrice,
+              fundingAmountMinor: BigInt(fundingAmountMinor),
+              nonce: BigInt(nonce),
+              expiresAt: BigInt(expiresAt),
+            },
+          });
+          signedHedgeIntent = {
+            domain: session.localSecondaryScenario.intentDomain,
+            primaryType: "PrimaryOrderIntent",
+            message,
+            signer: marketMakerAccount.address,
+            signature,
+          };
+        } else {
+          const message = {
+            redemptionId: hedge.hedgeId,
+            investor: marketMakerAccount.address,
+            token: session.localSecondaryScenario.tokenAddress,
+            shareQuantity: hedge.requestedQuantity,
+            krwLimitPrice: hedge.krwLimitPrice,
+            targetTradingDate: hedge.targetTradingDate,
+            nonce,
+            expiresAt,
+            policyVersion: keccak256(toHex(session.localSecondaryScenario.policyVersion)),
+          };
+          const signature = await marketMakerAccount.signTypedData({
+            domain: session.localSecondaryScenario.intentDomain,
+            types: {
+              RedemptionIntent: [
+                { name: "redemptionId", type: "bytes16" },
+                { name: "investor", type: "address" },
+                { name: "token", type: "address" },
+                { name: "shareQuantity", type: "uint256" },
+                { name: "krwLimitPrice", type: "uint256" },
+                { name: "targetTradingDate", type: "string" },
+                { name: "nonce", type: "uint256" },
+                { name: "expiresAt", type: "uint256" },
+                { name: "policyVersion", type: "bytes32" },
+              ],
+            },
+            primaryType: "RedemptionIntent",
+            message: {
+              ...message,
+              redemptionId: `0x${hedge.hedgeId.replaceAll("-", "")}` as `0x${string}`,
+              shareQuantity: BigInt(hedge.requestedQuantity),
+              krwLimitPrice: BigInt(hedge.krwLimitPrice),
+              nonce: BigInt(nonce),
+              expiresAt: BigInt(expiresAt),
+            },
+          });
+          signedHedgeIntent = {
+            domain: session.localSecondaryScenario.intentDomain,
+            primaryType: "RedemptionIntent",
+            message,
+            signer: marketMakerAccount.address,
+            signature,
+          };
+        }
+        await platformFetch(`/market-maker/hedges/${hedge.hedgeId}/decisions`, {
+          token: "demo:market-maker",
+          method: "POST",
+          body: {
+            decision: "APPROVE",
+            reasonKo: "시장조성자가 다음 KRX 개장 헤지 주문을 확인했다.",
+            expectedAggregateVersion: hedge.aggregateVersion,
+            signedHedgeIntent,
+          },
+        });
+        setMessage("시장조성자 헤지 확인과 주문 서명을 접수했다.");
+      } else if (hedge.status === "HEDGE_RISK_REVIEW") {
+        await platformFetch(`/market-maker/hedges/${hedge.hedgeId}/decisions`, {
+          token: brokerToken,
+          method: "POST",
+          body: {
+            decision: "APPROVE",
+            reasonKo: "외국인 한도, 거래상태와 위험한도를 확인했다.",
+            expectedAggregateVersion: hedge.aggregateVersion,
+          },
+        });
+        setMessage("해외 증권사의 헤지 위험승인을 접수했다.");
+      }
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "헤지 결정 접수에 실패했다.");
+    }
+  }
 
   useEffect(() => {
     void refresh();
@@ -237,7 +380,8 @@ export function InstitutionWorkspace() {
       const quantity = String(formData.get("quantity"));
       const unitPriceMinor = String(formData.get("unitPriceMinor"));
       const quoteId = crypto.randomUUID();
-      const expiresAtDate = new Date(Date.now() + 30_000);
+      const quoteBaseTime = new Date(session.projection.projectionAsOf).getTime();
+      const expiresAtDate = new Date(quoteBaseTime + 30_000);
       const expiresAt = String(Math.floor(expiresAtDate.getTime() / 1000));
       const paymentAssetId =
         fundingMode === "USD_LEDGER"
@@ -447,10 +591,84 @@ export function InstitutionWorkspace() {
                   결제 대기 {position.pendingInventory} · 예약 {position.reservedInventory} · 손실{" "}
                   {position.securityLossBps}bp
                 </small>
+                <small>
+                  다음 세션 시작재고 {position.nextSessionStartingInventory} ·{" "}
+                  {position.riskReducingOnly
+                    ? `${position.quoteDirectionBlocked ?? "위험증가"} 방향 호가 차단`
+                    : "양방향 호가 가능"}
+                </small>
+                {position.hedgeHoldReasonKo ? <em>{position.hedgeHoldReasonKo}</em> : null}
               </div>
             ))}
           </div>
         </article>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">NEXT KRX OPEN HEDGE</p>
+            <h2>시장조성자 헤지와 재고조정</h2>
+          </div>
+          <span className="statePill">모의 KRX · T+2</span>
+        </div>
+        <div className="complaintTable" role="table" aria-label="시장조성자 헤지 대기열">
+          {hedges.length === 0 ? (
+            <p className="emptyState">완료된 24시간 거래에서 생성된 헤지가 없다.</p>
+          ) : (
+            hedges.map((hedge) => (
+              <div className="complaintRow" role="row" key={hedge.hedgeId}>
+                <div>
+                  <small>
+                    {hedge.securityId} ·{" "}
+                    {hedge.direction === "BUY" ? "기초주식 매수" : "기초주식 매도"}
+                  </small>
+                  <strong>
+                    요청 {hedge.requestedQuantity}주 · 체결 {hedge.filledQuantity}주 · 잔량{" "}
+                    {hedge.remainingQuantity}주
+                  </strong>
+                </div>
+                <span>{hedge.status}</span>
+                <small>
+                  다음 개장일 {hedge.targetTradingDate} · 원인 거래{" "}
+                  {hedge.sourceSecondaryOrderIds.length}건 · 외국인 한도 {hedge.foreignLimitStatus}
+                </small>
+                <small>
+                  MM 확인 {hedge.marketMakerConfirmed ? "완료" : "대기"} · 위험승인{" "}
+                  {hedge.brokerRiskApproved ? "완료" : "대기"} · 국내결제{" "}
+                  {hedge.domesticSettlementConfirmed ? "완료" : "대기"} · 수탁{" "}
+                  {hedge.direction === "SELL"
+                    ? hedge.usdPaymentConfirmed
+                      ? "USD 지급 완료"
+                      : "USD 지급 대기"
+                    : hedge.custodyQuantityConfirmed
+                      ? "확인 완료"
+                      : "확인 대기"}
+                </small>
+                <small>
+                  최근 이력{" "}
+                  {hedge.history
+                    .slice(-3)
+                    .map((item) => item.state)
+                    .join(" → ") || "생성 대기"}
+                </small>
+                {hedge.status === "HEDGE_CREATED" || hedge.status === "HEDGE_RISK_REVIEW" ? (
+                  <button type="button" onClick={() => void decideHedge(hedge)}>
+                    {hedge.status === "HEDGE_CREATED"
+                      ? "MM 주문 서명·확인"
+                      : "해외 증권사 위험승인"}
+                  </button>
+                ) : (
+                  <em>{hedge.holdReasonKo ?? "모의 기관 결과 또는 다음 단계 대기"}</em>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+        <p className="panelCopy">
+          순매도는 다음 KRX 개장 때 기초주식 매수, 순매수는 기초주식 매도로 연결한다. 국내
+          부분체결분만 T+2와 재고에 반영하고 잔량은 같은 헤지에 보류한다.
+        </p>
       </section>
 
       <section className="panel widePanel">

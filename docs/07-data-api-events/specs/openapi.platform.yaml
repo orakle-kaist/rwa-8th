@@ -497,7 +497,7 @@ paths:
       operationId: listMarketMakerHedges
       summary: 다음 개장 헤지 대기열 조회
       responses:
-        '200': { $ref: '#/components/responses/WorkflowList' }
+        '200': { $ref: '#/components/responses/MarketMakerHedgeList' }
   /market-maker/hedges/{hedgeId}/decisions:
     post:
       tags: [InstitutionCommands]
@@ -826,6 +826,19 @@ components:
                 type: array
                 items: { $ref: '#/components/schemas/MarketMakerPositionView' }
               projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    MarketMakerHedgeList:
+      description: 24시간 체결에서 다음 KRX 개장과 T+2 재고조정까지 이어지는 헤지 대기열
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [items, projection]
+            properties:
+              items:
+                type: array
+                items: { $ref: '#/components/schemas/MarketMakerHedgeView' }
+              projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
   schemas:
     LocalPrimaryScenario:
       type: object
@@ -1092,13 +1105,17 @@ components:
     MarketMakerPositionView:
       type: object
       additionalProperties: false
-      required: [securityId, settledInventory, pendingInventory, reservedInventory, netPosition, positionLimit, usdAvailableMinor, usdReservedMinor, usdcAvailableMinor, usdcReservedMinor, securityLossBps, portfolioLossBps, secondaryPaused, usdcPaused, simulation]
+      required: [securityId, settledInventory, pendingInventory, reservedInventory, netPosition, nextSessionStartingInventory, riskReducingOnly, positionLimit, usdAvailableMinor, usdReservedMinor, usdcAvailableMinor, usdcReservedMinor, securityLossBps, portfolioLossBps, secondaryPaused, usdcPaused, simulation]
       properties:
         securityId: { const: '990002' }
         settledInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         pendingInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         reservedInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         netPosition: { type: string, pattern: '^-?[0-9]+$' }
+        nextSessionStartingInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        riskReducingOnly: { type: boolean }
+        quoteDirectionBlocked: { type: string, enum: [BUY, SELL] }
+        hedgeHoldReasonKo: { type: string, minLength: 1 }
         positionLimit: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
         usdAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         usdReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
@@ -1110,3 +1127,48 @@ components:
         usdcPaused: { type: boolean }
         pauseReasonKo: { type: string, minLength: 1 }
         simulation: { const: true }
+    MarketMakerHedgeView:
+      type: object
+      additionalProperties: false
+      required: [hedgeId, securityId, direction, requestedQuantity, filledQuantity, remainingQuantity, netPositionSnapshot, krwLimitPrice, targetTradingDate, status, aggregateVersion, riskViolationReducing, positionUtilizationBps, foreignLimitStatus, krxStatus, marketMakerConfirmed, brokerRiskApproved, domesticSettlementConfirmed, custodyQuantityConfirmed, usdPaymentConfirmed, sourceSecondaryOrderIds, history, createdAt, updatedAt, simulation, projection]
+      properties:
+        hedgeId: { type: string, format: uuid }
+        securityId: { const: '990002' }
+        direction: { type: string, enum: [BUY, SELL] }
+        requestedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        filledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        remainingQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        netPositionSnapshot: { type: string, pattern: '^-?[0-9]+$' }
+        krwLimitPrice: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        targetTradingDate: { type: string, format: date }
+        status: { type: string, pattern: '^HEDGE_[A-Z_]+$' }
+        aggregateVersion: { type: integer, minimum: 1 }
+        riskViolationReducing: { type: boolean }
+        positionUtilizationBps: { type: integer, minimum: 0 }
+        foreignLimitStatus: { type: string, enum: [ALLOWED, BLOCKED, UNKNOWN] }
+        krxStatus: { type: string, enum: [OPEN, CLOSED, HALTED] }
+        marketMakerConfirmed: { type: boolean }
+        brokerRiskApproved: { type: boolean }
+        domesticSettlementConfirmed: { type: boolean }
+        custodyQuantityConfirmed: { type: boolean }
+        usdPaymentConfirmed: { type: boolean }
+        sourceSecondaryOrderIds: { type: array, items: { type: string, format: uuid } }
+        history:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [state, actorRole, occurredAt]
+            properties:
+              state: { type: string, pattern: '^HEDGE_[A-Z_]+$' }
+              actorRole: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+              occurredAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+              evidenceHash: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+              reasonKo: { type: string, minLength: 1 }
+        domesticOrderReference: { type: string, minLength: 1 }
+        holdReasonKo: { type: string, minLength: 1 }
+        tokenTransactionHash: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+        createdAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+        updatedAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }

@@ -312,6 +312,17 @@
               "properties": { "primaryType": { "const": "BrokerSettlementApproval" } }
             }
           ]
+        },
+        "signedHedgeIntent": {
+          "allOf": [
+            { "$ref": "signatures.schema.json#/$defs/SignedTypedData" },
+            {
+              "type": "object",
+              "properties": {
+                "primaryType": { "enum": ["PrimaryOrderIntent", "RedemptionIntent"] }
+              }
+            }
+          ]
         }
       }
     },
