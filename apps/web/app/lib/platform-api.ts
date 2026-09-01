@@ -74,8 +74,70 @@ export interface Session {
   localPrimaryScenario?: LocalPrimaryScenario;
   localSecondaryScenario?: LocalSecondaryScenario;
   localRedemptionScenario?: LocalRedemptionScenario;
+  localRightsScenario?: LocalRightsScenario;
   projection: { projectionAsOf: string; lastEventSequence: number; projectionStatus: string };
   simulation: true;
+}
+
+export interface LocalRightsScenario {
+  securityId: string;
+  dividend?: {
+    eventId: string;
+    recordDate: string;
+    exDate: string;
+    status: string;
+    grossPerShareUsdMinor: string;
+    domesticTotalUsdMinor: string;
+    paymentId?: string;
+    eligibleQuantity?: string;
+    netUsdMinor?: string;
+    paymentStatus?: string;
+    quoteId?: string;
+    quoteExpiresAt?: string;
+    conversionStatus?: string;
+    usdcPaidMinor?: string;
+  };
+  voting?: {
+    meetingId: string;
+    agendaId: string;
+    titleKo: string;
+    recordDate: string;
+    instructionDeadline: string;
+    eligibleQuantity: string;
+    status: string;
+    instruction?: "FOR" | "AGAINST" | "ABSTAIN";
+    aggregateResult?: Record<string, string>;
+    standingProxyResultEvidenceHash?: string;
+  };
+  recovery?: {
+    workflow_id: string;
+    old_wallet: string;
+    new_wallet: string;
+    rights_approved: boolean;
+    compliance_approved: boolean;
+    chain_executed: boolean;
+    rights_ledger_updated: boolean;
+    reconciled: boolean;
+    status: string;
+    transaction_hash?: string;
+  };
+  corporateAction?: Record<string, unknown> & { status: string; security_id: string };
+  notices: string[];
+  simulation: true;
+}
+
+export interface OperationalHold extends Workflow {
+  securityId?: string;
+  scope: string;
+  reasonCode: string;
+}
+
+export interface RegulatoryReport extends Workflow {
+  reportingMonth: string;
+  dueDate: string;
+  recordCount: number;
+  retentionUntil: string;
+  receiptReference?: string;
 }
 
 export interface LocalPrimaryScenario {

@@ -2735,13 +2735,13 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") != "stage_ten_in_progress":
         errors.append("active project state must record stage-ten implementation in progress")
-    if state.get("iteration") != 39:
-        errors.append("active project iteration must record the investor redemption implementation")
+    if state.get("iteration") != 40:
+        errors.append("active project iteration must record the rights administration and recovery implementation")
     expected_next_action = (
-        "Review the investor redemption lifecycle before implementing rights administration and operational controls."
+        "Review rights administration and recovery controls before completing demo screens and executable test traceability."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must proceed to rights administration after redemption review")
+        errors.append("active project next action must review rights controls before final demo and traceability work")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3263,6 +3263,62 @@ def validate_stage_ten_redemption(errors: list[str]) -> None:
             errors.append(f"investor redemption evidence is missing: {term}")
 
 
+def validate_stage_ten_rights_and_recovery(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0007_rights_and_controls.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "rights.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "seed-rights.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "rights-and-controls.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "rights-routes.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "rights-routes.integration.test.ts",
+        REPO_ROOT / "contracts" / "src" / "RecoveryController.sol",
+        REPO_ROOT / "contracts" / "src" / "CorporateActionController.sol",
+        REPO_ROOT / "contracts" / "test" / "RecoveryAndCorporateActionController.t.sol",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "rights.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "RIGHTS_AND_RECOVERY_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten rights and recovery implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "rights-and-controls.ts").read_text(encoding="utf-8")
+    for term in ["990001", "990003", "SIM990003", "TEST00000003", "100n", "30", "expectedSplitSupply"]:
+        if term not in domain:
+            errors.append(f"rights and recovery domain is missing approved synthetic control: {term}")
+
+    workflow = (REPO_ROOT / "packages" / "database" / "src" / "rights.ts").read_text(encoding="utf-8")
+    for term in [
+        "DIVIDEND_RESERVATION_RELEASED",
+        "NO_RESPONSE",
+        "NEW_ORDERS",
+        "PRIMARY_AND_SECONDARY",
+        "rights_approved=true",
+        "compliance_approved=true",
+    ]:
+        if term not in workflow:
+            errors.append(f"rights and recovery workflow is missing approved state or scope: {term}")
+
+    token = (REPO_ROOT / "contracts" / "src" / "RestrictedEquityToken.sol").read_text(encoding="utf-8")
+    if "_burnPending[account] * numerator" in token:
+        errors.append("corporate action must not scale redemption burn-pending tokens")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "RIGHTS_AND_RECOVERY_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "30초 합성 USDC 전환",
+        "미응답 미행사",
+        "9월 10일",
+        "10년 보관",
+        "독립 승인",
+        "총발행량은 10에서 19",
+        "소각 대기 수량은 `1`로 유지",
+        "두 축 대사",
+        "60초 지연 재개",
+    ]:
+        if term not in evidence:
+            errors.append(f"rights and recovery evidence is missing: {term}")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3283,6 +3339,7 @@ def main() -> int:
     validate_stage_ten_secondary_trading(errors)
     validate_stage_ten_market_maker_hedge(errors)
     validate_stage_ten_redemption(errors)
+    validate_stage_ten_rights_and_recovery(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3293,7 +3350,7 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, market-maker hedge and inventory adjustment, investor redemption lifecycle, "
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, market-maker hedge and inventory adjustment, investor redemption lifecycle, rights administration and recovery controls, "
         "and 16 source checksums passed."
     )
     return 0

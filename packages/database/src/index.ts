@@ -7,4 +7,6 @@ export * from "./seed-secondary.js";
 export * from "./secondary.js";
 export * from "./hedge.js";
 export * from "./redemption.js";
+export * from "./rights.js";
+export * from "./seed-rights.js";
 export * from "./schema.js";

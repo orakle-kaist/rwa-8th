@@ -433,6 +433,38 @@ export function InvestorWorkspace() {
     }
   }
 
+  async function convertDividend() {
+    const dividend = session?.localRightsScenario?.dividend;
+    if (!dividend?.paymentId || !dividend.quoteId) return;
+    try {
+      await platformFetch("/dividend-conversions", {
+        token,
+        method: "POST",
+        body: { dividendPaymentId: dividend.paymentId, quoteId: dividend.quoteId },
+      });
+      setMessage("배당 USD의 합성 USDC 전환을 접수했다. 만료나 실패 시 USD 예약을 해제한다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "배당 전환에 실패했다.");
+    }
+  }
+
+  async function submitVote(instruction: "FOR" | "AGAINST" | "ABSTAIN") {
+    const voting = session?.localRightsScenario?.voting;
+    if (!voting) return;
+    try {
+      await platformFetch("/voting-instructions", {
+        token,
+        method: "POST",
+        body: { meetingId: voting.meetingId, agendaId: voting.agendaId, instruction },
+      });
+      setMessage("의결권 지시를 접수했다. 미응답 수량은 행사하지 않는다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "의결권 지시에 실패했다.");
+    }
+  }
+
   const readiness = session?.customerReadiness;
   return (
     <div className="workspaceContent">
@@ -466,6 +498,73 @@ export function InvestorWorkspace() {
         <StatusCard label="투자자 보호" value={readiness?.investorProtection ?? "확인 중"} />
         <StatusCard label="전용 지갑" value={readiness?.wallet ?? "확인 중"} />
         <StatusCard label="신규 주문" value={readiness?.canPlaceNewOrder ? "가능" : "차단"} />
+      </section>
+
+      <section className="panelGrid">
+        <article className="panel">
+          <div className="panelHeading">
+            <div>
+              <p className="eyebrow">CASH DIVIDEND</p>
+              <h2>현금배당과 선택형 USDC 전환</h2>
+            </div>
+            <span className="statePill">
+              {session?.localRightsScenario?.dividend?.paymentStatus ??
+                session?.localRightsScenario?.dividend?.status ??
+                "검토 대기"}
+            </span>
+          </div>
+          <p className="panelCopy">
+            기준수량 {session?.localRightsScenario?.dividend?.eligibleQuantity ?? "-"}주 · USD
+            지급액 {session?.localRightsScenario?.dividend?.netUsdMinor ?? "-"}센트
+          </p>
+          <p className="panelCopy">
+            합성 조건은 1주당 USD 1.00, 세금·수수료 0이다. 실제 배당이나 세금정책이 아니다.
+          </p>
+          <button
+            type="button"
+            disabled={
+              !session?.localRightsScenario?.dividend?.quoteId ||
+              session.localRightsScenario.dividend.conversionStatus ===
+                "DIVIDEND_CONVERSION_COMPLETED"
+            }
+            onClick={() => void convertDividend()}
+          >
+            30초 견적으로 USDC 전환
+          </button>
+          <small>
+            상태 {session?.localRightsScenario?.dividend?.conversionStatus ?? "USD 지급 전"} · USDC{" "}
+            {session?.localRightsScenario?.dividend?.usdcPaidMinor ?? "0"} 최소단위
+          </small>
+        </article>
+
+        <article className="panel">
+          <div className="panelHeading">
+            <div>
+              <p className="eyebrow">VOTING INSTRUCTION</p>
+              <h2>의결권 지시</h2>
+            </div>
+            <span className="statePill">
+              {session?.localRightsScenario?.voting?.instruction ?? "미응답"}
+            </span>
+          </div>
+          <h3>{session?.localRightsScenario?.voting?.titleKo ?? "기준수량 확정 대기"}</h3>
+          <p className="panelCopy">
+            기준수량 {session?.localRightsScenario?.voting?.eligibleQuantity ?? "0"}주 · 미응답은
+            행사하지 않는다.
+          </p>
+          <div className="buttonGroup">
+            {(["FOR", "AGAINST", "ABSTAIN"] as const).map((instruction) => (
+              <button
+                type="button"
+                key={instruction}
+                disabled={!Number(session?.localRightsScenario?.voting?.eligibleQuantity ?? 0)}
+                onClick={() => void submitVote(instruction)}
+              >
+                {instruction === "FOR" ? "찬성" : instruction === "AGAINST" ? "반대" : "기권"}
+              </button>
+            ))}
+          </div>
+        </article>
       </section>
 
       <section className="panelGrid">
@@ -516,6 +615,14 @@ export function InvestorWorkspace() {
               새 지갑으로 교체 검토
             </button>
           )}
+          {session?.localRightsScenario?.recovery ? (
+            <p className="panelCopy">
+              복구 {session.localRightsScenario.recovery.status} · 권리 승인{" "}
+              {session.localRightsScenario.recovery.rights_approved ? "완료" : "대기"} · 준법 승인{" "}
+              {session.localRightsScenario.recovery.compliance_approved ? "완료" : "대기"}
+            </p>
+          ) : null}
+          <small>USD 고객계좌는 유지되지만 분실 지갑의 자기보관 USDC는 복구할 수 없다.</small>
           <ul className="reasonList">
             {readiness?.blockingReasons.map((reason) => (
               <li key={reason.code}>{reason.messageKo}</li>

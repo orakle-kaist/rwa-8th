@@ -235,20 +235,20 @@
     {
       "requirementId": "권리관리-03",
       "positiveTests": [
-        "기업행동-분할-01"
-      ],
-      "negativeTests": [
-        "기업행동-소수차단-01"
-      ]
-    },
-    {
-      "requirementId": "권리관리-04",
-      "positiveTests": [
         "보고-기한-01",
         "보안-개인정보-01"
       ],
       "negativeTests": [
         "보고-증거누락-01"
+      ]
+    },
+    {
+      "requirementId": "권리관리-04",
+      "positiveTests": [
+        "기업행동-분할-01"
+      ],
+      "negativeTests": [
+        "기업행동-소수차단-01"
       ]
     },
     {

@@ -13,7 +13,8 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
   webServer: [
     {
-      command: "pnpm --filter @rwa/api test-server",
+      command:
+        "pnpm --filter @rwa/database reset:test && pnpm db:migrate && pnpm --filter @rwa/api test-server",
       url: "http://127.0.0.1:4000/health",
       reuseExistingServer: false,
       timeout: 120_000,

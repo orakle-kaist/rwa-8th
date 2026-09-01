@@ -46,7 +46,7 @@
 | `unfreezeAvailable` | 관리 통제 역할 | 원인 해소와 승인 뒤 관리상 동결에서 거래 가능으로 복귀 |
 | `freezeAddress` | 복구 또는 긴급 통제 | 지갑의 모든 실행을 차단하되 수량 상태는 유지 |
 | `recoverAllBuckets` | 복구 통제 계약 | 다섯 상태를 새 지갑으로 그대로 이동하고 총량 보존 |
-| `applySplitBatch` | 기업행동 통제 계약 | 전 종목 중지와 독립 승인 뒤 모든 상태를 정수 비율로 조정 |
+| `applySplitBatch` | 기업행동 통제 계약 | 전 종목 중지와 독립 승인 뒤 기준일 주식 권리가 남은 거래 가능, 결제 대기, 환매 잠금과 관리상 동결 수량만 정수 비율로 조정. 권리종료 뒤 소각 대기는 유지 |
 
 일반 `transfer`, `transferFrom`, `approve`는 인터페이스에는 존재하지만 언제나 `DirectTransferDisabled` 또는 `ApprovalDisabled`로 실패한다. 사용자가 임의의 운영자를 승인해 통제 계약을 우회할 수 없다. 발행, 제한 이전, 복구와 소각은 표준 `Transfer` 이벤트도 함께 남기고, 주소가 바뀌지 않는 수량 상태 전환은 전용 상태 이벤트만 남긴다.
 
@@ -147,7 +147,7 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 
 `RecoveryController`는 `approveRightsRecovery`, `approveComplianceRecovery`, `executeRecovery`를 제공한다. 새 지갑은 적격하고 기존 권리계정의 다른 활성 지갑으로 사용되지 않아야 한다. 기존 지갑을 먼저 동결한 뒤 다섯 수량 상태를 그대로 이동한다. 복구는 전역 중지 중에도 두 독립 승인이 있어야 가능하다.
 
-`CorporateActionController`는 `approveRightsPlan`, `approveAuditPlan`, `applySplitBatch`, `finalizeSplit`을 제공한다. 분할, 병합 비율을 적용한 모든 지갑과 모든 상태 수량이 정수여야 한다. 배치 처리 전후 예상 총량이 맞지 않거나 소수 잔여분이 생기면 전체를 되돌리고 재개를 금지한다.
+`CorporateActionController`는 `approveRightsPlan`, `approveAuditPlan`, `applySplitBatch`, `finalizeSplit`을 제공한다. 분할, 병합 비율은 기준일 주식 권리가 남아 있는 거래 가능, 결제 대기, 환매 잠금과 관리상 동결 수량에만 적용한다. 이미 주식 권리가 끝나 USD 지급청구에 대응하는 소각 대기 토큰은 비율을 적용하지 않는다. 대상 수량이 정수로 계산되지 않거나 배치 전후 예상 총량이 맞지 않으면 전체를 되돌리고 재개를 금지한다.
 
 ## 10. `MarketPolicyRegistry`
 

@@ -14,6 +14,7 @@ import {
   isSecondaryWorkflow,
   decideSecondarySettlement,
   isRedemptionWorkflow,
+  isRightsWorkflow,
 } from "@rwa/database";
 import {
   authenticateDemoBearer,
@@ -438,13 +439,16 @@ export async function registerProtectionRoutes(
       }
     }
     const redemption = await isRedemptionWorkflow(pool, taskId);
+    const rightsWorkflow = await isRightsWorkflow(pool, taskId);
     return submitCommand(request, reply, {
       workflowType: "INSTITUTION_DECISION",
-      commandType: redemption
-        ? "REDEMPTION_DECISION_REQUESTED"
-        : (await isPrimaryWorkflow(pool, taskId))
-          ? "PRIMARY_DECISION_REQUESTED"
-          : "INSTITUTION_DECISION_REQUESTED",
+      commandType: rightsWorkflow
+        ? "RIGHTS_DECISION_REQUESTED"
+        : redemption
+          ? "REDEMPTION_DECISION_REQUESTED"
+          : (await isPrimaryWorkflow(pool, taskId))
+            ? "PRIMARY_DECISION_REQUESTED"
+            : "INSTITUTION_DECISION_REQUESTED",
       payload: {
         ...(request.body as object),
         taskId,

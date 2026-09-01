@@ -39,6 +39,8 @@ paths:
                     $ref: '#/components/schemas/LocalSecondaryScenario'
                   localRedemptionScenario:
                     $ref: '#/components/schemas/LocalRedemptionScenario'
+                  localRightsScenario:
+                    $ref: '#/components/schemas/LocalRightsScenario'
                   simulation: { const: true }
                   projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
         '401': { $ref: '#/components/responses/Error' }
@@ -993,6 +995,19 @@ components:
             version: { const: '1' }
             chainId: { enum: [31337, 43113] }
             verifyingContract: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    LocalRightsScenario:
+      type: object
+      additionalProperties: false
+      required: [securityId, simulation, notices, projection]
+      properties:
+        securityId: { const: '990001' }
+        notices: { type: array, minItems: 1, items: { type: string, minLength: 1 } }
+        dividend: { type: object, additionalProperties: true }
+        voting: { type: object, additionalProperties: true }
+        recovery: { type: object, additionalProperties: true }
+        corporateAction: { type: object, additionalProperties: true }
         simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     RedemptionView:

@@ -17,6 +17,8 @@ import {
   processSecondaryOutbox,
   processRedemptionOutbox,
   recordEligibilityChainSyncFailure,
+  processRightsOutbox,
+  releaseMaturedHolds,
 } from "@rwa/database";
 import { createClock, seoulCalendarDate } from "@rwa/domain";
 import { Pool } from "pg";
@@ -176,6 +178,7 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
 }
 
 while (!stopping) {
+  await releaseMaturedHolds(pool, clock.now());
   const currentDate = seoulCalendarDate(clock.now());
   if (lastExpiryDate !== currentDate) {
     await expirePrimaryOrders(pool, currentDate, clock.now());
@@ -191,6 +194,7 @@ while (!stopping) {
       if (message.eventType === "ELIGIBILITY_CHAIN_SYNC_REQUESTED") {
         await processChainSync(message);
       } else if (
+        !(await processRightsOutbox(pool, message, clock.now())) &&
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
         !(await processHedgeOutbox(pool, message, clock.now())) &&
         !(await processRedemptionOutbox(pool, message, clock.now())) &&

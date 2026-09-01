@@ -5,6 +5,12 @@ export { eligibilityRegistryWriteAbi, setWalletEligibility, uuidToBytes16 } from
 export { issuanceControllerWriteAbi, writeIssuanceController } from "./issuance.js";
 export { secondarySettlementControllerWriteAbi, writeSecondarySettlement } from "./secondary.js";
 export { redemptionControllerWriteAbi, writeRedemptionController } from "./redemption.js";
+export {
+  corporateActionControllerWriteAbi,
+  recoveryControllerWriteAbi,
+  writeCorporateActionController,
+  writeRecoveryController,
+} from "./rights.js";
 
 export const anvilChain = defineChain({
   id: 31_337,

@@ -791,6 +791,26 @@ export interface components {
             simulation: true;
             projection: components["schemas"]["ProjectionMetadata"];
         };
+        LocalRightsScenario: {
+            /** @constant */
+            securityId: "990001";
+            notices: string[];
+            dividend?: {
+                [key: string]: unknown;
+            };
+            voting?: {
+                [key: string]: unknown;
+            };
+            recovery?: {
+                [key: string]: unknown;
+            };
+            corporateAction?: {
+                [key: string]: unknown;
+            };
+            /** @constant */
+            simulation: true;
+            projection: components["schemas"]["ProjectionMetadata"];
+        };
         RedemptionView: {
             /** Format: uuid */
             redemptionId: string;
@@ -1582,6 +1602,7 @@ export interface operations {
                         localPrimaryScenario?: components["schemas"]["LocalPrimaryScenario"];
                         localSecondaryScenario?: components["schemas"]["LocalSecondaryScenario"];
                         localRedemptionScenario?: components["schemas"]["LocalRedemptionScenario"];
+                        localRightsScenario?: components["schemas"]["LocalRightsScenario"];
                         /** @constant */
                         simulation: true;
                         projection: components["schemas"]["ProjectionMetadata"];

@@ -13,6 +13,8 @@ import {
   type Redemption,
   type MarketMakerHedge,
   type MarketMakerPosition,
+  type OperationalHold,
+  type RegulatoryReport,
   type SecondaryOrder,
   type Session,
   type Workflow,
@@ -31,6 +33,8 @@ export function InstitutionWorkspace() {
   const [positions, setPositions] = useState<MarketMakerPosition[]>([]);
   const [hedges, setHedges] = useState<MarketMakerHedge[]>([]);
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
+  const [holds, setHolds] = useState<OperationalHold[]>([]);
+  const [reports, setReports] = useState<RegulatoryReport[]>([]);
   const [session, setSession] = useState<Session>();
   const [message, setMessage] = useState("기관 대기열을 불러오는 중이다.");
   const marketMakerAccount = useMemo(
@@ -54,6 +58,8 @@ export function InstitutionWorkspace() {
         hedgePage,
         nextSession,
         redemptionPage,
+        holdPage,
+        reportPage,
       ] = await Promise.all([
         allProducts(),
         platformFetch<{ items: Complaint[] }>("/complaints", { token: brokerToken }),
@@ -68,6 +74,10 @@ export function InstitutionWorkspace() {
         }),
         platformFetch<Session>("/session", { token: brokerToken }),
         platformFetch<{ items: Redemption[] }>("/redemptions", { token: brokerToken }),
+        platformFetch<{ items: OperationalHold[] }>("/holds", { token: brokerToken }),
+        platformFetch<{ items: RegulatoryReport[] }>("/regulatory-reports", {
+          token: brokerToken,
+        }),
       ]);
       setProducts(productItems);
       setComplaints(complaintPage.items);
@@ -78,6 +88,8 @@ export function InstitutionWorkspace() {
       setHedges(hedgePage.items);
       setSession(nextSession);
       setRedemptions(redemptionPage.items);
+      setHolds(holdPage.items);
+      setReports(reportPage.items);
       setMessage("최신 모의 투영을 확인했다.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "조회에 실패했다.");
@@ -353,6 +365,19 @@ export function InstitutionWorkspace() {
         RIGHTS_TERMINATION_PENDING: "demo:rights-recorder",
         PAYMENT_AND_BURN_PENDING: "demo:broker-operator",
       };
+      if (task.workflowType === "WALLET_REPLACEMENT") {
+        tokenByState[state ?? ""] = session?.localRightsScenario?.recovery?.rights_approved
+          ? "demo:compliance-auditor"
+          : "demo:rights-approver";
+      } else if (task.workflowType === "CORPORATE_ACTION") {
+        tokenByState[state ?? ""] = Boolean(
+          session?.localRightsScenario?.corporateAction?.rights_approved,
+        )
+          ? "demo:compliance-auditor"
+          : "demo:rights-approver";
+      } else if (task.workflowType === "DIVIDEND" || task.workflowType === "VOTING") {
+        tokenByState[state ?? ""] = brokerToken;
+      }
       const primaryOrder = primaryOrders.find((order) => order.orderId === task.workflowId);
       if (
         state === "SETTLEMENT_AND_CUSTODY_PENDING" &&
@@ -380,6 +405,63 @@ export function InstitutionWorkspace() {
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "기관 결정 접수에 실패했다.");
+    }
+  }
+
+  async function runReconciliation() {
+    try {
+      await platformFetch("/reconciliations", {
+        token: "demo:compliance-auditor",
+        method: "POST",
+        body: {
+          securityId: session?.localRightsScenario?.securityId ?? "990001",
+          scope: "SECURITY",
+          asOf: session?.projection.projectionAsOf ?? new Date().toISOString(),
+        },
+      });
+      setMessage("같은 기준시각의 두 축 대사를 접수했다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "대사 실행에 실패했다.");
+    }
+  }
+
+  async function releaseHold(hold: OperationalHold) {
+    try {
+      await platformFetch(`/holds/${hold.workflowId}/release-decisions`, {
+        token: "demo:compliance-auditor",
+        method: "POST",
+        body: { decision: "APPROVE", reasonKo: "원인 보정과 전체 재대사 일치를 독립 확인했다." },
+      });
+      setMessage("중지 해제 승인과 60초 지연 실행을 접수했다.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "중지 해제 승인에 실패했다.");
+    }
+  }
+
+  async function submitReport(
+    report: RegulatoryReport,
+    result: "ACCEPTED" | "CORRECTION_REQUIRED",
+  ) {
+    try {
+      await platformFetch(`/regulatory-reports/${report.workflowId}/submission-results`, {
+        token: brokerToken,
+        method: "POST",
+        body: {
+          result,
+          sourceMetadata: {
+            sourceRecordId: `SIM-REPORT-${report.reportingMonth}-${result}`,
+            simulation: true,
+          },
+        },
+      });
+      setMessage(
+        "월별 보고 제출결과를 접수했다. 원본 개인정보와 본문은 공동 화면에 남기지 않는다.",
+      );
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "보고 결과 기록에 실패했다.");
     }
   }
 
@@ -577,7 +659,9 @@ export function InstitutionWorkspace() {
               가격 최소단위
               <input name="unitPriceMinor" inputMode="numeric" defaultValue="1203550000" />
             </label>
-            <button type="submit">시장조성자 지갑으로 서명·게시</button>
+            <button type="submit" disabled={!session?.localSecondaryScenario}>
+              시장조성자 지갑으로 서명·게시
+            </button>
           </form>
           <p className="panelCopy">
             USDC는 6자리, USD는 2자리 최소단위다. 정상 매도호가는 각각 1,203,550,000과 120,355다.
@@ -756,8 +840,103 @@ export function InstitutionWorkspace() {
       <section className="panel widePanel">
         <div className="panelHeading">
           <div>
+            <p className="eyebrow">RIGHTS AND RECONCILIATION</p>
+            <h2>권리업무·보고·두 축 대사</h2>
+          </div>
+          <button className="subtleButton" type="button" onClick={() => void runReconciliation()}>
+            두 축 대사 실행
+          </button>
+        </div>
+        <div className="panelGrid">
+          <div className="timelineList">
+            <div>
+              <strong>현금배당</strong>
+              <span>{session?.localRightsScenario?.dividend?.status ?? "검토 대기"}</span>
+              <small>
+                국내 수령총액 {session?.localRightsScenario?.dividend?.domesticTotalUsdMinor ?? "0"}
+                센트 · 기준일과 국내 배정 증거 확인
+              </small>
+            </div>
+            <div>
+              <strong>의결권</strong>
+              <span>{session?.localRightsScenario?.voting?.status ?? "수집 대기"}</span>
+              <small>미응답은 미행사 · 해외 증권사 승인 뒤 상임대리인 모의 결과 기록</small>
+            </div>
+            <div>
+              <strong>기업행동 990003</strong>
+              <span>{session?.localRightsScenario?.corporateAction?.status ?? "검토 대기"}</span>
+              <small>소각 대기 제외 2대1 합성 분할 · 예상 총발행량 19</small>
+            </div>
+            {session?.localRightsScenario?.recovery ? (
+              <div>
+                <strong>전용 지갑 복구</strong>
+                <span>{session.localRightsScenario.recovery.status}</span>
+                <small>
+                  권리 승인 {session.localRightsScenario.recovery.rights_approved ? "완료" : "대기"}{" "}
+                  · 준법 승인{" "}
+                  {session.localRightsScenario.recovery.compliance_approved ? "완료" : "대기"}
+                </small>
+              </div>
+            ) : null}
+          </div>
+          <div className="timelineList">
+            {reports.map((report) => (
+              <div key={report.workflowId}>
+                <strong>{report.reportingMonth} 월별 보고</strong>
+                <span>{report.states[0]?.code}</span>
+                <small>
+                  기한 {report.dueDate} · 보관증거 {report.retentionUntil}까지
+                </small>
+                <div className="buttonGroup">
+                  <button type="button" onClick={() => void submitReport(report, "ACCEPTED")}>
+                    정상 제출결과
+                  </button>
+                  <button
+                    className="subtleButton"
+                    type="button"
+                    onClick={() => void submitReport(report, "CORRECTION_REQUIRED")}
+                  >
+                    정정 필요
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="complaintTable">
+          {holds.length === 0 ? (
+            <p className="emptyState">현재 업무 중지가 없다.</p>
+          ) : (
+            holds.map((hold) => (
+              <div className="complaintRow" key={hold.workflowId}>
+                <div>
+                  <small>{hold.scope}</small>
+                  <strong>{hold.reasonCode}</strong>
+                </div>
+                <span>{hold.states[0]?.code}</span>
+                <small>{hold.securityId ?? "전체 신규 주문"}</small>
+                {hold.states[0]?.code === "WORK_HALTED" ? (
+                  <button type="button" onClick={() => void releaseHold(hold)}>
+                    독립 재개 승인
+                  </button>
+                ) : (
+                  <em>60초 지연 또는 해제 완료</em>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+        <p className="panelCopy">
+          고객별 수탁권리와 전체 발행토큰, 국내 결제완료 수탁수량과 결제완료 고객권리를 같은
+          기준시각으로 각각 검사한다. 불일치 시 해당 종목의 신규 발행과 24시간 거래만 중지한다.
+        </p>
+      </section>
+
+      <section className="panel widePanel">
+        <div className="panelHeading">
+          <div>
             <p className="eyebrow">INSTITUTION TASKS</p>
-            <h2>1차 발행 승인과 예외 대기열</h2>
+            <h2>기관 승인과 예외 대기열</h2>
           </div>
           <span className="statePill">권한 분리</span>
         </div>
@@ -782,7 +961,10 @@ export function InstitutionWorkspace() {
                 {task.states[0]?.code === "PENDING_APPROVAL" ||
                 task.workflowType.startsWith("PRIMARY_") ||
                 task.workflowType.startsWith("REDEMPTION") ||
-                task.workflowType === "SECONDARY_TRADE" ? (
+                task.workflowType === "SECONDARY_TRADE" ||
+                ["DIVIDEND", "VOTING", "WALLET_REPLACEMENT", "CORPORATE_ACTION"].includes(
+                  task.workflowType,
+                ) ? (
                   <div className="buttonGroup">
                     <button type="button" onClick={() => void decideTask(task, "APPROVE")}>
                       승인 접수
@@ -910,7 +1092,8 @@ export function InstitutionWorkspace() {
             <li>적격성 레지스트리 반영 후 연결 완료</li>
           </ol>
           <p className="panelCopy">
-            교체 요청은 기존 지갑부터 동결하고 잔액 복구는 후속 기능에서 실행한다.
+            교체 요청은 기존 지갑부터 동결한다. 권리·준법 독립 승인, 체인 복구, 권리원장 연결 변경과
+            전체 대사가 끝나야 새 지갑을 활성화한다.
           </p>
         </article>
       </section>

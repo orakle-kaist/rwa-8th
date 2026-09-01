@@ -364,6 +364,13 @@ export async function processProtectionMessage(
          VALUES ($1,$2,$3,'REPLACEMENT_REVIEW',$4,$5,$5)`,
         [randomUUID(), actorId, newWallet, message.workflowId, now],
       );
+      await client.query(
+        `INSERT INTO wallet_recoveries
+          (workflow_id,principal_id,old_wallet,new_wallet,status,updated_at)
+         VALUES ($1,$2,$3,$4,'RECOVERY_APPROVAL_PENDING',$5)
+         ON CONFLICT (workflow_id) DO NOTHING`,
+        [message.workflowId, actorId, oldWallet, newWallet, now],
+      );
       workflowStatus = "PENDING_APPROVAL";
     } else if (message.eventType === "INSTITUTION_DECISION_REQUESTED") {
       const target = await client.query<{ workflow_type: string; principal_id: string }>(
@@ -651,6 +658,9 @@ export async function listInstitutionTasks(pool: Pool, now: Date) {
        ,'SETTLEMENT_APPROVAL_PENDING','CHAIN_EXECUTION_PENDING','RIGHTS_LEDGER_CONFIRMATION_PENDING',
        'LEDGER_RETRY_PENDING','SALE_PROCEEDS_SETTLEMENT_PENDING','RIGHTS_TERMINATION_PENDING',
        'PAYMENT_AND_BURN_PENDING'
+       ,'DIVIDEND_SNAPSHOT_REVIEW','VOTE_INSTRUCTION_COLLECTION','REPORT_GENERATED',
+       'REPORT_CORRECTION_REVIEW','RECOVERY_APPROVAL_PENDING','CORPORATE_ACTION_PLAN_REVIEW',
+       'MISMATCH_SUSPECTED','WORK_HALTED','RELEASE_SCHEDULED'
      )
      ORDER BY created_at, workflow_id`,
   );
@@ -669,7 +679,17 @@ export async function listInstitutionTasks(pool: Pool, now: Date) {
                   ? "PRIMARY_ISSUANCE"
                   : row.workflow_type === "COMPLAINT"
                     ? "COMPLAINT"
-                    : "WALLET_LINKAGE",
+                    : row.workflow_type === "DIVIDEND"
+                      ? "DIVIDEND"
+                      : row.workflow_type === "VOTING"
+                        ? "VOTING"
+                        : row.workflow_type === "REGULATORY_REPORT"
+                          ? "REGULATORY_REPORT"
+                          : row.workflow_type === "CORPORATE_ACTION"
+                            ? "CORPORATE_ACTION"
+                            : row.workflow_type === "RECONCILIATION"
+                              ? "RECONCILIATION"
+                              : "WALLET_LINKAGE",
           code: row.status,
           labelKo: String(row.status),
         },

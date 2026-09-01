@@ -15,7 +15,7 @@
 | 시장정책               | `contracts/src/MarketPolicyRegistry.sol`  | 종목별 업무 중지, USDC 경로 중지, 전역 긴급중지와 정책버전                                      |
 | 관리구조               | `contracts/script/DeployFoundation.s.sol` | 실제 Safe 3개 관리자 중 2개 승인, OpenZeppelin 60초 지연 실행, 지연 계약만 기반 계약 관리자     |
 
-발행 증거를 결합하는 컨트롤러, USD와 USDC 정산, 환매 지급청구와 기업행동 독립승인은 아직 구현하지 않았다. 이 기능은 후속 컨트롤러가 호출할 토큰과 검증 기반까지만 제공한다.
+이 기능을 완료한 시점에는 토큰과 검증 기반만 제공했다. 이후 기능에서 발행 증거 결합, USD·USDC 정산, 환매 지급청구, 지갑 복구와 기업행동 독립승인 컨트롤러까지 구현했으며, 현재 범위는 [10단계 구현 안내](IMPLEMENTATION_GUIDE.md)에서 확인한다.
 
 ## ABI 검증
 

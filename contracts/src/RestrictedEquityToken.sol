@@ -346,7 +346,8 @@ contract RestrictedEquityToken is AccessControl, EvidenceGuard {
         _available[account] = _scaled(account, _available[account], numerator, denominator);
         _pendingSettlement[account] = _scaled(account, _pendingSettlement[account], numerator, denominator);
         _redemptionLocked[account] = _scaled(account, _redemptionLocked[account], numerator, denominator);
-        _burnPending[account] = _scaled(account, _burnPending[account], numerator, denominator);
+        // 매도대금 결제 뒤 소각을 기다리는 토큰에는 더 이상 주식 수탁권리가 없다.
+        // 따라서 기준일 주식 권리에 적용하는 분할비율로 이 수량을 늘리거나 줄이지 않는다.
         _administrativeFrozen[account] = _scaled(account, _administrativeFrozen[account], numerator, denominator);
         uint256 newBalance = balanceOf(account);
         if (newBalance > oldBalance) {

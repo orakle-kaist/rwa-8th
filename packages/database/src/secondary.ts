@@ -405,6 +405,15 @@ export async function acceptSecondaryOrder(
     shareQuantity: input.order.shareQuantity.toString(),
   };
   const requestHash = commandHash(requestPayload);
+  const hold = await pool.query(
+    `SELECT 1 FROM operational_holds
+     WHERE status IN ('WORK_HALTED','RELEASE_SCHEDULED')
+       AND scope IN ('NEW_ORDERS','PRIMARY_AND_SECONDARY')
+       AND (security_id IS NULL OR security_id=$1)
+     LIMIT 1`,
+    [LOCAL_SECONDARY_SECURITY_ID],
+  );
+  if (hold.rows.length) return { rejected: "OPERATIONAL_HOLD" as const };
   const readiness = await getCustomerReadiness(pool, input.principalId, input.now);
   if (
     !readiness?.canPlaceNewOrder ||

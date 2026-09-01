@@ -6,6 +6,8 @@ import {
   processSecondaryOutbox,
   processProtectionMessage,
   processRedemptionOutbox,
+  processRightsOutbox,
+  releaseMaturedHolds,
 } from "@rwa/database";
 import { createClock, seoulCalendarDate } from "@rwa/domain";
 import { Pool } from "pg";
@@ -29,6 +31,13 @@ const timer = setInterval(() => {
       await expirePrimaryOrders(pool, currentDate, clock.now());
       lastExpiryDate = currentDate;
     }
+    await releaseMaturedHolds(pool, clock.now());
+    // 브라우저 전체 시연에서는 모의 시장정보 제공자가 정상값을 계속 갱신한다.
+    // 60·61초 지연 차단은 시간 고정 통합시험에서 별도로 검증한다.
+    await pool.query(
+      "UPDATE secondary_market_state SET information_effective_at=$1,updated_at=$1 WHERE security_id='990002'",
+      [new Date(clock.now().getTime() - 1_000)],
+    );
     const messages = await claimOutbox(pool, 20, clock.now());
     for (const message of messages) {
       if (message.eventType === "ELIGIBILITY_CHAIN_SYNC_REQUESTED") {
@@ -38,6 +47,7 @@ const timer = setInterval(() => {
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
         !(await processHedgeOutbox(pool, message, clock.now())) &&
         !(await processRedemptionOutbox(pool, message, clock.now())) &&
+        !(await processRightsOutbox(pool, message, clock.now())) &&
         !(await processSecondaryOutbox(
           pool,
           message,

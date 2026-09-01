@@ -140,6 +140,40 @@ test("로컬 합성 상품을 4주·2주로 배분하고 두 결제 확인 뒤 �
   await expect(page.getByText("TRADABLE", { exact: true })).toHaveCount(2);
 });
 
+test("배당·의결권·보고와 기업행동 통제를 시연한다", async ({ page }) => {
+  await page.goto("/institution");
+  const dividendTask = page.getByRole("row").filter({ hasText: "DIVIDEND" });
+  await expect(dividendTask).toBeVisible();
+  await dividendTask.getByRole("button", { name: "승인 접수" }).click();
+
+  await page.goto("/investor");
+  await expect(page.getByRole("heading", { name: "현금배당과 선택형 USDC 전환" })).toBeVisible();
+  await expect(
+    page
+      .getByRole("heading", { name: "현금배당과 선택형 USDC 전환" })
+      .locator("xpath=ancestor::article"),
+  ).toContainText("기준수량 4주 · USD 지급액 400센트");
+  await page.getByRole("button", { name: "30초 견적으로 USDC 전환" }).click();
+  await expect(page.getByRole("status")).toContainText("합성 USDC 전환");
+  await page.getByRole("button", { name: "찬성" }).click();
+  await expect(page.getByRole("status")).toContainText("의결권 지시");
+
+  await page.goto("/institution");
+  const votingTask = page.getByRole("row").filter({ hasText: "VOTING" });
+  await votingTask.getByRole("button", { name: "승인 접수" }).click();
+
+  const corporateActionTask = page.getByRole("row").filter({ hasText: "CORPORATE_ACTION" });
+  await corporateActionTask.getByRole("button", { name: "승인 접수" }).click();
+  await page.getByRole("button", { name: "새로고침" }).last().click();
+  await corporateActionTask.getByRole("button", { name: "승인 접수" }).click();
+  await expect(page.getByText(/예상 총발행량 19/)).toBeVisible();
+
+  await page.getByRole("button", { name: "정상 제출결과" }).click();
+  await expect(page.getByRole("status")).toContainText("월별 보고 제출결과");
+  await page.getByRole("button", { name: "두 축 대사 실행" }).click();
+  await expect(page.getByRole("status")).toContainText("두 축 대사");
+});
+
 test("기존 A 4주·B 2주 권리를 4주 부분환매하고 USD 지급과 소각을 완결한다", async ({ page }) => {
   await page.goto("/investor");
   await expect(page.getByRole("heading", { name: "일반 투자자 환매 생애주기" })).toBeVisible();
@@ -242,4 +276,27 @@ test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하�
   await expect(page.getByRole("status")).toContainText("헤지 위험승인");
   await expect(hedgeQueue).toContainText("HEDGE_KRX_OPEN_PENDING");
   await expect(hedgeQueue).toContainText("모의 기관 결과 또는 다음 단계 대기");
+});
+
+test("권리·준법 독립 승인 뒤 전용 지갑을 복구한다", async ({ page }) => {
+  await page.goto("/investor");
+  await page.getByRole("button", { name: "새 지갑으로 교체 검토" }).click();
+  await expect(page.getByRole("status")).toContainText("지갑 교체 검토");
+
+  await page.goto("/institution");
+  const recoveryTask = page.getByRole("row").filter({ hasText: "WALLET_REPLACEMENT" });
+  await recoveryTask.getByRole("button", { name: "승인 접수" }).click();
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return page.getByText(/권리 승인 완료/).count();
+    })
+    .toBe(1);
+  await recoveryTask.getByRole("button", { name: "승인 접수" }).click();
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return recoveryTask.count();
+    })
+    .toBe(0);
 });
