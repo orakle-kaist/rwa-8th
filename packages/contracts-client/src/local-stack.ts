@@ -78,6 +78,7 @@ function workflow(label: string): Hex {
 
 async function waitForAnvil(rpcUrl: string): Promise<void> {
   let lastError: unknown;
+  let connectionRefused = false;
   for (let attempt = 1; attempt <= 60; attempt += 1) {
     try {
       const response = await fetch(rpcUrl, {
@@ -91,10 +92,18 @@ async function waitForAnvil(rpcUrl: string): Promise<void> {
       lastError = new Error(`예상하지 않은 Anvil chain ID: ${payload.result ?? "응답 없음"}`);
     } catch (error) {
       lastError = error;
+      connectionRefused ||=
+        error instanceof TypeError &&
+        error.cause instanceof Error &&
+        "code" in error.cause &&
+        error.cause.code === "ECONNREFUSED";
     }
     await delay(250);
   }
-  throw new Error("Anvil RPC가 15초 안에 준비되지 않았다.", { cause: lastError });
+  const message = connectionRefused
+    ? "Anvil 컨테이너는 실행됐지만 Docker 네트워크에서 RPC에 연결할 수 없다. Anvil이 0.0.0.0:8545에 바인딩됐는지 확인한다."
+    : "Anvil RPC가 15초 안에 올바른 chain ID 31337로 응답하지 않았다.";
+  throw new Error(message, { cause: lastError });
 }
 
 async function artifact(name: string, externalPath?: string): Promise<Artifact> {

@@ -69,6 +69,13 @@ PoC의 PostgreSQL과 로컬 체인은 컨테이너 내부에서만 사용한다.
 
 로컬 컨트랙트 배포는 Anvil이 단순히 실행된 시점이 아니라 RPC 요청에 정상 응답하는 시점부터 시작한다. 실패한 첫 실행을 정리한 뒤 다시 시작할 때는 `docker compose down --remove-orphans`를 먼저 실행한다.
 
+```bash
+docker compose down --remove-orphans
+docker compose up --build --wait
+```
+
+기본 재시작에서는 `-v`를 붙이지 않는다. PostgreSQL과 배포 manifest가 들어 있는 합성 Docker 볼륨을 의도치 않게 삭제하지 않기 위해서다.
+
 pnpm이 준비돼 있다면 같은 명령의 짧은 별칭도 사용할 수 있다.
 
 ```bash
