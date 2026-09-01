@@ -97,11 +97,6 @@ try {
   const totalsBySecurity = new Map(
     reconciliation.rows.map((row) => [row.security_id, BigInt(row.token_supply)]),
   );
-  const secondaryTotal = await pool.query<{ token_supply: string }>(
-    "SELECT token_total_supply::text token_supply FROM secondary_market_state WHERE security_id='990002'",
-  );
-  if (secondaryTotal.rows[0])
-    totalsBySecurity.set("990002", BigInt(secondaryTotal.rows[0].token_supply));
   const supplyAbi = parseAbi(["function totalSupply() view returns (uint256)"]);
   const onchainSupply: Record<string, string> = {};
   for (const [securityId, token] of Object.entries(manifest.tokens)) {

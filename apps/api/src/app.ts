@@ -66,6 +66,24 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     const readiness = options.pool
       ? await getCustomerReadiness(options.pool, principal.principalId, options.clock.now())
       : undefined;
+    const localPrimaryScenario = options.pool
+      ? await getLocalPrimaryScenario(options.pool, principal.principalId, options.clock.now())
+      : undefined;
+    const localSecondaryScenario = options.pool
+      ? await getLocalSecondaryScenario(options.pool, principal.principalId, options.clock.now())
+      : undefined;
+    const localRedemptionScenario = options.pool
+      ? await getLocalRedemptionScenario(options.pool, principal.principalId, options.clock.now())
+      : undefined;
+    const localRightsScenario = options.pool
+      ? await getLocalRightsScenario(
+          options.pool,
+          principal.role === "INVESTOR"
+            ? principal.principalId
+            : "00000000-0000-4000-8000-000000000001",
+          options.clock.now(),
+        )
+      : undefined;
     return {
       actorId: principal.principalId,
       role: principal.role,
@@ -73,28 +91,25 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       ...(readiness ? { customerReadiness: readiness } : {}),
       ...(options.pool
         ? {
-            localPrimaryScenario: await getLocalPrimaryScenario(
-              options.pool,
-              principal.principalId,
-              options.clock.now(),
-            ),
-            localSecondaryScenario: await getLocalSecondaryScenario(
-              options.pool,
-              principal.principalId,
-              options.clock.now(),
-            ),
-            localRedemptionScenario: await getLocalRedemptionScenario(
-              options.pool,
-              principal.principalId,
-              options.clock.now(),
-            ),
-            localRightsScenario: await getLocalRightsScenario(
-              options.pool,
-              principal.role === "INVESTOR"
-                ? principal.principalId
-                : "00000000-0000-4000-8000-000000000001",
-              options.clock.now(),
-            ),
+            localPrimaryScenario,
+            localSecondaryScenario,
+            localRedemptionScenario,
+            localRightsScenario,
+            localInvestorJourney: {
+              securityId: "990001",
+              displayName: "모의 삼성전자 수탁권리",
+              referenceSecurityId: "005930",
+              referenceKrw: "257000",
+              referenceUsdMinor: "18619",
+              normalBidUsdMinor: "18526",
+              normalAskUsdMinor: "18712",
+              usdKrwRate: "1380.3",
+              primary: localPrimaryScenario,
+              secondary: localSecondaryScenario,
+              redemption: localRedemptionScenario,
+              rights: localRightsScenario,
+              simulation: true,
+            },
           }
         : {}),
       projection: {

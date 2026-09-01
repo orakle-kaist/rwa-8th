@@ -133,7 +133,7 @@ describe("24시간 제한 거래 API", () => {
       paymentMode: "USDC_ONCHAIN",
       paymentAssetId,
       shareQuantity: "5",
-      unitPriceMinor: "1203550000",
+      unitPriceMinor: "187120000",
       nonce: "11",
       expiresAt: String(expiresAt),
       policyVersion,
@@ -170,11 +170,11 @@ describe("24시간 제한 거래 API", () => {
       url: "/api/v1/market-maker/quotes",
       headers: commandHeaders(),
       payload: {
-        securityId: "990002",
+        securityId: "990001",
         marketMakerSide: "SELL",
         fundingMode: "USDC_ONCHAIN",
         shareQuantity: "5",
-        unitPrice: { currency: "USDC", amountMinor: "1203550000", decimals: 6 },
+        unitPrice: { currency: "USDC", amountMinor: "187120000", decimals: 6 },
         expiresAt: new Date(expiresAt * 1000).toISOString(),
         signedQuote: {
           domain,
@@ -350,7 +350,7 @@ describe("24시간 제한 거래 API", () => {
     const hedgeMessage = {
       orderId: hedge.hedgeId,
       investor: marketMaker.address,
-      securityId: "990002",
+      securityId: "990001",
       shareQuantity: "5",
       krwLimitPrice: "1653000",
       targetTradingDate: "2026-09-01",

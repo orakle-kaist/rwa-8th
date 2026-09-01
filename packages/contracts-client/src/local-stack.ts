@@ -228,8 +228,8 @@ export async function deployLocalStack(input?: {
   await write(policy.address, policy.abi, "grantRole", [role("EMERGENCY_PAUSER_ROLE"), deployer.address]);
 
   const products = [
-    ["990001", "TEST00000001", "모의 삼성전자 1차 발행 시나리오", "SIM990001"],
-    ["990002", "TEST00000002", "모의 SK하이닉스 24/7 시나리오", "SIM990002"],
+    ["990001", "TEST00000001", "모의 삼성전자 수탁권리", "SIM990001"],
+    ["990002", "TEST00000002", "모의 가격·위험 회귀시험 권리", "SIM990002"],
     ["990003", "TEST00000003", "모의 미래에셋증권 기업행동 시나리오", "SIM990003"],
   ] as const;
   const designVersion = evidence("CONTRACT_DESIGN_V1");
@@ -263,8 +263,8 @@ export async function deployLocalStack(input?: {
       await write(token, tokenArtifact.abi, "grantRole", [role(name), deployer.address]);
   }
 
-  await write(tokens["990002"], tokenArtifact.abi, "mintPending", [workflow("MM_SEED_MINT"), marketMaker.address, 120n, evidence("MM_SEED_MINT")]);
-  await write(tokens["990002"], tokenArtifact.abi, "releasePending", [workflow("MM_SEED_RELEASE"), marketMaker.address, 100n, evidence("MM_SEED_RELEASE")]);
+  await write(tokens["990001"], tokenArtifact.abi, "mintPending", [workflow("MM_SEED_MINT"), marketMaker.address, 120n, evidence("MM_SEED_MINT")]);
+  await write(tokens["990001"], tokenArtifact.abi, "releasePending", [workflow("MM_SEED_RELEASE"), marketMaker.address, 100n, evidence("MM_SEED_RELEASE")]);
   await write(tokens["990003"], tokenArtifact.abi, "mintPending", [workflow("CA_SEED_MINT"), investorA.address, 10n, evidence("CA_SEED_MINT")]);
   await write(tokens["990003"], tokenArtifact.abi, "releasePending", [workflow("CA_SEED_RELEASE"), investorA.address, 8n, evidence("CA_SEED_RELEASE")]);
   await write(tokens["990003"], tokenArtifact.abi, "lockForRedemption", [workflow("CA_SEED_LOCK"), investorA.address, 3n, evidence("CA_SEED_LOCK")]);

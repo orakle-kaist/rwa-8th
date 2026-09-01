@@ -1,5 +1,5 @@
 export const LOCAL_PRIMARY_SECURITY_ID = "990001";
-export const LOCAL_PRIMARY_NAME = "모의 삼성전자 1차 발행 시나리오";
+export const LOCAL_PRIMARY_NAME = "모의 삼성전자 수탁권리";
 export const LOCAL_PRIMARY_SYMBOL = "SIM990001";
 export const LOCAL_PRIMARY_DEPLOYMENT_KEY = "TEST00000001";
 export const LOCAL_PRIMARY_LIMIT_KRW = 257_000n;

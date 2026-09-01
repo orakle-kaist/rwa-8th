@@ -116,7 +116,7 @@ export async function getLocalSecondaryScenario(pool: Pool, principalId: string,
     },
     policyVersion: chain.policyVersion,
     notices: [
-      "로컬 전용 합성 상품이며 실제 SK하이닉스 주식이나 공식 ISIN 상품이 아니다.",
+      "로컬 전용 합성 상품이며 실제 삼성전자 주식이나 공식 ISIN 상품이 아니다.",
       "국내 결제완료 권리만 지정 시장조성자와 거래할 수 있다.",
       "USDC 체인 교환 뒤에도 해외 증권사의 고객별 수탁권리 원장 확인이 필요하다.",
     ],

@@ -41,6 +41,8 @@ paths:
                     $ref: '#/components/schemas/LocalRedemptionScenario'
                   localRightsScenario:
                     $ref: '#/components/schemas/LocalRightsScenario'
+                  localInvestorJourney:
+                    $ref: '#/components/schemas/LocalInvestorJourney'
                   simulation: { const: true }
                   projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
         '401': { $ref: '#/components/responses/Error' }
@@ -52,6 +54,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Cursor'
+        - name: scope
+          in: query
+          schema: { type: string, enum: [candidates, demo], default: candidates }
+          description: 공식 후보와 메인 합성 시연 상품을 분리해 조회한다.
       responses:
         '200':
           description: 상품목록과 기능별 가능상태
@@ -919,12 +925,12 @@ components:
       additionalProperties: false
       required: [securityId, displayName, tokenSymbol, tokenAddress, mockUsdcAddress, referenceSecurityId, referenceUsdMinor, normalAskUsdMinor, informationEffectiveAt, usdcUsd, halfSpreadBps, secondaryEnabled, officialProduct, balances, risk, intentDomain, policyVersion, notices, simulation, projection]
       properties:
-        securityId: { const: '990002' }
-        displayName: { const: 모의 SK하이닉스 24/7 시나리오 }
-        tokenSymbol: { const: SIM990002 }
+        securityId: { const: '990001' }
+        displayName: { const: 모의 삼성전자 수탁권리 }
+        tokenSymbol: { const: SIM990001 }
         tokenAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
         mockUsdcAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
-        referenceSecurityId: { const: '000660' }
+        referenceSecurityId: { const: '005930' }
         referenceUsdMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
         normalAskUsdMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
         informationEffectiveAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
@@ -968,6 +974,24 @@ components:
         notices: { type: array, minItems: 1, items: { type: string, minLength: 1 } }
         simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    LocalInvestorJourney:
+      type: object
+      additionalProperties: false
+      required: [securityId, displayName, referenceSecurityId, referenceKrw, referenceUsdMinor, normalBidUsdMinor, normalAskUsdMinor, usdKrwRate, simulation]
+      properties:
+        securityId: { const: '990001' }
+        displayName: { const: 모의 삼성전자 수탁권리 }
+        referenceSecurityId: { const: '005930' }
+        referenceKrw: { const: '257000' }
+        referenceUsdMinor: { const: '18619' }
+        normalBidUsdMinor: { const: '18526' }
+        normalAskUsdMinor: { const: '18712' }
+        usdKrwRate: { const: '1380.3' }
+        primary: { $ref: '#/components/schemas/LocalPrimaryScenario' }
+        secondary: { $ref: '#/components/schemas/LocalSecondaryScenario' }
+        redemption: { $ref: '#/components/schemas/LocalRedemptionScenario' }
+        rights: { $ref: '#/components/schemas/LocalRightsScenario' }
+        simulation: { const: true }
     LocalRedemptionScenario:
       type: object
       additionalProperties: false
@@ -1111,9 +1135,11 @@ components:
     Position:
       type: object
       additionalProperties: false
-      required: [securityId, settledRights, pendingRights, lockedRights, burnPendingTokens, projection]
+      required: [securityId, displayName, settledRights, pendingRights, lockedRights, burnPendingTokens, projection]
       properties:
         securityId: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
+        displayName: { type: string, minLength: 1 }
+        referenceSecurityId: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
         settledRights: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         pendingRights: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         lockedRights: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
@@ -1131,12 +1157,23 @@ components:
     TimelineItem:
       type: object
       additionalProperties: false
-      required: [eventId, eventType, occurredAt, labelKo]
+      required: [eventId, eventType, occurredAt, labelKo, category, actorRoleKo, recordLayerKo, nextActionKo, simulation]
       properties:
         eventId: { type: string, format: uuid }
+        workflowId: { type: string, format: uuid }
+        workflowType: { type: string }
+        securityId: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
         eventType: { type: string }
         occurredAt: { type: string, format: date-time }
         labelKo: { type: string, minLength: 1 }
+        category: { type: string, enum: [REQUEST, INSTITUTION_FACT, STATE, CHAIN, FUNDS, AUDIT] }
+        actorRoleKo: { type: string, minLength: 1 }
+        recordLayerKo: { type: string, minLength: 1 }
+        sourceOrganization: { type: string, minLength: 1 }
+        evidenceReference: { type: string, minLength: 1 }
+        transactionHash: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+        nextActionKo: { type: string, minLength: 1 }
+        simulation: { const: true }
         correctsEventId: { type: string, format: uuid }
     PagedActivities:
       type: object
@@ -1188,7 +1225,7 @@ components:
       properties:
         orderId: { type: string, format: uuid }
         quoteId: { type: string, format: uuid }
-        securityId: { const: '990002' }
+        securityId: { const: '990001' }
         investorSide: { $ref: './schemas/domain.schema.json#/$defs/InvestorSide' }
         fundingMode: { type: string, enum: [USD_LEDGER, USDC_ONCHAIN] }
         paymentAssetId: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
@@ -1216,7 +1253,7 @@ components:
       additionalProperties: false
       required: [securityId, settledInventory, pendingInventory, reservedInventory, netPosition, nextSessionStartingInventory, riskReducingOnly, positionLimit, usdAvailableMinor, usdReservedMinor, usdcAvailableMinor, usdcReservedMinor, securityLossBps, portfolioLossBps, secondaryPaused, usdcPaused, simulation]
       properties:
-        securityId: { const: '990002' }
+        securityId: { const: '990001' }
         settledInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         pendingInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         reservedInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
@@ -1242,7 +1279,7 @@ components:
       required: [hedgeId, securityId, direction, requestedQuantity, filledQuantity, remainingQuantity, netPositionSnapshot, krwLimitPrice, targetTradingDate, status, aggregateVersion, riskViolationReducing, positionUtilizationBps, foreignLimitStatus, krxStatus, marketMakerConfirmed, brokerRiskApproved, domesticSettlementConfirmed, custodyQuantityConfirmed, usdPaymentConfirmed, sourceSecondaryOrderIds, history, createdAt, updatedAt, simulation, projection]
       properties:
         hedgeId: { type: string, format: uuid }
-        securityId: { const: '990002' }
+        securityId: { const: '990001' }
         direction: { type: string, enum: [BUY, SELL] }
         requestedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         filledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }

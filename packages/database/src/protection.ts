@@ -134,12 +134,37 @@ function mapProduct(row: Record<string, unknown>, now: Date) {
   };
 }
 
-export async function listProducts(pool: Pool, limit: number, offset: number, now: Date) {
+export async function listProducts(
+  pool: Pool,
+  limit: number,
+  offset: number,
+  now: Date,
+  scope: "candidates" | "demo" = "candidates",
+) {
+  const source =
+    scope === "demo"
+      ? `(SELECT security_id,display_name AS name_ko,'LOCAL-DEMO-V1' AS reference_version,
+                 NULL::text AS isin,token_address,'REVIEWED' AS candidate_status,
+                 true AS representative,
+                 CASE WHEN primary_enabled THEN 'ENABLED' ELSE 'DISABLED' END AS primary_availability,
+                 CASE WHEN secondary_enabled THEN 'ENABLED' ELSE 'DISABLED' END AS secondary_availability,
+                 CASE WHEN redemption_enabled THEN 'ENABLED' ELSE 'DISABLED' END AS redemption_availability,
+                 '[]'::jsonb AS blocking_reasons,
+                 jsonb_build_object(
+                   'rightsNatureKo','인가 해외 증권사의 고객별 수탁권리 원장에 기록되는 모의 권리다.',
+                   'custodyRiskKo','국내 통합 보유분과 해외 증권사의 자산분리·도산위험을 별도로 확인해야 한다.',
+                   'transferRestrictionKo','적격 투자자와 지정 시장조성자 사이의 승인된 거래만 허용한다.',
+                   'settlementKo','체결 뒤 발행하지만 T+2 국내 결제완료 전에는 거래할 수 없다.',
+                   'dividendKo','기준일 고객 권리 스냅샷으로 모의 USD 배당을 배분한다.',
+                   'votingKo','고객지시를 해외 증권사가 승인한 뒤 상임대리인 모의 결과로 연결한다.',
+                   'redemptionKo','국내 매도대금 결제 뒤 권리종료·USD 지급·토큰 소각을 각각 확인한다.') AS notices
+          FROM local_simulation_instruments WHERE security_id='990001') product_source`
+      : "products product_source";
   const result = await pool.query(
-    `SELECT * FROM products ORDER BY representative DESC, security_id LIMIT $1 OFFSET $2`,
+    `SELECT * FROM ${source} ORDER BY representative DESC, security_id LIMIT $1 OFFSET $2`,
     [limit, offset],
   );
-  const count = await pool.query<{ count: string }>("SELECT count(*)::text AS count FROM products");
+  const count = await pool.query<{ count: string }>(`SELECT count(*)::text AS count FROM ${source}`);
   const nextOffset = offset + result.rows.length;
   return {
     items: result.rows.map((row) => mapProduct(row, now)),
@@ -150,7 +175,27 @@ export async function listProducts(pool: Pool, limit: number, offset: number, no
 
 export async function getProduct(pool: Pool, securityId: string, now: Date) {
   const result = await pool.query("SELECT * FROM products WHERE security_id = $1", [securityId]);
-  return result.rows[0] ? mapProduct(result.rows[0], now) : undefined;
+  if (result.rows[0]) return mapProduct(result.rows[0], now);
+  const demo = await pool.query(
+    `SELECT security_id,display_name AS name_ko,'LOCAL-DEMO-V1' AS reference_version,
+            NULL::text AS isin,token_address,'REVIEWED' AS candidate_status,
+            true AS representative,
+            CASE WHEN primary_enabled THEN 'ENABLED' ELSE 'DISABLED' END AS primary_availability,
+            CASE WHEN secondary_enabled THEN 'ENABLED' ELSE 'DISABLED' END AS secondary_availability,
+            CASE WHEN redemption_enabled THEN 'ENABLED' ELSE 'DISABLED' END AS redemption_availability,
+            '[]'::jsonb AS blocking_reasons,
+            jsonb_build_object(
+              'rightsNatureKo','인가 해외 증권사의 고객별 수탁권리 원장에 기록되는 모의 권리다.',
+              'custodyRiskKo','국내 통합 보유분과 해외 증권사의 자산분리·도산위험을 별도로 확인해야 한다.',
+              'transferRestrictionKo','적격 투자자와 지정 시장조성자 사이의 승인된 거래만 허용한다.',
+              'settlementKo','체결 뒤 발행하지만 T+2 국내 결제완료 전에는 거래할 수 없다.',
+              'dividendKo','기준일 고객 권리 스냅샷으로 모의 USD 배당을 배분한다.',
+              'votingKo','고객지시를 해외 증권사가 승인한 뒤 상임대리인 모의 결과로 연결한다.',
+              'redemptionKo','국내 매도대금 결제 뒤 권리종료·USD 지급·토큰 소각을 각각 확인한다.') AS notices
+     FROM local_simulation_instruments WHERE security_id=$1 AND security_id='990001'`,
+    [securityId],
+  );
+  return demo.rows[0] ? mapProduct(demo.rows[0], now) : undefined;
 }
 
 export async function getCurrentDisclosure(pool: Pool) {

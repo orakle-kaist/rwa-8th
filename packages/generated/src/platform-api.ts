@@ -711,15 +711,15 @@ export interface components {
         };
         LocalSecondaryScenario: {
             /** @constant */
-            securityId: "990002";
+            securityId: "990001";
             /** @constant */
-            displayName: "모의 SK하이닉스 24/7 시나리오";
+            displayName: "모의 삼성전자 수탁권리";
             /** @constant */
-            tokenSymbol: "SIM990002";
+            tokenSymbol: "SIM990001";
             tokenAddress: components["schemas"]["EvmAddress"];
             mockUsdcAddress: components["schemas"]["EvmAddress"];
             /** @constant */
-            referenceSecurityId: "000660";
+            referenceSecurityId: "005930";
             referenceUsdMinor: components["schemas"]["PositiveIntegerString"];
             normalAskUsdMinor: components["schemas"]["PositiveIntegerString"];
             informationEffectiveAt: components["schemas"]["UtcTimestamp"];
@@ -760,6 +760,30 @@ export interface components {
             /** @constant */
             simulation: true;
             projection: components["schemas"]["ProjectionMetadata"];
+        };
+        LocalInvestorJourney: {
+            /** @constant */
+            securityId: "990001";
+            /** @constant */
+            displayName: "모의 삼성전자 수탁권리";
+            /** @constant */
+            referenceSecurityId: "005930";
+            /** @constant */
+            referenceKrw: "257000";
+            /** @constant */
+            referenceUsdMinor: "18619";
+            /** @constant */
+            normalBidUsdMinor: "18526";
+            /** @constant */
+            normalAskUsdMinor: "18712";
+            /** @constant */
+            usdKrwRate: "1380.3";
+            primary?: components["schemas"]["LocalPrimaryScenario"];
+            secondary?: components["schemas"]["LocalSecondaryScenario"];
+            redemption?: components["schemas"]["LocalRedemptionScenario"];
+            rights?: components["schemas"]["LocalRightsScenario"];
+            /** @constant */
+            simulation: true;
         };
         LocalRedemptionScenario: {
             /** @constant */
@@ -907,6 +931,8 @@ export interface components {
         };
         Position: {
             securityId: components["schemas"]["SecurityId"];
+            displayName: string;
+            referenceSecurityId?: components["schemas"]["SecurityId"];
             settledRights: components["schemas"]["NonNegativeIntegerString"];
             pendingRights: components["schemas"]["NonNegativeIntegerString"];
             lockedRights: components["schemas"]["NonNegativeIntegerString"];
@@ -922,10 +948,24 @@ export interface components {
         TimelineItem: {
             /** Format: uuid */
             eventId: string;
+            /** Format: uuid */
+            workflowId?: string;
+            workflowType?: string;
+            securityId?: components["schemas"]["SecurityId"];
             eventType: string;
             /** Format: date-time */
             occurredAt: string;
             labelKo: string;
+            /** @enum {string} */
+            category: "REQUEST" | "INSTITUTION_FACT" | "STATE" | "CHAIN" | "FUNDS" | "AUDIT";
+            actorRoleKo: string;
+            recordLayerKo: string;
+            sourceOrganization?: string;
+            evidenceReference?: string;
+            transactionHash?: string;
+            nextActionKo: string;
+            /** @constant */
+            simulation: true;
             /** Format: uuid */
             correctsEventId?: string;
         };
@@ -971,7 +1011,7 @@ export interface components {
             /** Format: uuid */
             quoteId: string;
             /** @constant */
-            securityId: "990002";
+            securityId: "990001";
             investorSide: components["schemas"]["InvestorSide"];
             /** @enum {string} */
             fundingMode: "USD_LEDGER" | "USDC_ONCHAIN";
@@ -1001,7 +1041,7 @@ export interface components {
         };
         MarketMakerPositionView: {
             /** @constant */
-            securityId: "990002";
+            securityId: "990001";
             settledInventory: components["schemas"]["NonNegativeIntegerString"];
             pendingInventory: components["schemas"]["NonNegativeIntegerString"];
             reservedInventory: components["schemas"]["NonNegativeIntegerString"];
@@ -1028,7 +1068,7 @@ export interface components {
             /** Format: uuid */
             hedgeId: string;
             /** @constant */
-            securityId: "990002";
+            securityId: "990001";
             /** @enum {string} */
             direction: "BUY" | "SELL";
             requestedQuantity: components["schemas"]["NonNegativeIntegerString"];
@@ -1603,6 +1643,7 @@ export interface operations {
                         localSecondaryScenario?: components["schemas"]["LocalSecondaryScenario"];
                         localRedemptionScenario?: components["schemas"]["LocalRedemptionScenario"];
                         localRightsScenario?: components["schemas"]["LocalRightsScenario"];
+                        localInvestorJourney?: components["schemas"]["LocalInvestorJourney"];
                         /** @constant */
                         simulation: true;
                         projection: components["schemas"]["ProjectionMetadata"];
@@ -1617,6 +1658,8 @@ export interface operations {
             query?: {
                 limit?: components["parameters"]["Limit"];
                 cursor?: components["parameters"]["Cursor"];
+                /** @description 공식 후보와 메인 합성 시연 상품을 분리해 조회한다. */
+                scope?: "candidates" | "demo";
             };
             header?: never;
             path?: never;
