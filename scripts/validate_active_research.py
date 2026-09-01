@@ -82,6 +82,7 @@ TEST_TRACEABILITY = STAGE_NINE_ROOT / "specs" / "traceability.json"
 TEST_TRACEABILITY_SCHEMA = STAGE_NINE_ROOT / "specs" / "traceability.schema.json"
 STAGE_TEN_ROOT = DOCS_ROOT / "10-poc-implementation"
 LOCAL_ACCEPTANCE_EVIDENCE = STAGE_TEN_ROOT / "LOCAL_ACCEPTANCE_EVIDENCE.md"
+IMPLEMENTATION_REVIEW = STAGE_TEN_ROOT / "IMPLEMENTATION_REVIEW.md"
 IMPLEMENTATION_TEST_MAP = STAGE_TEN_ROOT / "specs" / "implementation-test-map.json"
 IMPLEMENTATION_TEST_MAP_SCHEMA = STAGE_TEN_ROOT / "specs" / "implementation-test-map.schema.json"
 STATE_TRANSITION_MATRIX = STAGE_TEN_ROOT / "specs" / "state-transition-matrix.json"
@@ -2785,8 +2786,8 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") != "awaiting_stage_ten_implementation_approval":
         errors.append("active project state must record the stage-ten implementation review gate")
-    if state.get("iteration") != 44:
-        errors.append("active project iteration must record the completed Fuji implementation evidence")
+    if state.get("iteration") != 45:
+        errors.append("active project iteration must record the completed stage-ten implementation review")
     expected_next_action = (
         "Review the stage-ten local and Fuji implementation evidence, then approve or request corrections before stage eleven."
     )
@@ -3573,6 +3574,43 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
         )
 
 
+def validate_stage_ten_implementation_review(errors: list[str]) -> None:
+    if not IMPLEMENTATION_REVIEW.is_file():
+        errors.append("stage-ten implementation review document is missing")
+        return
+
+    review = IMPLEMENTATION_REVIEW.read_text(encoding="utf-8")
+    for term in [
+        "검토 완료, 10단계 최종 승인 대기",
+        "구현 결함: 발견하지 않음",
+        "49개 요구사항",
+        "175개 상태",
+        "OpenAPI 48개",
+        "Chromium 전체 화면 흐름",
+        "승인된 로컬 인수시험",
+        "Fuji 읽기 전용 재확인",
+        "공식 상품 후보 201개",
+        "외부 검증사항",
+        "사용자 승인 전 착수 금지",
+    ]:
+        if term not in review:
+            errors.append(f"stage-ten implementation review is missing: {term}")
+
+    checklist = DEMO_CHECKLIST.read_text(encoding="utf-8")
+    human_section = checklist.split("## 5. 시연 직전 사람 확인", 1)
+    if len(human_section) != 2:
+        errors.append("demo checklist is missing the human review section")
+    else:
+        checked = re.findall(r"^- \[x\] ", human_section[1], flags=re.MULTILINE)
+        unchecked = re.findall(r"^- \[ \] ", human_section[1], flags=re.MULTILINE)
+        if len(checked) != 7 or unchecked:
+            errors.append("all seven stage-ten human review items must be completed")
+
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    if "docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md" not in readme:
+        errors.append("README must link the stage-ten implementation review")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3595,6 +3633,7 @@ def main() -> int:
     validate_stage_ten_redemption(errors)
     validate_stage_ten_rights_and_recovery(errors)
     validate_stage_ten_local_acceptance(errors)
+    validate_stage_ten_implementation_review(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
