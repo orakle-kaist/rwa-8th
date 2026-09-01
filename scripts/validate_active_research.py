@@ -354,7 +354,11 @@ def validate_workspace_contract(errors: list[str]) -> None:
         "docs/03-product-requirements/PRD.md" not in readme
         or not any(
             status in readme
-            for status in ["10단계 PoC 구현 중", "10단계 로컬 시연 후보"]
+            for status in [
+                "10단계 PoC 구현 중",
+                "10단계 로컬 시연 후보",
+                "10단계 로컬 통합 정합성 보완 중",
+            ]
         )
     ):
         errors.append("README must identify PRD.md and the stage-nine review status")
@@ -399,7 +403,11 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/09-test-design/DEMO_CHECKLIST.md" not in readme
         or not any(
             status in readme
-            for status in ["10단계 PoC 구현 중", "10단계 로컬 시연 후보"]
+            for status in [
+                "10단계 PoC 구현 중",
+                "10단계 로컬 시연 후보",
+                "10단계 로컬 통합 정합성 보완 중",
+            ]
         )
         or "docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md" not in readme
     ):
@@ -894,6 +902,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "ready_for_stage_ten",
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1132,6 +1141,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "ready_for_stage_ten",
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1501,6 +1511,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "ready_for_stage_ten",
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1739,7 +1750,8 @@ def validate_stage_six_contract(errors: list[str]) -> None:
     if state.get("stage") not in {
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
-        "ready_for_stage_ten", "stage_ten_in_progress", "stage_ten_local_candidate"
+        "ready_for_stage_ten", "stage_ten_in_progress", "stage_ten_local_candidate",
+        "stage_ten_integration_alignment"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2046,6 +2058,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "ready_for_stage_ten",
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2327,7 +2340,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") not in {
         "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
-        "stage_ten_in_progress", "stage_ten_local_candidate",
+        "stage_ten_in_progress", "stage_ten_local_candidate", "stage_ten_integration_alignment",
     }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
@@ -2750,20 +2763,23 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             "9단계" not in content
             or "승인" not in content
             or "10단계" not in content
-            or not any(status in content for status in ["구현 중", "로컬 시연 후보"])
+            or not any(
+                status in content
+                for status in ["구현 중", "로컬 시연 후보", "로컬 통합 정합성 보완 중"]
+            )
         ):
             errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "stage_ten_local_candidate":
-        errors.append("active project state must record the stage-ten local demo candidate")
-    if state.get("iteration") != 41:
-        errors.append("active project iteration must record the local acceptance implementation")
+    if state.get("stage") != "stage_ten_integration_alignment":
+        errors.append("active project state must record the stage-ten integration alignment")
+    if state.get("iteration") != 42:
+        errors.append("active project iteration must record the reopened local integration review")
     expected_next_action = (
-        "Verify official ISINs for the six representative stocks, then run the three Fuji manual tests without treating local success as a substitute."
+        "Enforce the approved runtime states and complete the three missing platform query APIs before connecting the full lifecycle to Anvil."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must preserve the official-ISIN and Fuji manual-test gate")
+        errors.append("active project next action must prioritize runtime state and API alignment")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3083,7 +3099,7 @@ def validate_stage_ten_foundation(errors: list[str]) -> None:
         REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md"
     ).read_text(encoding="utf-8")
     for term in [
-        "상태: **10단계 로컬 시연 후보, Fuji 검증 대기**", "합성 Bearer", "PostgreSQL", "Anvil",
+        "상태: **10단계 로컬 통합 정합성 보완 중, Fuji 검증 착수 보류**", "합성 Bearer", "PostgreSQL", "Anvil",
         "승인된 OpenAPI", "실제 비밀값", "제한형 권리토큰", "Safe 3인 중 2인",
         "업무 ABI", "관리 ABI",
     ]:

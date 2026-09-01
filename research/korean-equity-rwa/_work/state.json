@@ -1,6 +1,6 @@
 {
-  "stage": "stage_ten_local_candidate",
-  "next_action": "Verify official ISINs for the six representative stocks, then run the three Fuji manual tests without treating local success as a substitute.",
-  "updated_at": "2026-09-01T13:25:00+09:00",
-  "iteration": 41
+  "stage": "stage_ten_integration_alignment",
+  "next_action": "Enforce the approved runtime states and complete the three missing platform query APIs before connecting the full lifecycle to Anvil.",
+  "updated_at": "2026-09-01T13:41:41+09:00",
+  "iteration": 42
 }
