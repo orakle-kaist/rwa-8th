@@ -15,5 +15,6 @@ error EvidenceAlreadyUsed(bytes32 evidenceHash);
 error MissingIndependentApproval(bytes16 workflowId, bytes32 approvalType);
 error IssuanceEvidenceMismatch(bytes16 workflowId);
 error AllocationExceeded(uint256 requested, uint256 confirmedAllocation);
+error InsufficientPendingBalance(address wallet, uint256 available, uint256 required);
 error PaymentMismatch(uint256 expected, uint256 actual);
 error NonIntegralCorporateAction(address wallet, uint256 quantity, uint256 denominator);

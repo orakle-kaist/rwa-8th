@@ -6,10 +6,12 @@
   "exports": "./src/index.ts",
   "scripts": {
     "migrate": "tsx src/migrate.ts",
+    "reset:test": "tsx src/reset-test.ts",
     "test:integration": "vitest run --config vitest.config.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@rwa/domain": "workspace:*",
     "drizzle-orm": "0.45.2",
     "pg": "8.23.0"
   },

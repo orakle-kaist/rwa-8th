@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/state-transition-matrix.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "sourceCatalog",
+    "sourceDesign",
+    "totalStates",
+    "states"
+  ],
+  "properties": {
+    "$schema": { "const": "./state-transition-matrix.schema.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "sourceCatalog": { "const": "../../07-data-api-events/specs/state-catalog.json" },
+    "sourceDesign": { "const": "../../05-screens-states-recovery/STATE_MODEL.md" },
+    "totalStates": { "const": 175 },
+    "states": {
+      "type": "array",
+      "minItems": 175,
+      "maxItems": 175,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "axis",
+          "stateCode",
+          "labelKo",
+          "allowedTargets",
+          "representativeForbiddenTargets",
+          "forbiddenErrorCode",
+          "source"
+        ],
+        "properties": {
+          "axis": { "type": "string", "minLength": 1 },
+          "stateCode": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+          "labelKo": { "type": "string", "minLength": 1 },
+          "allowedTargets": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+            "uniqueItems": true
+          },
+          "representativeForbiddenTargets": {
+            "type": "array",
+            "maxItems": 1,
+            "items": { "type": "string", "pattern": "^[A-Z0-9_]+$" },
+            "uniqueItems": true
+          },
+          "forbiddenErrorCode": { "enum": ["STATE_CONFLICT", null] },
+          "source": { "const": "../../05-screens-states-recovery/STATE_MODEL.md" }
+        }
+      }
+    }
+  }
+}

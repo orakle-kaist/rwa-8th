@@ -8,7 +8,10 @@
     "EligibilityRegistry",
     "SecurityTokenFactory",
     "IntentVerifier",
-    "MarketPolicyRegistry"
+    "MarketPolicyRegistry",
+    "IssuanceController",
+    "SecondarySettlementController",
+    "RedemptionController"
   ],
   "standardAccessControl": {
     "functions": [
@@ -35,6 +38,7 @@
       "contract": "SecurityTokenFactory",
       "functions": [
         { "name": "getSecurityToken", "stateMutability": "view", "inputs": [{ "name": "krxCode", "type": "string" }, { "name": "isin", "type": "string" }, { "name": "designVersionHash", "type": "bytes32" }], "outputs": [{ "name": "", "type": "address" }] }
+        ,{ "name": "getTokenSecurityId", "stateMutability": "view", "inputs": [{ "name": "token", "type": "address" }], "outputs": [{ "name": "", "type": "string" }] }
       ],
       "events": [],
       "errors": []
@@ -62,6 +66,22 @@
       "errors": [
         { "name": "InvalidShortString", "inputs": [] },
         { "name": "StringTooLong", "inputs": [{ "name": "str", "type": "string" }] }
+      ]
+    },
+    {
+      "contract": "SecondarySettlementController",
+      "functions": [],
+      "events": [],
+      "errors": [
+        {
+          "name": "SafeERC20FailedOperation",
+          "inputs": [
+            {
+              "name": "token",
+              "type": "address"
+            }
+          ]
+        }
       ]
     }
   ]

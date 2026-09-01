@@ -80,6 +80,14 @@ TEST_CATALOG_SCHEMA = STAGE_NINE_ROOT / "specs" / "test-catalog.schema.json"
 TEST_FIXTURES = STAGE_NINE_ROOT / "specs" / "test-fixtures.json"
 TEST_TRACEABILITY = STAGE_NINE_ROOT / "specs" / "traceability.json"
 TEST_TRACEABILITY_SCHEMA = STAGE_NINE_ROOT / "specs" / "traceability.schema.json"
+STAGE_TEN_ROOT = DOCS_ROOT / "10-poc-implementation"
+LOCAL_ACCEPTANCE_EVIDENCE = STAGE_TEN_ROOT / "LOCAL_ACCEPTANCE_EVIDENCE.md"
+IMPLEMENTATION_REVIEW = STAGE_TEN_ROOT / "IMPLEMENTATION_REVIEW.md"
+MANUAL_DEMO_GUIDE = STAGE_TEN_ROOT / "MANUAL_DEMO_GUIDE.md"
+IMPLEMENTATION_TEST_MAP = STAGE_TEN_ROOT / "specs" / "implementation-test-map.json"
+IMPLEMENTATION_TEST_MAP_SCHEMA = STAGE_TEN_ROOT / "specs" / "implementation-test-map.schema.json"
+STATE_TRANSITION_MATRIX = STAGE_TEN_ROOT / "specs" / "state-transition-matrix.json"
+STATE_TRANSITION_MATRIX_SCHEMA = STAGE_TEN_ROOT / "specs" / "state-transition-matrix.schema.json"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|tmp)/")
@@ -195,6 +203,9 @@ def markdown_files() -> list[Path]:
         TEST_SCENARIOS,
         FIXTURES_AND_EVIDENCE,
         DEMO_CHECKLIST,
+        LOCAL_ACCEPTANCE_EVIDENCE,
+        IMPLEMENTATION_REVIEW,
+        MANUAL_DEMO_GUIDE,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -276,6 +287,11 @@ def validate_workspace_contract(errors: list[str]) -> None:
         TEST_FIXTURES,
         TEST_TRACEABILITY,
         TEST_TRACEABILITY_SCHEMA,
+        LOCAL_ACCEPTANCE_EVIDENCE,
+        IMPLEMENTATION_TEST_MAP,
+        IMPLEMENTATION_TEST_MAP_SCHEMA,
+        STATE_TRANSITION_MATRIX,
+        STATE_TRANSITION_MATRIX_SCHEMA,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -340,7 +356,15 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "10단계 PoC 구현 중" not in readme
+        or not any(
+            status in readme
+            for status in [
+                "10단계 PoC 구현 중",
+                "10단계 로컬 시연 후보",
+                "10단계 로컬 통합 정합성 보완 중",
+                "10단계 구현 검토 대기",
+            ]
+        )
     ):
         errors.append("README must identify PRD.md and the stage-nine review status")
     if (
@@ -382,7 +406,15 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/09-test-design/TEST_SCENARIOS.md" not in readme
         or "docs/09-test-design/FIXTURES_AND_EVIDENCE.md" not in readme
         or "docs/09-test-design/DEMO_CHECKLIST.md" not in readme
-        or "10단계 PoC 구현 중" not in readme
+        or not any(
+            status in readme
+            for status in [
+                "10단계 PoC 구현 중",
+                "10단계 로컬 시연 후보",
+                "10단계 로컬 통합 정합성 보완 중",
+                "10단계 구현 검토 대기",
+            ]
+        )
         or "docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md" not in readme
     ):
         errors.append("README must identify stage-nine review artifacts and block stage ten")
@@ -875,6 +907,10 @@ def validate_prd_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1112,6 +1148,10 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1480,6 +1520,10 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1718,7 +1762,9 @@ def validate_stage_six_contract(errors: list[str]) -> None:
     if state.get("stage") not in {
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
-        "ready_for_stage_ten", "stage_ten_in_progress"
+        "ready_for_stage_ten", "stage_ten_in_progress", "stage_ten_local_candidate",
+        "stage_ten_integration_alignment", "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2024,6 +2070,10 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
+        "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2207,7 +2257,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         "MarketMakerRequired", "InsufficientAvailableBalance", "ScopePaused", "SignatureExpired",
         "NonceAlreadyUsed", "PolicyVersionMismatch", "EvidenceAlreadyUsed",
         "MissingIndependentApproval", "IssuanceEvidenceMismatch", "AllocationExceeded",
-        "PaymentMismatch", "NonIntegralCorporateAction",
+        "InsufficientPendingBalance", "PaymentMismatch", "NonIntegralCorporateAction",
     }
     abi_errors = [entry.get("name") for entry in abi_spec.get("errors", [])]
     if set(abi_errors) != expected_abi_errors or len(abi_errors) != len(set(abi_errors)):
@@ -2225,9 +2275,10 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
         errors.append("governance ABI must be approved and reference the business ABI")
     if set(governance_abi.get("accessControlContracts", [])) != {
         "RestrictedEquityToken", "EligibilityRegistry", "SecurityTokenFactory",
-        "IntentVerifier", "MarketPolicyRegistry",
+        "IntentVerifier", "MarketPolicyRegistry", "IssuanceController",
+        "SecondarySettlementController", "RedemptionController",
     }:
-        errors.append("governance ABI must cover all five foundation contracts")
+        errors.append("governance ABI must cover all eight implemented access-controlled contracts")
     allowed_abi_types = {
         "address", "address[]", "bool", "bytes", "bytes16", "bytes32", "string",
         "uint8", "uint256", "PrimaryOrderIntent", "SecondaryOrderIntent",
@@ -2304,7 +2355,8 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") not in {
         "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
-        "stage_ten_in_progress",
+        "stage_ten_in_progress", "stage_ten_local_candidate", "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate", "awaiting_stage_ten_implementation_approval",
     }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
@@ -2727,20 +2779,23 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             "9단계" not in content
             or "승인" not in content
             or "10단계" not in content
-            or "구현 중" not in content
+            or not any(
+                status in content
+                for status in ["구현 중", "로컬 시연 후보", "로컬 통합 정합성 보완 중", "구현 검토 대기"]
+            )
         ):
             errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "stage_ten_in_progress":
-        errors.append("active project state must record stage-ten implementation in progress")
-    if state.get("iteration") != 37:
-        errors.append("active project iteration must be 37 for the restricted token foundation")
+    if state.get("stage") != "awaiting_stage_ten_implementation_approval":
+        errors.append("active project state must record the stage-ten implementation review gate")
+    if state.get("iteration") != 45:
+        errors.append("active project iteration must record the completed stage-ten implementation review")
     expected_next_action = (
-        "Validate and commit the restricted token foundation before implementing eligibility and investor protection."
+        "Review the stage-ten local and Fuji implementation evidence, then approve or request corrections before stage eleven."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must validate the restricted token foundation")
+        errors.append("active project next action must prioritize stage-ten implementation review")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3060,7 +3115,7 @@ def validate_stage_ten_foundation(errors: list[str]) -> None:
         REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md"
     ).read_text(encoding="utf-8")
     for term in [
-        "상태: **10단계 구현 중**", "합성 Bearer", "PostgreSQL", "Anvil",
+        "상태: **10단계 구현 검토 대기**", "합성 Bearer", "PostgreSQL", "Anvil",
         "승인된 OpenAPI", "실제 비밀값", "제한형 권리토큰", "Safe 3인 중 2인",
         "업무 ABI", "관리 ABI",
     ]:
@@ -3069,6 +3124,525 @@ def validate_stage_ten_foundation(errors: list[str]) -> None:
 
     if (REPO_ROOT / ".env").exists():
         errors.append("repository must not contain a local .env file")
+
+
+def validate_stage_ten_protection(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0002_customer_product_protection.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "seed-protection.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "protection.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "protection-routes.ts",
+        REPO_ROOT / "apps" / "web" / "app" / "investor" / "investor-workspace.tsx",
+        REPO_ROOT / "apps" / "web" / "app" / "institution" / "institution-workspace.tsx",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "eligibility.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "ELIGIBILITY_AND_PROTECTION_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten eligibility and protection implementation is missing: " + ", ".join(missing))
+        return
+
+    seed = (REPO_ROOT / "packages" / "database" / "src" / "seed-protection.ts").read_text(encoding="utf-8")
+    for term in [
+        "KOSPI200-2026-08-28", "SIM-RISK-2", "PRODUCT_SOURCE_CHECKSUM",
+        "INFORMATION_UNCONFIRMED", "'DISABLED', 'DISABLED', 'DISABLED'",
+    ]:
+        if term not in seed:
+            errors.append(f"protection seed is missing approved boundary: {term}")
+    if seed.count('"005930"') < 1 or seed.count('"006800"') < 1:
+        errors.append("protection seed must preserve the representative security set")
+
+    evidence = (
+        REPO_ROOT / "docs" / "10-poc-implementation" / "ELIGIBILITY_AND_PROTECTION_EVIDENCE.md"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "201개", "공식 ISIN", "전 종목 거래기능은 차단", "적격성 레지스트리",
+        "민원", "모의 환경", "1차 지정가 주문",
+    ]:
+        if term not in evidence:
+            errors.append(f"eligibility and protection evidence is missing: {term}")
+
+    operation_count = 0
+    for path in [PLATFORM_OPENAPI, ADAPTER_OPENAPI]:
+        openapi = yaml.safe_load(path.read_text(encoding="utf-8"))
+        operation_count += sum(
+            1
+            for item in openapi.get("paths", {}).values()
+            for method, operation in item.items()
+            if method.lower() in {"get", "post", "put", "patch", "delete"}
+            and isinstance(operation, dict)
+            and operation.get("operationId")
+        )
+    if operation_count != 48:
+        errors.append(f"implementation must expose 48 approved OpenAPI operations, found {operation_count}")
+
+
+def validate_stage_ten_primary_issuance(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0003_primary_issuance.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "primary.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "primary-issuance.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "primary-routes.ts",
+        REPO_ROOT / "apps" / "mock-institutions" / "src" / "server.ts",
+        REPO_ROOT / "contracts" / "src" / "IssuanceController.sol",
+        REPO_ROOT / "contracts" / "test" / "IssuanceController.t.sol",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "PRIMARY_ISSUANCE_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten primary issuance implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "primary-issuance.ts").read_text(encoding="utf-8")
+    for term in ["990001", "SIM990001", "TEST00000001", "257_000n", "20n", "Asia/Seoul"]:
+        if term not in domain:
+            errors.append(f"primary issuance domain is missing approved synthetic boundary: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "PRIMARY_ISSUANCE_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "공식 KOSPI 200 후보 201개와 분리", "A 4주, B 2주", "결제 대기",
+        "국내 결제와 수탁수량", "대체주식 조달", "기관 입력 현금보상액",
+    ]:
+        if term not in evidence:
+            errors.append(f"primary issuance evidence is missing: {term}")
+
+
+def validate_stage_ten_secondary_trading(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0004_secondary_trading.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "secondary.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "secondary-trading.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "secondary-routes.ts",
+        REPO_ROOT / "contracts" / "src" / "SecondarySettlementController.sol",
+        REPO_ROOT / "contracts" / "test" / "SecondarySettlementController.t.sol",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "SECONDARY_TRADING_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten secondary trading implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "secondary-trading.ts").read_text(encoding="utf-8")
+    for term in ["990002", "SIM990002", "TEST00000002", "120_355n", "100n", "20n", "30", "60"]:
+        if term not in domain:
+            errors.append(f"secondary trading domain is missing approved synthetic boundary: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "SECONDARY_TRADING_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "공식 KOSPI 200 후보 201개와 분리", "8주", "5주", "결제 대기 20주",
+        "순포지션", "원자적 DvP", "권리 원장", "RPC 응답 유실",
+    ]:
+        if term not in evidence:
+            errors.append(f"secondary trading evidence is missing: {term}")
+
+
+def validate_stage_ten_market_maker_hedge(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0005_market_maker_hedges.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "hedge.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "market-maker-hedge.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "hedge-routes.ts",
+        REPO_ROOT / "contracts" / "src" / "RedemptionController.sol",
+        REPO_ROOT / "contracts" / "test" / "RedemptionController.t.sol",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "redemption.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "HEDGE_WORKFLOW_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten market-maker hedge implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "market-maker-hedge.ts").read_text(encoding="utf-8")
+    for term in ["1_653_000n", "unhedgedQuantity", "hedgePriority", "Asia/Seoul"]:
+        if term not in domain:
+            errors.append(f"market-maker hedge domain is missing approved control: {term}")
+
+    workflow = (REPO_ROOT / "packages" / "database" / "src" / "hedge.ts").read_text(encoding="utf-8")
+    for term in ["HEDGE_CREATED", "HEDGE_ON_HOLD", "HEDGE_T2_PENDING", "HEDGE_INVENTORY_ADJUSTED"]:
+        if term not in workflow:
+            errors.append(f"market-maker hedge workflow is missing approved state: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "HEDGE_WORKFLOW_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "순포지션", "다음 KRX 개장", "외국인 한도", "부분체결", "지급청구",
+        "HEDGE_ON_HOLD", "Foundry", "Anvil", "실제 최적 헤지 전략",
+    ]:
+        if term not in evidence:
+            errors.append(f"market-maker hedge evidence is missing: {term}")
+
+
+def validate_stage_ten_redemption(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0006_redemptions.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "redemption.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "redemption.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "redemption-routes.ts",
+        REPO_ROOT / "contracts" / "src" / "RedemptionController.sol",
+        REPO_ROOT / "contracts" / "test" / "RedemptionController.t.sol",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "redemption.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "REDEMPTION_LIFECYCLE_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten investor redemption implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "redemption.ts").read_text(encoding="utf-8")
+    for term in ["990001", "257_000n", "74_476n", "allocateRedemptionFill", "allocateUsdClaims"]:
+        if term not in domain:
+            errors.append(f"investor redemption domain is missing approved control: {term}")
+
+    workflow = (REPO_ROOT / "packages" / "database" / "src" / "redemption.ts").read_text(encoding="utf-8")
+    for term in [
+        "REDEMPTION_CANCELLED",
+        "SALE_PROCEEDS_SETTLEMENT_PENDING",
+        "RIGHTS_TERMINATION_PENDING",
+        "PAYMENT_AND_BURN_PENDING",
+        "QUARANTINED",
+    ]:
+        if term not in workflow:
+            errors.append(f"investor redemption workflow is missing approved state: {term}")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "REDEMPTION_LIFECYCLE_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "A 3주, B 1주",
+        "미체결 1주",
+        "55,857센트",
+        "18,619센트",
+        "각각 1주",
+        "정상적인 환매 과도기",
+        "실제 삼성전자 상품이 아니며",
+    ]:
+        if term not in evidence:
+            errors.append(f"investor redemption evidence is missing: {term}")
+
+
+def validate_stage_ten_rights_and_recovery(errors: list[str]) -> None:
+    required_paths = [
+        REPO_ROOT / "packages" / "database" / "migrations" / "0007_rights_and_controls.sql",
+        REPO_ROOT / "packages" / "database" / "src" / "rights.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "seed-rights.ts",
+        REPO_ROOT / "packages" / "domain" / "src" / "rights-and-controls.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "rights-routes.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "rights-routes.integration.test.ts",
+        REPO_ROOT / "contracts" / "src" / "RecoveryController.sol",
+        REPO_ROOT / "contracts" / "src" / "CorporateActionController.sol",
+        REPO_ROOT / "contracts" / "test" / "RecoveryAndCorporateActionController.t.sol",
+        REPO_ROOT / "packages" / "contracts-client" / "src" / "rights.ts",
+        REPO_ROOT / "docs" / "10-poc-implementation" / "RIGHTS_AND_RECOVERY_EVIDENCE.md",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten rights and recovery implementation is missing: " + ", ".join(missing))
+        return
+
+    domain = (REPO_ROOT / "packages" / "domain" / "src" / "rights-and-controls.ts").read_text(encoding="utf-8")
+    for term in ["990001", "990003", "SIM990003", "TEST00000003", "100n", "30", "expectedSplitSupply"]:
+        if term not in domain:
+            errors.append(f"rights and recovery domain is missing approved synthetic control: {term}")
+
+    workflow = (REPO_ROOT / "packages" / "database" / "src" / "rights.ts").read_text(encoding="utf-8")
+    for term in [
+        "DIVIDEND_RESERVATION_RELEASED",
+        "NO_RESPONSE",
+        "NEW_ORDERS",
+        "PRIMARY_AND_SECONDARY",
+        "rights_approved=true",
+        "compliance_approved=true",
+    ]:
+        if term not in workflow:
+            errors.append(f"rights and recovery workflow is missing approved state or scope: {term}")
+
+    token = (REPO_ROOT / "contracts" / "src" / "RestrictedEquityToken.sol").read_text(encoding="utf-8")
+    if "_burnPending[account] * numerator" in token:
+        errors.append("corporate action must not scale redemption burn-pending tokens")
+
+    evidence = (REPO_ROOT / "docs" / "10-poc-implementation" / "RIGHTS_AND_RECOVERY_EVIDENCE.md").read_text(encoding="utf-8")
+    for term in [
+        "30초 합성 USDC 전환",
+        "미응답 미행사",
+        "9월 10일",
+        "10년 보관",
+        "독립 승인",
+        "총발행량은 10에서 19",
+        "소각 대기 수량은 `1`로 유지",
+        "두 축 대사",
+        "60초 지연 재개",
+    ]:
+        if term not in evidence:
+            errors.append(f"rights and recovery evidence is missing: {term}")
+
+
+def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
+    required_paths = [
+        LOCAL_ACCEPTANCE_EVIDENCE,
+        IMPLEMENTATION_TEST_MAP,
+        IMPLEMENTATION_TEST_MAP_SCHEMA,
+        STATE_TRANSITION_MATRIX,
+        STATE_TRANSITION_MATRIX_SCHEMA,
+        REPO_ROOT / "tests" / "acceptance" / "register-approved-tests.ts",
+        REPO_ROOT / "scripts" / "run-local-acceptance.ts",
+        REPO_ROOT / "scripts" / "run-full-local-validation.ts",
+        REPO_ROOT / "scripts" / "verify-local-lifecycle-evidence.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "reset-demo.ts",
+        REPO_ROOT / "apps" / "web" / "app" / "components" / "lifecycle-guide.tsx",
+        REPO_ROOT / "packages" / "domain" / "src" / "generated-state-transitions.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "runtime-state.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "common-routes.ts",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten local acceptance implementation is missing: " + ", ".join(missing))
+        return
+
+    parsed = {}
+    for path in [
+        IMPLEMENTATION_TEST_MAP,
+        IMPLEMENTATION_TEST_MAP_SCHEMA,
+        STATE_TRANSITION_MATRIX,
+        STATE_TRANSITION_MATRIX_SCHEMA,
+    ]:
+        try:
+            parsed[path] = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append(f"stage-ten acceptance data parse failed: {path.name}: {exc}")
+    if len(parsed) != 4:
+        return
+
+    for schema_path, document_path in [
+        (IMPLEMENTATION_TEST_MAP_SCHEMA, IMPLEMENTATION_TEST_MAP),
+        (STATE_TRANSITION_MATRIX_SCHEMA, STATE_TRANSITION_MATRIX),
+    ]:
+        try:
+            Draft202012Validator.check_schema(parsed[schema_path])
+            validator = Draft202012Validator(parsed[schema_path])
+            for issue in sorted(
+                validator.iter_errors(parsed[document_path]), key=lambda item: list(item.path)
+            ):
+                location = "/".join(str(part) for part in issue.path) or "<root>"
+                errors.append(
+                    f"{document_path.name} schema violation at {location}: {issue.message}"
+                )
+        except Exception as exc:
+            errors.append(f"{schema_path.name} validation failed: {exc}")
+
+    implementation = parsed[IMPLEMENTATION_TEST_MAP]
+    cases = implementation.get("cases", [])
+    local = [case for case in cases if case.get("automated")]
+    fuji = [case for case in cases if not case.get("automated")]
+    primary = [
+        (
+            case.get("primaryExecutable", {}).get("runner"),
+            case.get("primaryExecutable", {}).get("file"),
+            case.get("primaryExecutable", {}).get("testName"),
+        )
+        for case in local
+    ]
+    if len(cases) != 79 or len(local) != 76 or len(fuji) != 3 or len(set(primary)) != 76:
+        errors.append("implementation test map must contain 76 unique local tests and 3 Fuji tests")
+    official_isin = (
+        REPO_ROOT
+        / "research"
+        / "korean-equity-rwa"
+        / "sources"
+        / "web"
+        / "krx-listed-2026-08-28-representative-6.json"
+    )
+    fuji_evidence = REPO_ROOT / "docs" / "10-poc-implementation" / "FUJI_DEPLOYMENT_EVIDENCE.md"
+    expected_fuji_status = (
+        "FUJI_PASSED"
+        if fuji_evidence.exists()
+        else "FUJI_MANUAL"
+        if official_isin.exists()
+        else "BLOCKED_OFFICIAL_ISIN"
+    )
+    if any(case.get("status") != expected_fuji_status for case in fuji):
+        errors.append("Fuji test status must follow the official ISIN evidence gate")
+    if official_isin.exists():
+        if any(
+            case.get("primaryExecutable", {}).get("file") != "scripts/test-fuji.ts"
+            for case in fuji
+        ):
+            errors.append("verified Fuji tests must point to the Fuji execution script")
+        if fuji_evidence.exists() and any(
+            "docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md" not in case.get("evidence", [])
+            for case in fuji
+        ):
+            errors.append("passed Fuji tests must point to the tracked Fuji evidence document")
+    elif any(case.get("primaryExecutable") is not None for case in fuji):
+        errors.append("blocked Fuji tests must not claim an executable result")
+
+    matrix = parsed[STATE_TRANSITION_MATRIX]
+    states = matrix.get("states", [])
+    state_codes = [state.get("stateCode") for state in states]
+    if len(states) != 175 or len(set(state_codes)) != 175:
+        errors.append("state transition matrix must contain 175 unique states")
+    if any(
+        state.get("representativeForbiddenTargets")
+        and state.get("forbiddenErrorCode") != "STATE_CONFLICT"
+        for state in states
+    ):
+        errors.append("representative forbidden transitions must return STATE_CONFLICT")
+
+    lifecycle = (
+        REPO_ROOT / "apps" / "web" / "app" / "components" / "lifecycle-guide.tsx"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "sourceRecord",
+        "blockedReason",
+        "24/7은 KRX가 24시간 열리는 것이 아니라",
+        "토큰은 고객",
+        "권리의 기준장부가 아니며",
+        "합성·모의 데이터",
+    ]:
+        if term not in lifecycle:
+            errors.append(f"lifecycle guide is missing approved demo boundary: {term}")
+
+    reset = (REPO_ROOT / "packages" / "database" / "src" / "reset-demo.ts").read_text(
+        encoding="utf-8"
+    )
+    for term in ["RESET_LOCAL_SYNTHETIC_RWA_POC", 'databaseName !== "rwa_poc"', "DROP SCHEMA"]:
+        if term not in reset:
+            errors.append(f"demo reset is missing destructive-operation guard: {term}")
+
+    runner = (REPO_ROOT / "scripts" / "run-local-acceptance.ts").read_text(encoding="utf-8")
+    for term in [
+        "numPassedTests !== 76",
+        "automaticRetry: false",
+        "skipped: 0",
+        'result: "NOT_RUN"',
+        "git\", [\"status\", \"--porcelain",
+        "actual-lifecycle.json",
+    ]:
+        if term not in runner:
+            errors.append(f"local acceptance runner is missing evidence control: {term}")
+
+    lifecycle_verifier = (
+        REPO_ROOT / "scripts" / "verify-local-lifecycle-evidence.ts"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "MARKET_MAKER_HEDGE",
+        "HEDGE_BUY_RELEASE",
+        "getTransactionReceipt",
+        "mock_institution_keys",
+        "inbox_messages",
+        "totalSupply",
+    ]:
+        if term not in lifecycle_verifier:
+            errors.append(f"actual local lifecycle evidence is missing: {term}")
+
+    state_runtime = (REPO_ROOT / "packages" / "database" / "src" / "runtime-state.ts").read_text(encoding="utf-8")
+    for term in ["assertApprovedStateTransition", "FOR UPDATE", "STATE_CONFLICT", "workflow_state_axis_history"]:
+        if term not in state_runtime:
+            errors.append(f"runtime state enforcement is missing: {term}")
+
+    common_routes = (REPO_ROOT / "apps" / "api" / "src" / "common-routes.ts").read_text(encoding="utf-8")
+    for route in [
+        '/api/v1/positions',
+        '/api/v1/activities',
+        '/api/v1/workflows/:workflowId/timeline',
+    ]:
+        if route not in common_routes:
+            errors.append(f"approved common query route is missing: {route}")
+
+    platform = yaml.safe_load(PLATFORM_OPENAPI.read_text(encoding="utf-8"))
+    approved_routes = set()
+    for path, item in platform.get("paths", {}).items():
+        runtime_path = re.sub(r"\{([^}]+)\}", r":\1", "/api/v1" + path)
+        for method, operation in item.items():
+            if method.lower() in {"get", "post", "put", "patch", "delete"} and isinstance(operation, dict):
+                approved_routes.add((method.upper(), runtime_path))
+    route_sources = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (REPO_ROOT / "apps" / "api" / "src").glob("*-routes.ts")
+    ) + "\n" + (REPO_ROOT / "apps" / "api" / "src" / "app.ts").read_text(encoding="utf-8")
+    registered_routes = {
+        (method.upper(), path)
+        for method, path in re.findall(
+            r'app\.(get|post|put|patch|delete)\(\s*["`](/api/v1/[^"`$]+)["`]',
+            route_sources,
+        )
+    }
+    if "/api/v1/institution/complaints/:complaintId/${suffix}" in route_sources:
+        for suffix in ["assignments", "processing-starts", "responses", "correction-links", "closures"]:
+            registered_routes.add(("POST", f"/api/v1/institution/complaints/:complaintId/{suffix}"))
+    if approved_routes != registered_routes:
+        missing_routes = sorted(approved_routes - registered_routes)
+        extra_routes = sorted(registered_routes - approved_routes)
+        errors.append(
+            "platform OpenAPI and registered routes differ: missing="
+            + repr(missing_routes)
+            + " extra="
+            + repr(extra_routes)
+        )
+
+
+def validate_stage_ten_implementation_review(errors: list[str]) -> None:
+    if not IMPLEMENTATION_REVIEW.is_file():
+        errors.append("stage-ten implementation review document is missing")
+        return
+
+    review = IMPLEMENTATION_REVIEW.read_text(encoding="utf-8")
+    for term in [
+        "검토 완료, 10단계 최종 승인 대기",
+        "구현 결함: 발견하지 않음",
+        "49개 요구사항",
+        "175개 상태",
+        "OpenAPI 48개",
+        "Chromium 전체 화면 흐름",
+        "승인된 로컬 인수시험",
+        "Fuji 읽기 전용 재확인",
+        "공식 상품 후보 201개",
+        "외부 검증사항",
+        "사용자 승인 전 착수 금지",
+    ]:
+        if term not in review:
+            errors.append(f"stage-ten implementation review is missing: {term}")
+
+    checklist = DEMO_CHECKLIST.read_text(encoding="utf-8")
+    human_section = checklist.split("## 5. 시연 직전 사람 확인", 1)
+    if len(human_section) != 2:
+        errors.append("demo checklist is missing the human review section")
+    else:
+        checked = re.findall(r"^- \[x\] ", human_section[1], flags=re.MULTILINE)
+        unchecked = re.findall(r"^- \[ \] ", human_section[1], flags=re.MULTILINE)
+        if len(checked) != 7 or unchecked:
+            errors.append("all seven stage-ten human review items must be completed")
+
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    if "docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md" not in readme:
+        errors.append("README must link the stage-ten implementation review")
+    if "docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md" not in readme:
+        errors.append("README must link the screen-first manual demo guide")
+
+    if not MANUAL_DEMO_GUIDE.is_file():
+        errors.append("stage-ten manual demo guide is missing")
+    else:
+        guide = MANUAL_DEMO_GUIDE.read_text(encoding="utf-8")
+        for term in [
+            "모의 계좌 개설",
+            "합성 여권",
+            "고객확인과 투자자 보호",
+            "24/7 제한 거래",
+            "통합 기관 콘솔",
+            "운영자용 부록",
+        ]:
+            if term not in guide:
+                errors.append(f"manual demo guide is missing: {term}")
+
+    onboarding_source = (
+        REPO_ROOT / "apps" / "web" / "app" / "investor" / "onboarding" / "investor-onboarding.tsx"
+    )
+    if not onboarding_source.is_file():
+        errors.append("screen-first synthetic onboarding implementation is missing")
+    else:
+        source = onboarding_source.read_text(encoding="utf-8")
+        for forbidden in ['type="file"', "FileReader", "passportNumber", "dateOfBirth"]:
+            if forbidden in source:
+                errors.append(f"synthetic onboarding must not collect real identity files or fields: {forbidden}")
+        for term in ["NOT A REAL DOCUMENT", "파일 입력 없음", "실제 개인정보 저장 없음"]:
+            if term not in source:
+                errors.append(f"synthetic onboarding is missing privacy boundary: {term}")
 
 
 def main() -> int:
@@ -3086,6 +3660,14 @@ def main() -> int:
     validate_stage_eight_contract(errors)
     validate_stage_nine_contract(errors)
     validate_stage_ten_foundation(errors)
+    validate_stage_ten_protection(errors)
+    validate_stage_ten_primary_issuance(errors)
+    validate_stage_ten_secondary_trading(errors)
+    validate_stage_ten_market_maker_hedge(errors)
+    validate_stage_ten_redemption(errors)
+    validate_stage_ten_rights_and_recovery(errors)
+    validate_stage_ten_local_acceptance(errors)
+    validate_stage_ten_implementation_review(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3096,8 +3678,8 @@ def main() -> int:
         return 1
 
     print(
-        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, "
-        "and 16 source checksums passed."
+        "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, market-maker hedge and inventory adjustment, investor redemption lifecycle, rights administration and recovery controls, "
+        "local acceptance traceability and demo controls, and 16 source checksums passed."
     )
     return 0
 

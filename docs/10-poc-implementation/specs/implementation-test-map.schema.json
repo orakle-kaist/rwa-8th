@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rwa-poc.local/schemas/implementation-test-map.schema.json",
+  "$defs": {
+    "executable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runner", "file", "testName"],
+      "properties": {
+        "runner": { "type": "string", "minLength": 1 },
+        "file": { "type": "string", "minLength": 1 },
+        "testName": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "sourceCatalog",
+    "sourceTraceability",
+    "totals",
+    "cases"
+  ],
+  "properties": {
+    "$schema": { "const": "./implementation-test-map.schema.json" },
+    "schemaVersion": { "const": "2.0.0" },
+    "sourceCatalog": { "const": "../../09-test-design/specs/test-catalog.json" },
+    "sourceTraceability": { "const": "../../09-test-design/specs/traceability.json" },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["all", "localAutomated", "fujiManual"],
+      "properties": {
+        "all": { "const": 79 },
+        "localAutomated": { "const": 76 },
+        "fujiManual": { "const": 3 }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 79,
+      "maxItems": 79,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "testId",
+          "groupId",
+          "automated",
+          "executionProfile",
+          "primaryExecutable",
+          "supportingExecutables",
+          "expectedResult",
+          "traceability",
+          "evidence",
+          "status"
+        ],
+        "properties": {
+          "testId": { "type": "string", "minLength": 1 },
+          "groupId": { "type": "string", "minLength": 1 },
+          "automated": { "type": "boolean" },
+          "executionProfile": { "enum": ["QUICK", "FULL_LOCAL", "FUJI_DEMO"] },
+          "primaryExecutable": {
+            "anyOf": [{ "$ref": "#/$defs/executable" }, { "type": "null" }]
+          },
+          "supportingExecutables": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/executable" }
+          },
+          "expectedResult": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "startStates",
+              "expectedStates",
+              "forbiddenStates",
+              "expectedQuantities",
+              "expectedAmounts",
+              "expectedErrors",
+              "recoveryOrQuarantine",
+              "resumeConditions"
+            ],
+            "properties": {
+              "startStates": { "$ref": "#/$defs/stringArray" },
+              "expectedStates": { "$ref": "#/$defs/stringArray" },
+              "forbiddenStates": { "$ref": "#/$defs/stringArray" },
+              "expectedQuantities": { "type": "object", "minProperties": 1 },
+              "expectedAmounts": { "type": "object", "minProperties": 1 },
+              "expectedErrors": { "$ref": "#/$defs/stringArray" },
+              "recoveryOrQuarantine": { "$ref": "#/$defs/stringArray" },
+              "resumeConditions": { "$ref": "#/$defs/stringArray" }
+            }
+          },
+          "traceability": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "requirementIds",
+              "stateCodes",
+              "openApiOperations",
+              "asyncApiMessages",
+              "contractFunctions",
+              "contractEvents",
+              "contractErrors",
+              "roles",
+              "invariants"
+            ],
+            "properties": {
+              "requirementIds": { "$ref": "#/$defs/stringArray" },
+              "stateCodes": { "$ref": "#/$defs/stringArray" },
+              "openApiOperations": { "$ref": "#/$defs/stringArray" },
+              "asyncApiMessages": { "$ref": "#/$defs/stringArray" },
+              "contractFunctions": { "$ref": "#/$defs/stringArray" },
+              "contractEvents": { "$ref": "#/$defs/stringArray" },
+              "contractErrors": { "$ref": "#/$defs/stringArray" },
+              "roles": { "$ref": "#/$defs/stringArray" },
+              "invariants": { "$ref": "#/$defs/stringArray" }
+            }
+          },
+          "evidence": { "$ref": "#/$defs/stringArray" },
+          "status": { "enum": ["LOCAL_AUTOMATED", "BLOCKED_OFFICIAL_ISIN", "FUJI_MANUAL", "FUJI_PASSED"] }
+        }
+      }
+    }
+  }
+}

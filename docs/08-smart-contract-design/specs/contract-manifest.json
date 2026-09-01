@@ -49,8 +49,8 @@
     {
       "name": "RestrictedEquityToken",
       "kind": "PER_SECURITY",
-      "functions": ["name", "symbol", "decimals", "balanceOf", "totalSupply", "allowance", "transfer", "transferFrom", "approve", "availableBalanceOf", "pendingSettlementBalanceOf", "redemptionLockedBalanceOf", "burnPendingBalanceOf", "administrativeFrozenBalanceOf", "isAddressFrozen", "mintPending", "releasePending", "controlledTransfer", "lockForRedemption", "cancelRedemptionLock", "markBurnPending", "burnPending", "freezeAvailable", "unfreezeAvailable", "freezeAddress", "recoverAllBuckets", "applySplitBatch"],
-      "events": ["Transfer", "PendingMinted", "PendingReleased", "ControlledTransfer", "RedemptionLocked", "BurnPendingMarked", "PendingBurned", "AdministrativeFreezeChanged", "AddressFrozen", "WalletRecovered", "SplitBatchApplied"]
+      "functions": ["name", "symbol", "decimals", "balanceOf", "totalSupply", "allowance", "transfer", "transferFrom", "approve", "availableBalanceOf", "pendingSettlementBalanceOf", "redemptionLockedBalanceOf", "burnPendingBalanceOf", "administrativeFrozenBalanceOf", "isAddressFrozen", "mintPending", "cancelPendingMint", "releasePending", "controlledTransfer", "lockForRedemption", "cancelRedemptionLock", "markBurnPending", "burnPending", "freezeAvailable", "unfreezeAvailable", "freezeAddress", "recoverAllBuckets", "applySplitBatch"],
+      "events": ["Transfer", "PendingMinted", "PendingMintCancelled", "PendingReleased", "ControlledTransfer", "RedemptionLocked", "BurnPendingMarked", "PendingBurned", "AdministrativeFreezeChanged", "AddressFrozen", "WalletRecovered", "SplitBatchApplied"]
     },
     {
       "name": "EligibilityRegistry",
@@ -73,8 +73,8 @@
     {
       "name": "IssuanceController",
       "kind": "SHARED",
-      "functions": ["confirmExecutionAllocation", "approveT2Risk", "approveRightsEntry", "confirmRightsRecorded", "executePendingMint", "confirmDomesticSettlement", "confirmCustodyQuantity", "executeRelease"],
-      "events": ["ExecutionAllocationConfirmed", "T2RiskApproved", "RightsEntryApproved", "RightsRecordingConfirmed", "DomesticSettlementConfirmed", "CustodyQuantityConfirmed"]
+      "functions": ["confirmExecutionAllocation", "approveT2Risk", "approveRightsEntry", "confirmRightsRecorded", "executePendingMint", "confirmDomesticSettlement", "confirmCustodyQuantity", "executeRelease", "approvePendingCorrection", "confirmPendingRightsCorrection", "executePendingCorrection"],
+      "events": ["ExecutionAllocationConfirmed", "T2RiskApproved", "RightsEntryApproved", "RightsRecordingConfirmed", "DomesticSettlementConfirmed", "CustodyQuantityConfirmed", "PendingMintCorrectionApproved", "PendingRightsCorrectionConfirmed"]
     },
     {
       "name": "SecondarySettlementController",
@@ -85,8 +85,8 @@
     {
       "name": "RedemptionController",
       "kind": "SHARED",
-      "functions": ["lockRedemption", "cancelBeforeDomesticSale", "confirmRightsTerminated", "confirmCashClaim", "markBurnPending", "approveUsdPayment", "executeBurn"],
-      "events": ["RedemptionWorkflowLocked", "RightsTerminated", "CashClaimConfirmed", "UsdPaymentApproved"]
+      "functions": ["lockRedemption", "cancelBeforeDomesticSale", "markDomesticSaleSubmitted", "confirmDomesticExecution", "confirmSaleProceedsSettled", "confirmRightsTerminated", "confirmCashClaim", "markBurnPending", "approveUsdPayment", "executeBurn"],
+      "events": ["RedemptionWorkflowLocked", "DomesticSaleSubmitted", "DomesticExecutionConfirmed", "SaleProceedsSettled", "RightsTerminated", "CashClaimConfirmed", "UsdPaymentApproved"]
     },
     {
       "name": "RecoveryController",

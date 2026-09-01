@@ -2,13 +2,29 @@
 
 이 프로젝트는 비거주 일반 개인투자자가 해외 금융기관을 통해 한국 상장주식에 접근할 수 있도록 `한국형 규제 수탁 권리의 24/7 2차시장 통제`를 설계하고 검증하는 PoC다. Dinari의 수탁형 토큰화 주식을 참고하되 한국의 외국인 통합계좌, KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
 
-> 현재 상태: **10단계 PoC 구현 중 — 제한형 토큰 기반 구현 완료 후 검토 예정**
+> 현재 상태: **10단계 구현 검토 대기**
 >
-> 다음 행동: 제한형 토큰 기반을 검증하고 커밋한 뒤 고객·상품·투자자 보호 기능으로 넘어간다.
+> 다음 행동: [10단계 구현 정합성 검토](docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md)를 확인하고 10단계를 최종 승인하거나 보완 요청한다. 승인 전에는 11단계를 시작하지 않는다.
+>
+> 화면 직접 확인: [PoC 화면 직접 확인 가이드](docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md)를 따라 모의 계좌 개설부터 시작한다.
 >
 > 실제 PoC 코드 구현: **10단계**에서 시작한다.
 
 실제 자금, 주식 또는 개인정보를 다루지 않으며 이 저장소의 팀 내부 승인은 법률의견, 기관 승인이나 인허가 적합성 확인을 뜻하지 않는다.
+
+## 화면 바로 실행
+
+로컬 화면 확인에는 `.env`나 별도 비밀값이 필요 없다. Docker를 실행한 뒤 저장소 루트에서 다음 명령 하나만 실행한다.
+
+```bash
+docker compose up --build --wait
+```
+
+준비가 끝나면 `http://localhost:3000`에서 **투자자 앱 → 모의 계좌 개설부터 시작**을 누른다. 종료는 `docker compose down`이다. 처음부터 다시 시연하는 방법과 직접 개발 환경은 [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md)에 분리해 두었다.
+
+PoC의 데이터베이스와 로컬 체인은 Docker 내부에서만 사용하므로 컴퓨터에서 이미 실행 중인 PostgreSQL이나 다른 로컬 체인을 중지할 필요가 없다.
+
+Docker 권한이나 과거 캐시 이미지 때문에 시작되지 않으면 [구현 안내의 자주 발생하는 Docker 문제](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md#자주-발생하는-docker-문제)를 확인한다.
 
 ## 처음 읽는 순서
 
@@ -33,7 +49,7 @@
 | 7. 데이터와 연계 | 승인 완료 | [공통 데이터](docs/07-data-api-events/DATA_MODEL.md), [API 계약](docs/07-data-api-events/API_CONTRACTS.md), [이벤트 계약](docs/07-data-api-events/EVENT_CONTRACTS.md)과 [기계 명세](docs/07-data-api-events/specs/) | 공통 데이터, API와 이벤트를 설계할 때 |
 | 8. 스마트컨트랙트 | 승인 완료 | [계약 구조](docs/08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [계약 인터페이스](docs/08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](docs/08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](docs/08-smart-contract-design/INVARIANTS.md)과 [기계 명세](docs/08-smart-contract-design/specs/contract-manifest.json) | 제한형 권리토큰의 발행, 상태, 정산, 환매, 복구와 권한을 확인할 때 |
 | 9. 테스트 설계 | 승인 완료 | [테스트 전략](docs/09-test-design/TEST_STRATEGY.md), [테스트 시나리오](docs/09-test-design/TEST_SCENARIOS.md), [fixture와 증거](docs/09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](docs/09-test-design/DEMO_CHECKLIST.md)와 [기계 명세](docs/09-test-design/specs/) | 구현 전 요구사항, 상태, API와 계약에 연결된 시험 기준을 확인할 때 |
-| 10. PoC 구현 | 구현 중 | [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md), [제한형 토큰 기반 증거](docs/10-poc-implementation/TOKEN_FOUNDATION_EVIDENCE.md)와 구현 코드 | 승인된 9단계 시험 기준에 따라 설계를 실제 코드로 만들고 검증할 때 |
+| 10. PoC 구현 | 구현 검토 완료, 승인 대기 | [화면 직접 확인 가이드](docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md), [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md), [구현 정합성 검토](docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md), [로컬 인수시험 증거](docs/10-poc-implementation/LOCAL_ACCEPTANCE_EVIDENCE.md), [Fuji 배포 증거](docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md)와 기능별 구현 증거 | 브라우저 시연이나 실제 PostgreSQL·Anvil·모의 기관 서명으로 연결된 로컬 생애주기와 Fuji 온체인 통제 결과를 검토할 때 |
 | 11. 결과 정리 | 시작 전 | `docs/11-results/` 예정 | 시연 결과, 확인된 사실과 한계를 정리할 때 |
 
 10단계 이후 폴더는 해당 단계가 시작될 때 만든다. 빈 폴더나 내용이 정해지지 않은 문서를 미리 만들지 않는다.

@@ -31,6 +31,16 @@ paths:
                   actorId: { type: string, format: uuid }
                   role: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
                   institutionId: { type: string, format: uuid }
+                  customerReadiness:
+                    $ref: './schemas/domain.schema.json#/$defs/CustomerReadiness'
+                  localPrimaryScenario:
+                    $ref: '#/components/schemas/LocalPrimaryScenario'
+                  localSecondaryScenario:
+                    $ref: '#/components/schemas/LocalSecondaryScenario'
+                  localRedemptionScenario:
+                    $ref: '#/components/schemas/LocalRedemptionScenario'
+                  localRightsScenario:
+                    $ref: '#/components/schemas/LocalRightsScenario'
                   simulation: { const: true }
                   projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
         '401': { $ref: '#/components/responses/Error' }
@@ -275,7 +285,7 @@ paths:
       operationId: listPrimaryOrders
       summary: 1차 발행 주문 목록 조회
       responses:
-        '200': { $ref: '#/components/responses/WorkflowList' }
+        '200': { $ref: '#/components/responses/PrimaryOrderList' }
     post:
       tags: [InvestorCommands]
       operationId: createPrimaryOrder
@@ -342,7 +352,7 @@ paths:
       operationId: listSecondaryOrders
       summary: 24시간 2차거래 주문 목록 조회
       responses:
-        '200': { $ref: '#/components/responses/WorkflowList' }
+        '200': { $ref: '#/components/responses/SecondaryOrderList' }
     post:
       tags: [InvestorCommands]
       operationId: createSecondaryOrder
@@ -366,7 +376,7 @@ paths:
       operationId: listRedemptions
       summary: 환매 업무 목록 조회
       responses:
-        '200': { $ref: '#/components/responses/WorkflowList' }
+        '200': { $ref: '#/components/responses/RedemptionList' }
     post:
       tags: [InvestorCommands]
       operationId: createRedemption
@@ -380,6 +390,25 @@ paths:
           application/json:
             schema:
               $ref: './schemas/domain.schema.json#/$defs/RedemptionRequest'
+      responses:
+        '202': { $ref: '#/components/responses/Accepted' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /redemptions/{redemptionId}/cancellations:
+    post:
+      tags: [InvestorCommands]
+      operationId: cancelRedemption
+      summary: 국내 매도 제출 전 환매 취소
+      parameters:
+        - $ref: '#/components/parameters/RedemptionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/domain.schema.json#/$defs/RedemptionCancellationRequest'
       responses:
         '202': { $ref: '#/components/responses/Accepted' }
         '409': { $ref: '#/components/responses/Error' }
@@ -484,14 +513,14 @@ paths:
       operationId: listMarketMakerPositions
       summary: 시장조성자 재고와 위험 조회
       responses:
-        '200': { $ref: '#/components/responses/WorkflowList' }
+        '200': { $ref: '#/components/responses/MarketMakerPositionList' }
   /market-maker/hedges:
     get:
       tags: [InstitutionCommands]
       operationId: listMarketMakerHedges
       summary: 다음 개장 헤지 대기열 조회
       responses:
-        '200': { $ref: '#/components/responses/WorkflowList' }
+        '200': { $ref: '#/components/responses/MarketMakerHedgeList' }
   /market-maker/hedges/{hedgeId}/decisions:
     post:
       tags: [InstitutionCommands]
@@ -742,6 +771,11 @@ components:
       in: path
       required: true
       schema: { type: string, format: uuid }
+    RedemptionId:
+      name: redemptionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
     ComplaintId:
       name: complaintId
       in: path
@@ -758,6 +792,19 @@ components:
       required: true
       schema: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
   responses:
+    PrimaryOrderList:
+      description: 로컬 합성 1차 주문과 독립 상태축
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [items, projection]
+            properties:
+              items:
+                type: array
+                items: { $ref: '#/components/schemas/PrimaryOrderView' }
+              projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     Accepted:
       description: 비동기 업무 접수
       content:
@@ -781,17 +828,247 @@ components:
                 type: array
                 items: { $ref: './schemas/domain.schema.json#/$defs/WorkflowView' }
               projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    SecondaryOrderList:
+      description: 로컬 합성 24시간 주문과 권리·토큰·자금 반영 상태
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [items, projection]
+            properties:
+              items:
+                type: array
+                items: { $ref: '#/components/schemas/SecondaryOrderView' }
+              projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    RedemptionList:
+      description: 환매 요청부터 지급청구, 소각과 USD 지급까지의 투영 목록
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [items, projection]
+            properties:
+              items:
+                type: array
+                items: { $ref: '#/components/schemas/RedemptionView' }
+              projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    MarketMakerPositionList:
+      description: 지정 시장조성자의 결제완료·결제대기 재고와 위험 사용량
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [items, projection]
+            properties:
+              items:
+                type: array
+                items: { $ref: '#/components/schemas/MarketMakerPositionView' }
+              projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    MarketMakerHedgeList:
+      description: 24시간 체결에서 다음 KRX 개장과 T+2 재고조정까지 이어지는 헤지 대기열
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [items, projection]
+            properties:
+              items:
+                type: array
+                items: { $ref: '#/components/schemas/MarketMakerHedgeView' }
+              projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
   schemas:
+    LocalPrimaryScenario:
+      type: object
+      additionalProperties: false
+      required: [securityId, displayName, tokenSymbol, referenceLimitKrw, usdKrwRate, primaryEnabled, officialProduct, notices, intentDomain, policyVersion, simulation, projection]
+      properties:
+        securityId: { const: '990001' }
+        displayName: { type: string, minLength: 1 }
+        tokenSymbol: { const: SIM990001 }
+        referenceLimitKrw: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        usdKrwRate: { const: '1380.3' }
+        primaryEnabled: { const: true }
+        officialProduct: { const: false }
+        notices: { type: array, items: { type: string, minLength: 1 } }
+        cash:
+          type: object
+          additionalProperties: false
+          required: [usdAvailableMinor, usdReservedMinor, usdcAvailableMinor]
+          properties:
+            usdAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdcAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        intentDomain:
+          type: object
+          additionalProperties: false
+          required: [name, version, chainId, verifyingContract]
+          properties:
+            name: { const: Korean Equity RWA Intent }
+            version: { const: '1' }
+            chainId: { enum: [31337, 43113] }
+            verifyingContract: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        policyVersion: { const: LOCAL-POLICY-V1 }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    LocalSecondaryScenario:
+      type: object
+      additionalProperties: false
+      required: [securityId, displayName, tokenSymbol, tokenAddress, mockUsdcAddress, referenceSecurityId, referenceUsdMinor, normalAskUsdMinor, informationEffectiveAt, usdcUsd, halfSpreadBps, secondaryEnabled, officialProduct, balances, risk, intentDomain, policyVersion, notices, simulation, projection]
+      properties:
+        securityId: { const: '990002' }
+        displayName: { const: 모의 SK하이닉스 24/7 시나리오 }
+        tokenSymbol: { const: SIM990002 }
+        tokenAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        mockUsdcAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        referenceSecurityId: { const: '000660' }
+        referenceUsdMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        normalAskUsdMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        informationEffectiveAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+        usdcUsd: { type: string, pattern: '^[0-9]+\.[0-9]{4}$' }
+        halfSpreadBps: { type: integer, minimum: 0, maximum: 150 }
+        secondaryEnabled: { type: boolean }
+        officialProduct: { const: false }
+        balances:
+          type: object
+          additionalProperties: false
+          required: [settledRights, pendingRights, reservedRights, usdAvailableMinor, usdReservedMinor, usdcAvailableMinor, usdcReservedMinor]
+          properties:
+            settledRights: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            pendingRights: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            reservedRights: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdcAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+            usdcReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        risk:
+          type: object
+          additionalProperties: false
+          required: [positionLimit, securityLossBps, portfolioLossBps, secondaryPaused, usdcPaused]
+          properties:
+            positionLimit: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+            securityLossBps: { type: integer, minimum: 0 }
+            portfolioLossBps: { type: integer, minimum: 0 }
+            secondaryPaused: { type: boolean }
+            usdcPaused: { type: boolean }
+            pauseReasonKo: { type: string, minLength: 1 }
+        intentDomain:
+          type: object
+          additionalProperties: false
+          required: [name, version, chainId, verifyingContract]
+          properties:
+            name: { const: Korean Equity RWA Intent }
+            version: { const: '1' }
+            chainId: { enum: [31337, 43113] }
+            verifyingContract: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        policyVersion: { const: LOCAL-POLICY-V1 }
+        notices: { type: array, minItems: 1, items: { type: string, minLength: 1 } }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    LocalRedemptionScenario:
+      type: object
+      additionalProperties: false
+      required: [securityId, displayName, tokenAddress, referenceLimitKrw, redemptionEnabled, settledQuantity, availableQuantity, redemptionLockedQuantity, burnPendingQuantity, domesticSettledQuantity, tokenTotalSupply, policyVersion, notices, intentDomain, simulation, projection]
+      properties:
+        securityId: { const: '990001' }
+        displayName: { type: string, minLength: 1 }
+        tokenAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        referenceLimitKrw: { const: '257000' }
+        redemptionEnabled: { type: boolean }
+        settledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        availableQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        redemptionLockedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        burnPendingQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        domesticSettledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        tokenTotalSupply: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        policyVersion: { const: LOCAL-POLICY-V1 }
+        notices: { type: array, minItems: 1, items: { type: string, minLength: 1 } }
+        intentDomain:
+          type: object
+          additionalProperties: false
+          required: [name, version, chainId, verifyingContract]
+          properties:
+            name: { const: Korean Equity RWA Intent }
+            version: { const: '1' }
+            chainId: { enum: [31337, 43113] }
+            verifyingContract: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    LocalRightsScenario:
+      type: object
+      additionalProperties: false
+      required: [securityId, simulation, notices, projection]
+      properties:
+        securityId: { const: '990001' }
+        notices: { type: array, minItems: 1, items: { type: string, minLength: 1 } }
+        dividend: { type: object, additionalProperties: true }
+        voting: { type: object, additionalProperties: true }
+        recovery: { type: object, additionalProperties: true }
+        corporateAction: { type: object, additionalProperties: true }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    RedemptionView:
+      type: object
+      additionalProperties: true
+      required: [redemptionId, securityId, requestedQuantity, allocatedQuantity, releasedQuantity, krwLimitPrice, status, domesticSaleSubmitted, domesticExecutionConfirmed, saleProceedsSettled, rightsTerminated, feeUsdMinor, tokenBurned, usdPaid, simulation, projection]
+      properties:
+        redemptionId: { type: string, format: uuid }
+        securityId: { const: '990001' }
+        requestedQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        allocatedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        releasedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        krwLimitPrice: { const: '257000' }
+        requestedTradingDate: { $ref: './schemas/common.schema.json#/$defs/KoreaBusinessDate' }
+        effectiveTradingDate: { $ref: './schemas/common.schema.json#/$defs/KoreaBusinessDate' }
+        batchId: { type: string, format: uuid }
+        status: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        domesticSaleSubmitted: { type: boolean }
+        domesticExecutionConfirmed: { type: boolean }
+        saleProceedsSettled: { type: boolean }
+        rightsTerminated: { type: boolean }
+        cashClaimUsdMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        feeUsdMinor: { const: '0' }
+        tokenBurned: { type: boolean }
+        usdPaid: { type: boolean }
+        quarantineReasonKo: { type: string, minLength: 1 }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    PrimaryOrderView:
+      type: object
+      additionalProperties: true
+      required: [orderId, securityId, shareQuantity, krwLimitPrice, fundingMode, status, filledQuantity, allocatedQuantity, rightsStatus, tokenStatus, settlementStatus, simulation, projection]
+      properties:
+        orderId: { type: string, format: uuid }
+        securityId: { const: '990001' }
+        shareQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        krwLimitPrice: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        fundingMode: { $ref: './schemas/domain.schema.json#/$defs/PrimaryFundingMode' }
+        status: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        filledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        allocatedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        rightsStatus: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        tokenStatus: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        settlementStatus: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        defaultResolution: { type: string, enum: [REPLACEMENT_SHARES, CASH_COMPENSATION] }
+        cashCompensationUsdMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        quarantineReason: { type: string, minLength: 1 }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     Product:
       type: object
       additionalProperties: false
-      required: [securityId, nameKo, referenceVersion, availability, simulation, projection]
+      required: [securityId, nameKo, referenceVersion, candidateStatus, representative, availability, blockingReasons, notices, simulation, projection]
       properties:
         securityId: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
         isin: { $ref: './schemas/common.schema.json#/$defs/Isin' }
         nameKo: { type: string, minLength: 1 }
         referenceVersion: { type: string, minLength: 1 }
         tokenAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        candidateStatus: { type: string, enum: [CANDIDATE, REVIEWED, INFORMATION_UNCONFIRMED] }
+        representative: { type: boolean }
         availability:
           type: object
           additionalProperties: false
@@ -800,6 +1077,27 @@ components:
             primary: { type: string, enum: [ENABLED, DISABLED] }
             secondary: { type: string, enum: [ENABLED, DISABLED] }
             redemption: { type: string, enum: [ENABLED, DISABLED, MANUAL_REVIEW] }
+        blockingReasons:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [code, messageKo]
+            properties:
+              code: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+              messageKo: { type: string, minLength: 1 }
+        notices:
+          type: object
+          additionalProperties: false
+          required: [rightsNatureKo, custodyRiskKo, transferRestrictionKo, settlementKo, dividendKo, votingKo, redemptionKo]
+          properties:
+            rightsNatureKo: { type: string, minLength: 1 }
+            custodyRiskKo: { type: string, minLength: 1 }
+            transferRestrictionKo: { type: string, minLength: 1 }
+            settlementKo: { type: string, minLength: 1 }
+            dividendKo: { type: string, minLength: 1 }
+            votingKo: { type: string, minLength: 1 }
+            redemptionKo: { type: string, minLength: 1 }
         simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     PagedProducts:
@@ -851,14 +1149,22 @@ components:
     Quote:
       type: object
       additionalProperties: false
-      required: [quoteId, securityId, marketMakerSide, fundingMode, availableQuantity, unitPrice, expiresAt, signedQuote, projection]
+      required: [quoteId, securityId, designatedMarketMaker, marketMakerSide, investorSide, fundingMode, paymentAssetId, tokenAddress, shareQuantity, remainingQuantity, unitPrice, halfSpreadBps, status, publishedAt, expiresAt, signedQuote, simulation, projection]
       properties:
         quoteId: { type: string, format: uuid }
         securityId: { $ref: './schemas/common.schema.json#/$defs/SecurityId' }
+        designatedMarketMaker: { type: string, minLength: 1 }
         marketMakerSide: { $ref: './schemas/domain.schema.json#/$defs/MarketMakerSide' }
+        investorSide: { $ref: './schemas/domain.schema.json#/$defs/InvestorSide' }
         fundingMode: { type: string, enum: [USD_LEDGER, USDC_ONCHAIN] }
-        availableQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        paymentAssetId: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+        tokenAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        shareQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        remainingQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
         unitPrice: { $ref: './schemas/common.schema.json#/$defs/Money' }
+        halfSpreadBps: { type: integer, minimum: 0, maximum: 150 }
+        status: { type: string, enum: [ACTIVE, PARTIALLY_CONSUMED] }
+        publishedAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
         expiresAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
         signedQuote:
           allOf:
@@ -866,6 +1172,7 @@ components:
             - type: object
               properties:
                 primaryType: { const: MarketMakerQuote }
+        simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     PagedQuotes:
       type: object
@@ -873,4 +1180,104 @@ components:
       required: [items, projection]
       properties:
         items: { type: array, items: { $ref: '#/components/schemas/Quote' } }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    SecondaryOrderView:
+      type: object
+      additionalProperties: true
+      required: [orderId, quoteId, securityId, investorSide, fundingMode, requestedQuantity, fillQuantity, cancelledQuantity, unitPriceMinor, paymentAmountMinor, rightsReservedQuantity, rightsReservationReleasedQuantity, fundsReservedMinor, fundsReservationReleasedMinor, rightsFinalized, fundsFinalized, chainFinalized, status, acceptedAt, simulation, projection]
+      properties:
+        orderId: { type: string, format: uuid }
+        quoteId: { type: string, format: uuid }
+        securityId: { const: '990002' }
+        investorSide: { $ref: './schemas/domain.schema.json#/$defs/InvestorSide' }
+        fundingMode: { type: string, enum: [USD_LEDGER, USDC_ONCHAIN] }
+        paymentAssetId: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+        tokenAddress: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
+        requestedQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        fillQuantity: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        cancelledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        unitPriceMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        paymentAmountMinor: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        rightsReservedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        rightsReservationReleasedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        fundsReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        fundsReservationReleasedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        rightsFinalized: { type: boolean }
+        fundsFinalized: { type: boolean }
+        chainFinalized: { type: boolean }
+        status: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+        chainTransactionHash: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+        quarantineReason: { type: string, minLength: 1 }
+        acceptedAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+        simulation: { const: true }
+        projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
+    MarketMakerPositionView:
+      type: object
+      additionalProperties: false
+      required: [securityId, settledInventory, pendingInventory, reservedInventory, netPosition, nextSessionStartingInventory, riskReducingOnly, positionLimit, usdAvailableMinor, usdReservedMinor, usdcAvailableMinor, usdcReservedMinor, securityLossBps, portfolioLossBps, secondaryPaused, usdcPaused, simulation]
+      properties:
+        securityId: { const: '990002' }
+        settledInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        pendingInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        reservedInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        netPosition: { type: string, pattern: '^-?[0-9]+$' }
+        nextSessionStartingInventory: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        riskReducingOnly: { type: boolean }
+        quoteDirectionBlocked: { type: string, enum: [BUY, SELL] }
+        hedgeHoldReasonKo: { type: string, minLength: 1 }
+        positionLimit: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        usdAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        usdReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        usdcAvailableMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        usdcReservedMinor: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        securityLossBps: { type: integer, minimum: 0 }
+        portfolioLossBps: { type: integer, minimum: 0 }
+        secondaryPaused: { type: boolean }
+        usdcPaused: { type: boolean }
+        pauseReasonKo: { type: string, minLength: 1 }
+        simulation: { const: true }
+    MarketMakerHedgeView:
+      type: object
+      additionalProperties: false
+      required: [hedgeId, securityId, direction, requestedQuantity, filledQuantity, remainingQuantity, netPositionSnapshot, krwLimitPrice, targetTradingDate, status, aggregateVersion, riskViolationReducing, positionUtilizationBps, foreignLimitStatus, krxStatus, marketMakerConfirmed, brokerRiskApproved, domesticSettlementConfirmed, custodyQuantityConfirmed, usdPaymentConfirmed, sourceSecondaryOrderIds, history, createdAt, updatedAt, simulation, projection]
+      properties:
+        hedgeId: { type: string, format: uuid }
+        securityId: { const: '990002' }
+        direction: { type: string, enum: [BUY, SELL] }
+        requestedQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        filledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        remainingQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
+        netPositionSnapshot: { type: string, pattern: '^-?[0-9]+$' }
+        krwLimitPrice: { $ref: './schemas/common.schema.json#/$defs/PositiveIntegerString' }
+        targetTradingDate: { type: string, format: date }
+        status: { type: string, pattern: '^HEDGE_[A-Z_]+$' }
+        aggregateVersion: { type: integer, minimum: 1 }
+        riskViolationReducing: { type: boolean }
+        positionUtilizationBps: { type: integer, minimum: 0 }
+        foreignLimitStatus: { type: string, enum: [ALLOWED, BLOCKED, UNKNOWN] }
+        krxStatus: { type: string, enum: [OPEN, CLOSED, HALTED] }
+        marketMakerConfirmed: { type: boolean }
+        brokerRiskApproved: { type: boolean }
+        domesticSettlementConfirmed: { type: boolean }
+        custodyQuantityConfirmed: { type: boolean }
+        usdPaymentConfirmed: { type: boolean }
+        sourceSecondaryOrderIds: { type: array, items: { type: string, format: uuid } }
+        history:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [state, actorRole, occurredAt]
+            properties:
+              state: { type: string, pattern: '^HEDGE_[A-Z_]+$' }
+              actorRole: { type: string, pattern: '^[A-Z][A-Z0-9_]+$' }
+              occurredAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+              evidenceHash: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+              reasonKo: { type: string, minLength: 1 }
+        domesticOrderReference: { type: string, minLength: 1 }
+        holdReasonKo: { type: string, minLength: 1 }
+        tokenTransactionHash: { type: string, pattern: '^0x[0-9a-fA-F]{64}$' }
+        createdAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+        updatedAt: { $ref: './schemas/common.schema.json#/$defs/UtcTimestamp' }
+        simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }

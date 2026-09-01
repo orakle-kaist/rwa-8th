@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "1.0.0",
+  "simulation": false,
+  "source": {
+    "provider": "금융위원회",
+    "dataset": "금융위원회_KRX상장종목정보",
+    "portalUrl": "https://www.data.go.kr/data/15094775/openapi.do",
+    "endpoint": "https://apis.data.go.kr/1160100/service/GetKrxListedInfoService/getItemInfo",
+    "requestParameters": {
+      "basDt": "20260828",
+      "resultType": "json",
+      "pageNo": 1,
+      "numOfRows": 5000
+    },
+    "receivedAt": "2026-09-01T07:16:03.430Z",
+    "rawResponseSha256": "9b89c2108af812e515d4ac1f4ad7ab5f7cbf83ac3d71f591a21110344182ea77"
+  },
+  "securities": [
+    {
+      "baseDate": "20260828",
+      "shortCode": "005930",
+      "sourceShortCode": "A005930",
+      "isin": "KR7005930003",
+      "market": "KOSPI",
+      "itemName": "삼성전자",
+      "corporationName": "삼성전자(주)"
+    },
+    {
+      "baseDate": "20260828",
+      "shortCode": "000660",
+      "sourceShortCode": "A000660",
+      "isin": "KR7000660001",
+      "market": "KOSPI",
+      "itemName": "SK하이닉스",
+      "corporationName": "에스케이하이닉스(주)"
+    },
+    {
+      "baseDate": "20260828",
+      "shortCode": "017670",
+      "sourceShortCode": "A017670",
+      "isin": "KR7017670001",
+      "market": "KOSPI",
+      "itemName": "SK텔레콤",
+      "corporationName": "SK텔레콤(주)"
+    },
+    {
+      "baseDate": "20260828",
+      "shortCode": "005380",
+      "sourceShortCode": "A005380",
+      "isin": "KR7005380001",
+      "market": "KOSPI",
+      "itemName": "현대차",
+      "corporationName": "현대자동차(주)"
+    },
+    {
+      "baseDate": "20260828",
+      "shortCode": "035420",
+      "sourceShortCode": "A035420",
+      "isin": "KR7035420009",
+      "market": "KOSPI",
+      "itemName": "NAVER",
+      "corporationName": "네이버(주)"
+    },
+    {
+      "baseDate": "20260828",
+      "shortCode": "006800",
+      "sourceShortCode": "A006800",
+      "isin": "KR7006800007",
+      "market": "KOSPI",
+      "itemName": "미래에셋증권",
+      "corporationName": "미래에셋증권(주)"
+    }
+  ],
+  "evidenceSha256": "916ef69e08a2d812977777b887f29381b81fb76526e2fc2c77d495d1891e1532"
+}

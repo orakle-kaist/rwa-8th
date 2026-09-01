@@ -1,20 +1,49 @@
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
+import { createClock } from "@rwa/domain";
 import { Pool } from "pg";
+
+import { seedProtectionData } from "./seed-protection.js";
+import { seedPrimaryData } from "./seed-primary.js";
+import { recordLocalChainDeployment } from "./chain-execution.js";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
   throw new Error("DATABASE_URL이 필요하다.");
 }
 
-const migrationUrl = new URL("../migrations/0001_foundation.sql", import.meta.url);
-const sql = await readFile(fileURLToPath(migrationUrl), "utf8");
 const pool = new Pool({ connectionString: databaseUrl });
+const clock = createClock(process.env);
 
 try {
-  await pool.query(sql);
-  process.stdout.write("database foundation migration applied\n");
+  for (const name of [
+    "0001_foundation.sql",
+    "0002_customer_product_protection.sql",
+    "0003_primary_issuance.sql",
+    "0004_secondary_trading.sql",
+    "0005_market_maker_hedges.sql",
+    "0006_redemptions.sql",
+    "0007_rights_and_controls.sql",
+    "0008_runtime_states_and_views.sql",
+    "0009_chain_execution.sql",
+    "0010_mock_institution_keys.sql",
+  ]) {
+    const migrationUrl = new URL(`../migrations/${name}`, import.meta.url);
+    await pool.query(await readFile(fileURLToPath(migrationUrl), "utf8"));
+  }
+  await seedProtectionData(pool);
+  await seedPrimaryData(pool);
+  const { seedSecondaryData } = await import("./seed-secondary.js");
+  // 데이터 적재와 API가 같은 주입 시계를 사용해야 60초 신선도 경계를
+  // 시스템 실행과 고정시각 시험에서 동일하게 판정할 수 있다.
+  await seedSecondaryData(pool, clock.now());
+  const { seedRightsData } = await import("./seed-rights.js");
+  await seedRightsData(pool, clock.now());
+  const manifestPath = process.env.LOCAL_CHAIN_MANIFEST_PATH;
+  if (manifestPath && (await access(manifestPath).then(() => true).catch(() => false)))
+    await recordLocalChainDeployment(pool, manifestPath, clock.now());
+  process.stdout.write("database migrations and approved synthetic reference data applied\n");
 } finally {
   await pool.end();
 }

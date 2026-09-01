@@ -9,7 +9,7 @@
       "additionalProperties": false,
       "required": ["name", "version", "chainId", "verifyingContract"],
       "properties": {
-        "name": { "const": "Korean Equity RWA PoC" },
+        "name": { "const": "Korean Equity RWA Intent" },
         "version": { "const": "1" },
         "chainId": { "const": 43113 },
         "verifyingContract": { "$ref": "common.schema.json#/$defs/EvmAddress" }

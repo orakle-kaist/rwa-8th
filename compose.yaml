@@ -1,5 +1,11 @@
 name: korean-equity-rwa-poc
 
+x-application-image: &application-image
+  image: korean-equity-rwa-poc-app:local
+  build:
+    context: .
+    dockerfile: Dockerfile
+
 services:
   postgres:
     image: postgres:17.6-bookworm
@@ -12,85 +18,138 @@ services:
       interval: 2s
       timeout: 3s
       retries: 20
-    ports:
-      - "5432:5432"
     volumes:
       - rwa-postgres:/var/lib/postgresql/data
 
   anvil:
     image: ghcr.io/foundry-rs/foundry:v1.7.1
+    entrypoint: ["anvil"]
     command:
-      - anvil
       - --host
       - 0.0.0.0
       - --chain-id
       - "31337"
       - --block-time
       - "1"
-    ports:
-      - "8545:8545"
-
+    healthcheck:
+      test: ["CMD-SHELL", "cast chain-id --rpc-url http://127.0.0.1:8545 >/dev/null 2>&1"]
+      interval: 1s
+      timeout: 2s
+      retries: 30
   migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *application-image
     command: ["pnpm", "db:migrate"]
     environment: &application-environment
       DATABASE_URL: postgresql://rwa_poc:rwa_poc_local_only@postgres:5432/rwa_poc
       ANVIL_RPC_URL: http://anvil:8545
+      CHAIN_RPC_URL: http://anvil:8545
+      LOCAL_CHAIN_MANIFEST_PATH: /workspace/.runtime/local-deployment.json
+      MOCK_INSTITUTIONS_URL: http://mock-institutions:4100
       TEST_CLOCK_MODE: system
+    volumes:
+      - rwa-runtime:/workspace/.runtime
     depends_on:
       postgres:
+        condition: service_healthy
+      chain-deploy:
+        condition: service_completed_successfully
+    restart: "no"
+
+  chain-deploy:
+    <<: *application-image
+    command: ["pnpm", "chain:deploy:local"]
+    environment:
+      ANVIL_RPC_URL: http://anvil:8545
+      LOCAL_CHAIN_MANIFEST_PATH: /workspace/.runtime/local-deployment.json
+    volumes:
+      - rwa-runtime:/workspace/.runtime
+    depends_on:
+      anvil:
         condition: service_healthy
     restart: "no"
 
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *application-image
     command: ["pnpm", "dev:api"]
     environment:
       <<: *application-environment
       API_HOST: 0.0.0.0
       API_PORT: "4000"
+    volumes:
+      - rwa-runtime:/workspace/.runtime
     depends_on:
       migrate:
         condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 30
     ports:
       - "4000:4000"
 
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *application-image
     command: ["pnpm", "--filter", "@rwa/api", "worker"]
     environment: *application-environment
+    volumes:
+      - rwa-runtime:/workspace/.runtime
     depends_on:
       migrate:
         condition: service_completed_successfully
 
   mock-institutions:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *application-image
     command: ["pnpm", "dev:mock"]
     environment:
       MOCK_INSTITUTIONS_PORT: "4100"
+      PLATFORM_KEY_REGISTRATION_URL: http://api:4000/internal/mock-adapter-keys
+      PLATFORM_ADAPTER_CALLBACK_URL: http://api:4000/api/v1/adapter-events
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4100/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 30
     ports:
       - "4100:4100"
 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    <<: *application-image
     command: ["pnpm", "dev:web"]
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 60
     ports:
       - "3000:3000"
 
 volumes:
   rwa-postgres:
+  rwa-runtime:

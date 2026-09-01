@@ -235,20 +235,20 @@
     {
       "requirementId": "권리관리-03",
       "positiveTests": [
-        "기업행동-분할-01"
-      ],
-      "negativeTests": [
-        "기업행동-소수차단-01"
-      ]
-    },
-    {
-      "requirementId": "권리관리-04",
-      "positiveTests": [
         "보고-기한-01",
         "보안-개인정보-01"
       ],
       "negativeTests": [
         "보고-증거누락-01"
+      ]
+    },
+    {
+      "requirementId": "권리관리-04",
+      "positiveTests": [
+        "기업행동-분할-01"
+      ],
+      "negativeTests": [
+        "기업행동-소수차단-01"
       ]
     },
     {
@@ -420,7 +420,8 @@
     {
       "requirementId": "환매-01",
       "positiveTests": [
-        "환매-정상-01"
+        "환매-정상-01",
+        "환매-취소-01"
       ],
       "negativeTests": [
         "환매-차단-01"
@@ -429,7 +430,8 @@
     {
       "requirementId": "환매-02",
       "positiveTests": [
-        "환매-정상-01"
+        "환매-정상-01",
+        "환매-취소-01"
       ],
       "negativeTests": [
         "환매-차단-01"
@@ -2131,8 +2133,22 @@
       "stateCode": "REDEMPTION_REQUESTED",
       "tests": [
         "환매-정상-01",
+        "환매-취소-01",
         "환매-과도기-01",
         "환매-부분실패-01"
+      ],
+      "allowedTransitionTests": [
+        "상태-허용전환전체-01"
+      ],
+      "forbiddenTransitionTests": [
+        "상태-금지전환전체-01"
+      ]
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_CANCELLED",
+      "tests": [
+        "환매-취소-01"
       ],
       "allowedTransitionTests": [
         "상태-허용전환전체-01"
@@ -3161,6 +3177,12 @@
       ]
     },
     {
+      "operationId": "cancelRedemption",
+      "tests": [
+        "환매-취소-01"
+      ]
+    },
+    {
       "operationId": "createDividendConversion",
       "tests": [
         "배당-USDC-01",
@@ -3526,6 +3548,14 @@
     },
     {
       "contract": "RestrictedEquityToken",
+      "function": "cancelPendingMint",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
       "function": "controlledTransfer",
       "tests": [
         "정산-USD정상-01",
@@ -3753,6 +3783,30 @@
       ]
     },
     {
+      "contract": "IssuanceController",
+      "function": "approvePendingCorrection",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "confirmPendingRightsCorrection",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "function": "executePendingCorrection",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
       "contract": "SecondarySettlementController",
       "function": "settleUsdLedger",
       "tests": [
@@ -3782,8 +3836,31 @@
       "contract": "RedemptionController",
       "function": "cancelBeforeDomesticSale",
       "tests": [
+        "환매-취소-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "markDomesticSaleSubmitted",
+      "tests": [
         "환매-정상-01",
-        "환매-부분실패-01"
+        "환매-취소-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "confirmDomesticExecution",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "function": "confirmSaleProceedsSettled",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
       ]
     },
     {
@@ -3955,6 +4032,11 @@
       "tests": ["상품-배포-01"]
     },
     {
+      "contract": "SecurityTokenFactory",
+      "function": "getTokenSecurityId",
+      "tests": ["상품-배포-01", "발행-증거불일치-01"]
+    },
+    {
       "contract": "MarketPolicyRegistry",
       "function": "isScopePaused",
       "tests": ["중지-가격-01", "중지-USDC-01", "중지-KRX-01"]
@@ -3995,6 +4077,14 @@
       "tests": [
         "발행-정상-01",
         "발행-재사용차단-01"
+      ]
+    },
+    {
+      "contract": "RestrictedEquityToken",
+      "event": "PendingMintCancelled",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
       ]
     },
     {
@@ -4154,6 +4244,22 @@
       ]
     },
     {
+      "contract": "IssuanceController",
+      "event": "PendingMintCorrectionApproved",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
+      "contract": "IssuanceController",
+      "event": "PendingRightsCorrectionConfirmed",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
       "contract": "SecondarySettlementController",
       "event": "UsdLedgerSettlementRecorded",
       "tests": [
@@ -4177,6 +4283,30 @@
       "tests": [
         "환매-정상-01",
         "환매-부분실패-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "DomesticSaleSubmitted",
+      "tests": [
+        "환매-정상-01",
+        "환매-취소-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "DomesticExecutionConfirmed",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
+      ]
+    },
+    {
+      "contract": "RedemptionController",
+      "event": "SaleProceedsSettled",
+      "tests": [
+        "환매-정상-01",
+        "환매-과도기-01"
       ]
     },
     {
@@ -4408,6 +4538,13 @@
       ]
     },
     {
+      "error": "InsufficientPendingBalance",
+      "tests": [
+        "체결-정정취소-01",
+        "결제불이행-예외-01"
+      ]
+    },
+    {
       "error": "PaymentMismatch",
       "tests": [
         "정산-DvP실패-01"
@@ -4436,6 +4573,10 @@
     {
       "error": "StringTooLong",
       "tests": ["정산-서명차단-01"]
+    },
+    {
+      "error": "SafeERC20FailedOperation",
+      "tests": ["정산-DvP실패-01"]
     }
   ],
   "roles": [

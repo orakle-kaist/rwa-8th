@@ -10,6 +10,7 @@ import {
     DirectTransferDisabled,
     IneligibleWallet,
     InsufficientAvailableBalance,
+    InsufficientPendingBalance,
     MarketMakerRequired,
     NonIntegralCorporateAction,
     ScopePaused
@@ -37,6 +38,7 @@ contract RestrictedEquityToken is AccessControl, EvidenceGuard {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event PendingMinted(bytes16 indexed workflowId, address indexed account, uint256 quantity, bytes32 evidenceHash);
     event PendingReleased(bytes16 indexed workflowId, address indexed account, uint256 quantity);
+    event PendingMintCancelled(bytes16 indexed workflowId, address indexed account, uint256 quantity);
     event ControlledTransfer(bytes16 indexed workflowId, address indexed from, address indexed to, uint256 quantity);
     event RedemptionLocked(bytes16 indexed workflowId, address indexed account, uint256 quantity);
     event BurnPendingMarked(bytes16 indexed workflowId, address indexed account, uint256 quantity);
@@ -160,6 +162,22 @@ contract RestrictedEquityToken is AccessControl, EvidenceGuard {
         _subtract(_pendingSettlement, account, quantity, "insufficient pending quantity");
         _available[account] += quantity;
         emit PendingReleased(workflowId, account, quantity);
+    }
+
+    function cancelPendingMint(bytes16 workflowId, address account, uint256 quantity, bytes32 evidenceHash)
+        external
+        onlyRole(RoleIds.ISSUANCE_EXECUTOR_ROLE)
+    {
+        _requireScopeOpen(PolicyScopes.ISSUANCE);
+        _validateMutation(workflowId, quantity, evidenceHash);
+        uint256 pending = _pendingSettlement[account];
+        if (pending < quantity) revert InsufficientPendingBalance(account, pending, quantity);
+        unchecked {
+            _pendingSettlement[account] = pending - quantity;
+        }
+        _totalSupply -= quantity;
+        emit Transfer(account, address(0), quantity);
+        emit PendingMintCancelled(workflowId, account, quantity);
     }
 
     function controlledTransfer(bytes16 workflowId, address from, address to, uint256 quantity, bytes32 evidenceHash)
@@ -328,7 +346,8 @@ contract RestrictedEquityToken is AccessControl, EvidenceGuard {
         _available[account] = _scaled(account, _available[account], numerator, denominator);
         _pendingSettlement[account] = _scaled(account, _pendingSettlement[account], numerator, denominator);
         _redemptionLocked[account] = _scaled(account, _redemptionLocked[account], numerator, denominator);
-        _burnPending[account] = _scaled(account, _burnPending[account], numerator, denominator);
+        // 매도대금 결제 뒤 소각을 기다리는 토큰에는 더 이상 주식 수탁권리가 없다.
+        // 따라서 기준일 주식 권리에 적용하는 분할비율로 이 수량을 늘리거나 줄이지 않는다.
         _administrativeFrozen[account] = _scaled(account, _administrativeFrozen[account], numerator, denominator);
         uint256 newBalance = balanceOf(account);
         if (newBalance > oldBalance) {

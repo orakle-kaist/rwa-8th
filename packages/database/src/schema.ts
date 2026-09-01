@@ -22,6 +22,42 @@ export const workflows = pgTable("workflows", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });
 
+export const workflowStateAxes = pgTable(
+  "workflow_state_axes",
+  {
+    workflowId: uuid("workflow_id")
+      .notNull()
+      .references(() => workflows.workflowId),
+    stateAxis: text("state_axis").notNull(),
+    stateCode: text("state_code").notNull(),
+    aggregateVersion: integer("aggregate_version").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [unique().on(table.workflowId, table.stateAxis)],
+);
+
+export const workflowStateAxisHistory = pgTable(
+  "workflow_state_axis_history",
+  {
+    historyId: uuid("history_id").primaryKey(),
+    workflowId: uuid("workflow_id")
+      .notNull()
+      .references(() => workflows.workflowId),
+    stateAxis: text("state_axis").notNull(),
+    previousState: text("previous_state"),
+    newState: text("new_state").notNull(),
+    aggregateVersion: integer("aggregate_version").notNull(),
+    actorId: text("actor_id").notNull(),
+    actorRole: text("actor_role").notNull(),
+    evidenceHash: text("evidence_hash"),
+    reason: text("reason"),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    index("workflow_state_axis_history_lookup_idx").on(table.workflowId, table.occurredAt),
+  ],
+);
+
 export const idempotencyRecords = pgTable(
   "idempotency_records",
   {

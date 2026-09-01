@@ -18,5 +18,6 @@ contracts/.env
 
 # Local runtime state and generated evidence
 .runtime/
+*.keystore.json
 docs/10-poc-implementation/evidence/local/
 docs/10-poc-implementation/evidence/fuji/

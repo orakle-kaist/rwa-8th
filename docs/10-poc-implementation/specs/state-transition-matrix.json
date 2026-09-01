@@ -1,0 +1,1640 @@
+{
+  "$schema": "./state-transition-matrix.schema.json",
+  "schemaVersion": "1.0.0",
+  "sourceCatalog": "../../07-data-api-events/specs/state-catalog.json",
+  "sourceDesign": "../../05-screens-states-recovery/STATE_MODEL.md",
+  "totalStates": 175,
+  "states": [
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBILITY_PENDING",
+      "labelKo": "판정 대기",
+      "allowedTargets": ["ELIGIBLE", "INELIGIBLE", "ELIGIBILITY_EXPIRED"],
+      "representativeForbiddenTargets": ["ELIGIBILITY_SUSPENDED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBLE",
+      "labelKo": "판매 허용",
+      "allowedTargets": ["ELIGIBILITY_EXPIRED", "ELIGIBILITY_SUSPENDED"],
+      "representativeForbiddenTargets": ["ELIGIBILITY_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "INELIGIBLE",
+      "labelKo": "판매 거절",
+      "allowedTargets": ["ELIGIBILITY_PENDING"],
+      "representativeForbiddenTargets": ["ELIGIBLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBILITY_EXPIRED",
+      "labelKo": "판정 만료",
+      "allowedTargets": ["ELIGIBILITY_PENDING"],
+      "representativeForbiddenTargets": ["ELIGIBLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CUSTOMER_ELIGIBILITY",
+      "stateCode": "ELIGIBILITY_SUSPENDED",
+      "labelKo": "일시중지",
+      "allowedTargets": ["ELIGIBLE", "INELIGIBLE"],
+      "representativeForbiddenTargets": ["ELIGIBILITY_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_REVIEW_PENDING",
+      "labelKo": "보호판정 대기",
+      "allowedTargets": ["PROTECTION_PASSED", "PROTECTION_FAILED"],
+      "representativeForbiddenTargets": ["PROTECTION_EXPIRED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_PASSED",
+      "labelKo": "보호판정 통과",
+      "allowedTargets": ["PROTECTION_EXPIRED", "DISCLOSURE_CONSENT_PENDING"],
+      "representativeForbiddenTargets": ["PROTECTION_REVIEW_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_FAILED",
+      "labelKo": "보호판정 실패",
+      "allowedTargets": ["PROTECTION_REVIEW_PENDING"],
+      "representativeForbiddenTargets": ["PROTECTION_PASSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "PROTECTION_EXPIRED",
+      "labelKo": "보호판정 만료",
+      "allowedTargets": ["PROTECTION_REVIEW_PENDING"],
+      "representativeForbiddenTargets": ["PROTECTION_PASSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_PENDING",
+      "labelKo": "위험공시 동의 대기",
+      "allowedTargets": ["DISCLOSURE_CONSENT_VALID", "DISCLOSURE_CONSENT_MISSING"],
+      "representativeForbiddenTargets": ["PROTECTION_REVIEW_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_VALID",
+      "labelKo": "동의 유효",
+      "allowedTargets": ["DISCLOSURE_CONSENT_EXPIRED"],
+      "representativeForbiddenTargets": ["PROTECTION_REVIEW_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_MISSING",
+      "labelKo": "동의 누락",
+      "allowedTargets": ["DISCLOSURE_CONSENT_VALID"],
+      "representativeForbiddenTargets": ["PROTECTION_REVIEW_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "INVESTOR_PROTECTION",
+      "stateCode": "DISCLOSURE_CONSENT_EXPIRED",
+      "labelKo": "동의 만료",
+      "allowedTargets": ["DISCLOSURE_CONSENT_PENDING"],
+      "representativeForbiddenTargets": ["PROTECTION_REVIEW_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_SUBMITTED",
+      "labelKo": "접수",
+      "allowedTargets": ["COMPLAINT_ASSIGNED"],
+      "representativeForbiddenTargets": ["COMPLAINT_IN_PROGRESS"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_ASSIGNED",
+      "labelKo": "책임기관 배정",
+      "allowedTargets": ["COMPLAINT_IN_PROGRESS"],
+      "representativeForbiddenTargets": ["COMPLAINT_SUBMITTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_IN_PROGRESS",
+      "labelKo": "처리 중",
+      "allowedTargets": ["COMPLAINT_RESPONSE_RECORDED"],
+      "representativeForbiddenTargets": ["COMPLAINT_SUBMITTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_RESPONSE_RECORDED",
+      "labelKo": "답변 기록",
+      "allowedTargets": ["COMPLAINT_CORRECTION_REVIEW", "COMPLAINT_CLOSED"],
+      "representativeForbiddenTargets": ["COMPLAINT_SUBMITTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_CORRECTION_REVIEW",
+      "labelKo": "정정 검토",
+      "allowedTargets": ["COMPLAINT_IN_PROGRESS", "COMPLAINT_CLOSED"],
+      "representativeForbiddenTargets": ["COMPLAINT_SUBMITTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "COMPLAINT",
+      "stateCode": "COMPLAINT_CLOSED",
+      "labelKo": "종결",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["COMPLAINT_SUBMITTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_UNLINKED",
+      "labelKo": "지갑 미연결",
+      "allowedTargets": ["WALLET_LINK_APPROVAL_PENDING"],
+      "representativeForbiddenTargets": ["WALLET_LINKED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_LINK_APPROVAL_PENDING",
+      "labelKo": "연결 승인 대기",
+      "allowedTargets": ["WALLET_LINKED", "WALLET_UNLINKED"],
+      "representativeForbiddenTargets": ["WALLET_REPLACEMENT_REVIEW"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_LINKED",
+      "labelKo": "연결 완료",
+      "allowedTargets": ["WALLET_REPLACEMENT_REVIEW", "WALLET_FROZEN"],
+      "representativeForbiddenTargets": ["WALLET_UNLINKED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_REPLACEMENT_REVIEW",
+      "labelKo": "교체 검토",
+      "allowedTargets": ["WALLET_LINKED", "WALLET_FROZEN"],
+      "representativeForbiddenTargets": ["WALLET_UNLINKED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "WALLET_LINKAGE",
+      "stateCode": "WALLET_FROZEN",
+      "labelKo": "지갑 동결",
+      "allowedTargets": ["WALLET_REPLACEMENT_REVIEW", "WALLET_LINKED"],
+      "representativeForbiddenTargets": ["WALLET_UNLINKED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "PRODUCT_CANDIDATE",
+      "labelKo": "후보",
+      "allowedTargets": ["PRODUCT_REVIEWED", "PRODUCT_INFORMATION_UNCONFIRMED"],
+      "representativeForbiddenTargets": ["MATERIAL_EVENT_REVIEW"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "PRODUCT_REVIEWED",
+      "labelKo": "검토 완료",
+      "allowedTargets": ["PRODUCT_INFORMATION_UNCONFIRMED", "MATERIAL_EVENT_REVIEW"],
+      "representativeForbiddenTargets": ["PRODUCT_CANDIDATE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "PRODUCT_INFORMATION_UNCONFIRMED",
+      "labelKo": "정보 미확인",
+      "allowedTargets": ["PRODUCT_CANDIDATE", "PRODUCT_REVIEWED"],
+      "representativeForbiddenTargets": ["MATERIAL_EVENT_REVIEW"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRODUCT_COMMON",
+      "stateCode": "MATERIAL_EVENT_REVIEW",
+      "labelKo": "중요사건 검토",
+      "allowedTargets": ["PRODUCT_REVIEWED"],
+      "representativeForbiddenTargets": ["PRODUCT_CANDIDATE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_AVAILABILITY",
+      "stateCode": "PRIMARY_ENABLED",
+      "labelKo": "발행 허용",
+      "allowedTargets": ["PRIMARY_DISABLED"],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_AVAILABILITY",
+      "stateCode": "PRIMARY_DISABLED",
+      "labelKo": "발행 중지",
+      "allowedTargets": ["PRIMARY_ENABLED"],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_AVAILABILITY",
+      "stateCode": "SECONDARY_ENABLED",
+      "labelKo": "24/7 허용",
+      "allowedTargets": ["SECONDARY_DISABLED"],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_AVAILABILITY",
+      "stateCode": "SECONDARY_DISABLED",
+      "labelKo": "24/7 중지",
+      "allowedTargets": ["SECONDARY_ENABLED"],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION_AVAILABILITY",
+      "stateCode": "REDEMPTION_ENABLED",
+      "labelKo": "환매 허용",
+      "allowedTargets": ["REDEMPTION_RESTRICTED"],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION_AVAILABILITY",
+      "stateCode": "REDEMPTION_RESTRICTED",
+      "labelKo": "환매 제한",
+      "allowedTargets": ["REDEMPTION_ENABLED"],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_DRAFT",
+      "labelKo": "주문 작성",
+      "allowedTargets": ["PRIMARY_FUNDS_CHECK", "PRIMARY_CANCELLED"],
+      "representativeForbiddenTargets": ["PRIMARY_FUNDS_CHECK_FAILED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_FUNDS_CHECK",
+      "labelKo": "자금 확인",
+      "allowedTargets": ["PRIMARY_AGGREGATION_PENDING", "PRIMARY_FUNDS_CHECK_FAILED"],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_FUNDS_CHECK_FAILED",
+      "labelKo": "자금 확인 실패",
+      "allowedTargets": ["PRIMARY_DRAFT", "PRIMARY_CANCELLED"],
+      "representativeForbiddenTargets": ["PRIMARY_FUNDS_CHECK"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_AGGREGATION_PENDING",
+      "labelKo": "취합 대기",
+      "allowedTargets": [
+        "PRIMARY_KRX_OPEN_PENDING",
+        "PRIMARY_SUBMITTED_DOMESTICALLY",
+        "PRIMARY_CANCELLED"
+      ],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_KRX_OPEN_PENDING",
+      "labelKo": "KRX 개장 대기",
+      "allowedTargets": ["PRIMARY_SUBMITTED_DOMESTICALLY", "PRIMARY_CANCELLED"],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_SUBMITTED_DOMESTICALLY",
+      "labelKo": "국내 제출",
+      "allowedTargets": [
+        "PRIMARY_UNFILLED",
+        "PRIMARY_PARTIALLY_FILLED",
+        "PRIMARY_FULLY_FILLED",
+        "PRIMARY_CORRECTION_REVIEW"
+      ],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_UNFILLED",
+      "labelKo": "미체결",
+      "allowedTargets": ["RESERVATION_RELEASED", "PRIMARY_CORRECTION_REVIEW"],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_PARTIALLY_FILLED",
+      "labelKo": "부분체결",
+      "allowedTargets": ["PRIMARY_ALLOCATION_COMPLETED", "PRIMARY_CORRECTION_REVIEW"],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_FULLY_FILLED",
+      "labelKo": "전량체결",
+      "allowedTargets": ["PRIMARY_ALLOCATION_COMPLETED", "PRIMARY_CORRECTION_REVIEW"],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_ALLOCATION_COMPLETED",
+      "labelKo": "고객별 배분",
+      "allowedTargets": ["EXECUTED_NOT_ISSUED"],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_CORRECTION_REVIEW",
+      "labelKo": "정정 검토",
+      "allowedTargets": [
+        "PRIMARY_SUBMITTED_DOMESTICALLY",
+        "PRIMARY_UNFILLED",
+        "PRIMARY_PARTIALLY_FILLED",
+        "PRIMARY_FULLY_FILLED",
+        "RIGHTS_ENTRY_QUARANTINED"
+      ],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "PRIMARY_ORDER",
+      "stateCode": "PRIMARY_CANCELLED",
+      "labelKo": "취소 완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["PRIMARY_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "EXECUTED_NOT_ISSUED",
+      "labelKo": "체결 후 미발행",
+      "allowedTargets": ["T2_RISK_APPROVAL_PENDING", "RIGHTS_ENTRY_QUARANTINED"],
+      "representativeForbiddenTargets": ["RIGHTS_APPROVAL_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "T2_RISK_APPROVAL_PENDING",
+      "labelKo": "위험 승인 대기",
+      "allowedTargets": ["RIGHTS_APPROVAL_PENDING", "RIGHTS_ENTRY_QUARANTINED"],
+      "representativeForbiddenTargets": ["EXECUTED_NOT_ISSUED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_APPROVAL_PENDING",
+      "labelKo": "권리기입 승인 대기",
+      "allowedTargets": ["RIGHTS_ENTRY_PENDING", "RIGHTS_ENTRY_QUARANTINED"],
+      "representativeForbiddenTargets": ["EXECUTED_NOT_ISSUED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_ENTRY_PENDING",
+      "labelKo": "권리기입 실행 대기",
+      "allowedTargets": ["RIGHTS_ENTRY_COMPLETED", "RIGHTS_ENTRY_QUARANTINED"],
+      "representativeForbiddenTargets": ["EXECUTED_NOT_ISSUED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_ENTRY_COMPLETED",
+      "labelKo": "권리기입 완료",
+      "allowedTargets": ["TOKEN_MINT_PENDING", "RIGHTS_ENTRY_QUARANTINED"],
+      "representativeForbiddenTargets": ["EXECUTED_NOT_ISSUED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "TOKEN_MINT_PENDING",
+      "labelKo": "발행 실행 대기",
+      "allowedTargets": ["TOKEN_SETTLEMENT_PENDING", "RIGHTS_ENTRY_QUARANTINED"],
+      "representativeForbiddenTargets": ["EXECUTED_NOT_ISSUED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RIGHTS_ENTRY",
+      "stateCode": "RIGHTS_ENTRY_QUARANTINED",
+      "labelKo": "격리 검토",
+      "allowedTargets": ["TOKEN_MINT_PENDING", "TOKEN_SETTLEMENT_PENDING", "CORRECTION_PENDING"],
+      "representativeForbiddenTargets": ["EXECUTED_NOT_ISSUED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_UNMINTED",
+      "labelKo": "미발행",
+      "allowedTargets": ["TOKEN_SETTLEMENT_PENDING"],
+      "representativeForbiddenTargets": ["TOKEN_TRADABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_SETTLEMENT_PENDING",
+      "labelKo": "국내 결제 대기",
+      "allowedTargets": ["TOKEN_TRADABLE", "TOKEN_QUARANTINED"],
+      "representativeForbiddenTargets": ["TOKEN_UNMINTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_TRADABLE",
+      "labelKo": "거래 가능",
+      "allowedTargets": ["TOKEN_RESERVED", "TOKEN_REDEMPTION_LOCKED", "TOKEN_QUARANTINED"],
+      "representativeForbiddenTargets": ["TOKEN_UNMINTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_RESERVED",
+      "labelKo": "24/7 예약",
+      "allowedTargets": ["TOKEN_TRADABLE", "TOKEN_QUARANTINED"],
+      "representativeForbiddenTargets": ["TOKEN_UNMINTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_REDEMPTION_LOCKED",
+      "labelKo": "환매 잠금",
+      "allowedTargets": ["TOKEN_TRADABLE", "TOKEN_BURN_PENDING", "TOKEN_QUARANTINED"],
+      "representativeForbiddenTargets": ["TOKEN_UNMINTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_BURN_PENDING",
+      "labelKo": "환매 소각 대기",
+      "allowedTargets": ["TOKEN_BURNED", "TOKEN_QUARANTINED"],
+      "representativeForbiddenTargets": ["TOKEN_UNMINTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_BURNED",
+      "labelKo": "소각 완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["TOKEN_UNMINTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "TOKEN_LIFECYCLE",
+      "stateCode": "TOKEN_QUARANTINED",
+      "labelKo": "격리 검토",
+      "allowedTargets": ["TOKEN_TRADABLE", "TOKEN_BURN_PENDING", "CORRECTION_PENDING"],
+      "representativeForbiddenTargets": ["TOKEN_UNMINTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_AND_CUSTODY_PENDING",
+      "labelKo": "두 확인 대기",
+      "allowedTargets": [
+        "SETTLEMENT_ONLY_CONFIRMED",
+        "CUSTODY_ONLY_CONFIRMED",
+        "SETTLEMENT_AND_CUSTODY_CONFIRMED",
+        "SETTLEMENT_EXCEPTION_REVIEW"
+      ],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_ONLY_CONFIRMED",
+      "labelKo": "결제만 확인",
+      "allowedTargets": ["SETTLEMENT_AND_CUSTODY_CONFIRMED", "SETTLEMENT_EXCEPTION_REVIEW"],
+      "representativeForbiddenTargets": ["SETTLEMENT_AND_CUSTODY_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "CUSTODY_ONLY_CONFIRMED",
+      "labelKo": "수탁만 확인",
+      "allowedTargets": ["SETTLEMENT_AND_CUSTODY_CONFIRMED", "SETTLEMENT_EXCEPTION_REVIEW"],
+      "representativeForbiddenTargets": ["SETTLEMENT_AND_CUSTODY_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_AND_CUSTODY_CONFIRMED",
+      "labelKo": "거래 가능",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["SETTLEMENT_AND_CUSTODY_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DOMESTIC_SETTLEMENT",
+      "stateCode": "SETTLEMENT_EXCEPTION_REVIEW",
+      "labelKo": "결제 예외 검토",
+      "allowedTargets": [
+        "SETTLEMENT_AND_CUSTODY_PENDING",
+        "SETTLEMENT_AND_CUSTODY_CONFIRMED",
+        "RECONCILIATION_QUARANTINED"
+      ],
+      "representativeForbiddenTargets": ["SETTLEMENT_ONLY_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "stateCode": "CUSTODY_CONFIRMATION_PENDING",
+      "labelKo": "수탁 확인 대기",
+      "allowedTargets": ["CUSTODY_CONFIRMED", "CUSTODY_MISMATCH"],
+      "representativeForbiddenTargets": [],
+      "forbiddenErrorCode": null,
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "stateCode": "CUSTODY_CONFIRMED",
+      "labelKo": "수탁 확인 완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["CUSTODY_CONFIRMATION_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CUSTODY_CONFIRMATION",
+      "stateCode": "CUSTODY_MISMATCH",
+      "labelKo": "수탁수량 불일치",
+      "allowedTargets": ["CUSTODY_CONFIRMATION_PENDING", "RECONCILIATION_QUARANTINED"],
+      "representativeForbiddenTargets": ["CUSTODY_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_AVAILABLE",
+      "labelKo": "사용 가능",
+      "allowedTargets": ["FUNDS_RESERVED"],
+      "representativeForbiddenTargets": ["FUNDS_RECEIPT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_RECEIPT_CONFIRMED",
+      "labelKo": "수취 확인",
+      "allowedTargets": ["USD_CONVERSION_PENDING"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "USD_CONVERSION_PENDING",
+      "labelKo": "USD 전환 대기",
+      "allowedTargets": ["USD_ATTRIBUTED", "FUNDS_RETURN_PENDING"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "USD_ATTRIBUTED",
+      "labelKo": "USD 귀속",
+      "allowedTargets": ["FUNDS_RESERVED"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_RESERVED",
+      "labelKo": "예약",
+      "allowedTargets": ["USDC_PAYMENT_CONFIRMED"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_USED",
+      "labelKo": "사용",
+      "allowedTargets": ["RESERVATION_RELEASED"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "RESERVATION_RELEASED",
+      "labelKo": "잔여 예약 해제",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "FUNDS_RETURN_PENDING",
+      "labelKo": "반환 검토",
+      "allowedTargets": ["FUNDS_AVAILABLE"],
+      "representativeForbiddenTargets": ["FUNDS_RECEIPT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "WALLET_BALANCE_CONFIRMED",
+      "labelKo": "지갑잔액 확인",
+      "allowedTargets": ["FUNDS_RESERVED"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "TRANSFER_CONFIRMED",
+      "labelKo": "이전 확인",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "PAYMENT_PENDING",
+      "labelKo": "지급 대기",
+      "allowedTargets": ["PAYMENT_COMPLETED"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "PAYMENT_COMPLETED",
+      "labelKo": "지급 완료",
+      "allowedTargets": ["CONVERSION_QUOTED"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "CONVERSION_QUOTED",
+      "labelKo": "견적 제시",
+      "allowedTargets": ["CUSTOMER_CONVERSION_CONFIRMED", "RESERVATION_RELEASED_AFTER_FAILURE"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "CUSTOMER_CONVERSION_CONFIRMED",
+      "labelKo": "고객 확인",
+      "allowedTargets": ["FUNDS_RESERVED", "RESERVATION_RELEASED_AFTER_FAILURE"],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "USDC_PAYMENT_CONFIRMED",
+      "labelKo": "USDC 지급 확인",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["FUNDS_AVAILABLE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "FUNDING",
+      "stateCode": "RESERVATION_RELEASED_AFTER_FAILURE",
+      "labelKo": "예약 해제",
+      "allowedTargets": ["FUNDS_AVAILABLE"],
+      "representativeForbiddenTargets": ["FUNDS_RECEIPT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_DRAFT",
+      "labelKo": "호가 작성",
+      "allowedTargets": ["QUOTE_REVIEW"],
+      "representativeForbiddenTargets": ["QUOTE_ACTIVE"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_REVIEW",
+      "labelKo": "호가 검토",
+      "allowedTargets": ["QUOTE_ACTIVE", "QUOTE_BLOCKED", "QUOTE_WITHDRAWN"],
+      "representativeForbiddenTargets": ["QUOTE_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_ACTIVE",
+      "labelKo": "유효 호가",
+      "allowedTargets": [
+        "QUOTE_PARTIALLY_FILLED",
+        "QUOTE_FULLY_FILLED",
+        "QUOTE_EXPIRED",
+        "QUOTE_WITHDRAWN",
+        "QUOTE_BLOCKED"
+      ],
+      "representativeForbiddenTargets": ["QUOTE_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_PARTIALLY_FILLED",
+      "labelKo": "일부 소진",
+      "allowedTargets": ["QUOTE_FULLY_FILLED", "QUOTE_EXPIRED", "QUOTE_WITHDRAWN", "QUOTE_BLOCKED"],
+      "representativeForbiddenTargets": ["QUOTE_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_FULLY_FILLED",
+      "labelKo": "전량 소진",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["QUOTE_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_EXPIRED",
+      "labelKo": "만료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["QUOTE_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_WITHDRAWN",
+      "labelKo": "철회",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["QUOTE_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_QUOTE",
+      "stateCode": "QUOTE_BLOCKED",
+      "labelKo": "호가 차단",
+      "allowedTargets": ["QUOTE_REVIEW"],
+      "representativeForbiddenTargets": ["QUOTE_DRAFT"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_ORDER_RECEIVED",
+      "labelKo": "주문 접수",
+      "allowedTargets": ["SECONDARY_PRECHECK"],
+      "representativeForbiddenTargets": ["SECONDARY_RESERVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_PRECHECK",
+      "labelKo": "사전검사",
+      "allowedTargets": ["SECONDARY_RESERVED", "SECONDARY_REJECTED"],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_RESERVED",
+      "labelKo": "예약",
+      "allowedTargets": [
+        "SECONDARY_PARTIALLY_CONFIRMED",
+        "SECONDARY_FULLY_CONFIRMED",
+        "SECONDARY_AUTO_REVERSED",
+        "SECONDARY_QUARANTINED"
+      ],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_PARTIALLY_CONFIRMED",
+      "labelKo": "부분 확정",
+      "allowedTargets": ["SECONDARY_COMPLETED", "SECONDARY_AUTO_REVERSED", "SECONDARY_QUARANTINED"],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_FULLY_CONFIRMED",
+      "labelKo": "전량 확정",
+      "allowedTargets": ["SECONDARY_COMPLETED", "SECONDARY_QUARANTINED"],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_AUTO_REVERSED",
+      "labelKo": "자동 원복",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_QUARANTINED",
+      "labelKo": "격리 검토",
+      "allowedTargets": ["SECONDARY_COMPLETED", "CORRECTION_PENDING"],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_COMPLETED",
+      "labelKo": "완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "SECONDARY_TRADE",
+      "stateCode": "SECONDARY_REJECTED",
+      "labelKo": "거절",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["SECONDARY_ORDER_RECEIVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "MM_NORMAL",
+      "labelKo": "정상 운영",
+      "allowedTargets": ["MM_RISK_REDUCING_ONLY", "MM_QUOTING_HALTED", "HEDGE_CREATED"],
+      "representativeForbiddenTargets": ["HEDGE_RISK_REVIEW"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "MM_RISK_REDUCING_ONLY",
+      "labelKo": "위험 축소 전용",
+      "allowedTargets": ["MM_NORMAL", "MM_QUOTING_HALTED", "HEDGE_CREATED"],
+      "representativeForbiddenTargets": ["HEDGE_RISK_REVIEW"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "MM_QUOTING_HALTED",
+      "labelKo": "호가 중지",
+      "allowedTargets": ["MM_RISK_REDUCING_ONLY", "MM_NORMAL"],
+      "representativeForbiddenTargets": ["HEDGE_CREATED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_CREATED",
+      "labelKo": "헤지 생성",
+      "allowedTargets": ["HEDGE_RISK_REVIEW"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_RISK_REVIEW",
+      "labelKo": "위험 검토",
+      "allowedTargets": ["HEDGE_KRX_OPEN_PENDING", "HEDGE_ON_HOLD"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_KRX_OPEN_PENDING",
+      "labelKo": "KRX 개장 대기",
+      "allowedTargets": ["HEDGE_SUBMITTED_DOMESTICALLY", "HEDGE_ON_HOLD"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_SUBMITTED_DOMESTICALLY",
+      "labelKo": "국내 제출",
+      "allowedTargets": ["HEDGE_PARTIALLY_FILLED", "HEDGE_FULLY_FILLED", "HEDGE_ON_HOLD"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_PARTIALLY_FILLED",
+      "labelKo": "부분체결",
+      "allowedTargets": ["HEDGE_T2_PENDING", "HEDGE_ON_HOLD"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_FULLY_FILLED",
+      "labelKo": "전량체결",
+      "allowedTargets": ["HEDGE_T2_PENDING"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_T2_PENDING",
+      "labelKo": "T+2 대기",
+      "allowedTargets": ["HEDGE_INVENTORY_ADJUSTED", "HEDGE_ON_HOLD"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_INVENTORY_ADJUSTED",
+      "labelKo": "재고조정 완료",
+      "allowedTargets": ["MM_NORMAL", "MM_RISK_REDUCING_ONLY"],
+      "representativeForbiddenTargets": ["MM_QUOTING_HALTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "MARKET_MAKER_HEDGE",
+      "stateCode": "HEDGE_ON_HOLD",
+      "labelKo": "헤지 보류",
+      "allowedTargets": ["HEDGE_RISK_REVIEW", "HEDGE_KRX_OPEN_PENDING", "MM_QUOTING_HALTED"],
+      "representativeForbiddenTargets": ["MM_NORMAL"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_REQUESTED",
+      "labelKo": "환매 요청",
+      "allowedTargets": ["REDEMPTION_CANCELLED", "RIGHTS_AND_TOKEN_LOCKED"],
+      "representativeForbiddenTargets": ["DOMESTIC_SALE_PENDING"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_CANCELLED",
+      "labelKo": "국내 제출 전 환매 취소",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "RIGHTS_AND_TOKEN_LOCKED",
+      "labelKo": "권리와 토큰 잠금",
+      "allowedTargets": ["DOMESTIC_SALE_PENDING", "REDEMPTION_CANCELLED"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "DOMESTIC_SALE_PENDING",
+      "labelKo": "국내 매도 대기",
+      "allowedTargets": ["REDEMPTION_SUBMITTED_DOMESTICALLY", "REDEMPTION_CANCELLED"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_SUBMITTED_DOMESTICALLY",
+      "labelKo": "국내 제출",
+      "allowedTargets": [
+        "REDEMPTION_UNFILLED",
+        "REDEMPTION_PARTIALLY_FILLED",
+        "REDEMPTION_FULLY_FILLED",
+        "REDEMPTION_EXCEPTION_REVIEW"
+      ],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_UNFILLED",
+      "labelKo": "미체결",
+      "allowedTargets": ["TOKEN_TRADABLE", "REDEMPTION_EXCEPTION_REVIEW"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_PARTIALLY_FILLED",
+      "labelKo": "부분체결",
+      "allowedTargets": [
+        "SALE_PROCEEDS_SETTLEMENT_PENDING",
+        "TOKEN_TRADABLE",
+        "REDEMPTION_EXCEPTION_REVIEW"
+      ],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_FULLY_FILLED",
+      "labelKo": "전량체결",
+      "allowedTargets": ["SALE_PROCEEDS_SETTLEMENT_PENDING"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "SALE_PROCEEDS_SETTLEMENT_PENDING",
+      "labelKo": "매도대금 결제 대기",
+      "allowedTargets": ["RIGHTS_TERMINATED_CASH_CLAIM_CREATED", "REDEMPTION_EXCEPTION_REVIEW"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "RIGHTS_TERMINATED_CASH_CLAIM_CREATED",
+      "labelKo": "권리종료와 지급청구 전환",
+      "allowedTargets": ["REDEMPTION_BURN_PENDING"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_BURN_PENDING",
+      "labelKo": "환매 소각 대기",
+      "allowedTargets": ["REDEMPTION_COMPLETED"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_COMPLETED",
+      "labelKo": "환매 완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_EXCEPTION_REVIEW",
+      "labelKo": "환매 예외 검토",
+      "allowedTargets": [
+        "SALE_PROCEEDS_SETTLEMENT_PENDING",
+        "REDEMPTION_QUARANTINED",
+        "TOKEN_TRADABLE"
+      ],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REDEMPTION",
+      "stateCode": "REDEMPTION_QUARANTINED",
+      "labelKo": "격리 검토",
+      "allowedTargets": ["CORRECTION_PENDING", "REDEMPTION_COMPLETED"],
+      "representativeForbiddenTargets": ["REDEMPTION_REQUESTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_EVENT_CONFIRMED",
+      "labelKo": "사건 확인",
+      "allowedTargets": ["DIVIDEND_SNAPSHOT_REVIEW"],
+      "representativeForbiddenTargets": ["DIVIDEND_ALLOCATION_APPROVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_SNAPSHOT_REVIEW",
+      "labelKo": "권리 스냅샷 검토",
+      "allowedTargets": ["DIVIDEND_ALLOCATION_APPROVED", "DIVIDEND_RIGHTS_EXCEPTION_REVIEW"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_ALLOCATION_APPROVED",
+      "labelKo": "배분안 승인",
+      "allowedTargets": ["DIVIDEND_USD_PAYMENT_PENDING"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USD_PAYMENT_PENDING",
+      "labelKo": "USD 지급 대기",
+      "allowedTargets": ["DIVIDEND_USD_PAID", "DIVIDEND_RIGHTS_EXCEPTION_REVIEW"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USD_PAID",
+      "labelKo": "USD 배당 완료",
+      "allowedTargets": ["DIVIDEND_USDC_QUOTED"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USDC_QUOTED",
+      "labelKo": "USDC 전환 견적",
+      "allowedTargets": ["DIVIDEND_CONVERSION_CONFIRMED", "DIVIDEND_QUOTE_EXPIRED"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_CONVERSION_CONFIRMED",
+      "labelKo": "고객 전환 확인",
+      "allowedTargets": ["DIVIDEND_USD_RESERVED", "DIVIDEND_QUOTE_EXPIRED"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USD_RESERVED",
+      "labelKo": "USD 예약",
+      "allowedTargets": [
+        "DIVIDEND_USDC_PAID",
+        "DIVIDEND_RESERVATION_RELEASED",
+        "RECONCILIATION_QUARANTINED"
+      ],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_USDC_PAID",
+      "labelKo": "USDC 지급 확인",
+      "allowedTargets": ["DIVIDEND_CONVERSION_COMPLETED"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_QUOTE_EXPIRED",
+      "labelKo": "견적 만료",
+      "allowedTargets": ["DIVIDEND_USD_PAID"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_RESERVATION_RELEASED",
+      "labelKo": "예약 해제",
+      "allowedTargets": ["DIVIDEND_USD_PAID"],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_CONVERSION_COMPLETED",
+      "labelKo": "전환 완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "DIVIDEND",
+      "stateCode": "DIVIDEND_RIGHTS_EXCEPTION_REVIEW",
+      "labelKo": "권리 예외 검토",
+      "allowedTargets": [
+        "DIVIDEND_SNAPSHOT_REVIEW",
+        "DIVIDEND_ALLOCATION_APPROVED",
+        "RECONCILIATION_QUARANTINED"
+      ],
+      "representativeForbiddenTargets": ["DIVIDEND_EVENT_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_AGENDA_CONFIRMED",
+      "labelKo": "안건 확인",
+      "allowedTargets": ["VOTE_INSTRUCTION_COLLECTION"],
+      "representativeForbiddenTargets": ["VOTE_TALLY_APPROVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_INSTRUCTION_COLLECTION",
+      "labelKo": "지시 수집",
+      "allowedTargets": ["VOTE_TALLY_APPROVED"],
+      "representativeForbiddenTargets": ["VOTE_AGENDA_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_TALLY_APPROVED",
+      "labelKo": "집계 승인",
+      "allowedTargets": ["VOTE_DOMESTIC_EXECUTION_PENDING"],
+      "representativeForbiddenTargets": ["VOTE_AGENDA_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_DOMESTIC_EXECUTION_PENDING",
+      "labelKo": "국내 행사 대기",
+      "allowedTargets": ["VOTE_EXECUTION_CONFIRMED"],
+      "representativeForbiddenTargets": ["VOTE_AGENDA_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_EXECUTION_CONFIRMED",
+      "labelKo": "행사 결과 확인",
+      "allowedTargets": ["VOTE_COMPLETED", "DIVIDEND_RIGHTS_EXCEPTION_REVIEW"],
+      "representativeForbiddenTargets": ["VOTE_AGENDA_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "VOTING",
+      "stateCode": "VOTE_COMPLETED",
+      "labelKo": "의결권 완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["VOTE_AGENDA_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_DETECTED",
+      "labelKo": "사건 감지",
+      "allowedTargets": ["CORPORATE_ACTION_ALL_WORK_HELD"],
+      "representativeForbiddenTargets": ["CORPORATE_ACTION_PLAN_REVIEW"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_ALL_WORK_HELD",
+      "labelKo": "세 업무 중지",
+      "allowedTargets": ["CORPORATE_ACTION_PLAN_REVIEW"],
+      "representativeForbiddenTargets": ["CORPORATE_ACTION_DETECTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_PLAN_REVIEW",
+      "labelKo": "변경안 검토",
+      "allowedTargets": ["CORPORATE_ACTION_PLAN_APPROVED"],
+      "representativeForbiddenTargets": ["CORPORATE_ACTION_DETECTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_PLAN_APPROVED",
+      "labelKo": "변경안 승인",
+      "allowedTargets": ["CORPORATE_ACTION_QUANTITY_APPLIED"],
+      "representativeForbiddenTargets": ["CORPORATE_ACTION_DETECTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_QUANTITY_APPLIED",
+      "labelKo": "수량 반영",
+      "allowedTargets": ["CORPORATE_ACTION_RECONCILED"],
+      "representativeForbiddenTargets": ["CORPORATE_ACTION_DETECTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_RECONCILED",
+      "labelKo": "전체 재대사",
+      "allowedTargets": ["CORPORATE_ACTION_RELEASE_APPROVED"],
+      "representativeForbiddenTargets": ["CORPORATE_ACTION_DETECTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "CORPORATE_ACTION",
+      "stateCode": "CORPORATE_ACTION_RELEASE_APPROVED",
+      "labelKo": "재개 승인",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["CORPORATE_ACTION_DETECTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORTING_PERIOD_CLOSED",
+      "labelKo": "보고기간 마감",
+      "allowedTargets": ["REPORT_GENERATED"],
+      "representativeForbiddenTargets": ["REPORT_APPROVED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_GENERATED",
+      "labelKo": "보고 생성",
+      "allowedTargets": ["REPORT_APPROVED"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_APPROVED",
+      "labelKo": "보고 승인",
+      "allowedTargets": ["REPORT_SUBMISSION_PENDING", "REPORT_CORRECTION_REVIEW"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_SUBMISSION_PENDING",
+      "labelKo": "제출 대기",
+      "allowedTargets": ["REPORT_SUBMITTED_ON_TIME", "REPORT_SUBMITTED_LATE"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_SUBMITTED_ON_TIME",
+      "labelKo": "기한 내 제출",
+      "allowedTargets": ["REPORT_RECEIPT_CONFIRMED"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_SUBMITTED_LATE",
+      "labelKo": "지연 제출",
+      "allowedTargets": ["REPORT_RECEIPT_CONFIRMED", "REPORT_CORRECTION_REVIEW"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_RECEIPT_CONFIRMED",
+      "labelKo": "제출 확인",
+      "allowedTargets": ["REPORT_COMPLETED", "REPORT_CORRECTION_REVIEW"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_CORRECTION_REVIEW",
+      "labelKo": "정정 검토",
+      "allowedTargets": ["REPORT_GENERATED", "REPORT_APPROVED", "REPORT_CORRECTED"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_CORRECTED",
+      "labelKo": "정정 제출",
+      "allowedTargets": ["REPORT_RECEIPT_CONFIRMED"],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "REGULATORY_REPORT",
+      "stateCode": "REPORT_COMPLETED",
+      "labelKo": "보고 완료",
+      "allowedTargets": [],
+      "representativeForbiddenTargets": ["REPORTING_PERIOD_CLOSED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "RECONCILIATION_MATCHED",
+      "labelKo": "대사 일치",
+      "allowedTargets": ["EXPECTED_TRANSITION_CONFIRMED", "MISMATCH_SUSPECTED"],
+      "representativeForbiddenTargets": ["WORK_HALTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "EXPECTED_TRANSITION_CONFIRMED",
+      "labelKo": "정상 과도기 확인",
+      "allowedTargets": ["RECONCILIATION_MATCHED", "MISMATCH_SUSPECTED"],
+      "representativeForbiddenTargets": ["WORK_HALTED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "MISMATCH_SUSPECTED",
+      "labelKo": "불일치 의심",
+      "allowedTargets": ["WORK_HALTED", "RECONCILIATION_MATCHED"],
+      "representativeForbiddenTargets": ["EXPECTED_TRANSITION_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "WORK_HALTED",
+      "labelKo": "업무 중지",
+      "allowedTargets": ["EVIDENCE_COLLECTION"],
+      "representativeForbiddenTargets": ["RECONCILIATION_MATCHED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "EVIDENCE_COLLECTION",
+      "labelKo": "증거 수집",
+      "allowedTargets": ["ROOT_CAUSE_CONFIRMED", "RECONCILIATION_QUARANTINED"],
+      "representativeForbiddenTargets": ["RECONCILIATION_MATCHED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "ROOT_CAUSE_CONFIRMED",
+      "labelKo": "원인 확정",
+      "allowedTargets": ["CORRECTION_PENDING"],
+      "representativeForbiddenTargets": ["RECONCILIATION_MATCHED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "RECONCILIATION_QUARANTINED",
+      "labelKo": "격리 검토",
+      "allowedTargets": ["CORRECTION_PENDING", "RECONCILIATION_MATCHED"],
+      "representativeForbiddenTargets": ["EXPECTED_TRANSITION_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "CORRECTION_PENDING",
+      "labelKo": "보정 대기",
+      "allowedTargets": ["FULL_RECONCILIATION_COMPLETED"],
+      "representativeForbiddenTargets": ["RECONCILIATION_MATCHED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "FULL_RECONCILIATION_COMPLETED",
+      "labelKo": "전체 재대사",
+      "allowedTargets": ["RELEASE_APPROVED", "MISMATCH_SUSPECTED"],
+      "representativeForbiddenTargets": ["RECONCILIATION_MATCHED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "RELEASE_APPROVED",
+      "labelKo": "재개 승인",
+      "allowedTargets": ["WORK_RESUMED", "CORRECTION_PENDING"],
+      "representativeForbiddenTargets": ["RECONCILIATION_MATCHED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    },
+    {
+      "axis": "RECONCILIATION",
+      "stateCode": "WORK_RESUMED",
+      "labelKo": "업무 재개",
+      "allowedTargets": ["RECONCILIATION_MATCHED"],
+      "representativeForbiddenTargets": ["EXPECTED_TRANSITION_CONFIRMED"],
+      "forbiddenErrorCode": "STATE_CONFLICT",
+      "source": "../../05-screens-states-recovery/STATE_MODEL.md"
+    }
+  ]
+}

@@ -128,6 +128,8 @@ contract RestrictedTokenFoundationTest is TestBase {
     function test_SplitRequiresPausedScopesAndPreservesIntegerBuckets() public {
         token.mintPending(_workflow(), INVESTOR, 10, _evidence());
         token.releasePending(_workflow(), INVESTOR, 8, _evidence());
+        token.lockForRedemption(_workflow(), INVESTOR, 2, _evidence());
+        token.markBurnPending(_workflow(), INVESTOR, 1, _evidence());
         token.freezeAvailable(_workflow(), INVESTOR, 2, _evidence());
         _pause(PolicyScopes.ISSUANCE);
         _pause(PolicyScopes.SECONDARY);
@@ -136,10 +138,12 @@ contract RestrictedTokenFoundationTest is TestBase {
         address[] memory accounts = new address[](1);
         accounts[0] = INVESTOR;
         token.applySplitBatch(_workflow(), accounts, 2, 1, _evidence());
-        assertEq(token.availableBalanceOf(INVESTOR), 12);
+        assertEq(token.availableBalanceOf(INVESTOR), 8);
         assertEq(token.pendingSettlementBalanceOf(INVESTOR), 4);
+        assertEq(token.redemptionLockedBalanceOf(INVESTOR), 2);
+        assertEq(token.burnPendingBalanceOf(INVESTOR), 1);
         assertEq(token.administrativeFrozenBalanceOf(INVESTOR), 4);
-        assertEq(token.totalSupply(), 20);
+        assertEq(token.totalSupply(), 19);
     }
 
     function testFuzz_MintAndReleasePreserveSupply(uint96 rawQuantity) public {

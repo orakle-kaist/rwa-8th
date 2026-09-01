@@ -38,6 +38,7 @@
         {"name":"administrativeFrozenBalanceOf","stateMutability":"view","inputs":[{"name":"account","type":"address"}],"outputs":[{"name":"","type":"uint256"}]},
         {"name":"isAddressFrozen","stateMutability":"view","inputs":[{"name":"account","type":"address"}],"outputs":[{"name":"","type":"bool"}]},
         {"name":"mintPending","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"account","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"cancelPendingMint","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"account","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"releasePending","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"account","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"controlledTransfer","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"lockForRedemption","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"account","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
@@ -53,6 +54,7 @@
       "events": [
         {"name":"Transfer","inputs":[{"name":"from","type":"address","indexed":true},{"name":"to","type":"address","indexed":true},{"name":"value","type":"uint256","indexed":false}]},
         {"name":"PendingMinted","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"account","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
+        {"name":"PendingMintCancelled","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"account","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false}]},
         {"name":"PendingReleased","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"account","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false}]},
         {"name":"ControlledTransfer","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"from","type":"address","indexed":true},{"name":"to","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false}]},
         {"name":"RedemptionLocked","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"account","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false}]},
@@ -106,7 +108,10 @@
         {"name":"executePendingMint","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"intent","type":"PrimaryOrderIntent"},{"name":"investorSignature","type":"bytes"}],"outputs":[]},
         {"name":"confirmDomesticSettlement","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"token","type":"address"},{"name":"investor","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"confirmCustodyQuantity","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"token","type":"address"},{"name":"investor","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
-        {"name":"executeRelease","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"token","type":"address"},{"name":"investor","type":"address"},{"name":"quantity","type":"uint256"}],"outputs":[]}
+        {"name":"executeRelease","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"token","type":"address"},{"name":"investor","type":"address"},{"name":"quantity","type":"uint256"}],"outputs":[]},
+        {"name":"approvePendingCorrection","stateMutability":"nonpayable","inputs":[{"name":"correctionId","type":"bytes16"},{"name":"issuanceWorkflowId","type":"bytes16"},{"name":"token","type":"address"},{"name":"investor","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"confirmPendingRightsCorrection","stateMutability":"nonpayable","inputs":[{"name":"correctionId","type":"bytes16"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"executePendingCorrection","stateMutability":"nonpayable","inputs":[{"name":"correctionId","type":"bytes16"}],"outputs":[]}
       ],
       "events":[
         {"name":"ExecutionAllocationConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"executedQuantity","type":"uint256","indexed":false},{"name":"allocatedQuantity","type":"uint256","indexed":false},{"name":"executionEvidenceHash","type":"bytes32","indexed":false},{"name":"allocationEvidenceHash","type":"bytes32","indexed":false}]},
@@ -114,7 +119,9 @@
         {"name":"RightsEntryApproved","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"RightsRecordingConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"DomesticSettlementConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
-        {"name":"CustodyQuantityConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]}
+        {"name":"CustodyQuantityConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
+        {"name":"PendingMintCorrectionApproved","inputs":[{"name":"correctionId","type":"bytes16","indexed":true},{"name":"issuanceWorkflowId","type":"bytes16","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"token","type":"address","indexed":false},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
+        {"name":"PendingRightsCorrectionConfirmed","inputs":[{"name":"correctionId","type":"bytes16","indexed":true},{"name":"issuanceWorkflowId","type":"bytes16","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]}
       ]
     },
     {
@@ -133,6 +140,9 @@
       "functions":[
         {"name":"lockRedemption","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"intent","type":"RedemptionIntent"},{"name":"investorSignature","type":"bytes"}],"outputs":[]},
         {"name":"cancelBeforeDomesticSale","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"markDomesticSaleSubmitted","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"confirmDomesticExecution","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"executedQuantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
+        {"name":"confirmSaleProceedsSettled","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"quantity","type":"uint256"},{"name":"usdAmountMinor","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"confirmRightsTerminated","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"token","type":"address"},{"name":"investor","type":"address"},{"name":"quantity","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"confirmCashClaim","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"},{"name":"quantity","type":"uint256"},{"name":"usdAmountMinor","type":"uint256"},{"name":"evidenceHash","type":"bytes32"}],"outputs":[]},
         {"name":"markBurnPending","stateMutability":"nonpayable","inputs":[{"name":"workflowId","type":"bytes16"}],"outputs":[]},
@@ -141,6 +151,9 @@
       ],
       "events":[
         {"name":"RedemptionWorkflowLocked","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"token","type":"address","indexed":true},{"name":"investor","type":"address","indexed":true},{"name":"quantity","type":"uint256","indexed":false}]},
+        {"name":"DomesticSaleSubmitted","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
+        {"name":"DomesticExecutionConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"requestedQuantity","type":"uint256","indexed":false},{"name":"executedQuantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
+        {"name":"SaleProceedsSettled","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"usdAmountMinor","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"RightsTerminated","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"CashClaimConfirmed","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"quantity","type":"uint256","indexed":false},{"name":"usdAmountMinor","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]},
         {"name":"UsdPaymentApproved","inputs":[{"name":"workflowId","type":"bytes16","indexed":true},{"name":"usdAmountMinor","type":"uint256","indexed":false},{"name":"evidenceHash","type":"bytes32","indexed":false}]}
@@ -195,6 +208,7 @@
     {"name":"IneligibleWallet","inputs":[{"name":"wallet","type":"address"}]},
     {"name":"MarketMakerRequired","inputs":[{"name":"wallet","type":"address"}]},
     {"name":"InsufficientAvailableBalance","inputs":[{"name":"wallet","type":"address"},{"name":"available","type":"uint256"},{"name":"required","type":"uint256"}]},
+    {"name":"InsufficientPendingBalance","inputs":[{"name":"wallet","type":"address"},{"name":"available","type":"uint256"},{"name":"required","type":"uint256"}]},
     {"name":"ScopePaused","inputs":[{"name":"token","type":"address"},{"name":"scope","type":"bytes32"}]},
     {"name":"SignatureExpired","inputs":[{"name":"expiresAt","type":"uint256"},{"name":"currentTime","type":"uint256"}]},
     {"name":"NonceAlreadyUsed","inputs":[{"name":"signer","type":"address"},{"name":"nonce","type":"uint256"}]},

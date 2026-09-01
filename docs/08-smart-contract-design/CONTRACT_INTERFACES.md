@@ -2,7 +2,7 @@
 
 상태: **8단계 팀 내부 승인 완료**
 
-이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 고객·기관 업무에 쓰는 함수와 이벤트는 [업무 ABI](specs/contract-abi.json)를 기준으로 한다. 정책 조회, 상품주소 조회, 해외 증권사 서명자 변경과 표준 역할관리는 [관리 ABI](specs/governance-abi.json)를 별도 기준으로 삼는다. 기존 64개 업무 함수, 38개 업무 이벤트와 16개 업무 오류의 의미와 개수는 관리 기능 추가로 바뀌지 않는다.
+이 문서는 외부에서 관찰하고 호출할 동작, 이벤트, 오류와 전환조건을 정한다. 고객·기관 업무에 쓰는 함수와 이벤트는 [업무 ABI](specs/contract-abi.json)를 기준으로 한다. 정책 조회, 상품주소 조회, 해외 증권사 서명자 변경과 표준 역할관리는 [관리 ABI](specs/governance-abi.json)를 별도 기준으로 삼는다. 환매의 국내 제출·부분체결·매도대금 결제 확인을 반영한 기준은 71개 업무 함수, 44개 업무 이벤트와 17개 업무 오류다.
 
 ## 1. 공통 입력과 실행 규칙
 
@@ -46,7 +46,7 @@
 | `unfreezeAvailable` | 관리 통제 역할 | 원인 해소와 승인 뒤 관리상 동결에서 거래 가능으로 복귀 |
 | `freezeAddress` | 복구 또는 긴급 통제 | 지갑의 모든 실행을 차단하되 수량 상태는 유지 |
 | `recoverAllBuckets` | 복구 통제 계약 | 다섯 상태를 새 지갑으로 그대로 이동하고 총량 보존 |
-| `applySplitBatch` | 기업행동 통제 계약 | 전 종목 중지와 독립 승인 뒤 모든 상태를 정수 비율로 조정 |
+| `applySplitBatch` | 기업행동 통제 계약 | 전 종목 중지와 독립 승인 뒤 기준일 주식 권리가 남은 거래 가능, 결제 대기, 환매 잠금과 관리상 동결 수량만 정수 비율로 조정. 권리종료 뒤 소각 대기는 유지 |
 
 일반 `transfer`, `transferFrom`, `approve`는 인터페이스에는 존재하지만 언제나 `DirectTransferDisabled` 또는 `ApprovalDisabled`로 실패한다. 사용자가 임의의 운영자를 승인해 통제 계약을 우회할 수 없다. 발행, 제한 이전, 복구와 소각은 표준 `Transfer` 이벤트도 함께 남기고, 주소가 바뀌지 않는 수량 상태 전환은 전용 상태 이벤트만 남긴다.
 
@@ -132,19 +132,22 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 |---|---|
 | `lockRedemption` | 환매 의사를 검증하고 거래 가능 수량을 환매 잠금으로 전환 |
 | `cancelBeforeDomesticSale` | 국내 매도가 취소 가능한 단계이고 권리 담당이 승인한 경우만 잠금 해제 |
+| `markDomesticSaleSubmitted` | 국내 매도 제출 증거를 기록하고 이후 일반 취소를 차단 |
+| `confirmDomesticExecution` | 실제 체결수량을 확정하고 미체결 잠금수량을 거래 가능으로 반환 |
+| `confirmSaleProceedsSettled` | 실제 체결수량과 같은 T+2 매도대금 결제수량 및 재원 증거 확인 |
 | `confirmRightsTerminated` | T+2 매도대금 결제와 주식 수탁권리 종료 확인 |
 | `confirmCashClaim` | 같은 수량에 대응하는 USD 지급청구와 금액 연결 |
 | `markBurnPending` | 권리종료와 지급청구가 모두 확인된 수량을 소각 대기로 전환 |
 | `approveUsdPayment` | 해외 증권사 자금 담당의 USD 지급 실행 승인과 지급 지시 증거 연결 |
 | `executeBurn` | 소각 승인과 지급 연결을 검증해 소각 대기 수량 소각 |
 
-`burnPendingBalance`에는 항상 지급청구 금액과 국내 매도대금 결제 증거가 연결돼야 한다. 소각은 임의 보유수량이 아니라 특정 환매 업무의 소각 대기 수량에만 적용한다. 실제 USD 지급 완료는 해외 증권사의 오프체인 자금 이벤트로 확인하며, 지급과 소각 중 한쪽만 끝나면 업무 조정기가 격리한다.
+`burnPendingBalance`에는 항상 지급청구 금액과 국내 매도대금 결제 증거가 연결돼야 한다. 소각 대기 누락은 현금청구 누락과 구분한 `BURN_PENDING` 증거형으로 확인한다. 소각은 임의 보유수량이 아니라 특정 환매 업무의 소각 대기 수량에만 적용한다. 실제 USD 지급 완료는 해외 증권사의 오프체인 자금 이벤트로 확인하며, 지급과 소각 중 한쪽만 끝나면 업무 조정기가 격리한다.
 
 ## 9. 복구와 기업행동
 
 `RecoveryController`는 `approveRightsRecovery`, `approveComplianceRecovery`, `executeRecovery`를 제공한다. 새 지갑은 적격하고 기존 권리계정의 다른 활성 지갑으로 사용되지 않아야 한다. 기존 지갑을 먼저 동결한 뒤 다섯 수량 상태를 그대로 이동한다. 복구는 전역 중지 중에도 두 독립 승인이 있어야 가능하다.
 
-`CorporateActionController`는 `approveRightsPlan`, `approveAuditPlan`, `applySplitBatch`, `finalizeSplit`을 제공한다. 분할, 병합 비율을 적용한 모든 지갑과 모든 상태 수량이 정수여야 한다. 배치 처리 전후 예상 총량이 맞지 않거나 소수 잔여분이 생기면 전체를 되돌리고 재개를 금지한다.
+`CorporateActionController`는 `approveRightsPlan`, `approveAuditPlan`, `applySplitBatch`, `finalizeSplit`을 제공한다. 분할, 병합 비율은 기준일 주식 권리가 남아 있는 거래 가능, 결제 대기, 환매 잠금과 관리상 동결 수량에만 적용한다. 이미 주식 권리가 끝나 USD 지급청구에 대응하는 소각 대기 토큰은 비율을 적용하지 않는다. 대상 수량이 정수로 계산되지 않거나 배치 전후 예상 총량이 맞지 않으면 전체를 되돌리고 재개를 금지한다.
 
 ## 10. `MarketPolicyRegistry`
 
@@ -168,6 +171,7 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 | `IneligibleWallet` | 만료, 철회 또는 미등록 지갑 |
 | `MarketMakerRequired` | 지정 시장조성자 조건 불충족 |
 | `InsufficientAvailableBalance` | 거래 가능 수량 부족 |
+| `InsufficientPendingBalance` | 감소 정정 또는 결제불이행 취소에 사용할 결제 대기 수량 부족 |
 | `ScopePaused` | 업무범위 중지 |
 | `SignatureExpired` | 서명 만료 |
 | `NonceAlreadyUsed` | nonce 재사용 |
@@ -184,3 +188,9 @@ EIP-712 도메인의 `verifyingContract`는 공통 `IntentVerifier` 주소다. �
 ## 12. 관리 인터페이스 경계
 
 관리 ABI는 고객 주문이나 기관 업무를 새로 만들지 않는다. `SecurityTokenFactory.getSecurityToken`은 종목·ISIN·설계버전의 등록주소를 확인하고, `MarketPolicyRegistry.isScopePaused`와 `policyVersion`은 현재 통제상태를 조회한다. `IntentVerifier`의 해외 증권사 정산 서명자 조회·변경과 OpenZeppelin 역할 조회·부여·회수는 Safe와 지연 실행의 관리대상이다. 컴파일 결과에는 업무 ABI와 승인된 관리 ABI에 없는 공개 함수, 이벤트와 오류가 존재할 수 없다.
+
+## 13. 선발행 수량 정정
+
+체결 정정이나 결제불이행으로 결제 대기 수량을 줄여야 할 때 `approvePendingCorrection`, `confirmPendingRightsCorrection`, `executePendingCorrection` 순서로 처리한다. 권리 담당의 정정 승인과 실제 고객별 수탁권리 원장 정정 완료는 독립된 증거다. 발행 실행자는 두 증거와 남은 결제 대기 수량을 확인한 뒤 `cancelPendingMint`로 감소분만 소각한다.
+
+증가 정정은 원발행을 덮어쓰지 않고 별도의 보충 발행 업무로 만든다. `PendingMintCorrectionApproved`, `PendingRightsCorrectionConfirmed`, `PendingMintCancelled` 이벤트는 원발행 증거와 다른 업무 ID 및 증거를 사용하며, 같은 정정이나 증거의 재실행은 실패한다.

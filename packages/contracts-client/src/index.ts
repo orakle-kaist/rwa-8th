@@ -1,6 +1,17 @@
 import { createPublicClient, defineChain, http, type PublicClient } from "viem";
 
 export { readRestrictedTokenFoundation, restrictedEquityTokenReadAbi } from "./foundation.js";
+export { eligibilityRegistryWriteAbi, setWalletEligibility, uuidToBytes16 } from "./eligibility.js";
+export { issuanceControllerWriteAbi, writeIssuanceController } from "./issuance.js";
+export { secondarySettlementControllerWriteAbi, writeSecondarySettlement } from "./secondary.js";
+export { redemptionControllerWriteAbi, writeRedemptionController } from "./redemption.js";
+export {
+  corporateActionControllerWriteAbi,
+  recoveryControllerWriteAbi,
+  writeCorporateActionController,
+  writeRecoveryController,
+} from "./rights.js";
+export { deployLocalStack, paymentAssetId, type LocalDeploymentManifest } from "./local-stack.js";
 
 export const anvilChain = defineChain({
   id: 31_337,
