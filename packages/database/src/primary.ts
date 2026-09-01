@@ -10,6 +10,11 @@ import {
 import type { Pool, PoolClient } from "pg";
 
 import { commandHash, getCustomerReadiness, type ProjectionMetadata } from "./protection.js";
+import {
+  initializeWorkflowState,
+  transitionCurrentWorkflowState,
+  transitionWorkflowState,
+} from "./runtime-state.js";
 
 const primaryRoles = new Set([
   "EXECUTION_ALLOCATION_CONFIRMER",
@@ -225,6 +230,32 @@ export async function acceptPrimaryOrder(
         input.now,
       ],
     );
+    await initializeWorkflowState(client, {
+      workflowId: input.order.orderId,
+      axis: "PRIMARY_ORDER",
+      state: "PRIMARY_DRAFT",
+      actorId: input.principalId,
+      actorRole: input.role,
+      now: input.now,
+    });
+    await transitionWorkflowState(client, {
+      workflowId: input.order.orderId,
+      axis: "PRIMARY_ORDER",
+      expectedState: "PRIMARY_DRAFT",
+      nextState: "PRIMARY_FUNDS_CHECK",
+      actorId: "primary-orchestrator",
+      actorRole: "PLATFORM_OPERATOR",
+      now: input.now,
+    });
+    await transitionWorkflowState(client, {
+      workflowId: input.order.orderId,
+      axis: "PRIMARY_ORDER",
+      expectedState: "PRIMARY_FUNDS_CHECK",
+      nextState: "PRIMARY_AGGREGATION_PENDING",
+      actorId: "primary-orchestrator",
+      actorRole: "PLATFORM_OPERATOR",
+      now: input.now,
+    });
     await client.query("INSERT INTO primary_approval_facts (order_id,updated_at) VALUES ($1,$2)", [
       input.order.orderId,
       input.now,
@@ -340,6 +371,14 @@ export async function cancelPrimaryOrder(
       "UPDATE workflows SET status='CANCELLED',updated_at=$2 WHERE workflow_id=$1",
       [orderId, now],
     );
+    await transitionCurrentWorkflowState(client, {
+      workflowId: orderId,
+      axis: "PRIMARY_ORDER",
+      nextState: "PRIMARY_CANCELLED",
+      actorId: principalId,
+      actorRole: "INVESTOR",
+      now,
+    });
     await history(
       client,
       orderId,
@@ -405,6 +444,15 @@ async function formBatch(client: PoolClient, orderId: string, now: Date) {
     "UPDATE primary_orders SET batch_id=$2,status='BATCHED',updated_at=$3 WHERE order_id=$1",
     [orderId, batchId, now],
   );
+  await transitionWorkflowState(client, {
+    workflowId: orderId,
+    axis: "PRIMARY_ORDER",
+    expectedState: "PRIMARY_AGGREGATION_PENDING",
+    nextState: "PRIMARY_KRX_OPEN_PENDING",
+    actorId: "primary-orchestrator",
+    actorRole: "PLATFORM_OPERATOR",
+    now,
+  });
   await client.query(
     `UPDATE primary_batches SET requested_quantity=(SELECT sum(share_quantity) FROM primary_orders WHERE batch_id=$1),updated_at=$2 WHERE batch_id=$1`,
     [batchId, now],

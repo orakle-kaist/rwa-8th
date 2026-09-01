@@ -14,6 +14,11 @@ import {
 import type { Pool, PoolClient } from "pg";
 
 import { commandHash, getCustomerReadiness, type ProjectionMetadata } from "./protection.js";
+import {
+  initializeWorkflowState,
+  transitionCurrentWorkflowState,
+  transitionWorkflowState,
+} from "./runtime-state.js";
 
 const decisionRoles = new Set([
   "EXECUTION_ALLOCATION_CONFIRMER",
@@ -219,6 +224,32 @@ export async function acceptRedemption(
         input.now,
       ],
     );
+    await initializeWorkflowState(client, {
+      workflowId: input.redemptionId,
+      axis: "REDEMPTION",
+      state: "REDEMPTION_REQUESTED",
+      actorId: input.principalId,
+      actorRole: input.role,
+      now: input.now,
+    });
+    await transitionWorkflowState(client, {
+      workflowId: input.redemptionId,
+      axis: "REDEMPTION",
+      expectedState: "REDEMPTION_REQUESTED",
+      nextState: "RIGHTS_AND_TOKEN_LOCKED",
+      actorId: "redemption-orchestrator",
+      actorRole: "PLATFORM_OPERATOR",
+      now: input.now,
+    });
+    await transitionWorkflowState(client, {
+      workflowId: input.redemptionId,
+      axis: "REDEMPTION",
+      expectedState: "RIGHTS_AND_TOKEN_LOCKED",
+      nextState: "DOMESTIC_SALE_PENDING",
+      actorId: "redemption-orchestrator",
+      actorRole: "PLATFORM_OPERATOR",
+      now: input.now,
+    });
     await recordHistory(
       client,
       input.redemptionId,
@@ -362,6 +393,14 @@ export async function cancelRedemption(
       "UPDATE workflows SET status='REDEMPTION_CANCELLED',updated_at=$2 WHERE workflow_id=$1",
       [redemptionId, now],
     );
+    await transitionCurrentWorkflowState(client, {
+      workflowId: redemptionId,
+      axis: "REDEMPTION",
+      nextState: "REDEMPTION_CANCELLED",
+      actorId: principalId,
+      actorRole: "INVESTOR",
+      now,
+    });
     if (row.batch_id) {
       await client.query(
         "DELETE FROM redemption_batch_orders WHERE batch_id=$1 AND redemption_id=$2",

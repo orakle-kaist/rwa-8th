@@ -18,6 +18,7 @@ import {
 import type { Pool, PoolClient } from "pg";
 
 import { commandHash, getCustomerReadiness, type ProjectionMetadata } from "./protection.js";
+import { initializeWorkflowState, transitionWorkflowState } from "./runtime-state.js";
 import { MARKET_MAKER_PRINCIPAL_ID, MARKET_MAKER_WALLET } from "./seed-secondary.js";
 import { createOrNetHedgeForSecondaryTrade } from "./hedge.js";
 
@@ -592,6 +593,32 @@ export async function acceptSecondaryOrder(
         input.now,
       ],
     );
+    await initializeWorkflowState(client, {
+      workflowId: input.order.orderId,
+      axis: "SECONDARY_TRADE",
+      state: "SECONDARY_ORDER_RECEIVED",
+      actorId: input.principalId,
+      actorRole: "INVESTOR",
+      now: input.now,
+    });
+    await transitionWorkflowState(client, {
+      workflowId: input.order.orderId,
+      axis: "SECONDARY_TRADE",
+      expectedState: "SECONDARY_ORDER_RECEIVED",
+      nextState: "SECONDARY_PRECHECK",
+      actorId: "secondary-orchestrator",
+      actorRole: "PLATFORM_OPERATOR",
+      now: input.now,
+    });
+    await transitionWorkflowState(client, {
+      workflowId: input.order.orderId,
+      axis: "SECONDARY_TRADE",
+      expectedState: "SECONDARY_PRECHECK",
+      nextState: "SECONDARY_RESERVED",
+      actorId: "secondary-orchestrator",
+      actorRole: "PLATFORM_OPERATOR",
+      now: input.now,
+    });
     await history(
       client,
       input.order.orderId,

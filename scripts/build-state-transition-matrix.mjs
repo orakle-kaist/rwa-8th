@@ -203,3 +203,50 @@ await writeFile(
   output,
   "utf8",
 );
+
+const runtimeOutput = await format(
+  `// This file is generated from the approved stage-ten state transition matrix.\n` +
+    `// Run pnpm generate after changing the approved matrix.\n\n` +
+    `export const APPROVED_STATE_TRANSITIONS = ${JSON.stringify(
+      Object.fromEntries(
+        states.map((state) => [
+          state.stateCode,
+          { axis: state.axis, labelKo: state.labelKo, allowedTargets: state.allowedTargets },
+        ]),
+      ),
+    )} as const;\n\n` +
+    `export type ApprovedStateCode = keyof typeof APPROVED_STATE_TRANSITIONS;\n` +
+    `export type ApprovedStateAxis = (typeof APPROVED_STATE_TRANSITIONS)[ApprovedStateCode]["axis"];\n\n` +
+    `export class StateConflictError extends Error {\n` +
+    `  readonly code = "STATE_CONFLICT";\n` +
+    `  constructor(readonly axis: string, readonly current: string, readonly target: string) {\n` +
+    `    super(\`허용되지 않은 상태전환이다: \${axis} \${current} -> \${target}\`);\n` +
+    `  }\n` +
+    `}\n\n` +
+    `export function approvedState(code: string) {\n` +
+    `  return APPROVED_STATE_TRANSITIONS[code as ApprovedStateCode];\n` +
+    `}\n\n` +
+    `export function assertApprovedInitialState(axis: string, state: string): void {\n` +
+    `  const definition = approvedState(state);\n` +
+    `  if (!definition || definition.axis !== axis) throw new StateConflictError(axis, "<UNINITIALIZED>", state);\n` +
+    `}\n\n` +
+    `export function assertApprovedStateTransition(axis: string, current: string, target: string): void {\n` +
+    `  const definition = approvedState(current);\n` +
+    `  const targetDefinition = approvedState(target);\n` +
+    `  if (!definition || !targetDefinition || definition.axis !== axis || targetDefinition.axis !== axis ||\n` +
+    `      !(definition.allowedTargets as readonly string[]).includes(target)) {\n` +
+    `    throw new StateConflictError(axis, current, target);\n` +
+    `  }\n` +
+    `}\n`,
+  {
+    ...(await resolveConfig(
+      resolve(root, "packages/domain/src/generated-state-transitions.ts"),
+    )),
+    parser: "typescript",
+  },
+);
+await writeFile(
+  resolve(root, "packages/domain/src/generated-state-transitions.ts"),
+  runtimeOutput,
+  "utf8",
+);

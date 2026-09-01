@@ -6,3 +6,4 @@ export * from "./secondary-trading.js";
 export * from "./market-maker-hedge.js";
 export * from "./redemption.js";
 export * from "./rights-and-controls.js";
+export * from "./generated-state-transitions.js";

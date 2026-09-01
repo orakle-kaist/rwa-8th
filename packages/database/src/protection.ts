@@ -8,6 +8,7 @@ import {
   CURRENT_DISCLOSURE_VERSION,
   PLATFORM_INSTITUTION_ID,
 } from "./seed-protection.js";
+import { getWorkflowStateAxes } from "./runtime-state.js";
 
 export interface ProjectionMetadata {
   projectionAsOf: string;
@@ -633,16 +634,20 @@ export async function getWorkflowView(
         ]);
   const row = result.rows[0];
   if (!row) return undefined;
+  const stateAxes = await getWorkflowStateAxes(pool, workflowId);
   return {
     workflowId: row.workflow_id,
     workflowType: row.workflow_type,
-    states: [
-      {
-        axis: row.workflow_type === "COMPLAINT" ? "COMPLAINT" : "WALLET_LINKAGE",
-        code: row.status,
-        labelKo: String(row.status),
-      },
-    ],
+    states:
+      stateAxes.length > 0
+        ? stateAxes
+        : [
+            {
+              axis: row.workflow_type === "COMPLAINT" ? "COMPLAINT" : "WALLET_LINKAGE",
+              code: row.status,
+              labelKo: String(row.status),
+            },
+          ],
     projection: projection(now),
   };
 }

@@ -3368,6 +3368,9 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
         REPO_ROOT / "scripts" / "run-local-acceptance.ts",
         REPO_ROOT / "packages" / "database" / "src" / "reset-demo.ts",
         REPO_ROOT / "apps" / "web" / "app" / "components" / "lifecycle-guide.tsx",
+        REPO_ROOT / "packages" / "domain" / "src" / "generated-state-transitions.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "runtime-state.ts",
+        REPO_ROOT / "apps" / "api" / "src" / "common-routes.ts",
     ]
     missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
     if missing:
@@ -3465,6 +3468,51 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
     ]:
         if term not in runner:
             errors.append(f"local acceptance runner is missing evidence control: {term}")
+
+    state_runtime = (REPO_ROOT / "packages" / "database" / "src" / "runtime-state.ts").read_text(encoding="utf-8")
+    for term in ["assertApprovedStateTransition", "FOR UPDATE", "STATE_CONFLICT", "workflow_state_axis_history"]:
+        if term not in state_runtime:
+            errors.append(f"runtime state enforcement is missing: {term}")
+
+    common_routes = (REPO_ROOT / "apps" / "api" / "src" / "common-routes.ts").read_text(encoding="utf-8")
+    for route in [
+        '/api/v1/positions',
+        '/api/v1/activities',
+        '/api/v1/workflows/:workflowId/timeline',
+    ]:
+        if route not in common_routes:
+            errors.append(f"approved common query route is missing: {route}")
+
+    platform = yaml.safe_load(PLATFORM_OPENAPI.read_text(encoding="utf-8"))
+    approved_routes = set()
+    for path, item in platform.get("paths", {}).items():
+        runtime_path = re.sub(r"\{([^}]+)\}", r":\1", "/api/v1" + path)
+        for method, operation in item.items():
+            if method.lower() in {"get", "post", "put", "patch", "delete"} and isinstance(operation, dict):
+                approved_routes.add((method.upper(), runtime_path))
+    route_sources = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (REPO_ROOT / "apps" / "api" / "src").glob("*-routes.ts")
+    ) + "\n" + (REPO_ROOT / "apps" / "api" / "src" / "app.ts").read_text(encoding="utf-8")
+    registered_routes = {
+        (method.upper(), path)
+        for method, path in re.findall(
+            r'app\.(get|post|put|patch|delete)\(\s*["`](/api/v1/[^"`$]+)["`]',
+            route_sources,
+        )
+    }
+    if "/api/v1/institution/complaints/:complaintId/${suffix}" in route_sources:
+        for suffix in ["assignments", "processing-starts", "responses", "correction-links", "closures"]:
+            registered_routes.add(("POST", f"/api/v1/institution/complaints/:complaintId/{suffix}"))
+    if approved_routes != registered_routes:
+        missing_routes = sorted(approved_routes - registered_routes)
+        extra_routes = sorted(registered_routes - approved_routes)
+        errors.append(
+            "platform OpenAPI and registered routes differ: missing="
+            + repr(missing_routes)
+            + " extra="
+            + repr(extra_routes)
+        )
 
 
 def main() -> int:

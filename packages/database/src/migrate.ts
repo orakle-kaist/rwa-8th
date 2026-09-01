@@ -24,6 +24,7 @@ try {
     "0005_market_maker_hedges.sql",
     "0006_redemptions.sql",
     "0007_rights_and_controls.sql",
+    "0008_runtime_states_and_views.sql",
   ]) {
     const migrationUrl = new URL(`../migrations/${name}`, import.meta.url);
     await pool.query(await readFile(fileURLToPath(migrationUrl), "utf8"));

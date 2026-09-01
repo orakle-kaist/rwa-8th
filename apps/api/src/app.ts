@@ -17,6 +17,7 @@ import { registerSecondaryRoutes } from "./secondary-routes.js";
 import { registerHedgeRoutes } from "./hedge-routes.js";
 import { registerRedemptionRoutes } from "./redemption-routes.js";
 import { registerRightsRoutes } from "./rights-routes.js";
+import { registerCommonRoutes } from "./common-routes.js";
 
 export interface BuildAppOptions {
   clock: Clock;
@@ -91,6 +92,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   });
 
   if (options.pool) {
+    await registerCommonRoutes(app, options.pool, options.clock);
     await registerProtectionRoutes(app, options.pool, options.clock);
     await registerPrimaryRoutes(app, options.pool, options.clock);
     await registerSecondaryRoutes(app, options.pool, options.clock);
