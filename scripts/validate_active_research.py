@@ -596,7 +596,7 @@ def validate_poc_goals_contract(errors: list[str]) -> None:
             )
 
     required_goal_terms = [
-        "마스터 목표·분류체계 재승인 대기",
+        "마스터 목표·분류체계 재승인 완료",
         "POC_TEST_DATA.md",
         "1차 발행",
         "24/7 토큰 2차거래",
@@ -2801,15 +2801,15 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "awaiting_master_goal_taxonomy_reapproval":
-        errors.append("active project state must record the master goal and taxonomy reapproval gate")
-    if state.get("iteration") != 46:
-        errors.append("active project iteration must record the master goal and taxonomy impact review")
+    if state.get("stage") != "awaiting_stage_ten_implementation_approval":
+        errors.append("active project state must record the stage-ten implementation approval gate")
+    if state.get("iteration") != 47:
+        errors.append("active project iteration must record the approved master goal and taxonomy")
     expected_next_action = (
-        "Review and approve the revised master goal and taxonomy before stage-ten final approval or stage eleven."
+        "Review the stage-ten local and Fuji implementation evidence, then approve or request corrections before stage eleven."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must prioritize master goal and taxonomy reapproval")
+        errors.append("active project next action must prioritize stage-ten implementation review")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3004,8 +3004,8 @@ def validate_alignment_approval_contract(errors: list[str]) -> None:
     }
 
     for name in ["MASTER.md", "POC_GOALS.md"]:
-        if "마스터 목표·분류체계 재승인 대기" not in documents[name]:
-            errors.append(f"{name} must be marked as awaiting master goal and taxonomy reapproval")
+        if "마스터 목표·분류체계 재승인 완료" not in documents[name]:
+            errors.append(f"{name} must be marked as approved after master goal and taxonomy review")
 
     for name in [
         "POC_TEST_DATA.md",
@@ -3648,7 +3648,7 @@ def validate_stage_ten_implementation_review(errors: list[str]) -> None:
 
     review = IMPLEMENTATION_REVIEW.read_text(encoding="utf-8")
     for term in [
-        "구현 검토 완료, 마스터 재승인 전 10단계 최종 승인 보류",
+        "구현 검토 완료, 10단계 최종 승인 대기",
         "구현 결함: 발견하지 않음",
         "49개 요구사항",
         "175개 상태",

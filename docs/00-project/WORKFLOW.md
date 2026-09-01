@@ -2,9 +2,9 @@
 
 이 문서는 마스터 제안서 검토부터 PoC 결과 보고까지의 작업 순서를 정합니다. 앞 단계에서 결정하지 않은 내용을 뒤 단계의 작성자나 AI가 임의로 정하지 않게 하는 것이 목적입니다.
 
-1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 승인했다. 이후 단계 간 정합성을 보완해 1~5단계를 같은 날 다시 승인했다. [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md)과 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)는 2026년 8월 31일 승인했다. [공통 데이터](../07-data-api-events/DATA_MODEL.md), [API 계약](../07-data-api-events/API_CONTRACTS.md), [이벤트 계약](../07-data-api-events/EVENT_CONTRACTS.md)과 기계 명세도 2026년 8월 31일 승인했다. [8단계 스마트컨트랙트 구조](../08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [인터페이스](../08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](../08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](../08-smart-contract-design/INVARIANTS.md)과 기계 명세도 같은 날 승인했다. [9단계 테스트 전략](../09-test-design/TEST_STRATEGY.md), [시나리오](../09-test-design/TEST_SCENARIOS.md), [fixture와 증거](../09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](../09-test-design/DEMO_CHECKLIST.md)와 기계 명세 및 7~9단계 정합성 보완안도 같은 날 승인했다. 2026년 9월 2일에는 마스터의 핵심 질문을 간결하게 고치고 접근수단, 계좌 경로와 토큰화 권리모델을 서로 다른 층위로 재구성했다. 기존 후속 설계와 구현 증거는 유지하지만 이 변경을 다시 승인하기 전에는 10단계 최종 승인과 11단계 착수를 보류한다.
+1단계 [마스터 문서](../01-master/MASTER.md)는 2026년 8월 29일, 2~5단계 문서는 2026년 8월 30일 팀 내부 기준으로 승인했다. 이후 단계 간 정합성을 보완해 1~5단계를 같은 날 다시 승인했다. [시스템 구조](../06-architecture-security/ARCHITECTURE.md), [기술 선택](../06-architecture-security/TECHNOLOGY_DECISIONS.md)과 [보안 및 개인정보](../06-architecture-security/SECURITY_AND_PRIVACY.md)는 2026년 8월 31일 승인했다. [공통 데이터](../07-data-api-events/DATA_MODEL.md), [API 계약](../07-data-api-events/API_CONTRACTS.md), [이벤트 계약](../07-data-api-events/EVENT_CONTRACTS.md)과 기계 명세도 2026년 8월 31일 승인했다. [8단계 스마트컨트랙트 구조](../08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [인터페이스](../08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](../08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](../08-smart-contract-design/INVARIANTS.md)과 기계 명세도 같은 날 승인했다. [9단계 테스트 전략](../09-test-design/TEST_STRATEGY.md), [시나리오](../09-test-design/TEST_SCENARIOS.md), [fixture와 증거](../09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](../09-test-design/DEMO_CHECKLIST.md)와 기계 명세 및 7~9단계 정합성 보완안도 같은 날 승인했다. 2026년 9월 2일에는 마스터의 핵심 질문을 간결하게 고치고 접근수단, 계좌 경로와 토큰화 권리모델을 서로 다른 층위로 재구성했다. 2~10단계 역방향 영향 검토에서 기능 변경이 없음을 확인하고 개정안을 재승인했다.
 
-현재 상태는 **마스터 목표·분류체계 재승인 대기**다.
+현재 상태는 **10단계 구현 검토 대기**다.
 
 ## 기본 원칙
 
@@ -79,6 +79,6 @@ PRD에는 확인된 고객만 이전할 수 있어야 한다거나 오래된 시
 
 ## 문서의 우선순위
 
-현재 [마스터](../01-master/MASTER.md)의 목표와 분류체계 개정안은 **재승인 대기**다. 2~9단계의 제품 의미와 10단계 구현 증거는 그대로 보존된다. 역방향 검토 결과 이번 변경은 기관 역할, 생애주기, 상태, API, 계약, 시험과 구현 동작을 바꾸지 않는다. 실제 PostgreSQL과 Anvil, 서명된 모의 기관 결과를 사용한 로컬 승인시험 76개와 Fuji 시험 3개의 결과도 유지한다. 다만 사용자가 마스터 개정안을 다시 승인하기 전에는 10단계 최종 승인과 11단계를 시작하지 않는다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
+현재 [마스터](../01-master/MASTER.md)의 목표와 분류체계 개정안은 **재승인 완료**다. 2~9단계의 제품 의미와 10단계 구현 증거를 역방향 검토한 결과 이번 변경은 기관 역할, 생애주기, 상태, API, 계약, 시험과 구현 동작을 바꾸지 않는다. 실제 PostgreSQL과 Anvil, 서명된 모의 기관 결과를 사용한 로컬 승인시험 76개와 Fuji 시험 3개의 결과도 유지한다. 현재는 10단계 구현 결과의 사용자 최종 승인을 기다리며 승인 전에는 11단계를 시작하지 않는다. 공식 출처와 리서치 브리프는 판단 근거이고, 내부 검토 기록은 남은 쟁점을 관리하는 자료다. [pre-PRD v1 아카이브](../../archive/pre-prd-v1/README.md)는 과거 아이디어를 보관한 참고자료이며 구현 기준이 아니다.
 
 2단계에서는 PoC의 기준일, 대표 시연 종목, 합성 데이터와 통과조건을 별도 문서로 확정합니다. 이후에는 각 단계에서 승인한 문서가 해당 범위의 기준이 됩니다.
