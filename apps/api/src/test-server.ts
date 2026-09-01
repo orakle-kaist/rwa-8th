@@ -15,6 +15,7 @@ import { Pool } from "pg";
 import { buildApp } from "./app.js";
 import { loadApiConfig } from "./config.js";
 import { LocalChainSynchronizer } from "./local-chain-synchronizer.js";
+import { dispatchNextHedgeMockResult } from "./mock-institution-client.js";
 
 const config = loadApiConfig(process.env);
 const clock = createClock(process.env);
@@ -57,17 +58,13 @@ const timer = setInterval(() => {
           transactionHash,
           now: clock.now(),
         });
-      }
-      else if (
+      } else if (
         !(await processPrimaryOutbox(pool, message, clock.now())) &&
         !(await processHedgeOutbox(pool, message, clock.now())) &&
         !(await processRedemptionOutbox(pool, message, clock.now())) &&
         !(await processRightsOutbox(pool, message, clock.now())) &&
-        !(await processSecondaryOutbox(
-          pool,
-          message,
-          clock.now(),
-          (payload) => localChain.executeSecondary(message.workflowId, payload),
+        !(await processSecondaryOutbox(pool, message, clock.now(), (payload) =>
+          localChain.executeSecondary(message.workflowId, payload),
         ))
       ) {
         await processProtectionMessage(pool, message, clock.now());
@@ -83,6 +80,7 @@ const timer = setInterval(() => {
           }
       }
       await localChain.synchronize(handledTarget);
+      await dispatchNextHedgeMockResult(pool, handledTarget, clock.now());
     }
   })()
     .catch((error) => {

@@ -13,8 +13,12 @@ const app = Fastify({ logger: true });
 let sourceSequence = 0;
 const sourceInstitutionId = "00000000-0000-4000-8000-000000000401";
 const keyId = "process-ed25519-1";
-const callbackUrl = process.env.PLATFORM_ADAPTER_CALLBACK_URL ?? "http://127.0.0.1:4000/api/v1/adapter-events";
-const idempotency = new Map<string, { requestHash: string; eventId: string; sourceSequence: number }>();
+const callbackUrl =
+  process.env.PLATFORM_ADAPTER_CALLBACK_URL ?? "http://127.0.0.1:4000/api/v1/adapter-events";
+const idempotency = new Map<
+  string,
+  { requestHash: string; eventId: string; sourceSequence: number }
+>();
 
 app.get("/health", async () => ({
   service: "mock-institutions",
@@ -26,7 +30,9 @@ app.get("/health", async () => ({
 async function registerPublicKey() {
   const registrationUrl = process.env.PLATFORM_KEY_REGISTRATION_URL;
   if (!registrationUrl) return;
-  for (let attempt = 1; attempt <= 20; attempt += 1) {
+  // Browser acceptance resets and migrates PostgreSQL before the API starts.
+  // Keep the process alive long enough for that guarded startup to finish.
+  for (let attempt = 1; attempt <= 120; attempt += 1) {
     const response = await fetch(registrationUrl, {
       method: "POST",
       headers: {
@@ -46,7 +52,11 @@ async function registerPublicKey() {
   throw new Error("모의 기관 공개키 등록에 실패했다.");
 }
 
-async function emitSigned(eventType: string, data: Record<string, unknown>, destination = callbackUrl) {
+async function emitSigned(
+  eventType: string,
+  data: Record<string, unknown>,
+  destination = callbackUrl,
+) {
   sourceSequence += 1;
   const unsigned = {
     eventId: randomUUID(),
@@ -65,7 +75,9 @@ async function emitSigned(eventType: string, data: Record<string, unknown>, dest
     },
     data: { ...data, simulation: true },
   };
-  const signature = sign(null, Buffer.from(canonicalJson(unsigned)), privateKey).toString("base64url");
+  const signature = sign(null, Buffer.from(canonicalJson(unsigned)), privateKey).toString(
+    "base64url",
+  );
   const response = await fetch(destination, {
     method: "POST",
     headers: { "content-type": "application/json", "x-correlation-id": randomUUID() },
@@ -102,14 +114,30 @@ for (const path of [
     const key = String(request.headers["idempotency-key"] ?? "");
     const correlationId = String(request.headers["x-correlation-id"] ?? "");
     const body = request.body as Record<string, unknown>;
-    if (key.length < 16 || !correlationId || body.simulation !== true || typeof body.workflowId !== "string" || typeof body.commandType !== "string" || !body.data)
-      return reply.status(422).send({ simulation: true, messageKo: "모의 기관 명령 형식이 올바르지 않다." });
+    if (
+      key.length < 16 ||
+      !correlationId ||
+      body.simulation !== true ||
+      typeof body.workflowId !== "string" ||
+      typeof body.commandType !== "string" ||
+      !body.data
+    )
+      return reply
+        .status(422)
+        .send({ simulation: true, messageKo: "모의 기관 명령 형식이 올바르지 않다." });
     const requestHash = canonicalJson(body);
     const previous = idempotency.get(key);
     if (previous)
       return previous.requestHash === requestHash
-        ? reply.status(202).send({ requestId: previous.eventId, workflowId: body.workflowId, status: "ACCEPTED", statusUrl: `/mock/events/${previous.eventId}` })
-        : reply.status(409).send({ simulation: true, messageKo: "같은 멱등키의 명령 내용이 다르다." });
+        ? reply.status(202).send({
+            requestId: previous.eventId,
+            workflowId: body.workflowId,
+            status: "ACCEPTED",
+            statusUrl: `/mock/events/${previous.eventId}`,
+          })
+        : reply
+            .status(409)
+            .send({ simulation: true, messageKo: "같은 멱등키의 명령 내용이 다르다." });
     const data: Record<string, unknown> = {
       ...(body.data as Record<string, unknown>),
       taskId: body.workflowId,
@@ -118,7 +146,12 @@ for (const path of [
     delete data.resultEventType;
     const emitted = await emitSigned(routeEventType(path, body.commandType, explicit), data);
     idempotency.set(key, { requestHash, ...emitted });
-    return reply.status(202).send({ requestId: emitted.eventId, workflowId: body.workflowId, status: "ACCEPTED", statusUrl: `/mock/events/${emitted.eventId}` });
+    return reply.status(202).send({
+      requestId: emitted.eventId,
+      workflowId: body.workflowId,
+      status: "ACCEPTED",
+      statusUrl: `/mock/events/${emitted.eventId}`,
+    });
   });
 }
 
@@ -133,12 +166,15 @@ app.post("/emit", async (request, reply) => {
   try {
     const emitted = await emitSigned(input.eventType, input.data, input.callbackUrl);
     return reply.status(202).send({
-    simulation: true,
+      simulation: true,
       ...emitted,
       callbackStatus: 202,
     });
   } catch (error) {
-    return reply.status(502).send({ simulation: true, messageKo: error instanceof Error ? error.message : "기관 결과 전송 실패" });
+    return reply.status(502).send({
+      simulation: true,
+      messageKo: error instanceof Error ? error.message : "기관 결과 전송 실패",
+    });
   }
 });
 

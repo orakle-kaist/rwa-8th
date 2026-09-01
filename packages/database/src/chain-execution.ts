@@ -29,7 +29,14 @@ export async function beginChainExecution(
      ON CONFLICT (workflow_id,stage) DO UPDATE SET
        attempts=chain_execution_steps.attempts+1,updated_at=EXCLUDED.updated_at
      RETURNING *`,
-    [randomUUID(), input.workflowId, input.stage, input.contractAddress, input.functionName, input.now],
+    [
+      randomUUID(),
+      input.workflowId,
+      input.stage,
+      input.contractAddress,
+      input.functionName,
+      input.now,
+    ],
   );
   const row = result.rows[0]!;
   return {
@@ -53,18 +60,36 @@ export async function markChainSubmitted(
     `UPDATE chain_execution_steps SET status='SUBMITTED',transaction_hash=$3,
        transaction_nonce=$4,submitted_at=COALESCE(submitted_at,$5),last_error=NULL,updated_at=$5
      WHERE workflow_id=$1 AND stage=$2`,
-    [input.workflowId, input.stage, input.transactionHash, input.nonce?.toString() ?? null, input.now],
+    [
+      input.workflowId,
+      input.stage,
+      input.transactionHash,
+      input.nonce?.toString() ?? null,
+      input.now,
+    ],
   );
 }
 
 export async function markChainConfirmed(
   pool: Pool,
-  input: { workflowId: string; stage: string; transactionHash: string; receipt: unknown; now: Date },
+  input: {
+    workflowId: string;
+    stage: string;
+    transactionHash: string;
+    receipt: unknown;
+    now: Date;
+  },
 ) {
   await pool.query(
     `UPDATE chain_execution_steps SET status='CONFIRMED',transaction_hash=$3,receipt=$4::jsonb,
        confirmed_at=$5,last_error=NULL,updated_at=$5 WHERE workflow_id=$1 AND stage=$2`,
-    [input.workflowId, input.stage, input.transactionHash, JSON.stringify(input.receipt), input.now],
+    [
+      input.workflowId,
+      input.stage,
+      input.transactionHash,
+      JSON.stringify(input.receipt),
+      input.now,
+    ],
   );
 }
 
@@ -82,7 +107,14 @@ export async function markChainFailed(
   await pool.query(
     `UPDATE chain_execution_steps SET status=$3,last_error=$4,
        transaction_hash=COALESCE($5,transaction_hash),updated_at=$6 WHERE workflow_id=$1 AND stage=$2`,
-    [input.workflowId, input.stage, input.status, input.reason, input.transactionHash ?? null, input.now],
+    [
+      input.workflowId,
+      input.stage,
+      input.status,
+      input.reason,
+      input.transactionHash ?? null,
+      input.now,
+    ],
   );
 }
 
@@ -106,13 +138,18 @@ export async function recordLocalChainDeployment(
      VALUES (31337,$1::jsonb,$2,$3,$4)
      ON CONFLICT (chain_id) DO UPDATE SET manifest=EXCLUDED.manifest,
        manifest_sha256=EXCLUDED.manifest_sha256,deployed_at=EXCLUDED.deployed_at,recorded_at=EXCLUDED.recorded_at`,
-    [JSON.stringify(manifest), createHash("sha256").update(bytes).digest("hex"), manifest.deployedAt, now],
+    [
+      JSON.stringify(manifest),
+      createHash("sha256").update(bytes).digest("hex"),
+      manifest.deployedAt,
+      now,
+    ],
   );
   for (const [securityId, tokenAddress] of Object.entries(manifest.tokens))
-    await pool.query("UPDATE local_simulation_instruments SET token_address=$2 WHERE security_id=$1", [
-      securityId,
-      tokenAddress,
-    ]);
+    await pool.query(
+      "UPDATE local_simulation_instruments SET token_address=$2 WHERE security_id=$1",
+      [securityId, tokenAddress],
+    );
 }
 
 export async function getLocalChainMetadata(pool: Pool) {
@@ -126,12 +163,24 @@ export async function getLocalChainMetadata(pool: Pool) {
         policyVersion?: string;
       }
     | undefined;
+  const linkedTokens = await pool.query<{ security_id: string; token_address: string }>(
+    `SELECT security_id,token_address FROM local_simulation_instruments
+       WHERE token_address IS NOT NULL ORDER BY security_id`,
+  );
+  const tokens = Object.fromEntries(
+    linkedTokens.rows.map((row) => [row.security_id, row.token_address]),
+  );
+  const deploymentLinked = Object.keys(tokens).length > 0;
   return {
     verifyingContract:
-      manifest?.contracts?.intentVerifier ?? "0x0000000000000000000000000000000000000000",
+      deploymentLinked && manifest?.contracts?.intentVerifier
+        ? manifest.contracts.intentVerifier
+        : "0x0000000000000000000000000000000000000000",
     mockUsdcAddress:
-      manifest?.contracts?.mockUsdc ?? "0x0000000000000000000000000000000000000000",
-    tokens: manifest?.tokens ?? {},
+      deploymentLinked && manifest?.contracts?.mockUsdc
+        ? manifest.contracts.mockUsdc
+        : "0x0000000000000000000000000000000000000000",
+    tokens,
     policyVersion: "LOCAL-POLICY-V1",
   };
 }

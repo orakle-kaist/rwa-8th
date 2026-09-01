@@ -27,7 +27,7 @@
     "test:chain": "pnpm --filter @rwa/contracts-client test:integration",
     "test:contracts": "FOUNDRY_PROFILE=ci forge test && pnpm --filter @rwa/generated validate:contracts",
     "test:database": "pnpm --filter @rwa/database test:integration",
-    "test:full": "pnpm test:quick && pnpm test:database && pnpm test:api && pnpm test:chain && pnpm test:browser",
+    "test:full": "tsx scripts/run-full-local-validation.ts",
     "test:quick": "bash scripts/check-no-secrets.sh && bash scripts/validate-research.sh && pnpm validate:specs && pnpm typecheck && pnpm test:unit && pnpm test:contracts",
     "test:unit": "vitest run --exclude '**/*.integration.test.ts' --exclude 'tests/acceptance/**'",
     "test:acceptance:trace": "vitest run tests/acceptance/*.acceptance.test.ts",
@@ -41,9 +41,11 @@
     "@safe-global/safe-contracts": "1.4.1-2",
     "@types/node": "26.4.0",
     "ethers": "5.4.0",
+    "pg": "8.23.0",
     "prettier": "3.9.6",
     "tsx": "4.23.13",
     "typescript": "7.0.2",
+    "viem": "2.56.0",
     "vitest": "4.1.11"
   }
 }

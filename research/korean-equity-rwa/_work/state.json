@@ -1,6 +1,6 @@
 {
-  "stage": "stage_ten_integration_alignment",
-  "next_action": "Enforce the approved runtime states and complete the three missing platform query APIs before connecting the full lifecycle to Anvil.",
-  "updated_at": "2026-09-01T13:41:41+09:00",
-  "iteration": 42
+  "stage": "stage_ten_local_demo_candidate",
+  "next_action": "Verify official ISINs for the six representative securities, then run the Fuji deployment and three manual tests from the same commit.",
+  "updated_at": "2026-09-01T14:55:17+09:00",
+  "iteration": 43
 }

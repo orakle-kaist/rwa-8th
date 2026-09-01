@@ -14,7 +14,14 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "pnpm --filter @rwa/database reset:test && pnpm db:migrate && pnpm --filter @rwa/api test-server",
+        "PLATFORM_ADAPTER_CALLBACK_URL=http://127.0.0.1:4000/api/v1/adapter-events PLATFORM_KEY_REGISTRATION_URL=http://127.0.0.1:4000/internal/mock-adapter-keys pnpm exec tsx apps/mock-institutions/src/server.ts",
+      url: "http://127.0.0.1:4100/health",
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+    {
+      command:
+        "MOCK_INSTITUTIONS_URL=http://127.0.0.1:4100 pnpm --filter @rwa/database reset:test && MOCK_INSTITUTIONS_URL=http://127.0.0.1:4100 pnpm db:migrate && MOCK_INSTITUTIONS_URL=http://127.0.0.1:4100 pnpm --filter @rwa/api test-server",
       url: "http://127.0.0.1:4000/health",
       reuseExistingServer: false,
       timeout: 120_000,

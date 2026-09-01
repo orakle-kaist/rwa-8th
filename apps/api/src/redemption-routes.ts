@@ -13,6 +13,7 @@ import {
   acceptRedemption,
   cancelRedemption,
   getCustomerReadiness,
+  getLocalChainMetadata,
   listRedemptions,
 } from "@rwa/database";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
@@ -107,10 +108,17 @@ export async function registerRedemptionRoutes(app: FastifyInstance, pool: Pool,
         throw new Error("환매 서명 필드가 빠졌다.");
       const intent = message as Record<(typeof requiredFields)[number], string>;
       const quantity = parseRedemptionQuantity(String(body.shareQuantity ?? ""));
+      const chainMetadata = await getLocalChainMetadata(pool);
+      const expectedToken =
+        chainMetadata.tokens[LOCAL_REDEMPTION_SECURITY_ID] ?? LOCAL_REDEMPTION_TOKEN_ADDRESS;
+      const expectedVerifier =
+        chainMetadata.verifyingContract === "0x0000000000000000000000000000000000000000"
+          ? localIntentVerifier
+          : chainMetadata.verifyingContract;
       if (
         String(body.securityId) !== LOCAL_REDEMPTION_SECURITY_ID ||
         BigInt(String(body.krwLimitPrice)) !== LOCAL_REDEMPTION_LIMIT_KRW ||
-        intent.token.toLowerCase() !== LOCAL_REDEMPTION_TOKEN_ADDRESS.toLowerCase() ||
+        intent.token.toLowerCase() !== expectedToken.toLowerCase() ||
         intent.shareQuantity !== quantity.toString() ||
         intent.krwLimitPrice !== String(body.krwLimitPrice) ||
         intent.targetTradingDate !== body.targetTradingDate ||
@@ -136,7 +144,7 @@ export async function registerRedemptionRoutes(app: FastifyInstance, pool: Pool,
         domain?.name !== "Korean Equity RWA Intent" ||
         domain.version !== "1" ||
         ![31_337, 43_113].includes(Number(domain.chainId)) ||
-        getAddress(domain.verifyingContract) !== getAddress(localIntentVerifier)
+        getAddress(domain.verifyingContract) !== getAddress(expectedVerifier)
       )
         throw new Error("환매 서명 도메인이 일치하지 않는다.");
       const valid = await verifyTypedData({

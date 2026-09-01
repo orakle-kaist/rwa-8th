@@ -17,6 +17,8 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { Pool } from "pg";
 import { getAddress, keccak256, toHex, verifyTypedData } from "viem";
 
+import { dispatchNextHedgeMockResult } from "./mock-institution-client.js";
+
 const primaryTypes = {
   PrimaryOrderIntent: [
     { name: "orderId", type: "bytes16" },
@@ -220,6 +222,12 @@ export async function registerHedgeRoutes(app: FastifyInstance, pool: Pool, cloc
       });
       if ("conflict" in result)
         return fail(reply, 409, "IDEMPOTENCY_CONFLICT", "같은 멱등키의 요청 내용이 다르다.");
+      if (
+        actor.role === "OVERSEAS_BROKER_OPERATOR" &&
+        body.decision === "APPROVE" &&
+        !result.repeated
+      )
+        await dispatchNextHedgeMockResult(pool, hedgeId, clock.now());
       return reply.status(202).send({
         requestId: result.workflowId,
         workflowId: result.workflowId,

@@ -277,17 +277,24 @@ test("지정 시장조성자 호가에서 USDC 8주 주문을 5주만 체결하�
       return page.getByText("COMPLETED", { exact: true }).count();
     })
     .toBeGreaterThan(0);
-  await expect(page.getByText("재고 95주 · 순포지션 -5주")).toBeVisible();
   await expect(page.getByText("미체결 3주 주문·예약 해제")).toBeVisible();
   const hedgeQueue = page.getByRole("table", { name: "시장조성자 헤지 대기열" });
   await expect(hedgeQueue).toContainText("기초주식 매수");
+  await expect(hedgeQueue).toContainText("생성 시 순포지션 -5주");
   await hedgeQueue.getByRole("button", { name: "MM 주문 서명·확인" }).click();
   await expect(page.getByRole("status")).toContainText("시장조성자 헤지 확인");
   await expect(hedgeQueue.getByRole("button", { name: "해외 증권사 위험승인" })).toBeVisible();
   await hedgeQueue.getByRole("button", { name: "해외 증권사 위험승인" }).click();
   await expect(page.getByRole("status")).toContainText("헤지 위험승인");
-  await expect(hedgeQueue).toContainText("HEDGE_KRX_OPEN_PENDING");
-  await expect(hedgeQueue).toContainText("모의 기관 결과 또는 다음 단계 대기");
+  await expect
+    .poll(async () => {
+      await page.getByRole("button", { name: "새로고침" }).last().click();
+      return hedgeQueue.getByText("HEDGE_INVENTORY_ADJUSTED", { exact: true }).count();
+    })
+    .toBe(1);
+  await expect(page.getByText("재고 100주 · 순포지션 0주")).toBeVisible();
+  await expect(hedgeQueue).toContainText("국내결제 완료");
+  await expect(hedgeQueue).toContainText("수탁 확인 완료");
 });
 
 test("권리·준법 독립 승인 뒤 전용 지갑을 복구한다", async ({ page }) => {

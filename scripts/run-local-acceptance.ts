@@ -36,10 +36,14 @@ interface CommandResult {
 }
 const commands: CommandResult[] = [];
 
-async function run(label: string, args: string[]) {
+async function run(label: string, args: string[], extraEnvironment: NodeJS.ProcessEnv = {}) {
   process.stdout.write("\n[로컬 인수시험] " + label + "\n");
   const commandStarted = new Date();
-  const result = spawnSync("pnpm", args, { cwd: root, encoding: "utf8" });
+  const result = spawnSync("pnpm", args, {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, ...extraEnvironment },
+  });
   const commandFinished = new Date();
   const combined = (result.stdout ?? "") + (result.stderr ?? "");
   process.stdout.write(result.stdout ?? "");
@@ -59,7 +63,10 @@ async function run(label: string, args: string[]) {
 }
 
 try {
-  await run("전체-로컬-기능-검증", ["test:full"]);
+  const lifecycleEvidence = resolve(outputDirectory, "actual-lifecycle.json");
+  await run("전체-로컬-기능-검증", ["test:full"], {
+    LOCAL_LIFECYCLE_EVIDENCE_PATH: lifecycleEvidence,
+  });
   const implementation = JSON.parse(
     await readFile(
       resolve(root, "docs/10-poc-implementation/specs/implementation-test-map.json"),
@@ -128,6 +135,11 @@ try {
   );
   const sha256 = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
   const finishedAt = new Date();
+  const actualLifecycle = JSON.parse(await readFile(lifecycleEvidence, "utf8")) as {
+    chainExecutions: Array<{ workflowType: string; stage: string; transactionHash: string }>;
+    signedInstitutionEvidence: { activeKeys: number; acceptedEvents: number; lastSequence: number };
+    reconciliation: unknown;
+  };
   await writeFile(
     resolve(outputDirectory, "result.json"),
     JSON.stringify(
@@ -185,8 +197,19 @@ try {
         chain: {
           network: "local Anvil",
           result: "PASSED",
+          confirmedTransactions: actualLifecycle.chainExecutions.length,
+          coveredWorkflowTypes: [
+            ...new Set(actualLifecycle.chainExecutions.map((entry) => entry.workflowType)),
+          ],
+          evidenceFile: "actual-lifecycle.json",
           evidence:
-            "Foundry와 viem 통합시험이 발행, 제한이전, USDC DvP, 환매·소각 영수증과 이벤트를 검증했다. 시험별 임시 키와 전체 서명은 보존하지 않는다.",
+            "브라우저 전체 시연이 만든 발행, 제한이전, 시장조성자 헤지, 환매·소각, 지갑복구와 기업행동의 실제 Anvil 영수증을 검증했다. 시험별 임시 키와 전체 서명은 보존하지 않는다.",
+        },
+        mockInstitutions: {
+          result: "PASSED",
+          ...actualLifecycle.signedInstitutionEvidence,
+          evidence:
+            "프로세스 수명 Ed25519 공개키로 검증된 모의 기관 결과만 생애주기를 전환했다.",
         },
         ui: {
           browser: "Chromium",

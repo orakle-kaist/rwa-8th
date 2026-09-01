@@ -16,6 +16,7 @@ import { Pool } from "pg";
 
 import { loadApiConfig } from "./config.js";
 import { LocalChainSynchronizer } from "./local-chain-synchronizer.js";
+import { dispatchNextHedgeMockResult } from "./mock-institution-client.js";
 
 const config = loadApiConfig(process.env);
 const clock = createClock(process.env);
@@ -87,6 +88,7 @@ while (!stopping) {
           }
       }
       await localChain.synchronize(handledTarget);
+      await dispatchNextHedgeMockResult(pool, handledTarget, clock.now());
       process.stdout.write(
         `${JSON.stringify({ level: "info", simulation: true, message: "outbox processed", outboxId: message.outboxId, workflowId: message.workflowId })}\n`,
       );

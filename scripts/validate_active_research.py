@@ -903,6 +903,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1142,6 +1143,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1512,6 +1514,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1751,7 +1754,7 @@ def validate_stage_six_contract(errors: list[str]) -> None:
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
         "ready_for_stage_ten", "stage_ten_in_progress", "stage_ten_local_candidate",
-        "stage_ten_integration_alignment"
+        "stage_ten_integration_alignment", "stage_ten_local_demo_candidate"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2059,6 +2062,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "stage_ten_in_progress",
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2341,6 +2345,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     if state.get("stage") not in {
         "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
         "stage_ten_in_progress", "stage_ten_local_candidate", "stage_ten_integration_alignment",
+        "stage_ten_local_demo_candidate",
     }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
@@ -2771,15 +2776,15 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "stage_ten_integration_alignment":
-        errors.append("active project state must record the stage-ten integration alignment")
-    if state.get("iteration") != 42:
-        errors.append("active project iteration must record the reopened local integration review")
+    if state.get("stage") != "stage_ten_local_demo_candidate":
+        errors.append("active project state must record the stage-ten local demo candidate")
+    if state.get("iteration") != 43:
+        errors.append("active project iteration must record the completed local integration alignment")
     expected_next_action = (
-        "Enforce the approved runtime states and complete the three missing platform query APIs before connecting the full lifecycle to Anvil."
+        "Verify official ISINs for the six representative securities, then run the Fuji deployment and three manual tests from the same commit."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must prioritize runtime state and API alignment")
+        errors.append("active project next action must prioritize official ISIN and Fuji validation")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3099,7 +3104,7 @@ def validate_stage_ten_foundation(errors: list[str]) -> None:
         REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md"
     ).read_text(encoding="utf-8")
     for term in [
-        "상태: **10단계 로컬 통합 정합성 보완 중, Fuji 검증 착수 보류**", "합성 Bearer", "PostgreSQL", "Anvil",
+        "상태: **10단계 로컬 시연 후보, Fuji 검증 대기**", "합성 Bearer", "PostgreSQL", "Anvil",
         "승인된 OpenAPI", "실제 비밀값", "제한형 권리토큰", "Safe 3인 중 2인",
         "업무 ABI", "관리 ABI",
     ]:
@@ -3366,6 +3371,8 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
         STATE_TRANSITION_MATRIX_SCHEMA,
         REPO_ROOT / "tests" / "acceptance" / "register-approved-tests.ts",
         REPO_ROOT / "scripts" / "run-local-acceptance.ts",
+        REPO_ROOT / "scripts" / "run-full-local-validation.ts",
+        REPO_ROOT / "scripts" / "verify-local-lifecycle-evidence.ts",
         REPO_ROOT / "packages" / "database" / "src" / "reset-demo.ts",
         REPO_ROOT / "apps" / "web" / "app" / "components" / "lifecycle-guide.tsx",
         REPO_ROOT / "packages" / "domain" / "src" / "generated-state-transitions.ts",
@@ -3465,9 +3472,24 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
         "skipped: 0",
         'result: "NOT_RUN"',
         "git\", [\"status\", \"--porcelain",
+        "actual-lifecycle.json",
     ]:
         if term not in runner:
             errors.append(f"local acceptance runner is missing evidence control: {term}")
+
+    lifecycle_verifier = (
+        REPO_ROOT / "scripts" / "verify-local-lifecycle-evidence.ts"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "MARKET_MAKER_HEDGE",
+        "HEDGE_BUY_RELEASE",
+        "getTransactionReceipt",
+        "mock_institution_keys",
+        "inbox_messages",
+        "totalSupply",
+    ]:
+        if term not in lifecycle_verifier:
+            errors.append(f"actual local lifecycle evidence is missing: {term}")
 
     state_runtime = (REPO_ROOT / "packages" / "database" / "src" / "runtime-state.ts").read_text(encoding="utf-8")
     for term in ["assertApprovedStateTransition", "FOR UPDATE", "STATE_CONFLICT", "workflow_state_axis_history"]:

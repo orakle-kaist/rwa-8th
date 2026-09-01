@@ -904,7 +904,8 @@ export function InstitutionWorkspace() {
                 <span>{hedge.status}</span>
                 <small>
                   다음 개장일 {hedge.targetTradingDate} · 원인 거래{" "}
-                  {hedge.sourceSecondaryOrderIds.length}건 · 외국인 한도 {hedge.foreignLimitStatus}
+                  {hedge.sourceSecondaryOrderIds.length}건 · 생성 시 순포지션{" "}
+                  {hedge.netPositionSnapshot}주 · 외국인 한도 {hedge.foreignLimitStatus}
                 </small>
                 <small>
                   MM 확인 {hedge.marketMakerConfirmed ? "완료" : "대기"} · 위험승인{" "}
