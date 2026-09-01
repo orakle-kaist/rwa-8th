@@ -24,6 +24,8 @@ docker compose up --build --wait
 
 PoC의 데이터베이스와 로컬 체인은 Docker 내부에서만 사용하므로 컴퓨터에서 이미 실행 중인 PostgreSQL이나 다른 로컬 체인을 중지할 필요가 없다.
 
+Docker 권한이나 과거 캐시 이미지 때문에 시작되지 않으면 [구현 안내의 자주 발생하는 Docker 문제](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md#자주-발생하는-docker-문제)를 확인한다.
+
 ## 처음 읽는 순서
 
 처음 보는 사람은 다음 네 문서만 순서대로 읽으면 프로젝트의 목적과 구현 범위를 이해할 수 있다.

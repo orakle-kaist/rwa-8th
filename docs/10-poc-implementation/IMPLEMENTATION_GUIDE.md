@@ -100,6 +100,30 @@ pnpm demo:reset:docker
 
 화면의 **온보딩 다시 시작**은 브라우저 단계만 되돌리므로 보통은 데이터 초기화가 필요 없다. 문제가 생겼을 때는 `pnpm demo:logs`로 웹, API, 작업 실행기와 모의 기관 기록을 함께 확인한다.
 
+### 자주 발생하는 Docker 문제
+
+#### Docker API 접근 권한이 없을 때
+
+`permission denied while trying to connect to the docker API`가 나오면 현재 사용자를 Docker 그룹에 추가하고 새 로그인 세션을 시작한다. `docker` 그룹은 관리자 수준 권한을 가지므로 개인 개발환경에서만 적용한다.
+
+```bash
+sudo usermod -aG docker "$USER"
+newgrp docker
+docker info
+```
+
+#### 이전 실패 이미지가 남아 있을 때
+
+`chain-deploy` 로그에 `contracts/out/...json` 파일이 없다고 나오면 계약 산출물이 포함되지 않은 과거 캐시 이미지다. 다음 한 번만 배포 이미지를 캐시 없이 다시 만들고 전체 서비스를 시작한다.
+
+```bash
+docker compose down --remove-orphans
+docker compose build --no-cache chain-deploy
+docker compose up --build --wait
+```
+
+정상 기동 뒤 `docker compose ps -a`에서 `chain-deploy`와 `migrate`는 작업을 마친 `Exited (0)`, PostgreSQL·Anvil·API·모의 기관·웹은 실행 또는 `healthy`로 표시된다. `Exited (0)`인 두 서비스는 오류가 아니라 시작 준비를 한 번 수행하고 끝나는 작업이다.
+
 ### `.env.example`은 언제 쓰는가
 
 `.env.example`은 컨테이너 밖에서 웹과 백엔드를 각각 실행하는 개발자를 위한 참고값이다. 파일명을 `.env`로 바꾸는 것만으로는 백엔드가 자동으로 읽지 않으므로, 일반 화면 검토자가 이 경로를 사용할 이유가 없다.
@@ -128,7 +152,7 @@ set +a
 
 가상시계로 승인 fixture를 재현할 때는 `TEST_CLOCK_MODE=fixed`와 `TEST_CLOCK_ISO`를 데이터 적재와 API 실행에 똑같이 적용한다. 한쪽에만 적용하면 시장정보 기준시각과 60초 신선도 판정이 달라지므로 검증 증거로 사용할 수 없다.
 
-기본 주소는 웹 `http://localhost:3000`, API `http://localhost:4000`, 기관 모의 서버 `http://localhost:4100`, Anvil RPC `http://localhost:8545`다.
+호스트에서 접근하는 기본 주소는 웹 `http://localhost:3000`, API `http://localhost:4000`, 기관 모의 서버 `http://localhost:4100`이다. PostgreSQL과 Anvil RPC는 Docker 내부 전용이며 호스트의 `5432`와 `8545`로 공개하지 않는다.
 
 ## 3. 검증 명령
 
