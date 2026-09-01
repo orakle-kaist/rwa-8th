@@ -55,13 +55,63 @@
 
 ## 2. 로컬 준비
 
-1. `.env.example`을 참고해 로컬 환경변수를 설정한다. 실제 비밀값은 사용하거나 저장소에 넣지 않는다.
-2. `corepack pnpm install --frozen-lockfile`로 고정 의존성을 설치한다.
-3. `docker compose up -d postgres anvil`로 PostgreSQL과 로컬 EVM을 시작한다.
-4. `pnpm db:migrate`로 기반 테이블을 만든다.
-5. `pnpm dev`로 웹, API와 기관 모의 서버를 실행한다.
+### 가장 쉬운 방법: Docker로 한 번에 실행
 
-반복 시연 전에는 `pnpm demo:reset -- --confirm=RESET_LOCAL_SYNTHETIC_RWA_POC`를 사용할 수 있다. 이 명령은 로컬 `rwa_poc` 데이터베이스와 명시적 확인값을 모두 검사한 뒤에만 합성 fixture를 다시 적재한다.
+로컬 화면을 확인할 때는 **`.env`를 만들거나 값을 채울 필요가 없다.** `compose.yaml`에 합성 데이터베이스, 로컬 체인, API와 모의 기관의 로컬 설정이 이미 들어 있다. Docker Desktop 또는 Docker Engine만 실행한 뒤 저장소 루트에서 다음 명령을 실행한다.
+
+```bash
+docker compose up --build --wait
+```
+
+처음 실행할 때는 이미지를 만들기 때문에 시간이 걸릴 수 있다. 명령이 끝나면 브라우저에서 `http://localhost:3000`을 열고 **투자자 앱 → 모의 계좌 개설부터 시작**을 누른다. 데이터베이스 생성, 로컬 컨트랙트 배포와 테이블 준비는 자동으로 수행된다.
+
+pnpm이 준비돼 있다면 같은 명령의 짧은 별칭도 사용할 수 있다.
+
+```bash
+pnpm demo:up
+```
+
+종료할 때는 다음 중 하나를 실행한다. 데이터는 Docker 볼륨에 남으므로 다음 실행에서 이어진다.
+
+```bash
+docker compose down
+# 또는
+pnpm demo:down
+```
+
+전체 거래 시연을 처음부터 다시 해야 할 때만 실행 중인 컨테이너에 합성 데이터 초기화를 요청한다.
+
+```bash
+pnpm demo:reset:docker
+```
+
+화면의 **온보딩 다시 시작**은 브라우저 단계만 되돌리므로 보통은 데이터 초기화가 필요 없다. 문제가 생겼을 때는 `pnpm demo:logs`로 웹, API, 작업 실행기와 모의 기관 기록을 함께 확인한다.
+
+### `.env.example`은 언제 쓰는가
+
+`.env.example`은 컨테이너 밖에서 웹과 백엔드를 각각 실행하는 개발자를 위한 참고값이다. 파일명을 `.env`로 바꾸는 것만으로는 백엔드가 자동으로 읽지 않으므로, 일반 화면 검토자가 이 경로를 사용할 이유가 없다.
+
+| 하려는 일                        | `.env` 필요 여부 | 추가로 필요한 값                                              |
+| -------------------------------- | ---------------- | ------------------------------------------------------------- |
+| 브라우저로 로컬 PoC 확인         | 필요 없음        | 없음                                                          |
+| 컨테이너 밖에서 서버를 직접 개발 | 선택 사항        | `.env.example`의 로컬값을 셸에 불러옴                         |
+| 공식 ISIN 다시 조회              | `.env` 사용 금지 | 현재 셸의 `DATA_GO_KR_SERVICE_KEY`                            |
+| Fuji 키 생성·재검증              | `.env` 사용 금지 | 현재 셸의 `FUJI_KEYSTORE_PASSWORD`, 선택적으로 `FUJI_RPC_URL` |
+
+공공데이터 키와 Fuji 비밀번호를 이미 `.env`에 넣었다면 파일에서 지우고 필요한 명령을 실행하는 현재 셸에만 설정한다. 로컬 화면 확인에는 두 값 모두 사용하지 않으며, 그 밖의 실제 비밀값도 사용하거나 저장소에 넣지 않는다.
+
+### 개발자용 직접 실행
+
+Docker 밖에서 각 서버를 수정하며 실행해야 하는 경우에만 `.env.example`을 복사하고 셸에 명시적으로 불러온다. 이 경로는 작업 실행기와 로컬 컨트랙트 배포까지 따로 관리해야 하므로 일반 시연 경로가 아니다.
+
+```bash
+cp .env.example .env
+set -a
+source .env
+set +a
+```
+
+직접 실행 환경에서 반복 시연 전에는 `pnpm demo:reset -- --confirm=RESET_LOCAL_SYNTHETIC_RWA_POC`를 사용할 수 있다. 이 명령은 로컬 `rwa_poc` 데이터베이스와 명시적 확인값을 모두 검사한 뒤에만 합성 fixture를 다시 적재한다.
 
 가상시계로 승인 fixture를 재현할 때는 `TEST_CLOCK_MODE=fixed`와 `TEST_CLOCK_ISO`를 데이터 적재와 API 실행에 똑같이 적용한다. 한쪽에만 적용하면 시장정보 기준시각과 60초 신선도 판정이 달라지므로 검증 증거로 사용할 수 없다.
 
