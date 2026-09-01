@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { walletOwnershipMessage } from "@rwa/domain/protection";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
 import {
   demoTokens,
@@ -89,6 +91,7 @@ export function InvestorOnboarding() {
   const [consent, setConsent] = useState<Consent>();
   const [answers, setAnswers] = useState(() => quizItems.map(() => false));
   const [message, setMessage] = useState("합성 고객 판정을 불러오는 중이다.");
+  const [submitting, setSubmitting] = useState(false);
   const scenario = scenarios[profile];
   const token = demoTokens[profile];
 
@@ -192,6 +195,76 @@ export function InvestorOnboarding() {
     setProfile(nextProfile);
     setStep(0);
     setAnswers(quizItems.map(() => false));
+  }
+
+  async function refreshUntil(expected: "CONSENT" | "WALLET") {
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const [nextSession, nextConsent] = await Promise.all([
+        platformFetch<Session>("/session", { token }),
+        platformFetch<Consent>("/disclosure-consents/current", { token }),
+      ]);
+      setSession(nextSession);
+      setConsent(nextConsent);
+      if (
+        nextConsent.status === "VALID" &&
+        (expected === "CONSENT" || nextSession.customerReadiness?.wallet === "LINKED")
+      )
+        return;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error("기관 처리 결과가 아직 반영되지 않았다. 잠시 후 다시 시도한다.");
+  }
+
+  async function acceptDisclosureAndContinue() {
+    if (!disclosure || submitting) return;
+    setSubmitting(true);
+    setMessage("위험공시 동의를 인가 해외 증권사 업무로 접수하고 있다.");
+    try {
+      await platformFetch("/disclosure-consents", {
+        token,
+        method: "POST",
+        body: {
+          disclosureId: disclosure.disclosureId,
+          version: disclosure.version,
+          consentedAt: new Date().toISOString(),
+        },
+      });
+      await refreshUntil("CONSENT");
+      setMessage("위험공시 동의가 고객계정에 반영됐다.");
+      next();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "위험공시 동의를 반영하지 못했다.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function confirmWalletAndContinue() {
+    if (!session || submitting) return;
+    if (!eligible) {
+      next();
+      return;
+    }
+    setSubmitting(true);
+    setMessage("시험 전용 자기보관 지갑의 소유확인과 기관 반영을 진행하고 있다.");
+    try {
+      const account = privateKeyToAccount(generatePrivateKey());
+      const signature = await account.signMessage({
+        message: walletOwnershipMessage(session.actorId, account.address, "LINK"),
+      });
+      await platformFetch("/wallet-link-requests", {
+        token,
+        method: "POST",
+        body: { wallet: account.address, ownershipSignature: signature },
+      });
+      await refreshUntil("WALLET");
+      setMessage("전용 지갑이 고객계정과 적격성 레지스트리에 반영됐다.");
+      next();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "전용 지갑을 반영하지 못했다.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -421,8 +494,12 @@ export function InvestorOnboarding() {
               <button className="subtleButton" type="button" onClick={previous}>
                 이전
               </button>
-              <button type="button" disabled={!disclosure} onClick={next}>
-                위험공시 확인 및 계속
+              <button
+                type="button"
+                disabled={!disclosure || submitting}
+                onClick={() => void acceptDisclosureAndContinue()}
+              >
+                {submitting ? "동의 반영 중" : "위험공시 확인 및 계속"}
               </button>
             </div>
           </>
@@ -449,8 +526,12 @@ export function InvestorOnboarding() {
               <button className="subtleButton" type="button" onClick={previous}>
                 이전
               </button>
-              <button type="button" disabled={!session} onClick={next}>
-                {eligible ? "전용 지갑 확인" : "심사 결과 보기"}
+              <button
+                type="button"
+                disabled={!session || submitting}
+                onClick={() => void confirmWalletAndContinue()}
+              >
+                {submitting ? "지갑 반영 중" : eligible ? "전용 지갑 확인" : "심사 결과 보기"}
               </button>
             </div>
           </>

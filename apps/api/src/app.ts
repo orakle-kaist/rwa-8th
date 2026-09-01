@@ -28,7 +28,9 @@ export interface BuildAppOptions {
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger: options.logger ?? true });
-  await app.register(cors, { origin: ["http://localhost:3000", "http://127.0.0.1:3000"] });
+  const browserOrigins = ["http://localhost:3000", "http://127.0.0.1:3000"];
+  if (process.env.WEB_ORIGIN) browserOrigins.push(process.env.WEB_ORIGIN);
+  await app.register(cors, { origin: [...new Set(browserOrigins)] });
 
   app.get("/health", async () => ({
     service: "rwa-api",
@@ -39,7 +41,9 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
 
   app.post("/internal/mock-adapter-keys", async (request, reply) => {
     if (!options.pool || request.headers["x-simulation-registration-token"] !== "local-mock-only")
-      return reply.status(403).send({ simulation: true, messageKo: "모의 기관 키 등록 권한이 없다." });
+      return reply
+        .status(403)
+        .send({ simulation: true, messageKo: "모의 기관 키 등록 권한이 없다." });
     const body = request.body as Record<string, unknown>;
     await registerMockInstitutionKey(options.pool, {
       sourceInstitutionId: String(body.sourceInstitutionId),

@@ -109,11 +109,13 @@ add({
   },
   "모의정보-표시-01": async () => {
     ok(
-      (await loadText("apps/web/app/investor/page.tsx")).includes("모의 환경"),
+      (await loadText("apps/web/app/investor/investor-journey.tsx")).includes(
+        "모의·실제 거래 아님",
+      ),
       "투자자 모의 표시",
     );
     ok(
-      (await loadText("apps/web/app/institution/page.tsx")).includes("모의 환경"),
+      (await loadText("apps/web/app/institution/institution-dashboard.tsx")).includes("모의 환경"),
       "기관 모의 표시",
     );
     return 2;
@@ -537,7 +539,7 @@ add({
   },
   "거버넌스-지연-01": async () => {
     const deployment = await loadText("packages/contracts-client/src/local-stack.ts");
-    ok(deployment.includes("[60n,"), "60초 지연");
+    ok(/deploy\("TimelockController",\s*\[\s*60n,/s.test(deployment), "60초 지연");
     ok(deployment.includes("threshold: 2"), "Safe 2-of-3");
     return 2;
   },

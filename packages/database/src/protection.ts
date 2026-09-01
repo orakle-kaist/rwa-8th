@@ -164,7 +164,9 @@ export async function listProducts(
     `SELECT * FROM ${source} ORDER BY representative DESC, security_id LIMIT $1 OFFSET $2`,
     [limit, offset],
   );
-  const count = await pool.query<{ count: string }>(`SELECT count(*)::text AS count FROM ${source}`);
+  const count = await pool.query<{ count: string }>(
+    `SELECT count(*)::text AS count FROM ${source}`,
+  );
   const nextOffset = offset + result.rows.length;
   return {
     items: result.rows.map((row) => mapProduct(row, now)),

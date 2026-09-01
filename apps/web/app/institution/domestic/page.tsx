@@ -1,2 +1,4 @@
 import { InstitutionDashboard } from "../institution-dashboard";
-export default function DomesticPage() { return <InstitutionDashboard workspace="domestic" />; }
+export default function DomesticPage() {
+  return <InstitutionDashboard workspace="domestic" />;
+}

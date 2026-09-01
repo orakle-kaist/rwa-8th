@@ -48,7 +48,8 @@ export async function listRightsPositions(
        ON redemption.principal_id=position.principal_id AND redemption.security_id=position.security_id
      LEFT JOIN redemption_cash_claims claim ON claim.redemption_id=redemption.redemption_id
      WHERE ($1::boolean=false OR position.principal_id=$2)
-     GROUP BY position.security_id
+     GROUP BY position.security_id,instrument.display_name,product.name_ko,
+              instrument.reference_security_id
      ORDER BY position.security_id
      LIMIT $3 OFFSET $4`,
     [investor, input.principalId, limit + 1, offset],
