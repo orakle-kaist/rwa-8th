@@ -1,5 +1,4 @@
 import { access, readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createClock } from "@rwa/domain";
@@ -28,6 +27,7 @@ try {
     "0007_rights_and_controls.sql",
     "0008_runtime_states_and_views.sql",
     "0009_chain_execution.sql",
+    "0010_mock_institution_keys.sql",
   ]) {
     const migrationUrl = new URL(`../migrations/${name}`, import.meta.url);
     await pool.query(await readFile(fileURLToPath(migrationUrl), "utf8"));
@@ -40,8 +40,8 @@ try {
   await seedSecondaryData(pool, clock.now());
   const { seedRightsData } = await import("./seed-rights.js");
   await seedRightsData(pool, clock.now());
-  const manifestPath = process.env.LOCAL_CHAIN_MANIFEST_PATH ?? resolve(process.cwd(), ".runtime/local-deployment.json");
-  if (await access(manifestPath).then(() => true).catch(() => false))
+  const manifestPath = process.env.LOCAL_CHAIN_MANIFEST_PATH;
+  if (manifestPath && (await access(manifestPath).then(() => true).catch(() => false)))
     await recordLocalChainDeployment(pool, manifestPath, clock.now());
   process.stdout.write("database migrations and approved synthetic reference data applied\n");
 } finally {

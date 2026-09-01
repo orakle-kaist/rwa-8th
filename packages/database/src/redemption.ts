@@ -67,7 +67,7 @@ async function recordHistory(
 export async function getLocalRedemptionScenario(pool: Pool, principalId: string, now: Date) {
   const chain = await getLocalChainMetadata(pool);
   const result = await pool.query<Record<string, unknown>>(
-    `SELECT instrument.security_id,instrument.display_name,instrument.redemption_enabled,
+    `SELECT instrument.security_id,instrument.display_name,instrument.redemption_enabled,instrument.token_address,
        COALESCE(rights.settled_quantity,0)::text settled_quantity,
        COALESCE(rights.secondary_reserved_quantity,0)::text secondary_reserved_quantity,
        COALESCE(rights.hedge_locked_quantity,0)::text hedge_locked_quantity,
@@ -93,7 +93,9 @@ export async function getLocalRedemptionScenario(pool: Pool, principalId: string
   return {
     securityId: LOCAL_REDEMPTION_SECURITY_ID,
     displayName: row.display_name,
-    tokenAddress: chain.tokens[LOCAL_REDEMPTION_SECURITY_ID] ?? LOCAL_REDEMPTION_TOKEN_ADDRESS,
+    tokenAddress: row.token_address
+      ? chain.tokens[LOCAL_REDEMPTION_SECURITY_ID] ?? String(row.token_address)
+      : LOCAL_REDEMPTION_TOKEN_ADDRESS,
     referenceLimitKrw: LOCAL_REDEMPTION_LIMIT_KRW.toString(),
     redemptionEnabled: Boolean(row.redemption_enabled),
     settledQuantity: quantities.settled.toString(),
@@ -113,7 +115,9 @@ export async function getLocalRedemptionScenario(pool: Pool, principalId: string
       name: "Korean Equity RWA Intent",
       version: "1",
       chainId: 31337,
-      verifyingContract: chain.verifyingContract,
+      verifyingContract: row.token_address
+        ? chain.verifyingContract
+        : "0x0000000000000000000000000000000000000990",
     },
     projection: projection(now),
   };

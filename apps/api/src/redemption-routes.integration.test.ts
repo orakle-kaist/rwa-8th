@@ -59,7 +59,7 @@ describe("일반 투자자 환매 API", () => {
       targetTradingDate: "2026-08-31",
       nonce: "1",
       expiresAt: "1800003600",
-      policyVersion: keccak256(stringToBytes("REDEMPTION-SIM-1")),
+      policyVersion: keccak256(stringToBytes("LOCAL-POLICY-V1")),
     };
     const signature = await account.signTypedData({
       domain,

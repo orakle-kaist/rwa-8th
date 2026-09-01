@@ -40,6 +40,7 @@ services:
       ANVIL_RPC_URL: http://anvil:8545
       CHAIN_RPC_URL: http://anvil:8545
       LOCAL_CHAIN_MANIFEST_PATH: /app/.runtime/local-deployment.json
+      MOCK_INSTITUTIONS_URL: http://mock-institutions:4100
       TEST_CLOCK_MODE: system
     volumes:
       - rwa-runtime:/app/.runtime
@@ -100,6 +101,11 @@ services:
     command: ["pnpm", "dev:mock"]
     environment:
       MOCK_INSTITUTIONS_PORT: "4100"
+      PLATFORM_KEY_REGISTRATION_URL: http://api:4000/internal/mock-adapter-keys
+      PLATFORM_ADAPTER_CALLBACK_URL: http://api:4000/api/v1/adapter-events
+    depends_on:
+      api:
+        condition: service_started
     ports:
       - "4100:4100"
 

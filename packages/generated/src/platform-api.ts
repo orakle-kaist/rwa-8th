@@ -704,7 +704,7 @@ export interface components {
                 verifyingContract: components["schemas"]["EvmAddress"];
             };
             /** @constant */
-            policyVersion: "PRIMARY-SIM-1";
+            policyVersion: "LOCAL-POLICY-V1";
             /** @constant */
             simulation: true;
             projection: components["schemas"]["ProjectionMetadata"];
@@ -755,7 +755,7 @@ export interface components {
                 verifyingContract: components["schemas"]["EvmAddress"];
             };
             /** @constant */
-            policyVersion: "SECONDARY-SIM-1";
+            policyVersion: "LOCAL-POLICY-V1";
             notices: string[];
             /** @constant */
             simulation: true;
@@ -776,7 +776,7 @@ export interface components {
             domesticSettledQuantity: components["schemas"]["NonNegativeIntegerString"];
             tokenTotalSupply: components["schemas"]["NonNegativeIntegerString"];
             /** @constant */
-            policyVersion: "REDEMPTION-SIM-1";
+            policyVersion: "LOCAL-POLICY-V1";
             notices: string[];
             intentDomain: {
                 /** @constant */

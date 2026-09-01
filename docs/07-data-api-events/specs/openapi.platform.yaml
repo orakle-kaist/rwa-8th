@@ -911,7 +911,7 @@ components:
             version: { const: '1' }
             chainId: { enum: [31337, 43113] }
             verifyingContract: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
-        policyVersion: { const: PRIMARY-SIM-1 }
+        policyVersion: { const: LOCAL-POLICY-V1 }
         simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
     LocalSecondaryScenario:
@@ -964,7 +964,7 @@ components:
             version: { const: '1' }
             chainId: { enum: [31337, 43113] }
             verifyingContract: { $ref: './schemas/common.schema.json#/$defs/EvmAddress' }
-        policyVersion: { const: SECONDARY-SIM-1 }
+        policyVersion: { const: LOCAL-POLICY-V1 }
         notices: { type: array, minItems: 1, items: { type: string, minLength: 1 } }
         simulation: { const: true }
         projection: { $ref: './schemas/common.schema.json#/$defs/ProjectionMetadata' }
@@ -984,7 +984,7 @@ components:
         burnPendingQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         domesticSettledQuantity: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
         tokenTotalSupply: { $ref: './schemas/common.schema.json#/$defs/NonNegativeIntegerString' }
-        policyVersion: { const: REDEMPTION-SIM-1 }
+        policyVersion: { const: LOCAL-POLICY-V1 }
         notices: { type: array, minItems: 1, items: { type: string, minLength: 1 } }
         intentDomain:
           type: object

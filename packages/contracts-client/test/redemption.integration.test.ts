@@ -77,7 +77,7 @@ describe("Anvil 시장조성자 매도 헤지", () => {
     const role = (name: string) => keccak256(toHex(name));
     const workflow = (number: number) => `0x${number.toString(16).padStart(32, "0")}` as Hex;
     const evidence = (label: string) => keccak256(toHex(label));
-    const policyVersion = keccak256(toHex("SECONDARY-SIM-1"));
+    const policyVersion = keccak256(toHex("LOCAL-POLICY-V1"));
     const eligibility = await deploy("EligibilityRegistry", [administrator.address]);
     const policy = await deploy("MarketPolicyRegistry", [administrator.address, policyVersion]);
     const verifier = await deploy("IntentVerifier", [administrator.address, policy]);

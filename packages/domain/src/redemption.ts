@@ -2,7 +2,7 @@ import { allocateProRata, nextKrxBusinessDate } from "./primary-issuance.js";
 
 export const LOCAL_REDEMPTION_SECURITY_ID = "990001";
 export const LOCAL_REDEMPTION_TOKEN_ADDRESS = "0x0000000000000000000000000000000000009901" as const;
-export const LOCAL_REDEMPTION_POLICY = "REDEMPTION-SIM-1";
+export const LOCAL_REDEMPTION_POLICY = "LOCAL-POLICY-V1";
 export const LOCAL_REDEMPTION_LIMIT_KRW = 257_000n;
 export const LOCAL_REDEMPTION_TOTAL_USD_MINOR = 74_476n;
 

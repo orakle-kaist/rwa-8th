@@ -12,7 +12,7 @@ import {RoleIds} from "../src/shared/RoleIds.sol";
 import {TestBase} from "./TestBase.sol";
 
 contract IssuanceControllerTest is TestBase {
-    bytes32 private constant POLICY = keccak256("PRIMARY-SIM-1");
+    bytes32 private constant POLICY = keccak256("LOCAL-POLICY-V1");
     bytes32 private constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
     bytes32 private constant PRIMARY_TYPEHASH = keccak256("PrimaryOrderIntent(bytes16 orderId,address investor,string securityId,uint256 shareQuantity,uint256 krwLimitPrice,string targetTradingDate,string fundingMode,uint256 fundingAmountMinor,uint256 nonce,uint256 expiresAt,bytes32 policyVersion)");
     uint256 private constant INVESTOR_KEY = 0xA11CE;

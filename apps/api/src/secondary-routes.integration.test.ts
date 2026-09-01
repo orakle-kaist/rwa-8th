@@ -28,7 +28,7 @@ const broker = privateKeyToAccount(keccak256(toHex("SECONDARY-BROKER")));
 const verifyingContract = "0x0000000000000000000000000000000000000990" as const;
 const tokenAddress = "0x0000000000000000000000000000000000009902" as const;
 const usdcAddress = "0x0000000000000000000000000000000000000dC2" as const;
-const policyVersion = keccak256(toHex("SECONDARY-SIM-1"));
+const policyVersion = keccak256(toHex("LOCAL-POLICY-V1"));
 const domain = {
   name: "Korean Equity RWA Intent",
   version: "1",
@@ -69,7 +69,7 @@ async function submitHedgeAdapterEvent(
       sourceRecordId: randomUUID(),
       effectiveAt: now.toISOString(),
       receivedAt: now.toISOString(),
-      policyVersion: "SECONDARY-SIM-1",
+      policyVersion: "LOCAL-POLICY-V1",
       simulation: true,
     },
     data: { hedgeId, ...data },

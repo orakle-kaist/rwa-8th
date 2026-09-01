@@ -91,7 +91,9 @@ export async function getLocalPrimaryScenario(pool: Pool, principalId: string, n
       name: "Korean Equity RWA Intent",
       version: "1",
       chainId: 31337,
-      verifyingContract: chain.verifyingContract,
+      verifyingContract: row.token_address
+        ? chain.verifyingContract
+        : "0x0000000000000000000000000000000000000990",
     },
     policyVersion: chain.policyVersion,
     simulation: true,

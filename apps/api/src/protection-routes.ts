@@ -26,6 +26,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { Pool } from "pg";
 import { getAddress, verifyMessage } from "viem";
 import { validateSecondaryBrokerApproval } from "./secondary-routes.js";
+import { submitMockInstitutionCommand } from "./mock-institution-client.js";
 
 function errorReply(
   reply: FastifyReply,
@@ -440,13 +441,61 @@ export async function registerProtectionRoutes(
     }
     const redemption = await isRedemptionWorkflow(pool, taskId);
     const rightsWorkflow = await isRightsWorkflow(pool, taskId);
+    const primary = await isPrimaryWorkflow(pool, taskId);
+    const body = request.body as Record<string, unknown>;
+    const externalCommand =
+      actor.role === "EXECUTION_ALLOCATION_CONFIRMER"
+        ? {
+            path: "domestic-orders" as const,
+            commandType: redemption ? "REDEMPTION_EXECUTION" : "PRIMARY_EXECUTION",
+            resultEventType: redemption
+              ? "redemption.execution-confirmed.v1"
+              : "primary.execution-confirmed.v1",
+          }
+        : actor.role === "DOMESTIC_SETTLEMENT_CONFIRMER"
+          ? {
+              path: "settlement-inquiries" as const,
+              commandType: redemption ? "REDEMPTION_SETTLEMENT" : "PRIMARY_SETTLEMENT",
+              resultEventType: redemption
+                ? "redemption.sale-proceeds-settled.v1"
+                : "primary.domestic-settlement-confirmed.v1",
+            }
+          : actor.role === "CUSTODY_QUANTITY_CONFIRMER"
+            ? {
+                path: "custody-inquiries" as const,
+                commandType: "PRIMARY_CUSTODY",
+                resultEventType: "primary.custody-confirmed.v1",
+              }
+            : redemption && actor.role === "RIGHTS_RECORDING_CONFIRMER"
+              ? {
+                  path: "rights-actions" as const,
+                  commandType: "REDEMPTION_RIGHTS",
+                  resultEventType: "redemption.rights-terminated.v1",
+                }
+              : undefined;
+    if (externalCommand && (primary || redemption)) {
+      await submitMockInstitutionCommand({
+        ...externalCommand,
+        workflowId: taskId,
+        data: { ...body, resultEventType: externalCommand.resultEventType },
+        idempotencyKey: String(request.headers["idempotency-key"] ?? `${taskId}-${actor.role}`),
+        correlationId: String(request.headers["x-correlation-id"] ?? randomUUID()),
+        now: clock.now(),
+      });
+      return reply.status(202).send({
+        requestId: taskId,
+        workflowId: taskId,
+        status: "ACCEPTED",
+        statusUrl: `/api/v1/workflows/${taskId}`,
+      });
+    }
     return submitCommand(request, reply, {
       workflowType: "INSTITUTION_DECISION",
       commandType: rightsWorkflow
         ? "RIGHTS_DECISION_REQUESTED"
         : redemption
           ? "REDEMPTION_DECISION_REQUESTED"
-          : (await isPrimaryWorkflow(pool, taskId))
+          : primary
             ? "PRIMARY_DECISION_REQUESTED"
             : "INSTITUTION_DECISION_REQUESTED",
       payload: {

@@ -320,7 +320,7 @@ export interface LocalRedemptionScenario {
   burnPendingQuantity: string;
   domesticSettledQuantity: string;
   tokenTotalSupply: string;
-  policyVersion: "REDEMPTION-SIM-1";
+  policyVersion: "LOCAL-POLICY-V1";
   intentDomain: LocalPrimaryScenario["intentDomain"];
   notices: string[];
   simulation: true;

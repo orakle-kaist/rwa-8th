@@ -13,7 +13,7 @@ import {MockUsdc} from "../src/test/MockUsdc.sol";
 import {TestBase} from "./TestBase.sol";
 
 contract SecondarySettlementControllerTest is TestBase {
-    bytes32 private constant POLICY = keccak256("SECONDARY-SIM-1");
+    bytes32 private constant POLICY = keccak256("LOCAL-POLICY-V1");
     uint256 private constant INVESTOR_KEY = 0xA11CE;
     uint256 private constant MARKET_MAKER_KEY = 0xBEEF;
     uint256 private constant BROKER_KEY = 0xB0B;

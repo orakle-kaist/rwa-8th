@@ -58,7 +58,7 @@ describe("Anvil 1차 발행 생애주기", () => {
       } as never);
       await publicClient.waitForTransactionReceipt({ hash });
     };
-    const policyVersion = keccak256(toHex("PRIMARY-SIM-1"));
+    const policyVersion = keccak256(toHex("LOCAL-POLICY-V1"));
     const eligibility = await deploy("EligibilityRegistry", [account.address]);
     const policy = await deploy("MarketPolicyRegistry", [account.address, policyVersion]);
     const verifier = await deploy("IntentVerifier", [account.address, policy]);

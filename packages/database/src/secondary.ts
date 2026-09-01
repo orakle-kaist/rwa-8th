@@ -78,7 +78,9 @@ export async function getLocalSecondaryScenario(pool: Pool, principalId: string,
     displayName: row.display_name,
     tokenSymbol: row.token_symbol,
     tokenAddress: String(row.token_address ?? "0x0000000000000000000000000000000000009902"),
-    mockUsdcAddress: chain.mockUsdcAddress,
+    mockUsdcAddress: row.token_address
+      ? chain.mockUsdcAddress
+      : "0x0000000000000000000000000000000000000dC2",
     referenceSecurityId: row.reference_security_id,
     referenceUsdMinor: String(row.reference_usd_minor),
     normalAskUsdMinor: LOCAL_SECONDARY_NORMAL_ASK_USD_MINOR.toString(),
@@ -108,7 +110,9 @@ export async function getLocalSecondaryScenario(pool: Pool, principalId: string,
       name: "Korean Equity RWA Intent",
       version: "1",
       chainId: 31337,
-      verifyingContract: chain.verifyingContract,
+      verifyingContract: row.token_address
+        ? chain.verifyingContract
+        : "0x0000000000000000000000000000000000000990",
     },
     policyVersion: chain.policyVersion,
     notices: [

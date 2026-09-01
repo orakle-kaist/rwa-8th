@@ -9,6 +9,7 @@ import {
   getLocalSecondaryScenario,
   getLocalRedemptionScenario,
   getLocalRightsScenario,
+  registerMockInstitutionKey,
 } from "@rwa/database";
 
 import { registerProtectionRoutes } from "./protection-routes.js";
@@ -35,6 +36,19 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     simulation: true,
     time: options.clock.now().toISOString(),
   }));
+
+  app.post("/internal/mock-adapter-keys", async (request, reply) => {
+    if (!options.pool || request.headers["x-simulation-registration-token"] !== "local-mock-only")
+      return reply.status(403).send({ simulation: true, messageKo: "모의 기관 키 등록 권한이 없다." });
+    const body = request.body as Record<string, unknown>;
+    await registerMockInstitutionKey(options.pool, {
+      sourceInstitutionId: String(body.sourceInstitutionId),
+      keyId: String(body.keyId),
+      publicKeyPem: String(body.publicKeyPem),
+      now: options.clock.now(),
+    });
+    return reply.status(202).send({ simulation: true, status: "REGISTERED" });
+  });
 
   app.get("/api/v1/session", async (request, reply) => {
     const principal = authenticateDemoBearer(request.headers.authorization);

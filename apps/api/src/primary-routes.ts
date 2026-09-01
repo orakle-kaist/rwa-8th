@@ -258,7 +258,13 @@ export async function registerPrimaryRoutes(app: FastifyInstance, pool: Pool, cl
   app.post("/api/v1/adapter-events", async (request, reply) => {
     const body = request.body as Record<string, unknown>;
     try {
-      const publicKey = process.env.MOCK_ADAPTER_PUBLIC_KEY?.replaceAll("\\n", "\n");
+      const { getMockInstitutionKey } = await import("@rwa/database");
+      const publicKey =
+        (await getMockInstitutionKey(
+          pool,
+          String(body.sourceInstitutionId),
+          String(body.keyId),
+        )) ?? process.env.MOCK_ADAPTER_PUBLIC_KEY?.replaceAll("\\n", "\n");
       if (!publicKey || typeof body.signature !== "string" || typeof body.keyId !== "string")
         throw new Error("등록된 모의 기관 서명키가 없다.");
       const unsigned = { ...body };

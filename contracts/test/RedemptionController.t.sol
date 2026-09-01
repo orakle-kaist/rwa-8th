@@ -11,7 +11,7 @@ import {RoleIds} from "../src/shared/RoleIds.sol";
 import {TestBase} from "./TestBase.sol";
 
 contract RedemptionControllerTest is TestBase {
-    bytes32 private constant POLICY = keccak256("SECONDARY-SIM-1");
+    bytes32 private constant POLICY = keccak256("LOCAL-POLICY-V1");
     uint256 private constant MARKET_MAKER_KEY = 0xBEEF;
     bytes32 private constant DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
