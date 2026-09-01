@@ -25,6 +25,11 @@ services:
       - "31337"
       - --block-time
       - "1"
+    healthcheck:
+      test: ["CMD-SHELL", "cast chain-id --rpc-url http://127.0.0.1:8545 >/dev/null 2>&1"]
+      interval: 1s
+      timeout: 2s
+      retries: 30
   migrate:
     build:
       context: .
@@ -57,7 +62,7 @@ services:
       - rwa-runtime:/app/.runtime
     depends_on:
       anvil:
-        condition: service_started
+        condition: service_healthy
     restart: "no"
 
   api:

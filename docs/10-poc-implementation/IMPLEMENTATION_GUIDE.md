@@ -67,6 +67,8 @@ docker compose up --build --wait
 
 PoC의 PostgreSQL과 로컬 체인은 컨테이너 내부에서만 사용한다. 컴퓨터에 이미 실행 중인 PostgreSQL의 `5432` 포트나 개발용 체인의 `8545` 포트를 차지하지 않으며, 기존 서비스를 중지할 필요도 없다.
 
+로컬 컨트랙트 배포는 Anvil이 단순히 실행된 시점이 아니라 RPC 요청에 정상 응답하는 시점부터 시작한다. 실패한 첫 실행을 정리한 뒤 다시 시작할 때는 `docker compose down --remove-orphans`를 먼저 실행한다.
+
 pnpm이 준비돼 있다면 같은 명령의 짧은 별칭도 사용할 수 있다.
 
 ```bash

@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 
 import {
   createPublicClient,
@@ -75,6 +76,27 @@ function workflow(label: string): Hex {
   return keccak256(stringToHex(`LOCAL_WORKFLOW:${label}`)).slice(0, 34) as Hex;
 }
 
+async function waitForAnvil(rpcUrl: string): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 60; attempt += 1) {
+    try {
+      const response = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_chainId", params: [] }),
+        signal: AbortSignal.timeout(1_000),
+      });
+      const payload = (await response.json()) as { result?: string };
+      if (response.ok && payload.result === "0x7a69") return;
+      lastError = new Error(`예상하지 않은 Anvil chain ID: ${payload.result ?? "응답 없음"}`);
+    } catch (error) {
+      lastError = error;
+    }
+    await delay(250);
+  }
+  throw new Error("Anvil RPC가 15초 안에 준비되지 않았다.", { cause: lastError });
+}
+
 async function artifact(name: string, externalPath?: string): Promise<Artifact> {
   const path = externalPath ?? `contracts/out/${name}.sol/${name}.json`;
   return JSON.parse(await readFile(resolve(root, path), "utf8")) as Artifact;
@@ -90,6 +112,7 @@ export async function deployLocalStack(input?: {
   outputPath?: string;
 }): Promise<LocalDeploymentManifest> {
   const rpcUrl = input?.rpcUrl ?? "http://127.0.0.1:8545";
+  await waitForAnvil(rpcUrl);
   const deployer = privateKeyToAccount(input?.deployerPrivateKey ?? DEFAULT_ANVIL_KEY);
   const transport = http(rpcUrl);
   const publicClient = createPublicClient({ chain: anvilChain, transport });
