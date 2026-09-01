@@ -1,6 +1,6 @@
 {
-  "stage": "stage_ten_local_demo_candidate",
-  "next_action": "Verify official ISINs for the six representative securities, then run the Fuji deployment and three manual tests from the same commit.",
-  "updated_at": "2026-09-01T14:55:17+09:00",
-  "iteration": 43
+  "stage": "awaiting_stage_ten_implementation_approval",
+  "next_action": "Review the stage-ten local and Fuji implementation evidence, then approve or request corrections before stage eleven.",
+  "updated_at": "2026-09-01T16:48:15+09:00",
+  "iteration": 44
 }

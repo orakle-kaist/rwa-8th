@@ -129,6 +129,7 @@ const implementationCases = implementationTestMap.cases as Array<{
   supportingExecutables: Array<{ runner: string; file: string; testName: string }>;
   expectedResult: Record<string, unknown>;
   traceability: Record<string, string[]>;
+  evidence: string[];
   status: string;
 }>;
 const implementationIds = new Set(implementationCases.map((testCase) => testCase.testId));
@@ -139,6 +140,8 @@ const officialIsinEvidencePath = resolve(
   "research/korean-equity-rwa/sources/web/krx-listed-2026-08-28-representative-6.json",
 );
 const officialIsinVerified = existsSync(officialIsinEvidencePath);
+const fujiEvidencePath = "docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md";
+const fujiEvidenceRecorded = existsSync(resolve(repositoryRoot, fujiEvidencePath));
 if (
   implementationCases.length !== 79 ||
   implementationIds.size !== 79 ||
@@ -158,7 +161,12 @@ if (
       testCase.status !== "LOCAL_AUTOMATED",
   ) ||
   fujiCases.some((testCase) =>
-    officialIsinVerified
+    fujiEvidenceRecorded
+      ? testCase.primaryExecutable?.file !== "scripts/test-fuji.ts" ||
+        testCase.primaryExecutable.testName !== testCase.testId ||
+        testCase.status !== "FUJI_PASSED" ||
+        !testCase.evidence.includes(fujiEvidencePath)
+      : officialIsinVerified
       ? testCase.primaryExecutable?.file !== "scripts/test-fuji.ts" ||
         testCase.primaryExecutable.testName !== testCase.testId ||
         testCase.status !== "FUJI_MANUAL"

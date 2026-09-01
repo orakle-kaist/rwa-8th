@@ -1,10 +1,10 @@
 # 10단계 PoC 구현 안내
 
-상태: **10단계 로컬 시연 후보, Fuji 검증 대기**
+상태: **10단계 구현 검토 대기**
 
 이 문서는 승인된 1~9단계를 코드로 옮기는 방법과 검증 증거를 연결한다. 구현은 실제 자금, 주식, 개인정보나 기관 API를 사용하지 않는다.
 
-기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 구현 증거](REDEMPTION_LIFECYCLE_EVIDENCE.md), [권리업무와 운영 통제 구현 증거](RIGHTS_AND_RECOVERY_EVIDENCE.md), [전체 시연과 로컬 인수시험 구현 증거](LOCAL_ACCEPTANCE_EVIDENCE.md)에 정리한다.
+기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 구현 증거](REDEMPTION_LIFECYCLE_EVIDENCE.md), [권리업무와 운영 통제 구현 증거](RIGHTS_AND_RECOVERY_EVIDENCE.md), [전체 시연과 로컬 인수시험 구현 증거](LOCAL_ACCEPTANCE_EVIDENCE.md), [Fuji 배포와 검증 증거](FUJI_DEPLOYMENT_EVIDENCE.md)에 정리한다.
 
 ## 1. 현재 구현 범위
 
@@ -51,7 +51,7 @@
 
 애플리케이션과 생성 결과는 TypeScript 7.0.2로 검사한다. `openapi-typescript` 7.13.0은 TypeScript 7의 변경된 내부 API와 호환되지 않으므로 생성 도구 프로세스에만 TypeScript 5.9.3을 격리한다. 이 버전은 제품 런타임이나 업무 코드에 사용하지 않는다.
 
-로컬 통합 재검토에서 확인한 공백은 보완했다. 175개 승인 상태를 런타임 전환 검사로 강제하고 플랫폼 API 43개를 모두 구현했으며, 1차 발행, 24/7 정산, 시장조성자 헤지, 환매, 지갑복구와 기업행동을 실제 Anvil 계약 호출에 연결했다. 모의 기관 버튼은 데이터베이스를 직접 바꾸지 않고 프로세스 수명 Ed25519 키로 서명한 결과를 회신한다. 전체 시연에서 체인 성공과 권리 원장 반영을 별도로 확인하며 일부 완료는 격리한다. 남은 구현 게이트는 공식 ISIN을 확인한 대표 6종목의 Fuji 배포와 사람시험 3개다.
+로컬 통합 재검토에서 확인한 공백은 보완했다. 175개 승인 상태를 런타임 전환 검사로 강제하고 플랫폼 API 43개를 모두 구현했으며, 1차 발행, 24/7 정산, 시장조성자 헤지, 환매, 지갑복구와 기업행동을 실제 Anvil 계약 호출에 연결했다. 모의 기관 버튼은 데이터베이스를 직접 바꾸지 않고 프로세스 수명 Ed25519 키로 서명한 결과를 회신한다. 전체 시연에서 체인 성공과 권리 원장 반영을 별도로 확인하며 일부 완료는 격리한다. 공식 ISIN을 확인한 대표 6종목의 Fuji 배포와 사람시험 3개도 완료했으며, 10단계 구현의 사람 검토와 승인만 남아 있다.
 
 ## 2. 로컬 준비
 
@@ -78,13 +78,15 @@
 - `pnpm test:acceptance:trace`: 승인된 76개 로컬 시험을 독립된 시험번호로 실행
 - `pnpm test:acceptance`: 깨끗한 커밋에서 전체 로컬 검증과 76개 시험을 실행하고 증거 생성
 
-### Fuji 최종 게이트
+### Fuji 최종 게이트와 완료 증거
 
 1. 공공데이터포털에서 `금융위원회_KRX상장종목정보` 활용신청을 완료하고 `DATA_GO_KR_SERVICE_KEY`를 셸에만 설정한다.
 2. `pnpm isin:verify`로 2026년 8월 28일 대표 6종목의 공식 ISIN과 체크섬 증거를 만든다.
 3. 12자 이상의 `FUJI_KEYSTORE_PASSWORD`를 셸에만 설정하고 `pnpm fuji:keys`를 실행한다. 생성된 배포자 공개주소에만 Fuji 시험 AVAX를 충전한다.
 4. 깨끗한 도구 커밋에서 `pnpm test:acceptance`를 통과한 뒤 `pnpm deploy:fuji`를 실행한다.
 5. 같은 커밋에서 `pnpm test:fuji`를 실행해 배포, 직접이전 차단과 삼성전자 대표 생애주기를 검증한다.
+
+위 게이트는 커밋 `52c47dc`에서 완료했다. 공식 ISIN 체크섬, 대표 6종목 주소, 거래해시와 수량 결과는 [Fuji 배포와 검증 증거](FUJI_DEPLOYMENT_EVIDENCE.md)에서 확인한다.
 
 Fuji 키는 `.runtime/fuji/`의 암호화 키 저장소에만 두며 저장소와 증거에는 공개주소만 남긴다. 지급자산은 Circle 발행물이 아닌 소수점 6자리 `Mock USDC`이고, 토큰명과 증거에는 모의 테스트 전용임을 표시한다. 실행기는 체인 ID가 `43113`이 아니거나 공식 ISIN, 가스 잔액, 배포 커밋 중 하나가 다르면 중지한다.
 

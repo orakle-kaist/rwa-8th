@@ -358,6 +358,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
                 "10단계 PoC 구현 중",
                 "10단계 로컬 시연 후보",
                 "10단계 로컬 통합 정합성 보완 중",
+                "10단계 구현 검토 대기",
             ]
         )
     ):
@@ -407,6 +408,7 @@ def validate_workspace_contract(errors: list[str]) -> None:
                 "10단계 PoC 구현 중",
                 "10단계 로컬 시연 후보",
                 "10단계 로컬 통합 정합성 보완 중",
+                "10단계 구현 검토 대기",
             ]
         )
         or "docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md" not in readme
@@ -904,6 +906,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1144,6 +1147,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1515,6 +1519,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1754,7 +1759,8 @@ def validate_stage_six_contract(errors: list[str]) -> None:
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
         "ready_for_stage_ten", "stage_ten_in_progress", "stage_ten_local_candidate",
-        "stage_ten_integration_alignment", "stage_ten_local_demo_candidate"
+        "stage_ten_integration_alignment", "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2063,6 +2069,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "stage_ten_local_candidate",
         "stage_ten_integration_alignment",
         "stage_ten_local_demo_candidate",
+        "awaiting_stage_ten_implementation_approval",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2345,7 +2352,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     if state.get("stage") not in {
         "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
         "stage_ten_in_progress", "stage_ten_local_candidate", "stage_ten_integration_alignment",
-        "stage_ten_local_demo_candidate",
+        "stage_ten_local_demo_candidate", "awaiting_stage_ten_implementation_approval",
     }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
@@ -2770,21 +2777,21 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             or "10단계" not in content
             or not any(
                 status in content
-                for status in ["구현 중", "로컬 시연 후보", "로컬 통합 정합성 보완 중"]
+                for status in ["구현 중", "로컬 시연 후보", "로컬 통합 정합성 보완 중", "구현 검토 대기"]
             )
         ):
             errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "stage_ten_local_demo_candidate":
-        errors.append("active project state must record the stage-ten local demo candidate")
-    if state.get("iteration") != 43:
-        errors.append("active project iteration must record the completed local integration alignment")
+    if state.get("stage") != "awaiting_stage_ten_implementation_approval":
+        errors.append("active project state must record the stage-ten implementation review gate")
+    if state.get("iteration") != 44:
+        errors.append("active project iteration must record the completed Fuji implementation evidence")
     expected_next_action = (
-        "Verify official ISINs for the six representative securities, then run the Fuji deployment and three manual tests from the same commit."
+        "Review the stage-ten local and Fuji implementation evidence, then approve or request corrections before stage eleven."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must prioritize official ISIN and Fuji validation")
+        errors.append("active project next action must prioritize stage-ten implementation review")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3104,7 +3111,7 @@ def validate_stage_ten_foundation(errors: list[str]) -> None:
         REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md"
     ).read_text(encoding="utf-8")
     for term in [
-        "상태: **10단계 로컬 시연 후보, Fuji 검증 대기**", "합성 Bearer", "PostgreSQL", "Anvil",
+        "상태: **10단계 구현 검토 대기**", "합성 Bearer", "PostgreSQL", "Anvil",
         "승인된 OpenAPI", "실제 비밀값", "제한형 권리토큰", "Safe 3인 중 2인",
         "업무 ABI", "관리 ABI",
     ]:
@@ -3437,7 +3444,14 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
         / "web"
         / "krx-listed-2026-08-28-representative-6.json"
     )
-    expected_fuji_status = "FUJI_MANUAL" if official_isin.exists() else "BLOCKED_OFFICIAL_ISIN"
+    fuji_evidence = REPO_ROOT / "docs" / "10-poc-implementation" / "FUJI_DEPLOYMENT_EVIDENCE.md"
+    expected_fuji_status = (
+        "FUJI_PASSED"
+        if fuji_evidence.exists()
+        else "FUJI_MANUAL"
+        if official_isin.exists()
+        else "BLOCKED_OFFICIAL_ISIN"
+    )
     if any(case.get("status") != expected_fuji_status for case in fuji):
         errors.append("Fuji test status must follow the official ISIN evidence gate")
     if official_isin.exists():
@@ -3446,6 +3460,11 @@ def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
             for case in fuji
         ):
             errors.append("verified Fuji tests must point to the Fuji execution script")
+        if fuji_evidence.exists() and any(
+            "docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md" not in case.get("evidence", [])
+            for case in fuji
+        ):
+            errors.append("passed Fuji tests must point to the tracked Fuji evidence document")
     elif any(case.get("primaryExecutable") is not None for case in fuji):
         errors.append("blocked Fuji tests must not claim an executable result")
 

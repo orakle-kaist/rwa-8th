@@ -17,6 +17,9 @@ const officialIsinVerified = existsSync(
     "research/korean-equity-rwa/sources/web/krx-listed-2026-08-28-representative-6.json",
   ),
 );
+const fujiEvidenceRecorded = existsSync(
+  resolve(root, "docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md"),
+);
 
 const groupFiles = {
   고객상품지갑: "tests/acceptance/customer-product-wallet.acceptance.test.ts",
@@ -144,9 +147,17 @@ const cases = catalog.groups.flatMap((group) =>
       resumeConditions: testCase.resumeConditions,
     },
     traceability: reverseLinks(testCase.testId),
-    evidence: testCase.evidence,
+    evidence:
+      !testCase.automated && fujiEvidenceRecorded
+        ? [
+            ...testCase.evidence,
+            "docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md",
+          ]
+        : testCase.evidence,
     status: testCase.automated
       ? "LOCAL_AUTOMATED"
+      : fujiEvidenceRecorded
+        ? "FUJI_PASSED"
       : officialIsinVerified
         ? "FUJI_MANUAL"
         : "BLOCKED_OFFICIAL_ISIN",
