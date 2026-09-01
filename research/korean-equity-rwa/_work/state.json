@@ -1,6 +1,6 @@
 {
-  "stage": "stage_ten_in_progress",
-  "next_action": "Review rights administration and recovery controls before completing demo screens and executable test traceability.",
-  "updated_at": "2026-09-01T11:24:42+09:00",
-  "iteration": 40
+  "stage": "stage_ten_local_candidate",
+  "next_action": "Verify official ISINs for the six representative stocks, then run the three Fuji manual tests without treating local success as a substitute.",
+  "updated_at": "2026-09-01T13:25:00+09:00",
+  "iteration": 41
 }

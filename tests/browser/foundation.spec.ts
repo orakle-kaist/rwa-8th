@@ -12,6 +12,12 @@ test("실행 기반 화면은 모의 환경과 두 화면군을 분명히 표시
 test("투자자와 기관 화면은 서로 다른 모의 업무공간으로 이동한다", async ({ page }) => {
   await page.goto("/investor");
   await expect(page.getByRole("heading", { name: "투자자 업무공간" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "투자자 생애주기 시연" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "시연 단계 바로가기" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "다시 불러오기" })).toBeVisible();
+  await expect(page.getByText(/24\/7은 KRX가 24시간 열리는 것이 아니라/)).toBeVisible();
+  await expect(page.getByText(/토큰은 고객 권리의 기준장부가 아니며/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "MM 헤지" })).toBeVisible();
   await expect(page.getByRole("status")).toContainText("모의 환경");
   await expect(page.getByText("201개 등록")).toBeVisible();
   await expect(page.getByText("대표 시연").first()).toBeVisible();
@@ -19,6 +25,12 @@ test("투자자와 기관 화면은 서로 다른 모의 업무공간으로 이�
 
   await page.goto("/institution");
   await expect(page.getByRole("heading", { name: "통합 기관 콘솔" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "기관 간 인계 시연" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "시연 단계 바로가기" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "기관 역할별 업무공간" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "업무 ID별 기관 인계와 기준 기록" }),
+  ).toBeVisible();
   await expect(page.getByText(/화면상 역할 전환은 실제 권한을 부여하지 않는다/)).toBeVisible();
   await expect(page.getByRole("status")).toContainText("모의 환경");
   await expect(page.getByText("공식 ISIN, 수탁 지원과 판매정책 확인 전")).toBeVisible();
@@ -28,7 +40,7 @@ test("거절·만료 고객은 주문 차단 상태와 이유를 확인한다", 
   await page.goto("/investor");
   await page.getByLabel("합성 고객").selectOption("denied");
   await expect(page.getByText("INELIGIBLE", { exact: true })).toBeVisible();
-  await expect(page.getByText("유효한 판매 가능 판정이 없다.")).toBeVisible();
+  await expect(page.getByText("유효한 판매 가능 판정이 없다.", { exact: true })).toBeVisible();
   await page.getByLabel("합성 고객").selectOption("expired");
   await expect(page.getByText("EXPIRED", { exact: true }).first()).toBeVisible();
 });

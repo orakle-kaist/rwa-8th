@@ -80,6 +80,12 @@ TEST_CATALOG_SCHEMA = STAGE_NINE_ROOT / "specs" / "test-catalog.schema.json"
 TEST_FIXTURES = STAGE_NINE_ROOT / "specs" / "test-fixtures.json"
 TEST_TRACEABILITY = STAGE_NINE_ROOT / "specs" / "traceability.json"
 TEST_TRACEABILITY_SCHEMA = STAGE_NINE_ROOT / "specs" / "traceability.schema.json"
+STAGE_TEN_ROOT = DOCS_ROOT / "10-poc-implementation"
+LOCAL_ACCEPTANCE_EVIDENCE = STAGE_TEN_ROOT / "LOCAL_ACCEPTANCE_EVIDENCE.md"
+IMPLEMENTATION_TEST_MAP = STAGE_TEN_ROOT / "specs" / "implementation-test-map.json"
+IMPLEMENTATION_TEST_MAP_SCHEMA = STAGE_TEN_ROOT / "specs" / "implementation-test-map.schema.json"
+STATE_TRANSITION_MATRIX = STAGE_TEN_ROOT / "specs" / "state-transition-matrix.json"
+STATE_TRANSITION_MATRIX_SCHEMA = STAGE_TEN_ROOT / "specs" / "state-transition-matrix.schema.json"
 KOSPI_SNAPSHOT = RESEARCH_ROOT / "sources" / "web" / "kospi200-2026-08-28.json"
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 OLD_ROOT_LINK = re.compile(r"\]\((?:\.\./)*(?:design|tmp)/")
@@ -195,6 +201,7 @@ def markdown_files() -> list[Path]:
         TEST_SCENARIOS,
         FIXTURES_AND_EVIDENCE,
         DEMO_CHECKLIST,
+        LOCAL_ACCEPTANCE_EVIDENCE,
     ] + sorted(RESEARCH_ROOT.rglob("*.md"))
 
 
@@ -276,6 +283,11 @@ def validate_workspace_contract(errors: list[str]) -> None:
         TEST_FIXTURES,
         TEST_TRACEABILITY,
         TEST_TRACEABILITY_SCHEMA,
+        LOCAL_ACCEPTANCE_EVIDENCE,
+        IMPLEMENTATION_TEST_MAP,
+        IMPLEMENTATION_TEST_MAP_SCHEMA,
+        STATE_TRANSITION_MATRIX,
+        STATE_TRANSITION_MATRIX_SCHEMA,
         KOSPI_SNAPSHOT,
         RESEARCH_ROOT / "sources",
         RESEARCH_ROOT / "review" / "human_review.md",
@@ -340,7 +352,10 @@ def validate_workspace_contract(errors: list[str]) -> None:
         errors.append("README must identify the master and the approved alignment")
     if (
         "docs/03-product-requirements/PRD.md" not in readme
-        or "10단계 PoC 구현 중" not in readme
+        or not any(
+            status in readme
+            for status in ["10단계 PoC 구현 중", "10단계 로컬 시연 후보"]
+        )
     ):
         errors.append("README must identify PRD.md and the stage-nine review status")
     if (
@@ -382,7 +397,10 @@ def validate_workspace_contract(errors: list[str]) -> None:
         or "docs/09-test-design/TEST_SCENARIOS.md" not in readme
         or "docs/09-test-design/FIXTURES_AND_EVIDENCE.md" not in readme
         or "docs/09-test-design/DEMO_CHECKLIST.md" not in readme
-        or "10단계 PoC 구현 중" not in readme
+        or not any(
+            status in readme
+            for status in ["10단계 PoC 구현 중", "10단계 로컬 시연 후보"]
+        )
         or "docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md" not in readme
     ):
         errors.append("README must identify stage-nine review artifacts and block stage ten")
@@ -875,6 +893,7 @@ def validate_prd_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-four review after PRD approval")
@@ -1112,6 +1131,7 @@ def validate_stage_four_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
         "stages_one_to_five_alignment_review",
     }:
         errors.append("active project state must be at or beyond stage-five preparation after stage-four approval")
@@ -1480,6 +1500,7 @@ def validate_stage_five_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
     }:
         errors.append("active project state must be at or beyond stage-six preparation")
 
@@ -1718,7 +1739,7 @@ def validate_stage_six_contract(errors: list[str]) -> None:
     if state.get("stage") not in {
         "ready_for_stage_seven", "awaiting_stage_seven_approval", "ready_for_stage_eight",
         "awaiting_stage_eight_approval", "ready_for_stage_nine", "awaiting_stage_nine_approval",
-        "ready_for_stage_ten", "stage_ten_in_progress"
+        "ready_for_stage_ten", "stage_ten_in_progress", "stage_ten_local_candidate"
     }:
         errors.append("active project state must be at or beyond stage-seven preparation")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 28:
@@ -2024,6 +2045,7 @@ def validate_stage_seven_contract(errors: list[str]) -> None:
         "awaiting_stage_nine_approval",
         "ready_for_stage_ten",
         "stage_ten_in_progress",
+        "stage_ten_local_candidate",
     }:
         errors.append("active project state must preserve stage-seven approval while stage eight advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 30:
@@ -2305,7 +2327,7 @@ def validate_stage_eight_contract(errors: list[str]) -> None:
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
     if state.get("stage") not in {
         "ready_for_stage_nine", "awaiting_stage_nine_approval", "ready_for_stage_ten",
-        "stage_ten_in_progress",
+        "stage_ten_in_progress", "stage_ten_local_candidate",
     }:
         errors.append("active project state must preserve stage-eight approval while stage nine advances")
     if not isinstance(state.get("iteration"), int) or state["iteration"] < 32:
@@ -2728,20 +2750,20 @@ def validate_stage_nine_contract(errors: list[str]) -> None:
             "9단계" not in content
             or "승인" not in content
             or "10단계" not in content
-            or "구현 중" not in content
+            or not any(status in content for status in ["구현 중", "로컬 시연 후보"])
         ):
             errors.append(f"{label} must record stage-nine approval and stage-ten implementation")
 
     state = json.loads((RESEARCH_ROOT / "_work" / "state.json").read_text(encoding="utf-8"))
-    if state.get("stage") != "stage_ten_in_progress":
-        errors.append("active project state must record stage-ten implementation in progress")
-    if state.get("iteration") != 40:
-        errors.append("active project iteration must record the rights administration and recovery implementation")
+    if state.get("stage") != "stage_ten_local_candidate":
+        errors.append("active project state must record the stage-ten local demo candidate")
+    if state.get("iteration") != 41:
+        errors.append("active project iteration must record the local acceptance implementation")
     expected_next_action = (
-        "Review rights administration and recovery controls before completing demo screens and executable test traceability."
+        "Verify official ISINs for the six representative stocks, then run the three Fuji manual tests without treating local success as a substitute."
     )
     if state.get("next_action") != expected_next_action:
-        errors.append("active project next action must review rights controls before final demo and traceability work")
+        errors.append("active project next action must preserve the official-ISIN and Fuji manual-test gate")
 
 
 def validate_master_regulatory_contract(errors: list[str]) -> None:
@@ -3061,7 +3083,7 @@ def validate_stage_ten_foundation(errors: list[str]) -> None:
         REPO_ROOT / "docs" / "10-poc-implementation" / "IMPLEMENTATION_GUIDE.md"
     ).read_text(encoding="utf-8")
     for term in [
-        "상태: **10단계 구현 중**", "합성 Bearer", "PostgreSQL", "Anvil",
+        "상태: **10단계 로컬 시연 후보, Fuji 검증 대기**", "합성 Bearer", "PostgreSQL", "Anvil",
         "승인된 OpenAPI", "실제 비밀값", "제한형 권리토큰", "Safe 3인 중 2인",
         "업무 ABI", "관리 ABI",
     ]:
@@ -3319,6 +3341,116 @@ def validate_stage_ten_rights_and_recovery(errors: list[str]) -> None:
             errors.append(f"rights and recovery evidence is missing: {term}")
 
 
+def validate_stage_ten_local_acceptance(errors: list[str]) -> None:
+    required_paths = [
+        LOCAL_ACCEPTANCE_EVIDENCE,
+        IMPLEMENTATION_TEST_MAP,
+        IMPLEMENTATION_TEST_MAP_SCHEMA,
+        STATE_TRANSITION_MATRIX,
+        STATE_TRANSITION_MATRIX_SCHEMA,
+        REPO_ROOT / "tests" / "acceptance" / "register-approved-tests.ts",
+        REPO_ROOT / "scripts" / "run-local-acceptance.ts",
+        REPO_ROOT / "packages" / "database" / "src" / "reset-demo.ts",
+        REPO_ROOT / "apps" / "web" / "app" / "components" / "lifecycle-guide.tsx",
+    ]
+    missing = [str(path.relative_to(REPO_ROOT)) for path in required_paths if not path.is_file()]
+    if missing:
+        errors.append("stage-ten local acceptance implementation is missing: " + ", ".join(missing))
+        return
+
+    parsed = {}
+    for path in [
+        IMPLEMENTATION_TEST_MAP,
+        IMPLEMENTATION_TEST_MAP_SCHEMA,
+        STATE_TRANSITION_MATRIX,
+        STATE_TRANSITION_MATRIX_SCHEMA,
+    ]:
+        try:
+            parsed[path] = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append(f"stage-ten acceptance data parse failed: {path.name}: {exc}")
+    if len(parsed) != 4:
+        return
+
+    for schema_path, document_path in [
+        (IMPLEMENTATION_TEST_MAP_SCHEMA, IMPLEMENTATION_TEST_MAP),
+        (STATE_TRANSITION_MATRIX_SCHEMA, STATE_TRANSITION_MATRIX),
+    ]:
+        try:
+            Draft202012Validator.check_schema(parsed[schema_path])
+            validator = Draft202012Validator(parsed[schema_path])
+            for issue in sorted(
+                validator.iter_errors(parsed[document_path]), key=lambda item: list(item.path)
+            ):
+                location = "/".join(str(part) for part in issue.path) or "<root>"
+                errors.append(
+                    f"{document_path.name} schema violation at {location}: {issue.message}"
+                )
+        except Exception as exc:
+            errors.append(f"{schema_path.name} validation failed: {exc}")
+
+    implementation = parsed[IMPLEMENTATION_TEST_MAP]
+    cases = implementation.get("cases", [])
+    local = [case for case in cases if case.get("automated")]
+    fuji = [case for case in cases if not case.get("automated")]
+    primary = [
+        (
+            case.get("primaryExecutable", {}).get("runner"),
+            case.get("primaryExecutable", {}).get("file"),
+            case.get("primaryExecutable", {}).get("testName"),
+        )
+        for case in local
+    ]
+    if len(cases) != 79 or len(local) != 76 or len(fuji) != 3 or len(set(primary)) != 76:
+        errors.append("implementation test map must contain 76 unique local tests and 3 Fuji tests")
+    if any(case.get("status") != "BLOCKED_OFFICIAL_ISIN" for case in fuji):
+        errors.append("Fuji tests must remain blocked before official ISIN verification")
+
+    matrix = parsed[STATE_TRANSITION_MATRIX]
+    states = matrix.get("states", [])
+    state_codes = [state.get("stateCode") for state in states]
+    if len(states) != 175 or len(set(state_codes)) != 175:
+        errors.append("state transition matrix must contain 175 unique states")
+    if any(
+        state.get("representativeForbiddenTargets")
+        and state.get("forbiddenErrorCode") != "STATE_CONFLICT"
+        for state in states
+    ):
+        errors.append("representative forbidden transitions must return STATE_CONFLICT")
+
+    lifecycle = (
+        REPO_ROOT / "apps" / "web" / "app" / "components" / "lifecycle-guide.tsx"
+    ).read_text(encoding="utf-8")
+    for term in [
+        "sourceRecord",
+        "blockedReason",
+        "24/7은 KRX가 24시간 열리는 것이 아니라",
+        "토큰은 고객",
+        "권리의 기준장부가 아니며",
+        "합성·모의 데이터",
+    ]:
+        if term not in lifecycle:
+            errors.append(f"lifecycle guide is missing approved demo boundary: {term}")
+
+    reset = (REPO_ROOT / "packages" / "database" / "src" / "reset-demo.ts").read_text(
+        encoding="utf-8"
+    )
+    for term in ["RESET_LOCAL_SYNTHETIC_RWA_POC", 'databaseName !== "rwa_poc"', "DROP SCHEMA"]:
+        if term not in reset:
+            errors.append(f"demo reset is missing destructive-operation guard: {term}")
+
+    runner = (REPO_ROOT / "scripts" / "run-local-acceptance.ts").read_text(encoding="utf-8")
+    for term in [
+        "numPassedTests !== 76",
+        "automaticRetry: false",
+        "skipped: 0",
+        'result: "NOT_RUN"',
+        "git\", [\"status\", \"--porcelain",
+    ]:
+        if term not in runner:
+            errors.append(f"local acceptance runner is missing evidence control: {term}")
+
+
 def main() -> int:
     errors: list[str] = []
     parse_structured_files(errors)
@@ -3340,6 +3472,7 @@ def main() -> int:
     validate_stage_ten_market_maker_hedge(errors)
     validate_stage_ten_redemption(errors)
     validate_stage_ten_rights_and_recovery(errors)
+    validate_stage_ten_local_acceptance(errors)
     validate_master_regulatory_contract(errors)
     validate_alignment_approval_contract(errors)
 
@@ -3351,7 +3484,7 @@ def main() -> int:
 
     print(
         "Active research workspace, links, metadata, master, PoC, PRD, stage-four through stage-nine contracts, stage-ten restricted token foundation, eligibility and investor protection, primary issuance and T+2 settlement, controlled secondary trading, market-maker hedge and inventory adjustment, investor redemption lifecycle, rights administration and recovery controls, "
-        "and 16 source checksums passed."
+        "local acceptance traceability and demo controls, and 16 source checksums passed."
     )
     return 0
 

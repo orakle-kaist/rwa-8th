@@ -1,10 +1,10 @@
 # 10단계 PoC 구현 안내
 
-상태: **10단계 구현 중**
+상태: **10단계 로컬 시연 후보, Fuji 검증 대기**
 
 이 문서는 승인된 1~9단계를 코드로 옮기는 방법과 검증 증거를 연결한다. 구현은 실제 자금, 주식, 개인정보나 기관 API를 사용하지 않는다.
 
-기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 구현 증거](REDEMPTION_LIFECYCLE_EVIDENCE.md), [권리업무와 운영 통제 구현 증거](RIGHTS_AND_RECOVERY_EVIDENCE.md)에 정리한다.
+기능별 구현범위와 시험 결과는 [제한형 토큰 기반 구현 증거](TOKEN_FOUNDATION_EVIDENCE.md), [고객·상품·투자자 보호 구현 증거](ELIGIBILITY_AND_PROTECTION_EVIDENCE.md), [1차 발행과 T+2 구현 증거](PRIMARY_ISSUANCE_EVIDENCE.md), [24/7 제한 거래 구현 증거](SECONDARY_TRADING_EVIDENCE.md), [시장조성자 헤지와 재고조정 구현 증거](HEDGE_WORKFLOW_EVIDENCE.md), [일반 투자자 환매 구현 증거](REDEMPTION_LIFECYCLE_EVIDENCE.md), [권리업무와 운영 통제 구현 증거](RIGHTS_AND_RECOVERY_EVIDENCE.md), [전체 시연과 로컬 인수시험 구현 증거](LOCAL_ACCEPTANCE_EVIDENCE.md)에 정리한다.
 
 ## 1. 현재 구현 범위
 
@@ -44,10 +44,14 @@
 - 권리·준법 독립 승인, 다섯 수량 보존과 전체 대사를 요구하는 지갑 복구
 - 소각 대기 수량을 제외한 2대1 합성 주식분할과 비정수 기업행동 전체 원복
 - 두 축 수량 대사, 가장 좁은 범위의 중지, 보정·독립 승인과 60초 지연 재개
+- 일곱 단계 전체 생애주기 진행표, 기관 역할별 업무공간과 업무 ID별 증거 흐름
+- 승인된 76개 로컬 시험의 독립 실행결과와 실제 시험계층 양방향 추적
+- 승인된 175개 상태의 기계 판독 허용·금지 전환표
+- 안전한 로컬 합성 시연 초기화와 커밋별 검증 증거 생성
 
 애플리케이션과 생성 결과는 TypeScript 7.0.2로 검사한다. `openapi-typescript` 7.13.0은 TypeScript 7의 변경된 내부 API와 호환되지 않으므로 생성 도구 프로세스에만 TypeScript 5.9.3을 격리한다. 이 버전은 제품 런타임이나 업무 코드에 사용하지 않는다.
 
-현재까지 고객 준비부터 1차 발행·T+2 전환, 결제완료 권리의 24/7 제한 거래, 시장조성자 헤지·재고조정, 일반 투자자 환매와 권리업무·운영 통제까지 닫힌 생애주기를 구현했다. 다음 기능은 전체 시연 화면과 9단계 필수시험의 구현 추적성을 완성하는 작업이다.
+고객 준비부터 권리업무까지 닫힌 생애주기와 로컬 인수시험 추적을 구현했다. 다음 게이트는 같은 커밋의 전체 로컬 검증 증거를 확정한 뒤 공식 ISIN 확인과 Fuji 사람시험 3개를 수행하는 것이다.
 
 ## 2. 로컬 준비
 
@@ -56,6 +60,8 @@
 3. `docker compose up -d postgres anvil`로 PostgreSQL과 로컬 EVM을 시작한다.
 4. `pnpm db:migrate`로 기반 테이블을 만든다.
 5. `pnpm dev`로 웹, API와 기관 모의 서버를 실행한다.
+
+반복 시연 전에는 `pnpm demo:reset -- --confirm=RESET_LOCAL_SYNTHETIC_RWA_POC`를 사용할 수 있다. 이 명령은 로컬 `rwa_poc` 데이터베이스와 명시적 확인값을 모두 검사한 뒤에만 합성 fixture를 다시 적재한다.
 
 가상시계로 승인 fixture를 재현할 때는 `TEST_CLOCK_MODE=fixed`와 `TEST_CLOCK_ISO`를 데이터 적재와 API 실행에 똑같이 적용한다. 한쪽에만 적용하면 시장정보 기준시각과 60초 신선도 판정이 달라지므로 검증 증거로 사용할 수 없다.
 
@@ -69,6 +75,8 @@
 - `pnpm test:chain`: 실제 Anvil 연결, 기반 계약 배포와 viem 조회시험
 - `pnpm test:browser`: Playwright Chromium 화면 골격 시험
 - `pnpm test:full`: 로컬 기반 전체시험
+- `pnpm test:acceptance:trace`: 승인된 76개 로컬 시험을 독립된 시험번호로 실행
+- `pnpm test:acceptance`: 깨끗한 커밋에서 전체 로컬 검증과 76개 시험을 실행하고 증거 생성
 
 각 기능 커밋은 관련 자동시험을 추가하고 실행 결과를 보고한다. 자동 재시도와 건너뜀은 사용하지 않는다.
 

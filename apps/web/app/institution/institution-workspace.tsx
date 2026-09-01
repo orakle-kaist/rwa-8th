@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { keccak256, padHex, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
+import { LifecycleGuide } from "../components/lifecycle-guide";
 import {
   allProducts,
   platformFetch,
@@ -592,6 +593,90 @@ export function InstitutionWorkspace() {
   }
 
   const representative = products.filter((product) => product.representative);
+  const institutionSteps = [
+    {
+      id: "institution-customer",
+      anchorId: "institution-protection",
+      label: "고객 준비",
+      stateCode: complaints.length ? "IN_PROGRESS" : "READY",
+      detail: "적격성·공시·전용 지갑·민원",
+      owner: "인가 해외 증권사·토큰 플랫폼",
+      sourceRecord: "고객판정·공시동의·지갑 연결·민원 원기록",
+      nextAction: complaints.length
+        ? "민원 책임기관과 다음 처리단계를 확인한다."
+        : "고객 판정과 최신 공시동의를 확인한다.",
+    },
+    {
+      id: "institution-primary",
+      label: "1차 발행",
+      stateCode: primaryOrders.length ? "IN_PROGRESS" : "NOT_STARTED",
+      detail: primaryOrders.length
+        ? `${primaryOrders.length}건의 주문 상태 확인`
+        : "투자자 주문 대기",
+      owner: "해외 증권사·국내 증권사·수탁 담당",
+      sourceRecord: "국내 체결·배분·위험승인·고객별 수탁권리 원장",
+      nextAction: tasks.some((task) => task.workflowType.startsWith("PRIMARY_"))
+        ? "발행 대기열의 다음 독립 증거를 승인한다."
+        : "투자자 앱에서 1차 주문을 접수한다.",
+    },
+    {
+      id: "institution-t2",
+      anchorId: "institution-primary",
+      label: "T+2 전환",
+      stateCode: primaryOrders.some((order) => order.tokenStatus === "TRADABLE")
+        ? "COMPLETED"
+        : primaryOrders.length
+          ? "WAITING_INSTITUTION"
+          : "NOT_STARTED",
+      detail: "국내 결제와 수탁수량을 독립 확인",
+      owner: "KSD 모의 응답·수탁은행·상임대리인",
+      sourceRecord: "국내 결제 기록·수탁수량 반영 기록",
+      nextAction: "결제와 수탁 확인이 모두 있는지 대조한다.",
+    },
+    {
+      id: "institution-secondary",
+      label: "24/7 제한 거래",
+      stateCode: secondaryOrders.length ? "IN_PROGRESS" : "NOT_STARTED",
+      detail: secondaryOrders.length
+        ? `${secondaryOrders.length}건의 제한 거래`
+        : "지정 MM 호가부터 시작",
+      owner: "지정 시장조성자와 인가 해외 증권사",
+      sourceRecord: "MM 호가·고객별 수탁권리 원장·토큰·자금",
+      nextAction: secondaryOrders.length
+        ? "권리 원장 반영과 정산 결과를 확인한다."
+        : "30초 유효 지정가 호가를 게시한다.",
+    },
+    {
+      id: "institution-hedge",
+      label: "시장조성자 헤지",
+      stateCode: hedges.length ? "IN_PROGRESS" : "NOT_STARTED",
+      detail: hedges.length ? `${hedges.length}건의 다음 개장일 헤지` : "완료된 24/7 체결 대기",
+      owner: "시장조성자·해외 증권사·국내 증권사",
+      sourceRecord: "순포지션·헤지 요청·국내 체결·T+2 재고",
+      nextAction: hedges.length
+        ? "시장조성자 확인과 위험 승인을 순서대로 처리한다."
+        : "24/7 거래를 먼저 완결한다.",
+    },
+    {
+      id: "institution-redemption",
+      label: "환매",
+      stateCode: redemptions.length ? "IN_PROGRESS" : "NOT_STARTED",
+      detail: redemptions.length ? `${redemptions.length}건의 지급·소각 추적` : "투자자 요청 대기",
+      owner: "해외 증권사와 국내 주문집행 증권사",
+      sourceRecord: "환매 요청·국내 매도·USD 지급청구·소각",
+      nextAction: "T+2, 권리종료, USD 지급과 소각을 각각 확인한다.",
+    },
+    {
+      id: "institution-rights",
+      label: "권리·대사·복구",
+      stateCode: holds.length ? "ACTION_REQUIRED" : "READY",
+      detail: holds.length ? `${holds.length}건의 중지 또는 보정 검토` : "두 축 대사 가능",
+      owner: "권리 담당·준법·독립 감사",
+      sourceRecord: "권리 스냅샷·두 축 대사·보정·승인 증거",
+      nextAction: holds.length ? "중지 사유와 재개 조건을 확인한다." : "배당·보고·대사를 실행한다.",
+      blocked: holds.length > 0,
+    },
+  ];
   return (
     <div className="workspaceContent">
       <section className="workspaceIntro">
@@ -605,8 +690,24 @@ export function InstitutionWorkspace() {
         </span>
       </section>
       <div className="noticeBar" role="status">
-        모의 환경 · {message}
+        <span>모의 환경 · {message}</span>
+        <button className="subtleButton" type="button" onClick={() => void refresh()}>
+          다시 불러오기
+        </button>
       </div>
+
+      <LifecycleGuide
+        title="기관 간 인계 시연"
+        description="각 단계에서 실행 주체, 승인 주체와 다음 행동을 분리해 보여준다. 화면 전환은 실제 권한을 바꾸지 않는다."
+        steps={institutionSteps}
+      />
+
+      <nav className="roleWorkspaceNav" aria-label="기관 역할별 업무공간">
+        <a href="#institution-primary">인가 해외 증권사 · 주문·권리·위험</a>
+        <a href="#institution-secondary">지정 시장조성자 · 호가·재고·헤지</a>
+        <a href="#institution-rights">수탁·권리 · 결제·기업행동</a>
+        <a href="#institution-evidence">준법·감사 · 대사·격리·재개</a>
+      </nav>
 
       <section className="metricGrid">
         <article className="metricCard">
@@ -627,7 +728,43 @@ export function InstitutionWorkspace() {
         </article>
       </section>
 
-      <section className="panelGrid">
+      <section className="panel widePanel" id="institution-evidence">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">WORKFLOW EVIDENCE</p>
+            <h2>업무 ID별 기관 인계와 기준 기록</h2>
+          </div>
+          <span>{tasks.length}건</span>
+        </div>
+        <p className="panelCopy">
+          업무 ID를 기준으로 기관 요청과 승인 상태를 연결한다. 체인 성공만으로 고객 권리 원장이나
+          자금 반영이 끝났다고 표시하지 않는다.
+        </p>
+        <div className="evidenceTimeline">
+          {tasks.length === 0 ? (
+            <p className="emptyState">아직 생성된 기관 업무가 없다.</p>
+          ) : (
+            tasks.slice(0, 12).map((task) => (
+              <article key={task.workflowId}>
+                <div>
+                  <strong>{task.states.at(-1)?.labelKo ?? "상태 확인 대기"}</strong>
+                  <code>{task.states.at(-1)?.code ?? "NO_STATE"}</code>
+                </div>
+                <p>{task.workflowType}</p>
+                <small>업무 ID {task.workflowId}</small>
+                <small>
+                  기준 기록: 기관 요청 · 고객별 수탁권리 원장 · 토큰 · 자금 · 모의 기관 응답
+                </small>
+                <small>
+                  오류 시: 영향범위 격리 → 원인 기록 보정 → 전체 재대사 → 독립 재개 승인
+                </small>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="panelGrid" id="institution-secondary">
         <article className="panel">
           <div className="panelHeading">
             <div>
@@ -662,6 +799,11 @@ export function InstitutionWorkspace() {
             <button type="submit" disabled={!session?.localSecondaryScenario}>
               시장조성자 지갑으로 서명·게시
             </button>
+            {!session?.localSecondaryScenario ? (
+              <small className="actionHint">
+                로컬 체인과 합성 시장조성자 시나리오가 준비돼야 게시할 수 있다.
+              </small>
+            ) : null}
           </form>
           <p className="panelCopy">
             USDC는 6자리, USD는 2자리 최소단위다. 정상 매도호가는 각각 1,203,550,000과 120,355다.
@@ -699,7 +841,7 @@ export function InstitutionWorkspace() {
         </article>
       </section>
 
-      <section className="panel widePanel">
+      <section className="panel widePanel" id="institution-redemption">
         <div className="panelHeading">
           <div>
             <p className="eyebrow">REDEMPTION CONTROL</p>
@@ -735,7 +877,7 @@ export function InstitutionWorkspace() {
         </div>
       </section>
 
-      <section className="panel widePanel">
+      <section className="panel widePanel" id="institution-hedge">
         <div className="panelHeading">
           <div>
             <p className="eyebrow">NEXT KRX OPEN HEDGE</p>
@@ -837,7 +979,7 @@ export function InstitutionWorkspace() {
         </div>
       </section>
 
-      <section className="panel widePanel">
+      <section className="panel widePanel" id="institution-rights">
         <div className="panelHeading">
           <div>
             <p className="eyebrow">RIGHTS AND RECONCILIATION</p>
@@ -986,7 +1128,7 @@ export function InstitutionWorkspace() {
         </div>
       </section>
 
-      <section className="panel widePanel">
+      <section className="panel widePanel" id="institution-primary">
         <div className="panelHeading">
           <div>
             <p className="eyebrow">PRIMARY ISSUANCE</p>
@@ -1050,6 +1192,20 @@ export function InstitutionWorkspace() {
         <p className="panelCopy">
           결제와 수탁은 별도 담당자가 각각 확인해야 한다. 첫 확인 뒤에도 같은 단계가 남으며, 다음
           새로고침에서 수탁 담당 확인을 선택할 수 있다.
+        </p>
+      </section>
+
+      <section className="panel widePanel" id="institution-protection">
+        <div className="panelHeading">
+          <div>
+            <p className="eyebrow">CUSTOMER PROTECTION</p>
+            <h2>고객 준비와 민원 책임기관</h2>
+          </div>
+          <span>{complaints.length}건 검토</span>
+        </div>
+        <p className="panelCopy">
+          투자자 보호 판정과 위험공시 동의는 인가 해외 증권사의 기준 기록이다. 플랫폼 기술문의와
+          계좌·거래·규제 민원은 책임기관을 나눠 처리한다.
         </p>
       </section>
 

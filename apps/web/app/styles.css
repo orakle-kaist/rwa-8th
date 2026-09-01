@@ -200,8 +200,97 @@ button {
   padding: 0.8rem 1rem;
 }
 button:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 0.45;
+}
+.demoGuide {
+  background: linear-gradient(135deg, rgba(19, 39, 34, 0.96), rgba(8, 21, 18, 0.94));
+  border: 1px solid rgba(103, 245, 181, 0.28);
+  border-radius: 1rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.demoGuideHeading {
+  align-items: stretch;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.42fr);
+  padding: 1.4rem;
+}
+.demoGuideHeading h2 {
+  margin: 0.35rem 0;
+}
+.demoGuideHeading > div > p:last-child,
+.guideBoundary {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+.nextActionCard {
+  background: rgba(103, 245, 181, 0.1);
+  border: 1px solid rgba(103, 245, 181, 0.24);
+  border-radius: 0.8rem;
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+}
+.nextActionCard span,
+.nextActionCard small {
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+.demoSteps {
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.demoStep {
+  border-right: 1px solid var(--line);
+  display: grid;
+  gap: 0.45rem;
+  min-height: 138px;
+  padding: 1rem;
+}
+.demoStep:last-child {
+  border-right: 0;
+}
+.demoStep:hover {
+  background: rgba(103, 245, 181, 0.07);
+}
+.demoStep > span,
+.demoStep > small {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.demoStep details {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+.demoStep details code {
+  display: block;
+  margin-top: 0.35rem;
+  overflow-wrap: anywhere;
+}
+.demoStep .blockedReason {
+  color: #f7c79a;
+}
+.demoStep > em {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-style: normal;
+}
+.demoStep.blocked > em {
+  color: #f7c79a;
+}
+.guideBoundary {
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  margin: 0;
+  padding: 0.9rem 1.4rem;
+}
+[id^="investor-"],
+[id^="institution-"] {
+  scroll-margin-top: 1.25rem;
 }
 .workspaceContent {
   margin: 0 auto;
@@ -250,13 +339,67 @@ textarea {
   padding: 0.7rem;
 }
 .noticeBar {
+  align-items: center;
   background: rgba(103, 245, 181, 0.08);
   border: 1px solid rgba(103, 245, 181, 0.24);
   border-radius: 0.7rem;
   color: #bdf8d8;
+  display: flex;
   font-size: 0.84rem;
+  gap: 1rem;
+  justify-content: space-between;
   margin: 1.5rem 0;
   padding: 0.9rem 1rem;
+}
+.noticeBar .subtleButton {
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+.actionHint {
+  color: #f7c79a;
+  display: block;
+  line-height: 1.5;
+}
+.roleWorkspaceNav {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 0 1.5rem;
+}
+.roleWorkspaceNav a {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 0.85rem;
+}
+.roleWorkspaceNav a:hover {
+  border-color: rgba(103, 245, 181, 0.5);
+  color: var(--accent);
+}
+.evidenceTimeline {
+  display: grid;
+  gap: 0.65rem;
+}
+.evidenceTimeline article {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.8rem;
+}
+.evidenceTimeline article > div {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+.evidenceTimeline p,
+.evidenceTimeline small {
+  color: var(--muted);
+  margin: 0;
 }
 .metricGrid,
 .panelGrid,
@@ -448,6 +591,18 @@ textarea {
     align-items: stretch;
     flex-direction: column;
     gap: 1rem;
+  }
+  .demoGuideHeading {
+    grid-template-columns: 1fr;
+  }
+  .demoSteps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .demoStep {
+    border-bottom: 1px solid var(--line);
+  }
+  .roleWorkspaceNav {
+    grid-template-columns: 1fr 1fr;
   }
   .metricGrid,
   .panelGrid,

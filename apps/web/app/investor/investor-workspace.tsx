@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { keccak256, toHex } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
+import { LifecycleGuide } from "../components/lifecycle-guide";
 import {
   allProducts,
   demoTokens,
@@ -466,6 +467,100 @@ export function InvestorWorkspace() {
   }
 
   const readiness = session?.customerReadiness;
+  const latestPrimary = primaryOrders.at(0);
+  const latestSecondary = secondaryOrders.at(0);
+  const latestRedemption = redemptions.at(0);
+  const investorSteps = [
+    {
+      id: "investor-readiness",
+      label: "고객 준비",
+      stateCode: readiness?.canPlaceNewOrder ? "READY" : "ACTION_REQUIRED",
+      detail: readiness?.canPlaceNewOrder ? "공시·지갑·적격성 확인" : "차단 사유를 먼저 해소",
+      owner: "투자자와 인가 해외 증권사",
+      sourceRecord: "해외 증권사 고객판정·공시동의·지갑 연결",
+      nextAction: readiness?.canPlaceNewOrder
+        ? "1차 발행 주문을 제출한다."
+        : "위험공시 동의와 지갑 상태를 확인한다.",
+      blocked: !readiness?.canPlaceNewOrder,
+      ...(readiness?.blockingReasons.length
+        ? { blockedReason: readiness.blockingReasons.map((reason) => reason.messageKo).join(" · ") }
+        : {}),
+    },
+    {
+      id: "investor-primary",
+      label: "1차 발행",
+      stateCode: latestPrimary ? "IN_PROGRESS" : "NOT_STARTED",
+      detail: latestPrimary
+        ? `${latestPrimary.allocatedQuantity}주 배분 · ${latestPrimary.tokenStatus}`
+        : "정수 지정가 주문 대기",
+      owner: "인가 해외 증권사와 국내 주문집행 증권사",
+      sourceRecord: "고객 원주문·국내 체결·고객별 수탁권리 원장",
+      nextAction: latestPrimary
+        ? "기관 콘솔에서 독립 승인을 진행한다."
+        : "USD 또는 USDC 경로로 주문한다.",
+    },
+    {
+      id: "investor-t2",
+      anchorId: "investor-primary",
+      label: "T+2 전환",
+      stateCode:
+        latestPrimary?.tokenStatus === "TRADABLE"
+          ? "COMPLETED"
+          : latestPrimary
+            ? "WAITING_INSTITUTION"
+            : "NOT_STARTED",
+      detail:
+        latestPrimary?.tokenStatus === "TRADABLE"
+          ? "결제·수탁 확인 완료"
+          : "결제와 수탁을 각각 확인",
+      owner: "수탁은행·상임대리인과 KSD 모의 응답",
+      sourceRecord: "국내 결제 확인·수탁수량 확인",
+      nextAction: "기관 콘솔에서 결제와 수탁 확인을 모두 완료한다.",
+    },
+    {
+      id: "investor-secondary",
+      label: "24/7 제한 거래",
+      stateCode: latestSecondary ? "IN_PROGRESS" : "NOT_STARTED",
+      detail: latestSecondary
+        ? `${latestSecondary.fillQuantity}주 체결 · ${latestSecondary.status}`
+        : "지정 MM 호가 대기",
+      owner: "투자자·지정 시장조성자·인가 해외 증권사",
+      sourceRecord: "고객별 수탁권리 원장·토큰·고객자금",
+      nextAction: secondaryQuotes.length
+        ? "유효한 지정가 호가를 선택한다."
+        : "기관 콘솔에서 시장조성자 호가를 게시한다.",
+    },
+    {
+      id: "investor-hedge",
+      anchorId: "investor-secondary",
+      label: "MM 헤지",
+      stateCode: latestSecondary?.status === "COMPLETED" ? "WAITING_INSTITUTION" : "NOT_STARTED",
+      detail: "다음 KRX 개장 재고조정",
+      owner: "지정 시장조성자·인가 해외 증권사·국내 증권사",
+      sourceRecord: "시장조성자 순포지션·헤지 대기열",
+      nextAction: "기관 콘솔에서 헤지 생성과 다음 개장일 인계를 확인한다.",
+    },
+    {
+      id: "investor-redemption",
+      label: "환매",
+      stateCode: latestRedemption ? "IN_PROGRESS" : "NOT_STARTED",
+      detail: latestRedemption
+        ? `${latestRedemption.allocatedQuantity}주 배분 · ${latestRedemption.status}`
+        : "결제완료 권리만 사용",
+      owner: "인가 해외 증권사와 국내 주문집행 증권사",
+      sourceRecord: "환매 요청·USD 지급청구·토큰 소각 증거",
+      nextAction: "환매 요청 뒤 기관 콘솔에서 매도·T+2·지급·소각을 확인한다.",
+    },
+    {
+      id: "investor-rights",
+      label: "권리업무",
+      stateCode: session?.localRightsScenario ? "READY" : "NOT_STARTED",
+      detail: "배당·의결권·지갑 복구",
+      owner: "인가 해외 증권사와 수탁은행·상임대리인",
+      sourceRecord: "기준일 권리 스냅샷·대사·보고 증거",
+      nextAction: "배당 지급상태와 의결권 기준수량을 확인한다.",
+    },
+  ];
   return (
     <div className="workspaceContent">
       <section className="workspaceIntro">
@@ -490,8 +585,17 @@ export function InvestorWorkspace() {
       </section>
 
       <div className="noticeBar" role="status">
-        모의 환경 · {message}
+        <span>모의 환경 · {message}</span>
+        <button className="subtleButton" type="button" onClick={() => void refresh()}>
+          다시 불러오기
+        </button>
       </div>
+
+      <LifecycleGuide
+        title="투자자 생애주기 시연"
+        description="단계 카드를 누르면 해당 업무와 항상 표시되는 실행 버튼으로 이동한다. 비활성 버튼은 필요한 선행조건을 함께 설명한다."
+        steps={investorSteps}
+      />
 
       <section className="metricGrid" aria-label="고객 준비상태">
         <StatusCard label="고객확인" value={readiness?.eligibility ?? "확인 중"} />
@@ -500,7 +604,7 @@ export function InvestorWorkspace() {
         <StatusCard label="신규 주문" value={readiness?.canPlaceNewOrder ? "가능" : "차단"} />
       </section>
 
-      <section className="panelGrid">
+      <section className="panelGrid" id="investor-rights">
         <article className="panel">
           <div className="panelHeading">
             <div>
@@ -531,6 +635,11 @@ export function InvestorWorkspace() {
           >
             30초 견적으로 USDC 전환
           </button>
+          {!session?.localRightsScenario?.dividend?.quoteId ? (
+            <small className="actionHint">
+              USD 배당 지급과 기관 배분 승인이 끝나면 전환 버튼이 활성화된다.
+            </small>
+          ) : null}
           <small>
             상태 {session?.localRightsScenario?.dividend?.conversionStatus ?? "USD 지급 전"} · USDC{" "}
             {session?.localRightsScenario?.dividend?.usdcPaidMinor ?? "0"} 최소단위
@@ -567,7 +676,7 @@ export function InvestorWorkspace() {
         </article>
       </section>
 
-      <section className="panelGrid">
+      <section className="panelGrid" id="investor-readiness">
         <article className="panel">
           <div className="panelHeading">
             <div>
@@ -631,7 +740,7 @@ export function InvestorWorkspace() {
         </article>
       </section>
 
-      <section className="panel widePanel">
+      <section className="panel widePanel" id="investor-redemption">
         <div className="panelHeading">
           <div>
             <p className="eyebrow">PRIMARY REDEMPTION</p>
@@ -682,6 +791,9 @@ export function InvestorWorkspace() {
           >
             서명하고 환매 요청
           </button>
+          {BigInt(session?.localRedemptionScenario?.availableQuantity ?? "0") === 0n ? (
+            <small className="actionHint">T+2가 끝난 결제완료 권리가 있어야 환매할 수 있다.</small>
+          ) : null}
         </form>
         <div className="timelineList">
           {redemptions.length === 0 ? (
@@ -714,7 +826,7 @@ export function InvestorWorkspace() {
         </div>
       </section>
 
-      <section className="panel widePanel">
+      <section className="panel widePanel" id="investor-secondary">
         <div className="panelHeading">
           <div>
             <p className="eyebrow">CONTROLLED 24/7 SECONDARY</p>
@@ -767,6 +879,15 @@ export function InvestorWorkspace() {
           >
             서명하고 24시간 주문 접수
           </button>
+          {secondaryQuotes.length === 0 ? (
+            <small className="actionHint">
+              기관 콘솔에서 지정 시장조성자 호가를 먼저 게시해야 한다.
+            </small>
+          ) : !readiness?.canPlaceNewOrder ? (
+            <small className="actionHint">
+              고객 적격성, 위험공시와 전용 지갑을 먼저 완료해야 한다.
+            </small>
+          ) : null}
         </form>
         <div className="timelineList">
           {secondaryOrders.length === 0 ? (
@@ -796,7 +917,7 @@ export function InvestorWorkspace() {
         ))}
       </section>
 
-      <section className="panel widePanel">
+      <section className="panel widePanel" id="investor-primary">
         <div className="panelHeading">
           <div>
             <p className="eyebrow">LOCAL PRIMARY LIFECYCLE</p>
@@ -835,6 +956,11 @@ export function InvestorWorkspace() {
           <button type="submit" disabled={!readiness?.canPlaceNewOrder || !demoOrderAccount}>
             서명하고 1차 주문 접수
           </button>
+          {!readiness?.canPlaceNewOrder ? (
+            <small className="actionHint">
+              상단 고객 준비 단계의 차단 사유를 먼저 해소해야 한다.
+            </small>
+          ) : null}
         </form>
         <div className="timelineList">
           {primaryOrders.length === 0 ? (
