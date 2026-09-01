@@ -189,6 +189,18 @@ for (const testCase of localCases) {
   }
 }
 
+const executableCaseSource = await readFile(
+  resolve(repositoryRoot, "tests/acceptance/run-approved-case.ts"),
+  "utf8",
+);
+if (
+  localCases.some((testCase) => !executableCaseSource.includes(`"${testCase.testId}"`)) ||
+  executableCaseSource.includes("assertRuntimeRule") ||
+  executableCaseSource.includes("assertExecutableExists")
+) {
+  fail("76개 로컬 시험은 그룹 공통 메타데이터 검사가 아니라 시험별 실행 동작을 가져야 한다.");
+}
+
 if (
   traceability.status !== "APPROVED" ||
   (traceability.requirements as unknown[]).length !== 49 ||
