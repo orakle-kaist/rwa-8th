@@ -1,30 +1,77 @@
 # Korean Equity RWA Institutional PoC
 
-이 프로젝트는 `Dinari 사례를 한국 시장에 맞게 변환해, 한국주식 수탁권리 토큰의 통제된 24/7 2차거래를 구현할 수 있는가`를 검증하는 PoC다. 외국인의 개별주식 계좌 경로로 외국인 통합계좌를, 토큰화 권리모델로 제3자 수탁형을 선택하고 한국의 KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
+한국주식 주문·발행·거래·환매를 체험하는 모의 시연이다. 실제 자금·주식·개인정보를 사용하지 않는다.
 
-> 현재 상태: **10단계 구현 검토 대기**
->
-> 다음 행동: 재승인된 [마스터 설계](docs/01-master/MASTER.md)를 기준으로 [10단계 구현 정합성 검토](docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md)를 최종 승인하거나 보완 요청한다. 승인 전에는 11단계를 시작하지 않는다.
->
-> 화면 직접 확인: [PoC 화면 직접 확인 가이드](docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md)를 따라 모의 계좌 개설부터 시작한다.
->
-> 실제 PoC 코드 구현: **10단계**에서 시작한다.
+## 1. 준비
 
-실제 자금, 주식 또는 개인정보를 다루지 않으며 이 저장소의 팀 내부 승인은 법률의견, 기관 승인이나 인허가 적합성 확인을 뜻하지 않는다.
+- Docker Desktop 설치 후 실행: [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) · [Mac](https://docs.docker.com/desktop/setup/install/mac-install/). Windows는 WSL 2, M 시리즈 Mac은 Apple silicon용을 선택한다.
+- 담당자에게 받은 **최신 프로젝트 ZIP**의 압축을 푼다. Node.js·지갑 설치나 `.env` 설정은 필요 없다.
 
-## 화면 바로 실행
+## 2. 실행
 
-로컬 화면 확인에는 `.env`나 별도 비밀값이 필요 없다. Docker를 실행한 뒤 저장소 루트에서 다음 명령 하나만 실행한다.
+`README.md`와 `compose.yaml`이 있는 폴더로 이동한다. 아래 경로는 실제 압축을 푼 경로로 바꾼다.
+
+**Windows — PowerShell**
+
+```powershell
+cd "C:\Users\사용자이름\Downloads\rwa-8th"
+```
+
+**Mac — 터미널**
+
+```bash
+cd "/Users/사용자이름/Downloads/rwa-8th"
+```
+
+이어서 다음 명령을 입력한다. 준비에는 몇 분 이상 걸릴 수 있으며, 준비 중 같은 명령을 다시 실행하지 않는다.
 
 ```bash
 docker compose up --build --wait
 ```
 
-준비가 끝나면 `http://localhost:3000`에서 **투자자 앱 → 모의 계좌 개설부터 시작**을 누른다. 종료는 `docker compose down`이다. 처음부터 다시 시연하는 방법과 직접 개발 환경은 [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md)에 분리해 두었다.
+준비 완료 후 **[시연 화면 열기](http://localhost:3000/demo/00)** → `http://localhost:3000/demo/00` · [조작 방법](docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md)
 
-PoC의 데이터베이스와 로컬 체인은 Docker 내부에서만 사용하므로 컴퓨터에서 이미 실행 중인 PostgreSQL이나 다른 로컬 체인을 중지할 필요가 없다.
+## 3. 종료·재실행
 
-Docker 권한이나 과거 캐시 이미지 때문에 시작되지 않으면 [구현 안내의 자주 발생하는 Docker 문제](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md#자주-발생하는-docker-문제)를 확인한다.
+종료 — 저장 데이터를 삭제하는 `-v`는 붙이지 않는다.
+
+```bash
+docker compose down
+```
+
+재실행 — Docker Desktop을 켜고 같은 프로젝트 폴더에서 실행한다.
+
+```bash
+docker compose up --wait
+```
+
+## 4. 처음부터 다시
+
+화면의 **전체 플로우 다시 시작 → `전체 초기화` 입력 → 전체 초기화**. 재기동 후에도 이 절차로 새 시연을 시작한다. 기존 시연 기록은 지워지며, 브라우저 새로고침만으로는 초기화되지 않는다.
+
+## 5. 문제 확인
+
+```bash
+docker compose ps -a
+docker compose logs --tail=100 web api worker mock-institutions chain-deploy migrate postgres anvil
+```
+
+[오류 해결·개발자용 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md#자주-발생하는-docker-문제) · 해결되지 않으면 위 결과와 오류 화면을 담당자에게 전달한다.
+
+<details>
+<summary>설계·개발 참고자료</summary>
+
+## 프로젝트 검토 상태
+
+이 프로젝트는 `Dinari 사례를 한국 시장에 맞게 변환해, 한국주식 수탁권리 토큰의 통제된 24/7 2차거래를 구현할 수 있는가`를 검증하는 PoC다. 외국인의 개별주식 계좌 경로로 외국인 통합계좌를, 토큰화 권리모델로 제3자 수탁형을 선택하고 한국의 KRX 거래, KSD 법적 장부, T+2 결제와 권리관리 구조에 맞춘다.
+
+> 현재 상태: **10단계 구현 검토 대기** (일곱 장면 재구성 검증 완료)
+>
+> 다음 행동: 구현·검증을 마친 `계좌 → 주문 → 체결 → 발행 → 24/7 권리거래 → 환매 → 소각` 일곱 장면을 검토하고 승인한다. 사용자 승인 전에는 11단계를 시작하지 않는다.
+>
+> 화면 직접 확인: [PoC 화면 직접 확인 가이드](docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md)를 따라 `/demo/00`부터 `/demo/06`까지 확인한다.
+>
+> 실제 PoC 코드 구현: **10단계**에서 시작한다.
 
 ## 처음 읽는 순서
 
@@ -44,12 +91,12 @@ Docker 권한이나 과거 캐시 이미지 때문에 시작되지 않으면 [�
 | 2. PoC 정의 | 승인 완료 | [목표와 성공 기준](docs/02-poc-definition/POC_GOALS.md), [시험 데이터](docs/02-poc-definition/POC_TEST_DATA.md) | 구현 범위, 불변식, 대표 종목과 합성 통제값을 확인할 때 |
 | 3. 제품 요구사항 | 승인 완료 | [제품 요구사항](docs/03-product-requirements/PRD.md) | 사용자와 기관에 필요한 기능 및 완료 조건을 확인할 때 |
 | 4. 기관 업무 설계 | 승인 완료 | [기관 업무와 책임](docs/04-institution-design/INSTITUTION_WORKFLOWS.md), [종목 기준정보](docs/04-institution-design/REFERENCE_DATA.md) | 업무 인계, 기준 장부, 승인 책임과 데이터 원본을 확인할 때 |
-| 5. 제품 동작 설계 | 승인 완료 | [화면 흐름](docs/05-screens-states-recovery/SCREEN_FLOWS.md), [상태와 전환](docs/05-screens-states-recovery/STATE_MODEL.md), [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md) | 화면, 업무 상태, 차단, 격리와 재개 규칙을 확인할 때 |
-| 6. 시스템 구조와 보안 | 승인 완료 | [시스템 구조](docs/06-architecture-security/ARCHITECTURE.md), [기술 선택](docs/06-architecture-security/TECHNOLOGY_DECISIONS.md), [보안과 개인정보](docs/06-architecture-security/SECURITY_AND_PRIVACY.md) | 구성요소, 토큰과 체인 및 외부정보, 권한과 키, 개인정보와 위협 통제를 확인할 때 |
+| 5. 제품 동작 설계 | 화면 구조 개정 승인 완료 | [화면 흐름](docs/05-screens-states-recovery/SCREEN_FLOWS.md), [상태와 전환](docs/05-screens-states-recovery/STATE_MODEL.md), [오류와 복구](docs/05-screens-states-recovery/ERROR_AND_RECOVERY.md) | 화면, 업무 상태, 차단, 격리와 재개 규칙을 확인할 때 |
+| 6. 시스템 구조와 보안 | 웹 접근 구조 개정 승인 완료 | [시스템 구조](docs/06-architecture-security/ARCHITECTURE.md), [기술 선택](docs/06-architecture-security/TECHNOLOGY_DECISIONS.md), [보안과 개인정보](docs/06-architecture-security/SECURITY_AND_PRIVACY.md) | 구성요소, 토큰과 체인 및 외부정보, 권한과 키, 개인정보와 위협 통제를 확인할 때 |
 | 7. 데이터와 연계 | 승인 완료 | [공통 데이터](docs/07-data-api-events/DATA_MODEL.md), [API 계약](docs/07-data-api-events/API_CONTRACTS.md), [이벤트 계약](docs/07-data-api-events/EVENT_CONTRACTS.md)과 [기계 명세](docs/07-data-api-events/specs/) | 공통 데이터, API와 이벤트를 설계할 때 |
 | 8. 스마트컨트랙트 | 승인 완료 | [계약 구조](docs/08-smart-contract-design/CONTRACT_ARCHITECTURE.md), [계약 인터페이스](docs/08-smart-contract-design/CONTRACT_INTERFACES.md), [역할과 변경관리](docs/08-smart-contract-design/ROLES_AND_GOVERNANCE.md), [불변식](docs/08-smart-contract-design/INVARIANTS.md)과 [기계 명세](docs/08-smart-contract-design/specs/contract-manifest.json) | 제한형 권리토큰의 발행, 상태, 정산, 환매, 복구와 권한을 확인할 때 |
-| 9. 테스트 설계 | 승인 완료 | [테스트 전략](docs/09-test-design/TEST_STRATEGY.md), [테스트 시나리오](docs/09-test-design/TEST_SCENARIOS.md), [fixture와 증거](docs/09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](docs/09-test-design/DEMO_CHECKLIST.md)와 [기계 명세](docs/09-test-design/specs/) | 구현 전 요구사항, 상태, API와 계약에 연결된 시험 기준을 확인할 때 |
-| 10. PoC 구현 | 구현 검토 완료, 최종 승인 대기 | [화면 직접 확인 가이드](docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md), [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md), [구현 정합성 검토](docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md), [로컬 인수시험 증거](docs/10-poc-implementation/LOCAL_ACCEPTANCE_EVIDENCE.md), [Fuji 배포 증거](docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md)와 기능별 구현 증거 | 브라우저 시연이나 실제 PostgreSQL·Anvil·모의 기관 서명으로 연결된 로컬 생애주기와 Fuji 온체인 통제 결과를 검토할 때 |
+| 9. 테스트 설계 | 화면 시험 개정 승인 완료 | [테스트 전략](docs/09-test-design/TEST_STRATEGY.md), [테스트 시나리오](docs/09-test-design/TEST_SCENARIOS.md), [fixture와 증거](docs/09-test-design/FIXTURES_AND_EVIDENCE.md), [시연 확인표](docs/09-test-design/DEMO_CHECKLIST.md)와 [기계 명세](docs/09-test-design/specs/) | 구현 전 요구사항, 상태, API와 계약에 연결된 시험 기준을 확인할 때 |
+| 10. PoC 구현 | 구현 검토 대기 | [화면 직접 확인 가이드](docs/10-poc-implementation/MANUAL_DEMO_GUIDE.md), [구현 안내](docs/10-poc-implementation/IMPLEMENTATION_GUIDE.md), [구현 정합성 검토](docs/10-poc-implementation/IMPLEMENTATION_REVIEW.md), [로컬 인수시험 증거](docs/10-poc-implementation/LOCAL_ACCEPTANCE_EVIDENCE.md), [Fuji 배포 증거](docs/10-poc-implementation/FUJI_DEPLOYMENT_EVIDENCE.md)와 기능별 구현 증거 | 브라우저 시연이나 실제 PostgreSQL·Anvil·모의 기관 서명으로 연결된 로컬 생애주기와 Fuji 온체인 통제 결과를 검토할 때 |
 | 11. 결과 정리 | 시작 전 | `docs/11-results/` 예정 | 시연 결과, 확인된 사실과 한계를 정리할 때 |
 
 10단계 이후 폴더는 해당 단계가 시작될 때 만든다. 빈 폴더나 내용이 정해지지 않은 문서를 미리 만들지 않는다.
@@ -97,14 +144,16 @@ scripts/                          문서, 링크와 원자료 검증
 
 ## 핵심 PoC 경계
 
-PoC는 `1차 지정가 발행 → T+2 결제완료 전환 → 24/7 2차거래 → 시장조성자 헤지 → 1차 환매 → 주식 권리의 환매대금 지급청구 전환 → 토큰 소각과 USD 지급`의 닫힌 흐름을 모의 기관 응답과 합성 데이터로 시연한다. 24/7 2차거래에서는 결제 완료 재고만 적격 투자자와 지정 마켓메이커 사이의 지정가 거래에 사용한다.
+PoC는 `1차 지정가 발행 → T+2 결제완료 전환 → 오프아워 주문장 거래 → 시장조성자 재고관리 → 환매 국내 매도 → 거래용 USD 즉시 지급 → T+2 현금화 가능 전환 → 토큰 소각`의 닫힌 흐름을 모의 기관 응답과 합성 데이터로 시연한다. 오프아워 거래에서는 결제 완료 재고만 고객 A와 지정 마켓메이커 사이의 USD 시장가와 지정가 거래에 사용한다.
 
 24/7 완결 대상은 국내 결제가 끝난 수탁 권리의 제한된 2차거래다. 실제 시장 유동성, 가격 공정성, 시장조성자의 사업성, 일반 개인 판매 가능성이나 규제 허용을 증명하지 않는다.
 
 ## 검증
 
-다음 명령은 단계별 필수 문서, 내부 링크, 구조화 데이터, 원자료 체크섬과 승인된 설계 규칙을 확인한다.
+다음은 개발·설계 검증용이며 시연 화면 실행에는 필요 없다. 이 명령은 단계별 필수 문서, 내부 링크, 구조화 데이터, 원자료 체크섬과 승인된 설계 규칙을 확인한다.
 
 ```bash
 bash scripts/validate-research.sh
 ```
+
+</details>
